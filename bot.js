@@ -48,22 +48,30 @@ const client = new Client({
     ],
     // Performance optimizations
     makeCache: require('discord.js').Options.cacheWithLimits({
-        MessageManager: 50, // Limit message cache to 50 messages
-        GuildMemberManager: 100, // Limit member cache to 100 members
-        UserManager: 100, // Limit user cache to 100 users
+        MessageManager: 25, // Reduced from 50 - keep fewer messages
+        GuildMemberManager: 50, // Reduced from 100 - keep fewer members
+        UserManager: 50, // Reduced from 100 - keep fewer users
         ReactionManager: 0, // Don't cache reactions
         PresenceManager: 0, // Don't cache presences
-        VoiceStateManager: 0 // Don't cache voice states
+        VoiceStateManager: 0, // Don't cache voice states
+        GuildBanManager: 0, // Don't cache bans
+        GuildInviteManager: 0, // Don't cache invites
+        StageInstanceManager: 0, // Don't cache stage instances
+        ThreadManager: 0 // Don't cache threads
     }),
     sweepers: {
-        // Auto-sweep caches every 30 minutes
+        // Auto-sweep caches more aggressively
         messages: {
-            interval: 1800, // 30 minutes in seconds
-            lifetime: 900 // Keep messages for 15 minutes
+            interval: 900, // Every 15 minutes (was 30)
+            lifetime: 600 // Keep messages for 10 minutes (was 15)
         },
         users: {
-            interval: 1800,
+            interval: 900, // Every 15 minutes (was 30)
             filter: () => user => user.bot && user.id !== client.user.id
+        },
+        guildMembers: {
+            interval: 900, // Every 15 minutes
+            filter: () => member => member.id !== client.user.id
         }
     },
     // Reduce sharding overhead
@@ -375,11 +383,11 @@ function createDebouncedSave(filePath, getData, delay = 3000) {
     };
 }
 
-// Initialize save functions
-const saveUserData = createDebouncedSave(userDataFile, () => userData, 5000);
-const saveSettings = createDebouncedSave(settingsFile, () => serverSettings, 3000);
-const saveTicketData = createDebouncedSave(ticketDataFile, () => ticketData, 1000);
-const saveModerationData = createDebouncedSave(moderationDataFile, () => moderationData, 1000);
+// Initialize save functions with longer delays for less frequent writes
+const saveUserData = createDebouncedSave(userDataFile, () => userData, 10000); // 10s (was 5s)
+const saveSettings = createDebouncedSave(settingsFile, () => serverSettings, 5000); // 5s (was 3s)
+const saveTicketData = createDebouncedSave(ticketDataFile, () => ticketData, 3000); // 3s (was 1s)
+const saveModerationData = createDebouncedSave(moderationDataFile, () => moderationData, 3000); // 3s (was 1s)
 
 // Load server settings
 async function loadSettings() {
@@ -1216,7 +1224,8 @@ client.once('clientReady', async () => {
     console.log(`🤖 Bot is in ${client.guilds.cache.size} server(s)`);
     console.log(`⚡ Low-end PC optimizations enabled`);
     console.log(`💾 Memory optimizations: Active`);
-    console.log(`🧹 Cache limits: 50 XP | 500 levels | 25 channels`);
+    console.log(`🧹 Cache limits: 25 msgs | 50 members | 50 users`);
+    console.log(`🔄 Sweepers: 15min intervals | 10min lifetime`);
     
     // Set bot activity
     client.user.setActivity('PSHomebrew Community', { type: ActivityType.Watching });
@@ -1275,7 +1284,67 @@ client.once('clientReady', async () => {
     
     // Start YouTube notifications
     startYouTubeMonitoring();
+    
+    // Start memory cleanup intervals
+    startMemoryCleanup();
 });
+
+// Memory cleanup for AI conversations and cooldowns
+function startMemoryCleanup() {
+    // Clean up old AI conversations every 10 minutes
+    setInterval(() => {
+        const now = Date.now();
+        const maxAge = 30 * 60 * 1000; // 30 minutes
+        
+        // Clean old conversations
+        let conversationsDeleted = 0;
+        for (const channelId in aiConversations) {
+            const conversation = aiConversations[channelId];
+            if (conversation.length > 0) {
+                const lastTimestamp = conversation[conversation.length - 1].timestamp;
+                if (now - lastTimestamp > maxAge) {
+                    delete aiConversations[channelId];
+                    conversationsDeleted++;
+                }
+            }
+        }
+        
+        // Clean old cooldowns
+        let cooldownsDeleted = 0;
+        for (const userId in aiCooldowns) {
+            if (now - aiCooldowns[userId] > 60000) { // 1 minute old
+                delete aiCooldowns[userId];
+                cooldownsDeleted++;
+            }
+        }
+        
+        // Clean old user profiles
+        let profilesDeleted = 0;
+        for (const userId in aiUserProfiles) {
+            if (now - (aiUserProfiles[userId].lastActivity || 0) > maxAge) {
+                delete aiUserProfiles[userId];
+                profilesDeleted++;
+            }
+        }
+        
+        // Get memory usage
+        const memUsage = process.memoryUsage();
+        const memMB = {
+            rss: Math.round(memUsage.rss / 1024 / 1024),
+            heapUsed: Math.round(memUsage.heapUsed / 1024 / 1024),
+            heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024)
+        };
+        
+        console.log(`🧹 Memory cleanup: ${Object.keys(aiConversations).length} active conversations (deleted ${conversationsDeleted}), ${Object.keys(aiCooldowns).length} cooldowns (deleted ${cooldownsDeleted})`);
+        console.log(`📊 Memory: ${memMB.heapUsed}MB/${memMB.heapTotal}MB heap, ${memMB.rss}MB RSS`);
+        
+        // Force garbage collection if available (requires --expose-gc flag)
+        if (global.gc) {
+            global.gc();
+            console.log('♻️ Garbage collection triggered');
+        }
+    }, 600000); // Every 10 minutes
+}
 
 // YouTube monitoring system
 function startYouTubeMonitoring() {
@@ -1369,13 +1438,15 @@ function startYouTubeMonitoring() {
 
 // Message event for XP system and keyword detection
 client.on('messageCreate', async (message) => {
-    if (message.author.bot || !message.guild) return;
+    // Quick early returns for performance
+    if (message.author.bot) return;
+    if (!message.guild) return;
     
     const settings = getGuildSettings(message.guild.id);
     const userId = message.author.id;
     const now = Date.now();
     
-    // Bot owner mention to unlock AI
+    // Bot owner mention to unlock AI (priority check)
     if (message.mentions.has(client.user) && userId === config.botOwnerId && isAILocked(message.guild.id)) {
         const lockInfo = aiLockdown[message.guild.id];
         unlockAI(message.guild.id);
