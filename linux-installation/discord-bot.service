@@ -5,8 +5,8 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=YOUR_USERNAME_HERE
-WorkingDirectory=/path/to/your/bot/directory
+User=elontusk
+WorkingDirectory=/home/elontusk/Desktop/PSHomebrew-beta-main
 ExecStart=/usr/bin/node bot.js
 Restart=always
 RestartSec=10
@@ -21,7 +21,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=read-only
-ReadWritePaths=/path/to/your/bot/directory
+ReadWritePaths=/home/elontusk/Desktop/PSHomebrew-beta-main
 
 [Install]
 WantedBy=multi-user.target
