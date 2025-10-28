@@ -4336,6 +4336,13 @@ client.on('interactionCreate', async (interaction) => {
         return;
     }
 
+    // Leveling Setup command - Interactive panel
+    if (interaction.commandName === 'levelingsetup') {
+        const lvlCommand = require('./commands/levelingsetup.js');
+        await lvlCommand.execute(interaction);
+        return;
+    }
+
     // Setup ticket system command
     if (interaction.commandName === 'setuptickets') {
         if (!requireAdmin(interaction)) return;
@@ -4536,6 +4543,34 @@ client.on('interactionCreate', async (interaction) => {
                         }
                     } catch (replyError) {
                         console.error('Failed to send YouTube error message:', replyError);
+                    }
+                    return;
+                }
+            }
+
+            // Leveling setup button handlers
+            if (interaction.customId.startsWith('lvl_')) {
+                try {
+                    delete require.cache[require.resolve('./commands/levelingsetup.js')];
+                    const lvlCommand = require('./commands/levelingsetup.js');
+                    await lvlCommand.handleButton(interaction);
+                    return;
+                } catch (error) {
+                    console.error('❌ Leveling button error:', error);
+                    console.error('Stack trace:', error.stack);
+                    try {
+                        if (!interaction.replied && !interaction.deferred) {
+                            await interaction.reply({ 
+                                content: '❌ An error occurred while processing leveling setup. Please try again or contact an admin.', 
+                                ephemeral: true 
+                            });
+                        } else if (interaction.deferred) {
+                            await interaction.editReply({ 
+                                content: '❌ An error occurred while processing leveling setup. Please try again or contact an admin.' 
+                            });
+                        }
+                    } catch (replyError) {
+                        console.error('Failed to send leveling error message:', replyError);
                     }
                     return;
                 }
@@ -6991,6 +7026,20 @@ client.on('interactionCreate', async (interaction) => {
                     return;
                 }
             }
+
+            // Leveling setup modal handlers
+            if (interaction.customId.includes('lvl_modal_')) {
+                try {
+                    delete require.cache[require.resolve('./commands/levelingsetup.js')];
+                    const lvlCommand = require('./commands/levelingsetup.js');
+                    await lvlCommand.handleModal(interaction);
+                    return;
+                } catch (error) {
+                    console.error('❌ Leveling modal error:', error);
+                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    return;
+                }
+            }
             
             // Logging system modal handlers
             if (interaction.customId.startsWith('log_modal_')) {
@@ -7647,6 +7696,23 @@ client.on('interactionCreate', async (interaction) => {
             }
         } catch (replyError) {
             console.error('Error sending error message:', replyError);
+        }
+    }
+
+    // Handle select menus
+    if (interaction.isStringSelectMenu()) {
+        // Leveling setup select menu handlers
+        if (interaction.customId.startsWith('lvl_select_')) {
+            try {
+                delete require.cache[require.resolve('./commands/levelingsetup.js')];
+                const lvlCommand = require('./commands/levelingsetup.js');
+                await lvlCommand.handleSelectMenu(interaction);
+                return;
+            } catch (error) {
+                console.error('❌ Leveling select menu error:', error);
+                await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                return;
+            }
         }
     }
 });

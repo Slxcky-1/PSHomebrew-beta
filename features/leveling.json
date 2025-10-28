@@ -107,6 +107,10 @@
                     "required": false
                 }
             ]
+        },
+        {
+            "name": "levelingsetup",
+            "description": "Interactive leveling system setup panel (Admin only)"
         }
     ]
 }
