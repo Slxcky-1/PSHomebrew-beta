@@ -4388,6 +4388,13 @@ client.on('interactionCreate', async (interaction) => {
         return;
     }
 
+    // Leave Setup command - Interactive panel
+    if (interaction.commandName === 'leavesetup') {
+        const leaveCommand = require('./commands/leavesetup.js');
+        await leaveCommand.execute(interaction);
+        return;
+    }
+
     // Setup ticket system command
     if (interaction.commandName === 'setuptickets') {
         if (!requireAdmin(interaction)) return;
@@ -4617,6 +4624,20 @@ client.on('interactionCreate', async (interaction) => {
                     } catch (replyError) {
                         console.error('Failed to send leveling error message:', replyError);
                     }
+                    return;
+                }
+            }
+
+            // Leave setup button handlers
+            if (interaction.customId.startsWith('leave_')) {
+                try {
+                    delete require.cache[require.resolve('./commands/leavesetup.js')];
+                    const leaveCommand = require('./commands/leavesetup.js');
+                    await leaveCommand.handleButton(interaction);
+                    return;
+                } catch (error) {
+                    console.error('❌ Leave button error:', error);
+                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
             }
@@ -7085,6 +7106,20 @@ client.on('interactionCreate', async (interaction) => {
                     return;
                 }
             }
+
+            // Leave setup modal handlers
+            if (interaction.customId.includes('leave_modal_')) {
+                try {
+                    delete require.cache[require.resolve('./commands/leavesetup.js')];
+                    const leaveCommand = require('./commands/leavesetup.js');
+                    await leaveCommand.handleModal(interaction);
+                    return;
+                } catch (error) {
+                    console.error('❌ Leave modal error:', error);
+                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    return;
+                }
+            }
             
             // Logging system modal handlers
             if (interaction.customId.startsWith('log_modal_')) {
@@ -7755,6 +7790,20 @@ client.on('interactionCreate', async (interaction) => {
                 return;
             } catch (error) {
                 console.error('❌ Leveling select menu error:', error);
+                await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                return;
+            }
+        }
+
+        // Leave setup select menu handlers
+        if (interaction.customId.startsWith('leave_select_')) {
+            try {
+                delete require.cache[require.resolve('./commands/leavesetup.js')];
+                const leaveCommand = require('./commands/leavesetup.js');
+                await leaveCommand.handleSelectMenu(interaction);
+                return;
+            } catch (error) {
+                console.error('❌ Leave select menu error:', error);
                 await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                 return;
             }

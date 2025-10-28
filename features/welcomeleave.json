@@ -11,6 +11,11 @@
             "options": []
         },
         {
+            "name": "leavesetup",
+            "description": "Setup leave messages with interactive controls (Admin only)",
+            "options": []
+        },
+        {
             "name": "setwelcomechannel",
             "description": "Set welcome message channel (Admin only)",
             "options": [
