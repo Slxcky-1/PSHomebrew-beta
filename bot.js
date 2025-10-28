@@ -1227,31 +1227,32 @@ client.once('clientReady', async () => {
     loadTicketData();
     loadModerationData();
     
-    // Send online notification to AI chat channel
+    // Check if bot was restarted via /update command
     try {
-        // Find the AI chat channel across all guilds
-        for (const guild of client.guilds.cache.values()) {
-            const settings = getGuildSettings(guild.id);
-            if (settings.ai?.enabled && settings.ai.channelId) {
-                const channel = guild.channels.cache.get(settings.ai.channelId);
+        if (fsSync.existsSync('./update-marker.json')) {
+            const updateData = JSON.parse(fsSync.readFileSync('./update-marker.json', 'utf8'));
+            const guild = client.guilds.cache.get(updateData.guildId);
+            if (guild) {
+                const channel = guild.channels.cache.get(updateData.channelId);
                 if (channel) {
                     const onlineEmbed = new EmbedBuilder()
-                        .setTitle('🟢 Bot Restarted')
-                        .setDescription(`Back online and ready!`)
+                        .setTitle('🟢 Bot Back Online')
+                        .setDescription('Update complete and bot successfully restarted!')
                         .setColor(0x00FF00)
                         .addFields(
+                            { name: '⏰ Downtime', value: `${Math.round((Date.now() - updateData.timestamp) / 1000)}s`, inline: true },
                             { name: '🤖 Servers', value: `${client.guilds.cache.size}`, inline: true },
-                            { name: '👥 Users', value: `${client.guilds.cache.reduce((acc, g) => acc + g.memberCount, 0)}`, inline: true },
-                            { name: '⏰ Time', value: `<t:${Math.floor(Date.now() / 1000)}:R>`, inline: true }
+                            { name: '👥 Users', value: `${client.guilds.cache.reduce((acc, g) => acc + g.memberCount, 0)}`, inline: true }
                         )
                         .setTimestamp();
                     await channel.send({ embeds: [onlineEmbed] });
-                    break; // Only send to first AI channel found
                 }
             }
+            // Delete marker file
+            fsSync.unlinkSync('./update-marker.json');
         }
     } catch (error) {
-        console.error('Failed to send online notification:', error);
+        console.error('Failed to send update complete notification:', error);
     }
     
     // Start server stats updates
@@ -2040,12 +2041,18 @@ client.on('interactionCreate', async (interaction) => {
             
             const resultEmbed = new EmbedBuilder()
                 .setTitle('✅ Update Complete')
-                .setDescription(`**Git Pull:**\n\`\`\`${stdout}\`\`\`\n\n🔄 Restarting bot...`)
+                .setDescription(`**Git Pull:**\n\`\`\`${stdout}\`\`\`\n\n🔄 Restarting bot...\n\nI'll send a message here when I'm back online!`)
                 .setColor(0x00FF00)
                 .setTimestamp();
             
             interaction.editReply({ embeds: [resultEmbed] }).then(() => {
                 console.log('🔄 Bot updated via /update command. Restarting...');
+                // Write update marker file so bot knows to send online message
+                fsSync.writeFileSync('./update-marker.json', JSON.stringify({
+                    channelId: interaction.channel.id,
+                    guildId: interaction.guild.id,
+                    timestamp: Date.now()
+                }));
                 setTimeout(() => process.exit(0), 2000); // systemd will restart the bot
             });
         });
