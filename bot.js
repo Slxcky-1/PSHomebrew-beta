@@ -1369,6 +1369,9 @@ client.once('clientReady', async () => {
     
     // Start CFW knowledge scraper
     startCFWKnowledgeScraper();
+    
+    // Start PS4 error code scraper
+    startPS4ErrorScraper();
 });
 
 // Memory cleanup for AI conversations and cooldowns
@@ -8289,6 +8292,7 @@ client.rest.on('rateLimited', (info) => {
 });
 
 // CFW Knowledge Scraper - Updates AI knowledge with latest CFW versions
+// CFW Knowledge Scraper - Updates AI knowledge with latest CFW versions
 function startCFWKnowledgeScraper() {
     const cfwKnowledgePath = './cfwKnowledge.json';
     
@@ -8339,6 +8343,70 @@ function startCFWKnowledgeScraper() {
     // Check every 24 hours
     setInterval(updateCFWKnowledge, 24 * 60 * 60 * 1000);
     console.log('✅ CFW knowledge scraper started (checks every 24 hours)');
+}
+
+// PS4 Error Code Scraper - Updates error database from online sources
+function startPS4ErrorScraper() {
+    const ps4ErrorPath = './features/ps4ErrorCodes.json';
+    
+    async function updatePS4Errors() {
+        try {
+            console.log('🔍 Checking for new PS4 error codes...');
+            const fetch = require('node-fetch');
+            const cheerio = require('cheerio');
+            
+            let currentErrors = loadJSON(ps4ErrorPath, {});
+            let newErrorsFound = 0;
+            
+            // Scrape PlayStation support page
+            try {
+                const response = await fetch('https://www.playstation.com/en-us/support/error-codes/ps4/');
+                const html = await response.text();
+                const $ = cheerio.load(html);
+                
+                // Look for error code patterns (CE-, NP-, SU-, WS-, WV-)
+                $('body').find('*').each((i, elem) => {
+                    const text = $(elem).text();
+                    const errorMatches = text.match(/(CE|NP|SU|WS|WV)-\d{5}-\d/g);
+                    
+                    if (errorMatches) {
+                        errorMatches.forEach(code => {
+                            if (!currentErrors[code] && !code.startsWith('_')) {
+                                // Try to find description nearby
+                                const description = $(elem).next().text().trim() || 'PlayStation error detected. Check PlayStation support for details.';
+                                currentErrors[code] = description.substring(0, 200);
+                                newErrorsFound++;
+                            }
+                        });
+                    }
+                });
+            } catch (scrapeError) {
+                console.log('⚠️ Could not scrape PlayStation support page:', scrapeError.message);
+            }
+            
+            if (newErrorsFound > 0) {
+                currentErrors._metadata = {
+                    description: 'PS4 Error Code Database',
+                    lastUpdated: new Date().toISOString(),
+                    totalCodes: Object.keys(currentErrors).filter(k => !k.startsWith('_')).length,
+                    lastScrape: new Date().toISOString()
+                };
+                fsSync.writeFileSync(ps4ErrorPath, JSON.stringify(currentErrors, null, 2));
+                console.log(`✅ Found ${newErrorsFound} new PS4 error codes! Database updated.`);
+            } else {
+                console.log('✓ PS4 error database up to date');
+            }
+        } catch (error) {
+            console.error('❌ Failed to update PS4 errors:', error.message);
+        }
+    }
+    
+    // Update on startup (after 10 seconds)
+    setTimeout(updatePS4Errors, 10000);
+    
+    // Check every 24 hours
+    setInterval(updatePS4Errors, 24 * 60 * 60 * 1000);
+    console.log('✅ PS4 error scraper started (checks every 24 hours)');
 }
 
 // Login to Discord with error handling
