@@ -240,7 +240,7 @@ module.exports = {
         if (interaction.customId === 'lvl_set_channel') {
             const channels = interaction.guild.channels.cache
                 .filter(c => c.type === ChannelType.GuildText)
-                .first(25);
+                .first(24); // Limit to 24 since we're adding 1 default option (25 total max)
 
             const selectMenu = new StringSelectMenuBuilder()
                 .setCustomId('lvl_select_channel')
