@@ -7480,7 +7480,8 @@ async function updateAIKnowledge() {
             console.log('⚠️ Wololo scrape failed, using cached values:', scrapeError.message);
         }
         
-        // REAL-TIME: Scrape SiSTRo's Ko-fi for latest GoldHEN version
+        // REAL-TIME: Scrape SiSTRo's Ko-fi for latest GoldHEN version (DISABLED - using manual version)
+        /*
         try {
             const kofiResponse = await fetch('https://ko-fi.com/sistro/shop', {
                 headers: { 'User-Agent': 'Mozilla/5.0' },
@@ -7497,6 +7498,8 @@ async function updateAIKnowledge() {
         } catch (scrapeError) {
             console.log('⚠️ Ko-fi scrape failed, using cached values:', scrapeError.message);
         }
+        */
+        console.log(`ℹ️ Using manual GoldHEN version: ${psData.goldhen}`);
         
         // Update all server settings with REAL-TIME knowledge
         const allSettings = JSON.parse(fsSync.readFileSync('./serverSettings.json', 'utf8'));
