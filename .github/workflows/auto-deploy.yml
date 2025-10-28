@@ -22,9 +22,8 @@ jobs:
           script_stop: true
           script: |
             cd /home/elontusk/Desktop/PSHomebrew-beta-main
-            git stash
+            git reset --hard HEAD
             git pull origin main
-            git stash pop || true
             sudo systemctl restart discord-bot
             echo "✅ Bot updated and restarted successfully!"
             exit 0
