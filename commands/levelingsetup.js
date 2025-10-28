@@ -32,17 +32,19 @@ module.exports = {
             console.log('📂 Loaded settings for guild:', guildId);
             
             if (!settings[guildId]) {
-                settings[guildId] = {
-                    leveling: {
-                        enabled: false,
-                        xpMin: 15,
-                        xpMax: 25,
-                        cooldown: 60,
-                        maxLevel: 100,
-                        levelUpChannel: null,
-                        levelUpMessagesEnabled: true,
-                        roles: {}
-                    }
+                settings[guildId] = {};
+            }
+            
+            if (!settings[guildId].leveling) {
+                settings[guildId].leveling = {
+                    enabled: false,
+                    xpMin: 15,
+                    xpMax: 25,
+                    cooldown: 60,
+                    maxLevel: 100,
+                    levelUpChannel: null,
+                    levelUpMessagesEnabled: true,
+                    roles: {}
                 };
                 saveSettings(settings);
             }
