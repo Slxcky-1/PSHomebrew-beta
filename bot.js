@@ -10,6 +10,7 @@ const { Client, GatewayIntentBits, EmbedBuilder, ActivityType, PermissionFlagsBi
 const fsSync = require('fs');
 const fs = require('fs').promises;
 const ps3ErrorCodes = require('./features/ps3ErrorCodes.json');
+const ps4ErrorCodes = require('./features/ps4ErrorCodes.json');
 const { Snake, TicTacToe, Connect4, Wordle, Minesweeper, TwoZeroFourEight, MatchPairs, FastType, FindEmoji, GuessThePokemon, RockPaperScissors, Hangman, Trivia, Slots, WouldYouRather } = require('discord-gamecord');
 const { search } = require('duck-duck-scrape');
 const Parser = require('rss-parser');
@@ -33,9 +34,12 @@ if (!config.token || !config.clientId) {
     process.exit(1);
 }
 
-// Validate PS3 error codes loaded
+// Validate error codes loaded
 if (!ps3ErrorCodes || Object.keys(ps3ErrorCodes).length === 0) {
-    console.warn('⚠️ WARNING: No PS3 error codes loaded. Error detection will not work.');
+    console.warn('⚠️ WARNING: No PS3 error codes loaded. PS3 error detection will not work.');
+}
+if (!ps4ErrorCodes || Object.keys(ps4ErrorCodes).length === 0) {
+    console.warn('⚠️ WARNING: No PS4 error codes loaded. PS4 error detection will not work.');
 }
 
 // Initialize Discord client with optimized settings for low-end PCs
@@ -1762,18 +1766,36 @@ client.on('messageCreate', async (message) => {
 });
 
 
-// Function to check for PS3 error codes (optimized with regex cache)
+// Function to check for PS3 and PS4 error codes (optimized with regex cache)
 async function checkKeywords(message, settings) {
     try {
         const messageContent = message.content.toUpperCase();
         
-        // Search directly in ps3ErrorCodes database with cached regex patterns
+        // Search PS3 error codes first
         let foundErrorCode = null;
+        let errorDatabase = null;
+        let consoleType = null;
+        
         for (const code of errorCodeKeys) {
-            // Check if message contains the error code (case-insensitive)
+            // Check if message contains the PS3 error code (case-insensitive)
             if (messageContent.includes(code.toUpperCase())) {
                 foundErrorCode = code;
+                errorDatabase = ps3ErrorCodes;
+                consoleType = 'PS3';
                 break; // Early exit on first match
+            }
+        }
+        
+        // If no PS3 code found, check PS4 error codes
+        if (!foundErrorCode) {
+            const ps4ErrorCodeKeys = Object.keys(ps4ErrorCodes).filter(key => !key.startsWith('_'));
+            for (const code of ps4ErrorCodeKeys) {
+                if (messageContent.includes(code.toUpperCase())) {
+                    foundErrorCode = code;
+                    errorDatabase = ps4ErrorCodes;
+                    consoleType = 'PS4';
+                    break;
+                }
             }
         }
         
@@ -1784,19 +1806,22 @@ async function checkKeywords(message, settings) {
             user: message.author.tag,
             userId: message.author.id,
             channelId: message.channel.id,
-            keyword: foundErrorCode,
+            keyword: `${consoleType} ${foundErrorCode}`,
             content: message.content,
             messageUrl: message.url
         });
         
         // Get error description from database
-        const errorDescription = ps3ErrorCodes[foundErrorCode];
+        const errorDescription = errorDatabase[foundErrorCode];
         
-        // Get pre-computed category (instant lookup)
-        const categoryInfo = errorCodeCategories.get(foundErrorCode);
+        // Get pre-computed category for PS3 (or use default for PS4)
+        let categoryInfo = { name: `🎮 ${consoleType} Error`, color: 0x0099FF };
+        if (consoleType === 'PS3') {
+            categoryInfo = errorCodeCategories.get(foundErrorCode) || categoryInfo;
+        }
         
         const errorEmbed = new EmbedBuilder()
-            .setTitle(`❓ Error Code: ${foundErrorCode}`)
+            .setTitle(`❓ ${consoleType} Error Code: ${foundErrorCode}`)
             .setDescription(`\n\n🗨️ **${errorDescription}**\n\n\n**${categoryInfo.name}**`)
             .setColor(categoryInfo.color)
             .setTimestamp();
