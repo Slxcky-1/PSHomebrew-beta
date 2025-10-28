@@ -1510,7 +1510,7 @@ client.on('messageCreate', async (message) => {
                     model: deepseek(settings.ai.model),
                     messages,
                     temperature: settings.ai.temperature,
-                    maxTokens: 250 // Reduced from 400 for faster responses
+                    maxTokens: 200 // Optimized for fastest responses
                 });
                 
                 const text = response.text;
@@ -1524,11 +1524,11 @@ client.on('messageCreate', async (message) => {
                     return message.reply('❌ Empty response received. Try again!');
                 }
 
-                // Safeguard: Truncate to 250 tokens (approximate, whitespace split)
+                // Safeguard: Truncate to 200 tokens (approximate, whitespace split)
                 let safeText = text;
                 const words = text.split(/\s+/);
-                if (words.length > 250) {
-                    safeText = words.slice(0, 250).join(' ') + '...';
+                if (words.length > 200) {
+                    safeText = words.slice(0, 200).join(' ') + '...';
                 }
 
                 // Add to history
@@ -2633,7 +2633,7 @@ client.on('interactionCreate', async (interaction) => {
                     model: settings.ai.model,
                     messages: messages,
                     temperature: settings.ai.temperature,
-                    max_tokens: 250 // Reduced from 400 for faster responses
+                    max_tokens: 200 // Optimized for fastest responses
                 });
                 
                 aiResponse = completion.choices[0]?.message?.content;
