@@ -1321,6 +1321,7 @@ client.once('clientReady', async () => {
                     features.push(`✅ DeepSeek API: ${config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
                     features.push(`✅ User Data: ${fsSync.existsSync('./userData.json') ? 'Loaded' : 'Missing'}`);
                     features.push(`✅ PS3 Error Codes: ${Object.keys(ps3ErrorCodes).length} loaded`);
+                    features.push(`✅ PS4 Error Codes: ${ps4ErrorCodes.codes ? Object.keys(ps4ErrorCodes.codes).length : 0} loaded`);
                     features.push(`✅ Commands: Registered`);
                     
                     const onlineEmbed = new EmbedBuilder()
