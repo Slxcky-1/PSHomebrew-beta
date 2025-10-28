@@ -8,6 +8,7 @@ process.on('unhandledRejection', (reason, promise) => {
 // --- End global error handling ---
 const { Client, GatewayIntentBits, EmbedBuilder, ActivityType, PermissionFlagsBits, ChannelType, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 const ps3ErrorCodes = require('./features/ps3ErrorCodes.json');
 const { Snake, TicTacToe, Connect4, Wordle, Minesweeper, TwoZeroFourEight, MatchPairs, FastType, FindEmoji, GuessThePokemon, RockPaperScissors, Hangman, Trivia, Slots, WouldYouRather } = require('discord-gamecord');
 const { search } = require('duck-duck-scrape');
@@ -7880,7 +7881,7 @@ async function gracefulShutdown(signal) {
     if (typeof saveTicketDataTimer !== 'undefined') clearTimeout(saveTicketDataTimer);
     if (typeof saveModerationDataTimer !== 'undefined') clearTimeout(saveModerationDataTimer);
     
-    fs.writeFileSync(userDataFile, JSON.stringify(userData, null, 2));
+    fsSync.writeFileSync(userDataFile, JSON.stringify(userData, null, 2));
     await fs.writeFile(settingsFile, JSON.stringify(serverSettings, null, 2));
     await fs.writeFile(ticketDataFile, JSON.stringify(ticketData, null, 2));
     await fs.writeFile(moderationDataFile, JSON.stringify(moderationData, null, 2));
@@ -7921,10 +7922,10 @@ process.on('uncaughtException', async (error) => {
     
     // Save data before attempting recovery
     try {
-        fs.writeFileSync(userDataFile, JSON.stringify(userData, null, 2));
-    await fs.writeFile(settingsFile, JSON.stringify(serverSettings, null, 2));
-    await fs.writeFile(ticketDataFile, JSON.stringify(ticketData, null, 2));
-    await fs.writeFile(moderationDataFile, JSON.stringify(moderationData, null, 2));
+        fsSync.writeFileSync(userDataFile, JSON.stringify(userData, null, 2));
+        await fs.writeFile(settingsFile, JSON.stringify(serverSettings, null, 2));
+        await fs.writeFile(ticketDataFile, JSON.stringify(ticketData, null, 2));
+        await fs.writeFile(moderationDataFile, JSON.stringify(moderationData, null, 2));
         console.log('💾 Emergency data save completed');
     } catch (saveError) {
         console.error('❌ Failed to save data during crash:', saveError);
