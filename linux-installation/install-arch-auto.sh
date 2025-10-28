@@ -16,7 +16,7 @@ fi
 echo "📦 Installing dependencies..."
 sudo pacman -S --needed --noconfirm nodejs npm git
 
-# Get the directory where the script is located
+# Assume the script is being run from the cloned repo
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BOT_DIR="$(dirname "$SCRIPT_DIR")"
 

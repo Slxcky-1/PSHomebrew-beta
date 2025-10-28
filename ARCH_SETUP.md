@@ -1,16 +1,42 @@
 # Quick Setup Guide for Arch Linux
 
-## Automated Installation (Recommended)
+## Option 1: Clone with GitHub Token (Recommended)
 
-**One-command setup:**
+**Step 1: Get GitHub Token**
+1. Go to: https://github.com/settings/tokens
+2. Click "Generate new token (classic)"
+3. Select scope: ✅ **repo**
+4. Copy the token
+
+**Step 2: Clone and Install**
 ```bash
+# Clone (enter your GitHub token when prompted for password)
 git clone https://github.com/Slxcky-1/PSHomebrew-beta.git
 cd PSHomebrew-beta
+
+# Run automated installer
 chmod +x linux-installation/install-arch-auto.sh
 ./linux-installation/install-arch-auto.sh
 ```
 
-This will:
+---
+
+## Option 2: Download ZIP (No Git Required)
+
+**Step 1: Download**
+1. Go to: https://github.com/Slxcky-1/PSHomebrew-beta
+2. Click **Code** → **Download ZIP**
+3. Transfer to Arch Linux PC
+
+**Step 2: Extract and Install**
+```bash
+unzip PSHomebrew-beta-main.zip
+cd PSHomebrew-beta-main
+chmod +x linux-installation/install-arch-auto.sh
+./linux-installation/install-arch-auto.sh
+```
+
+This will automatically:
 - ✅ Install Node.js and dependencies
 - ✅ Install npm packages
 - ✅ Deploy Discord commands
