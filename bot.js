@@ -1316,20 +1316,7 @@ client.once('clientReady', async () => {
                     features.push(`✅ DeepSeek API: ${config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
                     features.push(`✅ User Data: ${fsSync.existsSync('./userData.json') ? 'Loaded' : 'Missing'}`);
                     features.push(`✅ PS3 Error Codes: ${Object.keys(ps3ErrorCodes).length} loaded`);
-                    
-                    // Count active features across all servers
-                    let featureCounts = { leveling: 0, ai: 0, welcome: 0, leave: 0, keywords: 0, tickets: 0, logging: 0 };
-                    for (const settings of Object.values(serverSettings)) {
-                        if (settings.leveling?.enabled) featureCounts.leveling++;
-                        if (settings.ai?.enabled) featureCounts.ai++;
-                        if (settings.welcome?.enabled) featureCounts.welcome++;
-                        if (settings.leave?.enabled) featureCounts.leave++;
-                        if (settings.keywords?.enabled) featureCounts.keywords++;
-                        if (settings.tickets?.enabled) featureCounts.tickets++;
-                        if (settings.logging?.enabled) featureCounts.logging++;
-                    }
-                    const totalActive = Object.values(featureCounts).reduce((a, b) => a + b, 0);
-                    features.push(`✅ Active Features: ${totalActive} (Leveling: ${featureCounts.leveling}, AI: ${featureCounts.ai}, Tickets: ${featureCounts.tickets}, Logging: ${featureCounts.logging})`);
+                    features.push(`✅ Commands: Registered`);
                     
                     const onlineEmbed = new EmbedBuilder()
                         .setTitle('🟢 Bot Online - Update Complete')
