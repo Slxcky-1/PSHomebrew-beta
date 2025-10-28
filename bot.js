@@ -24,44 +24,10 @@ try {
     console.error('❌ ERROR: config.json not found!');
     console.error('Please create config.json with your bot token and client ID');
     process.exit(1);
-// --- Modular command handler setup ---
-// --- Modular command handler setup ---
-const path = require('path');
-const fsSync = require('fs');
-const commandFiles = fsSync.readdirSync(path.join(__dirname, 'commands')).filter(file => file.endsWith('.js'));
-const commands = new Map();
-for (const file of commandFiles) {
-    const command = require(path.join(__dirname, 'commands', file));
-    if (command.name && typeof command.execute === 'function') {
-        commands.set(command.name, command);
-    }
-}
-// --- End modular command handler setup ---
-// --- End modular command handler setup ---
 }
 
 // Validate required configuration
 if (!config.token || !config.clientId) {
-client.on('messageCreate', async (message) => {
-    if (message.author.bot || !message.guild) return;
-
-    // Command prefix (change as needed)
-    const prefix = '!';
-    if (!message.content.startsWith(prefix)) return;
-
-    const args = message.content.slice(prefix.length).trim().split(/ +/);
-    const commandName = args.shift().toLowerCase();
-    const command = commands.get(commandName);
-    if (command) {
-        try {
-            await command.execute(message, args);
-        } catch (error) {
-            console.error(`Error executing command ${commandName}:`, error);
-            await message.reply('There was an error executing that command.');
-        }
-    }
-});
-// --- End modular command handler in message event ---
     console.error('❌ ERROR: Missing required configuration!');
     console.error('config.json must contain "token" and "clientId"');
     process.exit(1);
@@ -95,8 +61,6 @@ const client = new Client({
             interval: 1800, // 30 minutes in seconds
             lifetime: 900 // Keep messages for 15 minutes
         },
-        // --- Modular command handler setup ---
-        // --- End modular command handler setup ---
         users: {
             interval: 1800,
             filter: () => user => user.bot && user.id !== client.user.id
@@ -260,8 +224,8 @@ function getPersonalityForTone(tone, username) {
 // Helper function to load JSON files safely - reduces code duplication
 function loadJSON(filePath, defaultValue = {}) {
     try {
-        if (fs.existsSync(filePath)) {
-            return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        if (fsSync.existsSync(filePath)) {
+            return JSON.parse(fsSync.readFileSync(filePath, 'utf8'));
         }
     } catch (error) {
         console.error(`⚠️ Error loading ${filePath}:`, error.message);
@@ -272,7 +236,7 @@ function loadJSON(filePath, defaultValue = {}) {
 // Helper function to save JSON files safely
 function saveJSON(filePath, data) {
     try {
-        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+        fsSync.writeFileSync(filePath, JSON.stringify(data, null, 2));
         return true;
     } catch (error) {
         console.error(`⚠️ Error saving ${filePath}:`, error.message);
@@ -1536,7 +1500,7 @@ client.on('messageCreate', async (message) => {
                     model: deepseek(settings.ai.model),
                     messages,
                     temperature: settings.ai.temperature,
-                    maxTokens: 200
+                    maxTokens: 400
                 });
                 
                 const text = response.text;
@@ -1550,11 +1514,11 @@ client.on('messageCreate', async (message) => {
                     return message.reply('❌ Empty response received. Try again!');
                 }
 
-                // Safeguard: Truncate to 200 tokens (approximate, whitespace split)
+                // Safeguard: Truncate to 400 tokens (approximate, whitespace split)
                 let safeText = text;
                 const words = text.split(/\s+/);
-                if (words.length > 200) {
-                    safeText = words.slice(0, 200).join(' ') + '...';
+                if (words.length > 400) {
+                    safeText = words.slice(0, 400).join(' ') + '...';
                 }
 
                 // Add to history
@@ -2647,7 +2611,7 @@ client.on('interactionCreate', async (interaction) => {
                     model: settings.ai.model,
                     messages: messages,
                     temperature: settings.ai.temperature,
-                    max_tokens: 200
+                    max_tokens: 400
                 });
                 
                 aiResponse = completion.choices[0]?.message?.content;
@@ -3221,6 +3185,7 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.commandName === 'raidprotection') {
         if (!requireAdmin(interaction)) return;
         
+        const guildId = interaction.guild.id;
         const settings = getGuildSettings(guildId);
         
         // Initialize raidProtection if it doesn't exist (for existing servers)
