@@ -7409,7 +7409,7 @@ async function updateAIKnowledge() {
             psp: '6.61 PRO-C',
             ps2: 'FMCB/ProtoPwn',
             ps1: 'FreePSXBoot',
-            goldhen: '2.4b18.3',      // GoldHEN for PS4 (Latest from SiSTRo)
+            goldhen: '2.4b18.6',      // GoldHEN for PS4 (Latest from SiSTRo)
             etahen: '2.0b',           // etaHEN for PS5
             ps3hen: '3.4.0',          // PS3HEN
             hfw: '4.92',              // Hybrid Firmware
