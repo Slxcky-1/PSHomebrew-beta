@@ -1241,12 +1241,13 @@ client.once('clientReady', async () => {
                 const channel = guild.channels.cache.get(updateData.channelId);
                 if (channel) {
                     console.log(`✅ Channel found: #${channel.name}`);
+                    const downtime = Math.round((Date.now() - updateData.timestamp) / 1000);
                     const onlineEmbed = new EmbedBuilder()
-                        .setTitle('🟢 Bot Back Online')
-                        .setDescription('Update complete and bot successfully restarted!')
+                        .setTitle('🟢 Bot Online - Update Complete')
+                        .setDescription(`Successfully updated and restarted!\n\n**Git Pull:**\n\`\`\`${updateData.gitOutput || 'Updated successfully'}\`\`\``)
                         .setColor(0x00FF00)
                         .addFields(
-                            { name: '⏰ Downtime', value: `${Math.round((Date.now() - updateData.timestamp) / 1000)}s`, inline: true },
+                            { name: '⏰ Downtime', value: `${downtime}s`, inline: true },
                             { name: '🤖 Servers', value: `${client.guilds.cache.size}`, inline: true },
                             { name: '👥 Users', value: `${client.guilds.cache.reduce((acc, g) => acc + g.memberCount, 0)}`, inline: true }
                         )
@@ -2054,8 +2055,8 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             const resultEmbed = new EmbedBuilder()
-                .setTitle('✅ Update Complete')
-                .setDescription(`**Git Pull:**\n\`\`\`${stdout}\`\`\`\n\n🔄 Restarting bot...\n\nI'll send a message here when I'm back online!`)
+                .setTitle('✅ Update Complete - Restarting...')
+                .setDescription(`**Git Pull:**\n\`\`\`${stdout}\`\`\`\n\n🔄 Bot is restarting now...`)
                 .setColor(0x00FF00)
                 .setTimestamp();
             
@@ -2065,7 +2066,8 @@ client.on('interactionCreate', async (interaction) => {
                 fsSync.writeFileSync('./update-marker.json', JSON.stringify({
                     channelId: interaction.channel.id,
                     guildId: interaction.guild.id,
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
+                    gitOutput: stdout.substring(0, 500) // Store git output for final message
                 }));
                 setTimeout(() => process.exit(0), 2000); // systemd will restart the bot
             });
