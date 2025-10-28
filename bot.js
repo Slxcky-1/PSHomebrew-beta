@@ -1541,26 +1541,33 @@ client.on('messageCreate', async (message) => {
                 const text = response.text;
                 const completionTokens = response.usage?.completionTokens || response.usage?.outputTokens || 'N/A';
                 const totalTokens = response.usage?.totalTokens || 'N/A';
-                
+
                 // Log token usage
                 console.log(`🤖 AI Response | Total: ${totalTokens} tokens (Completion: ${completionTokens}) | Words: ${text.split(' ').length}`);
-                
+
                 if (!text?.trim()) {
                     return message.reply('❌ Empty response received. Try again!');
                 }
-                
+
+                // Safeguard: Truncate to 200 tokens (approximate, whitespace split)
+                let safeText = text;
+                const words = text.split(/\s+/);
+                if (words.length > 200) {
+                    safeText = words.slice(0, 200).join(' ') + '...';
+                }
+
                 // Add to history
-                aiConversations[channelId].push({ role: 'assistant', content: text, timestamp: now });
-                
+                aiConversations[channelId].push({ role: 'assistant', content: safeText, timestamp: now });
+
                 // Send response with completion token usage (chunk if needed)
                 const tokenFooter = `\n\n*Response: ${completionTokens} tokens*`;
-                if (text.length > 1900) {
-                    const chunks = text.match(/[\s\S]{1,1900}/g) || [];
+                if (safeText.length > 1900) {
+                    const chunks = safeText.match(/[\s\S]{1,1900}/g) || [];
                     await message.reply(chunks[0]);
                     for (let i = 1; i < chunks.length - 1; i++) await message.channel.send(chunks[i]);
                     await message.channel.send(chunks[chunks.length - 1] + tokenFooter);
                 } else {
-                    await message.reply(text + tokenFooter);
+                    await message.reply(safeText + tokenFooter);
                 }
             } catch (err) {
                 console.error('AI Error:', err);
