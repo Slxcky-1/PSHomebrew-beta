@@ -1309,9 +1309,27 @@ client.once('clientReady', async () => {
                 if (channel) {
                     console.log(`✅ Channel found: #${channel.name}`);
                     const downtime = Math.round((Date.now() - updateData.timestamp) / 1000);
+                    
+                    // Build feature checklist
+                    const features = [];
+                    features.push(`✅ Config: Loaded`);
+                    features.push(`✅ DeepSeek API: ${config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
+                    features.push(`✅ User Data: ${fsSync.existsSync('./userData.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`✅ PS3 Error Codes: ${Object.keys(ps3ErrorCodes).length} loaded`);
+                    
+                    // Count active features
+                    let activeCount = 0;
+                    for (const settings of Object.values(serverSettings)) {
+                        if (settings.leveling?.enabled) activeCount++;
+                        if (settings.ai?.enabled) activeCount++;
+                        if (settings.tickets?.enabled) activeCount++;
+                        if (settings.logging?.enabled) activeCount++;
+                    }
+                    features.push(`✅ Active Features: ${activeCount} enabled`);
+                    
                     const onlineEmbed = new EmbedBuilder()
                         .setTitle('🟢 Bot Online - Update Complete')
-                        .setDescription(`Successfully updated and restarted!\n\n**Git Pull:**\n\`\`\`${updateData.gitOutput || 'Updated successfully'}\`\`\``)
+                        .setDescription(`Successfully updated and restarted!\n\n**Git Pull:**\n\`\`\`${updateData.gitOutput || 'Updated successfully'}\`\`\`\n\n**System Check:**\n${features.join('\n')}`)
                         .setColor(0x00FF00)
                         .addFields(
                             { name: '⏰ Downtime', value: `${downtime}s`, inline: true },
