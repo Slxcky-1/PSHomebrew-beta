@@ -7480,26 +7480,28 @@ async function updateAIKnowledge() {
             console.log('⚠️ Wololo scrape failed, using cached values:', scrapeError.message);
         }
         
-        // REAL-TIME: Scrape SiSTRo's Ko-fi for latest GoldHEN version (DISABLED - using manual version)
-        /*
+        // REAL-TIME: Scrape GoldHEN GitHub releases for latest version
         try {
-            const kofiResponse = await fetch('https://ko-fi.com/sistro/shop', {
+            const githubResponse = await fetch('https://github.com/GoldHEN/GoldHEN/releases/latest', {
                 headers: { 'User-Agent': 'Mozilla/5.0' },
-                timeout: 10000
+                timeout: 10000,
+                redirect: 'follow'
             });
-            const kofiHTML = await kofiResponse.text();
+            const githubHTML = await githubResponse.text();
             
-            // Look for GoldHEN version (e.g., "GoldHEN v2.4b18.6")
-            const goldhenKofiMatch = kofiHTML.match(/GoldHEN\s*v(2\.4b[\d.]+)/i);
-            if (goldhenKofiMatch) {
-                psData.goldhen = goldhenKofiMatch[1];
-                console.log(`✅ Scraped SiSTRo Ko-fi: GoldHEN ${psData.goldhen}`);
+            // Look for version in release title (e.g., "GoldHEN v2.4b18.6" or "v2.4b18.6")
+            const goldhenGithubMatch = githubHTML.match(/GoldHEN\s*v?(2\.4b[\d.]+)|Release\s*v?(2\.4b[\d.]+)|<title>.*?v?(2\.4b[\d.]+)/i);
+            if (goldhenGithubMatch) {
+                // Get the first captured group that has a value
+                const version = goldhenGithubMatch[1] || goldhenGithubMatch[2] || goldhenGithubMatch[3];
+                if (version) {
+                    psData.goldhen = version;
+                    console.log(`✅ Scraped GitHub: GoldHEN ${psData.goldhen}`);
+                }
             }
         } catch (scrapeError) {
-            console.log('⚠️ Ko-fi scrape failed, using cached values:', scrapeError.message);
+            console.log('⚠️ GitHub scrape failed, using manual version:', scrapeError.message);
         }
-        */
-        console.log(`ℹ️ Using manual GoldHEN version: ${psData.goldhen}`);
         
         // Update all server settings with REAL-TIME knowledge
         const allSettings = JSON.parse(fsSync.readFileSync('./serverSettings.json', 'utf8'));
