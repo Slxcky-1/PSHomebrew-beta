@@ -6,6 +6,10 @@ config.json
 
 # Bot runtime files
 update-marker.json
+serverSettings.json
+userData.json
+ticketData.json
+moderationData.json
 
 # OS files
 .DS_Store
