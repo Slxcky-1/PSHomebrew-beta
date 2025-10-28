@@ -4410,6 +4410,13 @@ client.on('interactionCreate', async (interaction) => {
         return;
     }
 
+    // Keyword Setup command - Interactive panel
+    if (interaction.commandName === 'keywordsetup') {
+        const keywordCommand = require('./commands/keywordsetup.js');
+        await keywordCommand.execute(interaction);
+        return;
+    }
+
     // Setup ticket system command
     if (interaction.commandName === 'setuptickets') {
         if (!requireAdmin(interaction)) return;
@@ -4652,6 +4659,20 @@ client.on('interactionCreate', async (interaction) => {
                     return;
                 } catch (error) {
                     console.error('❌ Leave button error:', error);
+                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    return;
+                }
+            }
+
+            // Keyword setup button handlers
+            if (interaction.customId.startsWith('keyword_')) {
+                try {
+                    delete require.cache[require.resolve('./commands/keywordsetup.js')];
+                    const keywordCommand = require('./commands/keywordsetup.js');
+                    await keywordCommand.handleButton(interaction);
+                    return;
+                } catch (error) {
+                    console.error('❌ Keyword button error:', error);
                     await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
@@ -7131,6 +7152,20 @@ client.on('interactionCreate', async (interaction) => {
                     return;
                 } catch (error) {
                     console.error('❌ Leave modal error:', error);
+                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    return;
+                }
+            }
+
+            // Keyword setup modal handlers
+            if (interaction.customId.includes('keyword_modal_')) {
+                try {
+                    delete require.cache[require.resolve('./commands/keywordsetup.js')];
+                    const keywordCommand = require('./commands/keywordsetup.js');
+                    await keywordCommand.handleModal(interaction);
+                    return;
+                } catch (error) {
+                    console.error('❌ Keyword modal error:', error);
                     await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }

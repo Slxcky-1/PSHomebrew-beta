@@ -4,22 +4,22 @@ const path = require('path');
 const featuresPath = path.join(__dirname, 'features');
 const featureFiles = fs.readdirSync(featuresPath).filter(file => file.endsWith('.json'));
 
-let commands = [];
+let totalCommands = 0;
+console.log('\n📋 Command Count by Feature:\n');
+
 for (const file of featureFiles) {
     const filePath = path.join(featuresPath, file);
     try {
         const feature = require(filePath);
         if (feature.commands) {
-            commands = commands.concat(feature.commands);
+            const count = feature.commands.length;
+            totalCommands += count;
+            console.log(`  ${file.padEnd(30)} ${count} commands`);
         }
     } catch (error) {
-        console.log(`Error in ${file}:`, error.message);
+        console.log(`  ❌ ${file}: ${error.message}`);
     }
 }
 
-console.log('Total commands:', commands.length);
-commands.forEach((cmd, i) => {
-    if (!cmd || !cmd.name) {
-        console.log(`Invalid command at index ${i}:`, cmd);
-    }
-});
+console.log('\n' + '='.repeat(50));
+console.log(`Total commands: ${totalCommands}\n`);
