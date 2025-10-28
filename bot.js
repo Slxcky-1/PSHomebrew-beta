@@ -7498,6 +7498,8 @@ async function updateAIKnowledge() {
         
         if (updated) {
             fsSync.writeFileSync('./serverSettings.json', JSON.stringify(allSettings, null, 2));
+            // Reload settings into memory to ensure AI uses the new data immediately
+            serverSettings = JSON.parse(fsSync.readFileSync('./serverSettings.json', 'utf8'));
             const now = new Date();
             console.log(`✅ AI knowledge LIVE-UPDATED from web (${now.toLocaleString()})`);
             console.log(`📊 REAL-TIME DB: PS3 ${psData.ps3OFW}/${psData.ps3CFW} | PS4 ${psData.ps4OFW}/${psData.ps4PPPwn}/${psData.ps4BDJB} | PS5 ${psData.ps5OFW}/${psData.ps5Lapse}/${psData.ps5kstuff}`);
@@ -7508,8 +7510,8 @@ async function updateAIKnowledge() {
     }
 }
 
-// Run AI knowledge update on startup
-setTimeout(() => updateAIKnowledge(), 30000); // 30 seconds after bot starts
+// Run AI knowledge update on startup (reduced to 5 seconds for faster updates)
+setTimeout(() => updateAIKnowledge(), 5000); // 5 seconds after bot starts
 
 // Schedule monthly updates (1st of each month at 3 AM)
 setInterval(() => {
