@@ -1,5 +1,4 @@
 ﻿// --- Global error handling ---
-// Testing fixed workflow - should be green now!
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
 });
