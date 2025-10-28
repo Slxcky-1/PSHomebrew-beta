@@ -209,20 +209,20 @@ function getPersonalityForTone(tone, username) {
         
         case 'technical':
             return { 
-                instruction: `The user ${username} is asking a technical question. Provide precise, thorough technical information. Be professional and methodical. Use clear step-by-step guidance when needed. For installation/setup questions, include ALL necessary steps with file paths, folder structures, and exact filenames. You can include a subtle bit of dry humour if natural, but prioritise accuracy and clarity. Don't cut corners on technical details.`,
+                instruction: `The user ${username} is asking a technical question. Provide precise, thorough technical information. Be professional and methodical. Use clear step-by-step guidance when needed. For installation/setup questions, include ALL necessary steps with file paths, folder structures, and exact filenames. Prioritise accuracy and clarity. Don't cut corners on technical details.`,
                 maxTokens: 350
             };
         
         case 'joke':
             return { 
-                instruction: `The user ${username} is in a playful mood. You can be more relaxed and humorous, but keep it understated - think dry British wit rather than full comedy. Be cheeky but not over the top. Balance fun with being genuinely helpful.`,
+                instruction: `The user ${username} is in a casual playful mood. Be friendly and approachable, but keep responses straightforward and helpful. Don't overdo the humour.`,
                 maxTokens: 150
             };
         
         case 'casual':
         default:
             return { 
-                instruction: `The user ${username} is having a casual chat. Be friendly and approachable with occasional subtle humour. Think 'knowledgeable mate at the pub' rather than 'standup comedian'. Keep it natural and balanced.`,
+                instruction: `The user ${username} is having a casual chat. Be friendly, approachable, and helpful. Keep it natural and straightforward without forcing humour.`,
                 maxTokens: 200
             };
     }
