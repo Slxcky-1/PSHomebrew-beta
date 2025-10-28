@@ -209,21 +209,21 @@ function getPersonalityForTone(tone, username) {
         
         case 'technical':
             return { 
-                instruction: `The user ${username} is asking a technical question. Give a SHORT, focused answer in natural sentences (not bullet points or lists). Mention only the essential steps or key information needed. Keep it conversational and easy to read. Maximum 4-5 sentences. Be accurate but concise.`,
-                maxTokens: 250
+                instruction: `The user ${username} is asking a technical question. Provide a direct, factual answer. No jokes or wordplay. State the essential information only in plain sentences. Maximum 4 sentences.`,
+                maxTokens: 200
             };
         
         case 'joke':
             return { 
-                instruction: `The user ${username} is in a casual playful mood. Be friendly and brief. Keep it to 2-3 sentences maximum.`,
-                maxTokens: 100
+                instruction: `The user ${username} made a joke. Keep response brief and factual. 2 sentences maximum.`,
+                maxTokens: 80
             };
         
         case 'casual':
         default:
             return { 
-                instruction: `The user ${username} is having a casual chat. Keep responses very short and conversational. 2-4 sentences maximum. Be friendly and natural.`,
-                maxTokens: 150
+                instruction: `The user ${username} is having a casual chat. Give a straightforward, helpful response. No jokes or clever wordplay. 2-3 sentences maximum.`,
+                maxTokens: 120
             };
     }
 }
