@@ -1221,29 +1221,38 @@ client.once('clientReady', async () => {
     // Set bot activity
     client.user.setActivity('PSHomebrew Community', { type: ActivityType.Watching });
     
-    // Send online notification to bot owner
-    try {
-        const owner = await client.users.fetch(config.botOwnerId);
-        const onlineEmbed = new EmbedBuilder()
-            .setTitle('🟢 Bot Online')
-            .setDescription(`**${client.user.tag}** is now online and ready!`)
-            .setColor(0x00FF00)
-            .addFields(
-                { name: '🤖 Servers', value: `${client.guilds.cache.size}`, inline: true },
-                { name: '👥 Users', value: `${client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)}`, inline: true },
-                { name: '⏰ Started At', value: `<t:${Math.floor(Date.now() / 1000)}:R>`, inline: true }
-            )
-            .setTimestamp();
-        await owner.send({ embeds: [onlineEmbed] });
-    } catch (error) {
-        console.error('Failed to send online notification to owner:', error);
-    }
-    
     // Load user data and settings
     loadUserData();
     loadSettings();
     loadTicketData();
     loadModerationData();
+    
+    // Send online notification to AI chat channel
+    try {
+        // Find the AI chat channel across all guilds
+        for (const guild of client.guilds.cache.values()) {
+            const settings = getGuildSettings(guild.id);
+            if (settings.ai?.enabled && settings.ai.channelId) {
+                const channel = guild.channels.cache.get(settings.ai.channelId);
+                if (channel) {
+                    const onlineEmbed = new EmbedBuilder()
+                        .setTitle('🟢 Bot Restarted')
+                        .setDescription(`Back online and ready!`)
+                        .setColor(0x00FF00)
+                        .addFields(
+                            { name: '🤖 Servers', value: `${client.guilds.cache.size}`, inline: true },
+                            { name: '👥 Users', value: `${client.guilds.cache.reduce((acc, g) => acc + g.memberCount, 0)}`, inline: true },
+                            { name: '⏰ Time', value: `<t:${Math.floor(Date.now() / 1000)}:R>`, inline: true }
+                        )
+                        .setTimestamp();
+                    await channel.send({ embeds: [onlineEmbed] });
+                    break; // Only send to first AI channel found
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Failed to send online notification:', error);
+    }
     
     // Start server stats updates
     startServerStatsUpdates();
