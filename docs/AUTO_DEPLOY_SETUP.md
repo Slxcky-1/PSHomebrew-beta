@@ -2,7 +2,8 @@
 
 This guide will help you set up automatic deployment from GitHub to your Linux server whenever you push changes.
 
-✅ **Setup Complete!**
+✅ **Setup Complete!** 
+🎉 **Auto-deploy is now active!**
 
 ## Overview
 When you push changes to GitHub from Windows, GitHub Actions will automatically:
