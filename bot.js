@@ -1362,6 +1362,9 @@ client.once('clientReady', async () => {
     
     // Start memory cleanup intervals
     startMemoryCleanup();
+    
+    // Start CFW knowledge scraper
+    startCFWKnowledgeScraper();
 });
 
 // Memory cleanup for AI conversations and cooldowns
@@ -2862,10 +2865,16 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             // Build optimized message array
+            // Load latest CFW knowledge
+            const cfwKnowledge = loadJSON('./cfwKnowledge.json', {});
+            const cfwInfo = cfwKnowledge.evilnatCFW 
+                ? `Current CFW Info: Evilnat ${cfwKnowledge.evilnatCFW.latestVersion} is the latest version (updated ${new Date(cfwKnowledge.lastUpdated).toLocaleDateString()}).` 
+                : '';
+            
             const messages = [
                 {
                     role: 'system',
-                    content: `${settings.ai.systemPrompt}\n\n${toneConfig.instruction}${searchContext}`
+                    content: `${settings.ai.systemPrompt} ${cfwInfo}\n\n${toneConfig.instruction}${searchContext}`
                 },
                 // Only send content, not metadata (saves tokens)
                 ...aiConversations[channelId].map(msg => ({
@@ -8253,6 +8262,59 @@ client.rest.on('rateLimited', (info) => {
     const errorMsg = `Route: ${info.route || 'Unknown'}, Timeout: ${info.timeout}ms, Global: ${info.global}`;
     logCriticalError(new Error(errorMsg), 'Discord API Rate Limited', null);
 });
+
+// CFW Knowledge Scraper - Updates AI knowledge with latest CFW versions
+function startCFWKnowledgeScraper() {
+    const cfwKnowledgePath = './cfwKnowledge.json';
+    
+    async function updateCFWKnowledge() {
+        try {
+            console.log('🔍 Checking for latest CFW versions...');
+            const fetch = require('node-fetch');
+            const cheerio = require('cheerio');
+            
+            // Scrape PSX-Place for latest Evilnat version
+            const response = await fetch('https://www.psx-place.com/resources/evilnat-cfw.1146/');
+            const html = await response.text();
+            const $ = cheerio.load(html);
+            
+            // Try to find version in title or content
+            let latestVersion = '4.92'; // Fallback
+            const title = $('h1.p-title-value').text();
+            const versionMatch = title.match(/(\d+\.\d+)/);
+            if (versionMatch) {
+                latestVersion = versionMatch[1];
+            }
+            
+            // Load current knowledge
+            let knowledge = loadJSON(cfwKnowledgePath, {
+                lastUpdated: new Date().toISOString(),
+                evilnatCFW: { latestVersion: '4.92', source: 'Manual entry' }
+            });
+            
+            // Update if version changed
+            if (knowledge.evilnatCFW.latestVersion !== latestVersion) {
+                console.log(`✅ New Evilnat CFW version found: ${latestVersion} (was ${knowledge.evilnatCFW.latestVersion})`);
+                knowledge.evilnatCFW.latestVersion = latestVersion;
+                knowledge.lastUpdated = new Date().toISOString();
+                knowledge.evilnatCFW.source = 'PSX-Place scrape';
+                fsSync.writeFileSync(cfwKnowledgePath, JSON.stringify(knowledge, null, 2));
+                console.log('💾 CFW knowledge updated!');
+            } else {
+                console.log(`✓ CFW knowledge up to date (Evilnat ${latestVersion})`);
+            }
+        } catch (error) {
+            console.error('❌ Failed to update CFW knowledge:', error.message);
+        }
+    }
+    
+    // Update on startup
+    updateCFWKnowledge();
+    
+    // Check every 24 hours
+    setInterval(updateCFWKnowledge, 24 * 60 * 60 * 1000);
+    console.log('✅ CFW knowledge scraper started (checks every 24 hours)');
+}
 
 // Login to Discord with error handling
 client.login(config.token).catch(error => {

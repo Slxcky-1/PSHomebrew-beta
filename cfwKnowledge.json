@@ -1,0 +1,15 @@
+{
+  "lastUpdated": "2025-10-28T00:00:00.000Z",
+  "evilnatCFW": {
+    "latestVersion": "4.92",
+    "releaseDate": "2024",
+    "source": "Manual entry",
+    "downloadUrl": "https://www.psx-place.com/resources/evilnat-cfw.1146/"
+  },
+  "otherCFWs": {
+    "rebug": {
+      "latestVersion": "4.86.1 REX/D-REX",
+      "note": "Legacy CFW, Evilnat recommended for modern systems"
+    }
+  }
+}
