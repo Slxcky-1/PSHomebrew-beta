@@ -209,21 +209,21 @@ function getPersonalityForTone(tone, username) {
         
         case 'technical':
             return { 
-                instruction: `The user ${username} is asking a technical question. Provide precise, thorough technical information. Be professional and methodical. Use clear step-by-step guidance when needed. For installation/setup questions, include ALL necessary steps with file paths, folder structures, and exact filenames. Prioritise accuracy and clarity. Don't cut corners on technical details.`,
-                maxTokens: 350
+                instruction: `The user ${username} is asking a technical question. Give a SHORT, focused answer in natural sentences (not bullet points or lists). Mention only the essential steps or key information needed. Keep it conversational and easy to read. Maximum 4-5 sentences. Be accurate but concise.`,
+                maxTokens: 250
             };
         
         case 'joke':
             return { 
-                instruction: `The user ${username} is in a casual playful mood. Be friendly and approachable, but keep responses straightforward and helpful. Don't overdo the humour.`,
-                maxTokens: 150
+                instruction: `The user ${username} is in a casual playful mood. Be friendly and brief. Keep it to 2-3 sentences maximum.`,
+                maxTokens: 100
             };
         
         case 'casual':
         default:
             return { 
-                instruction: `The user ${username} is having a casual chat. Be friendly, approachable, and helpful. Keep it natural and straightforward without forcing humour.`,
-                maxTokens: 200
+                instruction: `The user ${username} is having a casual chat. Keep responses very short and conversational. 2-4 sentences maximum. Be friendly and natural.`,
+                maxTokens: 150
             };
     }
 }
