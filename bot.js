@@ -322,9 +322,9 @@ const defaultSettings = {
         channelName: "ai-chat", // Channel name where AI responds automatically
         channelId: "1431740126546890843", // Channel ID where AI responds
         model: "deepseek-chat",
-        systemPrompt: "You are a knowledgeable AI assistant for the PlayStation Homebrew Discord server. Your tone is professional yet friendly - think 'helpful tech expert' rather than 'comedian'. Provide clear, accurate information with occasional dry wit when appropriate, but never at the expense of being helpful. Be direct and informative for technical questions. For casual chat, you can be warmer and add subtle humour, but keep it understated. You're an expert in PlayStation homebrew, modding, jailbreaking, and tech. Explain concepts thoroughly but concisely. Use British spelling (colour, favourite, realise). CONTENT POLICY: Mild swearing is acceptable when contextually appropriate. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.",
-        maxHistory: 6, // Reduced from 10 for faster processing
-        temperature: 1.2 // Reduced from 1.5 for more focused responses
+        systemPrompt: "You are a knowledgeable AI assistant for the PlayStation Homebrew Discord server. Keep responses CONCISE (2-4 sentences for simple questions, longer only when truly needed). Your tone is professional yet friendly - think 'helpful tech expert' rather than 'comedian'. Provide clear, accurate information with occasional dry wit when appropriate, but never at the expense of being helpful. Be direct and informative for technical questions. For casual chat, you can be warmer and add subtle humour, but keep it understated. You're an expert in PlayStation homebrew, modding, jailbreaking, and tech. Explain concepts thoroughly but concisely. Use British spelling (colour, favourite, realise). CONTENT POLICY: Mild swearing is acceptable when contextually appropriate. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.",
+        maxHistory: 4, // Reduced from 6 for faster processing
+        temperature: 1.0 // Reduced from 1.2 for faster, more focused responses
     }
 };
 
@@ -1491,7 +1491,10 @@ client.on('messageCreate', async (message) => {
                 if (/\b(latest|recent|current|today|news|what's new|search|look up|find|202[45]|who is|what is|when is|ps5 pro|rumors?|release|price|specs?|review|vs|versus|better|best|guide|tutorial|how to|explain|definition|compare|alternative)\b/i.test(message.content)) {
                     const results = await searchWeb(message.content);
                     if (results?.length) {
-                        searchContext = '\n\nSEARCH RESULTS:\n' + results.map((r, i) => `${i + 1}. ${r.title}\n${r.description}\n${r.url}`).join('\n\n') + '\n\nCite sources when relevant.';
+                        // Limit to top 2 results and truncate descriptions for faster processing
+                        searchContext = '\n\nSEARCH RESULTS:\n' + results.slice(0, 2).map((r, i) => 
+                            `${i + 1}. ${r.title}\n${r.description.substring(0, 100)}...\n${r.url}`
+                        ).join('\n\n') + '\n\nBriefly reference sources if used.';
                     }
                 }
                 
@@ -1507,7 +1510,7 @@ client.on('messageCreate', async (message) => {
                     model: deepseek(settings.ai.model),
                     messages,
                     temperature: settings.ai.temperature,
-                    maxTokens: 400
+                    maxTokens: 250 // Reduced from 400 for faster responses
                 });
                 
                 const text = response.text;
@@ -1521,11 +1524,11 @@ client.on('messageCreate', async (message) => {
                     return message.reply('❌ Empty response received. Try again!');
                 }
 
-                // Safeguard: Truncate to 400 tokens (approximate, whitespace split)
+                // Safeguard: Truncate to 250 tokens (approximate, whitespace split)
                 let safeText = text;
                 const words = text.split(/\s+/);
-                if (words.length > 400) {
-                    safeText = words.slice(0, 400).join(' ') + '...';
+                if (words.length > 250) {
+                    safeText = words.slice(0, 250).join(' ') + '...';
                 }
 
                 // Add to history
@@ -2599,11 +2602,12 @@ client.on('interactionCreate', async (interaction) => {
             if (needsSearch) {
                 const searchResults = await searchWeb(userMessage);
                 if (searchResults && searchResults.length > 0) {
+                    // Limit to top 2 results and truncate descriptions for faster processing
                     searchContext = '\n\nSEARCH RESULTS:\n' +
-                        searchResults.map((r, i) => 
-                            `${i + 1}. ${r.title}\n${r.description}\n${r.url}`
+                        searchResults.slice(0, 2).map((r, i) => 
+                            `${i + 1}. ${r.title}\n${r.description.substring(0, 100)}...\n${r.url}`
                         ).join('\n\n') +
-                        '\n\nUse these search results to answer. Cite sources when relevant.';
+                        '\n\nBriefly reference sources if used.';
                 }
             }
             
@@ -2629,7 +2633,7 @@ client.on('interactionCreate', async (interaction) => {
                     model: settings.ai.model,
                     messages: messages,
                     temperature: settings.ai.temperature,
-                    max_tokens: 400
+                    max_tokens: 250 // Reduced from 400 for faster responses
                 });
                 
                 aiResponse = completion.choices[0]?.message?.content;
