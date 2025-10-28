@@ -83,6 +83,10 @@
         {
             "name": "logs",
             "description": "Open interactive server logging panel (Admin only)"
+        },
+        {
+            "name": "update",
+            "description": "Pull latest code from GitHub and restart bot (Owner only)"
         }
     ]
 }

@@ -1982,6 +1982,48 @@ client.on('interactionCreate', async (interaction) => {
         }, 1000);
     }
     
+    // Update command - Pull latest code from GitHub and restart
+    if (interaction.commandName === 'update') {
+        // Check if user is bot owner
+        if (interaction.user.id !== config.botOwnerId) {
+            return interaction.reply({ content: '❌ Only the bot owner can use this command!', ephemeral: true });
+        }
+        
+        const updateEmbed = new EmbedBuilder()
+            .setTitle('🔄 Updating Bot')
+            .setDescription('Pulling latest code from GitHub...')
+            .setColor(0xFFAA00)
+            .setTimestamp();
+        
+        await interaction.reply({ embeds: [updateEmbed] });
+        
+        // Execute git pull and restart
+        const { exec } = require('child_process');
+        exec('git pull && npm install', (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Update error: ${error}`);
+                return interaction.editReply({ 
+                    embeds: [new EmbedBuilder()
+                        .setTitle('❌ Update Failed')
+                        .setDescription(`\`\`\`${error.message}\`\`\``)
+                        .setColor(0xFF0000)
+                        .setTimestamp()]
+                });
+            }
+            
+            const resultEmbed = new EmbedBuilder()
+                .setTitle('✅ Update Complete')
+                .setDescription(`**Git Pull:**\n\`\`\`${stdout}\`\`\`\n\n🔄 Restarting bot...`)
+                .setColor(0x00FF00)
+                .setTimestamp();
+            
+            interaction.editReply({ embeds: [resultEmbed] }).then(() => {
+                console.log('🔄 Bot updated via /update command. Restarting...');
+                setTimeout(() => process.exit(0), 2000); // systemd will restart the bot
+            });
+        });
+    }
+    
     // View Settings command
     if (interaction.commandName === 'viewsettings') {
         if (!requireAdmin(interaction)) return;
