@@ -2176,7 +2176,7 @@ client.on('interactionCreate', async (interaction) => {
             .setColor(0xFFAA00)
             .setTimestamp();
         
-        await interaction.reply({ embeds: [updateEmbed] });
+        await interaction.reply({ embeds: [updateEmbed], ephemeral: true });
         
         // Execute git pull and restart
         const { exec } = require('child_process');
