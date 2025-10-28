@@ -18,8 +18,10 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 8022
+          script_stop: true
           script: |
             cd /home/elontusk/Desktop/PSHomebrew-beta-main
             git pull origin main
             sudo systemctl restart discord-bot
             echo "✅ Bot updated and restarted successfully!"
+            exit 0
