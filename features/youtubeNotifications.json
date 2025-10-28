@@ -2,37 +2,7 @@
   "commands": [
     {
       "name": "youtubenotifications",
-       {
-  "commands": [
-    {
-      "name": "youtubenotifications",
       "description": "Manage YouTube channel notifications with RSS feeds"
-    }
-  ],
-  "920698261709406248": {
-    "enabled": true,
-    "notificationChannelId": null,
-    "customMessage": "🎥 **New video from {channelName}!**\n{title}",
-    "checkInterval": 600000,
-    "channels": [],
-    "lastChecked": {}
-  }
-}.Groups[1].Value + {
-  "commands": [
-    {
-      "name": "youtubenotifications",
-      "description": "Manage YouTube channel notifications with RSS feeds"
-    }
-  ],
-  "920698261709406248": {
-    "enabled": true,
-    "notificationChannelId": null,
-    "customMessage": "🎥 **New video from {channelName}!**\n{title}",
-    "checkInterval": 600000,
-    "channels": [],
-    "lastChecked": {}
-  }
-}.Groups[2].Value.ToUpper() anage YouTube channel notifications with RSS feeds"
     }
   ],
   "920698261709406248": {

@@ -2,24 +2,7 @@
     "commands": [
         {
             "name": "games",
-             {
-    "commands": [
-        {
-            "name": "games",
             "description": "Play fun games! Choose from 15+ mini-games"
         }
     ]
 }
-.Groups[1].Value + {
-    "commands": [
-        {
-            "name": "games",
-            "description": "Play fun games! Choose from 15+ mini-games"
-        }
-    ]
-}
-.Groups[2].Value.ToUpper() lay fun games! Choose from 15+ mini-games"
-        }
-    ]
-}
-

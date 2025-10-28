@@ -16,55 +16,8 @@
   "commands": [
     {
       "name": "serverstatsssetup",
-       {
-  "enabled": false,
-  "updateInterval": 300000,
-  "channels": {
-    "memberCount": null,
-    "botCount": null,
-    "totalCount": null,
-    "statusChannel": null
-  },
-  "channelNames": {
-    "memberCount": "👥 Members: {count}",
-    "botCount": "🤖 Bots: {count}",
-    "totalCount": "🌟・Members: {count}",
-    "statusChannel": "🟢 Status: {status}"
-  },
-  "commands": [
-    {
-      "name": "serverstatsssetup",
       "description": "Open interactive server stats control panel",
       "options": []
     }
   ]
 }
-.Groups[1].Value + {
-  "enabled": false,
-  "updateInterval": 300000,
-  "channels": {
-    "memberCount": null,
-    "botCount": null,
-    "totalCount": null,
-    "statusChannel": null
-  },
-  "channelNames": {
-    "memberCount": "👥 Members: {count}",
-    "botCount": "🤖 Bots: {count}",
-    "totalCount": "🌟・Members: {count}",
-    "statusChannel": "🟢 Status: {status}"
-  },
-  "commands": [
-    {
-      "name": "serverstatsssetup",
-      "description": "Open interactive server stats control panel",
-      "options": []
-    }
-  ]
-}
-.Groups[2].Value.ToUpper() pen interactive server stats control panel",
-      "options": []
-    }
-  ]
-}
-

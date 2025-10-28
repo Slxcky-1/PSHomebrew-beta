@@ -2,27 +2,8 @@
     "commands": [
         {
             "name": "raidprotection",
-             {
-    "commands": [
-        {
-            "name": "raidprotection",
             "description": "Configure raid protection - Interactive panel (Admin only)",
             "options": []
         }
     ]
 }
-.Groups[1].Value + {
-    "commands": [
-        {
-            "name": "raidprotection",
-            "description": "Configure raid protection - Interactive panel (Admin only)",
-            "options": []
-        }
-    ]
-}
-.Groups[2].Value.ToUpper() onfigure raid protection - Interactive panel (Admin only)",
-            "options": []
-        }
-    ]
-}
-
