@@ -1221,6 +1221,24 @@ client.once('clientReady', async () => {
     // Set bot activity
     client.user.setActivity('PSHomebrew Community', { type: ActivityType.Watching });
     
+    // Send online notification to bot owner
+    try {
+        const owner = await client.users.fetch(config.botOwnerId);
+        const onlineEmbed = new EmbedBuilder()
+            .setTitle('🟢 Bot Online')
+            .setDescription(`**${client.user.tag}** is now online and ready!`)
+            .setColor(0x00FF00)
+            .addFields(
+                { name: '🤖 Servers', value: `${client.guilds.cache.size}`, inline: true },
+                { name: '👥 Users', value: `${client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)}`, inline: true },
+                { name: '⏰ Started At', value: `<t:${Math.floor(Date.now() / 1000)}:R>`, inline: true }
+            )
+            .setTimestamp();
+        await owner.send({ embeds: [onlineEmbed] });
+    } catch (error) {
+        console.error('Failed to send online notification to owner:', error);
+    }
+    
     // Load user data and settings
     loadUserData();
     loadSettings();
