@@ -7894,6 +7894,53 @@ setInterval(() => {
     // Check if it's the 1st day of the month at 3 AM
     if (now.getDate() === 1 && now.getHours() === 3 && now.getMinutes() < 10) {
         updateAIKnowledge();
+        // Also update PS4 error codes monthly
+        const ps4Scraper = require('./bot.js');
+        if (typeof startPS4ErrorScraper !== 'undefined') {
+            console.log('🔄 Running monthly PS4 error code update...');
+            // Call the update function directly
+            const ps4ErrorPath = './features/ps4ErrorCodes.json';
+            (async () => {
+                try {
+                    const fetch = require('node-fetch');
+                    const cheerio = require('cheerio');
+                    let currentErrors = loadJSON(ps4ErrorPath, {});
+                    let newErrorsFound = 0;
+                    
+                    const response = await fetch('https://www.playstation.com/en-us/support/error-codes/ps4/');
+                    const html = await response.text();
+                    const $ = cheerio.load(html);
+                    
+                    $('body').find('*').each((i, elem) => {
+                        const text = $(elem).text();
+                        const errorMatches = text.match(/(CE|NP|SU|WS|WV)-\d{5}-\d/g);
+                        
+                        if (errorMatches) {
+                            errorMatches.forEach(code => {
+                                if (!currentErrors[code] && !code.startsWith('_')) {
+                                    const description = $(elem).next().text().trim() || 'PlayStation error detected. Check PlayStation support for details.';
+                                    currentErrors[code] = description.substring(0, 200);
+                                    newErrorsFound++;
+                                }
+                            });
+                        }
+                    });
+                    
+                    if (newErrorsFound > 0) {
+                        currentErrors._metadata = {
+                            description: 'PS4 Error Code Database',
+                            lastUpdated: new Date().toISOString(),
+                            totalCodes: Object.keys(currentErrors).filter(k => !k.startsWith('_')).length,
+                            lastScrape: new Date().toISOString()
+                        };
+                        fsSync.writeFileSync(ps4ErrorPath, JSON.stringify(currentErrors, null, 2));
+                        console.log(`✅ Monthly update: Found ${newErrorsFound} new PS4 error codes!`);
+                    }
+                } catch (error) {
+                    console.error('❌ Monthly PS4 error update failed:', error.message);
+                }
+            })();
+        }
     }
 }, 600000); // Check every 10 minutes
 
@@ -8345,7 +8392,7 @@ function startCFWKnowledgeScraper() {
     console.log('✅ CFW knowledge scraper started (checks every 24 hours)');
 }
 
-// PS4 Error Code Scraper - Updates error database from online sources
+// PS4 Error Code Scraper - Updates error database from online sources (runs on startup only, monthly via updateAIKnowledge)
 function startPS4ErrorScraper() {
     const ps4ErrorPath = './features/ps4ErrorCodes.json';
     
@@ -8401,12 +8448,9 @@ function startPS4ErrorScraper() {
         }
     }
     
-    // Update on startup (after 10 seconds)
+    // Update on startup (after 10 seconds) - Monthly updates handled by updateAIKnowledge interval
     setTimeout(updatePS4Errors, 10000);
-    
-    // Check every 24 hours
-    setInterval(updatePS4Errors, 24 * 60 * 60 * 1000);
-    console.log('✅ PS4 error scraper started (checks every 24 hours)');
+    console.log('✅ PS4 error scraper started (monthly updates on 1st at 3 AM)');
 }
 
 // Login to Discord with error handling
