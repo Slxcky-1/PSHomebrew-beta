@@ -1,0 +1,9 @@
+{
+    "commands": [
+        {
+            "name": "setupname",
+            "description": "Auto-nickname new members - Interactive panel (Admin only)",
+            "options": []
+        }
+    ]
+}

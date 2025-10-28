@@ -1,0 +1,9 @@
+{
+    "commands": [
+        {
+            "name": "raidprotection",
+            "description": "Configure raid protection - Interactive panel (Admin only)",
+            "options": []
+        }
+    ]
+}

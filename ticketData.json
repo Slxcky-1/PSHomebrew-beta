@@ -1,0 +1,26 @@
+{
+  "1226857961645801472": {
+    "counter": 0,
+    "tickets": {},
+    "categoryId": null,
+    "settings": {
+      "enabled": false,
+      "staffRoleId": null,
+      "ticketMessage": "**Welcome to your support ticket!**\n\n🎫 Our support team will be with you shortly.\n\n**Please describe your issue in detail:**\n• What is the problem?\n• When did it start?\n• Have you tried any solutions?\n\n**Available Actions:**\n🔔 Click \"Claim Ticket\" to take ownership (Staff only)\n🔒 Click \"Close Ticket\" to close this ticket",
+      "closedMessage": "Thank you for contacting support! 🙏\n\nIf you need additional assistance, feel free to open a new ticket using `/createticket`!",
+      "categoryName": "🎫 Tickets"
+    }
+  },
+  "920698261709406248": {
+    "counter": 2,
+    "tickets": {},
+    "categoryId": "1431832957445996604",
+    "settings": {
+      "enabled": true,
+      "staffRoleId": "1161803977390829653",
+      "ticketMessage": "Please Wait! Staff Will Be With You Shortly, Also Reminder We Have a AI Bot!",
+      "closedMessage": "Thank you for contacting support! 🙏\n\nIf you need additional assistance, feel free to open a new ticket using `/createticket`!",
+      "categoryName": "✦ 𝓢𝓽𝓪𝓯𝓯 𝓬𝓱𝓪𝓷𝓷𝓮𝓵𝓼 ✦"
+    }
+  }
+}

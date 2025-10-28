@@ -1,0 +1,277 @@
+{
+  "1226857961645801472": {
+    "leveling": {
+      "enabled": false,
+      "minXP": 15,
+      "maxXP": 25,
+      "cooldown": 60000,
+      "maxLevel": 100,
+      "showLevelUpMessages": true
+    },
+    "welcome": {
+      "enabled": true,
+      "channelName": "welcome",
+      "customMessage": null
+    },
+    "leave": {
+      "enabled": true,
+      "channelName": "general",
+      "customMessage": null
+    },
+    "keywords": {
+      "enabled": true,
+      "list": [
+        "pshomebrew",
+        "ps homebrew",
+        "playstation homebrew",
+        "psxhomebrew",
+        "ps1 homebrew",
+        "ps2 homebrew",
+        "ps3 homebrew",
+        "ps4 homebrew",
+        "ps5 homebrew"
+      ],
+      "customResponse": null
+    },
+    "ai": {
+      "enabled": true,
+      "channelName": "test",
+      "model": "deepseek-chat",
+      "systemPrompt": "2025 FIRMWARE: PS3 OFW 4.91/CFW 4.92.2 Evilnat | PS4 OFW 13.02/JB 11.52 PPPwn 12.50 BD-JB+GoldHEN 2.4b18.3 | PS5 OFW 10.01/JB 9.60 Lapse 7.61 kstuff+etaHEN 2.0b | Vita 3.74 h-encore | PSP 6.61 PRO-C | PS2 FMCB/ProtoPwn | PS1 FreePSXBoot\n\nHOMEBREW GUIDES: PS5(2.0b→ItemzFlow for PKG) | PS4(2.4b18.3→multiMAN for backup) | PS3 CFW(webMAN MOD+multiMAN) HEN(PS3HEN 3.4.0+HFW 4.92) | Vita(VitaShell+Adrenaline for PSP emu) | PSP(PPSSPP for homebrew) | PS2(OPL for ISO/USB games) | PS1(Tonyhax for exploit)\n\nYou're a hilarious AI for PlayStation Homebrew Discord. Be funny, use memes & gaming jokes. Keep it SHORT (2-3 sentences, under 50 words). British spelling. Swearing's fine. No politics/racism.",
+      "maxHistory": 10,
+      "temperature": 0.7
+    },
+    "raidProtection": {
+      "enabled": true,
+      "joinThreshold": 5,
+      "timeWindow": 10,
+      "action": "none",
+      "whitelist": [],
+      "notificationChannel": null,
+      "lockdownDuration": 300
+    }
+  },
+  "920698261709406248": {
+    "leveling": {
+      "enabled": false,
+      "minXP": 15,
+      "maxXP": 25,
+      "cooldown": 60000,
+      "maxLevel": 100,
+      "showLevelUpMessages": true,
+      "levelUpChannel": null,
+      "levelRoles": {}
+    },
+    "welcome": {
+      "enabled": true,
+      "channelName": "<#1109278310233542717>",
+      "customMessage": "Hey!  welcome to PlayStationHomebrew Server! Hope You Enjoy Your Stay :)"
+    },
+    "leave": {
+      "enabled": true,
+      "channelName": "general",
+      "customMessage": null
+    },
+    "keywords": {
+      "enabled": true,
+      "list": [
+        "710102",
+        "8013030",
+        "80010001",
+        "80010014",
+        "80010017",
+        "80010036",
+        "80010510",
+        "80010514",
+        "80010516",
+        "80029023",
+        "80029024",
+        "80029513",
+        "80029519",
+        "80029530",
+        "80029563",
+        "80029564",
+        "80029565",
+        "80029566",
+        "80029567",
+        "80029751",
+        "80029780",
+        "80029945",
+        "80030920",
+        "80031150",
+        "80031601",
+        "80130203",
+        "80410418",
+        "80710016",
+        "80710092",
+        "80710101",
+        "80710102",
+        "80710541",
+        "80710723",
+        "81019002",
+        "8001050B",
+        "8001050D",
+        "80028EA5",
+        "80028EA6",
+        "80028F10",
+        "80028F17",
+        "80028F18",
+        "80028F19",
+        "80028F1A",
+        "80029C68",
+        "8002A10D",
+        "8002A4A6",
+        "8002A515",
+        "8002A548",
+        "8002A705",
+        "8002A71A",
+        "8002AD23",
+        "8002AE21",
+        "8002B241",
+        "8002F147",
+        "8002F994",
+        "8002F997",
+        "8003051E",
+        "8013013D",
+        "8013013E",
+        "8013030F",
+        "80410A0B",
+        "807101FF",
+        "8071053D",
+        "80710B23",
+        "80710D23",
+        "8002A224",
+        "8002A280",
+        "8002F029",
+        "8002F057",
+        "8002F087",
+        "8002F107",
+        "8002F149",
+        "8002F14A",
+        "8002F14B",
+        "8002F14E",
+        "8002F153",
+        "8002F156",
+        "8002F157",
+        "8002F15E",
+        "8002F169",
+        "8002F23F",
+        "8002F26A",
+        "8002F281",
+        "8002F2F0",
+        "8002F2F2",
+        "8002F310",
+        "8002F311",
+        "8002F957",
+        "8002F95E",
+        "8002F967",
+        "8002F96F",
+        "8002FB22",
+        "F0000000",
+        "F0000001",
+        "F0000002",
+        "F0000003",
+        "F0000005",
+        "F0000006",
+        "F00000FF",
+        "E00000A0",
+        "E00000C0"
+      ],
+      "customResponse": null
+    },
+    "autoNickname": {
+      "enabled": true,
+      "prefix": "PS🔹",
+      "suffix": ""
+    },
+    "logs": {
+      "enabled": false,
+      "criticalChannel": null
+    },
+    "raidProtection": {
+      "enabled": false,
+      "joinThreshold": 5,
+      "timeWindow": 10,
+      "action": "kick",
+      "whitelist": [],
+      "notificationChannel": null,
+      "lockdownDuration": 300
+    },
+    "moderation": {
+      "enabled": true,
+      "warningThreshold": 3,
+      "autoAction": "timeout",
+      "timeoutDuration": 600,
+      "muteRole": null,
+      "modLogChannel": null,
+      "dmOnAction": true,
+      "warningDecay": 0,
+      "autoDeleteWarnings": false,
+      "moderatorRoles": []
+    },
+    "ai": {
+      "enabled": true,
+      "channelName": "ai-chat",
+      "channelId": "1431740126546890843",
+      "model": "deepseek-chat",
+      "systemPrompt": "2025 FIRMWARE: PS3 OFW 4.91/CFW 4.92.2 Evilnat | PS4 OFW 13.02/JB 11.52 PPPwn 12.50 BD-JB+GoldHEN 2.4b18.3 | PS5 OFW 10.01/JB 9.60 Lapse 7.61 kstuff+etaHEN 2.0b | Vita 3.74 h-encore | PSP 6.61 PRO-C | PS2 FMCB/ProtoPwn | PS1 FreePSXBoot\n\nHOMEBREW GUIDES: PS5(2.0b→ItemzFlow for PKG) | PS4(2.4b18.3→multiMAN for backup) | PS3 CFW(webMAN MOD+multiMAN) HEN(PS3HEN 3.4.0+HFW 4.92) | Vita(VitaShell+Adrenaline for PSP emu) | PSP(PPSSPP for homebrew) | PS2(OPL for ISO/USB games) | PS1(Tonyhax for exploit)\n\nYou're a hilarious AI for PlayStation Homebrew Discord. Be funny, use memes & gaming jokes. Keep it SHORT (2-3 sentences, under 50 words). British spelling. Swearing's fine. No politics/racism.",
+      "maxHistory": 2,
+      "temperature": 0.7
+    },
+    "serverStats": {
+      "enabled": true,
+      "updateInterval": 300000,
+      "channels": {
+        "memberCount": null,
+        "botCount": null,
+        "totalCount": null,
+        "statusChannel": null
+      },
+      "channelNames": {
+        "memberCount": "👥 Members: {count}",
+        "botCount": "🤖 Bots: {count}",
+        "totalCount": "📊 Total: {count}",
+        "statusChannel": "🟢 Status: {status}"
+      },
+      "lastUpdate": {
+        "memberCount": 1761602606532,
+        "botCount": 1761602606532,
+        "totalCount": 1761602606532
+      }
+    },
+    "music": {
+      "enabled": true,
+      "voiceChannelId": "1425881110625128468",
+      "djRoleId": null,
+      "maxQueueSize": 100,
+      "autoLeaveOnEmpty": true,
+      "autoLeaveDelay": 300000
+    },
+    "logging": {
+      "enabled": true,
+      "channels": {
+        "critical": "1311681018612158508",
+        "moderation": "1311681018612158508",
+        "messages": "1311681018612158508",
+        "members": null,
+        "voice": null,
+        "server": null,
+        "keywords": null
+      },
+      "logTypes": {
+        "critical": true,
+        "moderation": true,
+        "messageDelete": true,
+        "messageEdit": true,
+        "memberJoin": true,
+        "memberLeave": true,
+        "roleChange": true,
+        "voiceJoin": false,
+        "voiceLeave": false,
+        "channelCreate": false,
+        "channelDelete": false,
+        "keywordFlag": true
+      }
+    }
+  }
+}

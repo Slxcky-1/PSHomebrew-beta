@@ -1,0 +1,29 @@
+{
+  "name": "pshomebrew-discord-bot",
+  "version": "1.0.0",
+  "description": "A Discord bot with leveling system, welcome/leave messages, and PSHomebrew keyword functionality",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "start:lowend": "node --max-old-space-size=512 --expose-gc bot.js",
+    "dev": "node bot.js"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "leveling",
+    "pshomebrew"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@ai-sdk/deepseek": "^1.0.23",
+    "ai": "^5.0.80",
+    "cheerio": "^1.1.2",
+    "discord-gamecord": "^4.4.2",
+    "discord.js": "^14.14.1",
+    "duck-duck-scrape": "^2.2.5",
+    "node-fetch": "^2.7.0",
+    "rss-parser": "^3.13.0"
+  }
+}

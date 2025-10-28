@@ -1,0 +1,27 @@
+[Unit]
+Description=PSHomebrew Discord Bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=YOUR_USERNAME_HERE
+WorkingDirectory=/path/to/your/bot/directory
+ExecStart=/usr/bin/node bot.js
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Environment variables
+Environment=NODE_ENV=production
+
+# Security settings (optional - remove if causing issues)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/path/to/your/bot/directory
+
+[Install]
+WantedBy=multi-user.target

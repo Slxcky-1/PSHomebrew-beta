@@ -1,0 +1,8 @@
+{
+    "commands": [
+        {
+            "name": "games",
+            "description": "Play fun games! Choose from 15+ mini-games"
+        }
+    ]
+}

@@ -1,0 +1,88 @@
+{
+    "commands": [
+        {
+            "name": "help",
+            "description": "Display all available commands"
+        },
+        {
+            "name": "ping",
+            "description": "Check bot latency and response time"
+        },
+        {
+            "name": "shutdown",
+            "description": "Gracefully shutdown the bot (Owner only)"
+        },
+        {
+            "name": "features",
+            "description": "View all bot features and current settings"
+        },
+        {
+            "name": "viewsettings",
+            "description": "View all current server settings (Admin only)"
+        },
+        {
+            "name": "toggle",
+            "description": "Toggle features on/off (Admin only)",
+            "options": [
+                {
+                    "name": "feature",
+                    "description": "Feature to toggle",
+                    "type": 3,
+                    "required": true,
+                    "choices": [
+                        {
+                            "name": "Leveling System",
+                            "value": "leveling"
+                        },
+                        {
+                            "name": "Level Up Messages",
+                            "value": "levelup_messages"
+                        },
+                        {
+                            "name": "Welcome Messages",
+                            "value": "welcome"
+                        },
+                        {
+                            "name": "Leave Messages",
+                            "value": "leave"
+                        },
+                        {
+                            "name": "Keyword Detection",
+                            "value": "keywords"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "resetmessages",
+            "description": "Reset welcome/leave messages to default (Admin only)",
+            "options": [
+                {
+                    "name": "type",
+                    "description": "Which message to reset",
+                    "type": 3,
+                    "required": true,
+                    "choices": [
+                        {
+                            "name": "Welcome Message",
+                            "value": "welcome"
+                        },
+                        {
+                            "name": "Leave Message",
+                            "value": "leave"
+                        },
+                        {
+                            "name": "Keyword Response",
+                            "value": "keyword"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "logs",
+            "description": "Open interactive server logging panel (Admin only)"
+        }
+    ]
+}
