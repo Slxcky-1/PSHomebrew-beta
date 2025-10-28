@@ -1229,12 +1229,18 @@ client.once('clientReady', async () => {
     
     // Check if bot was restarted via /update command
     try {
+        console.log('🔍 Checking for update marker file...');
         if (fsSync.existsSync('./update-marker.json')) {
+            console.log('✅ Update marker found! Reading data...');
             const updateData = JSON.parse(fsSync.readFileSync('./update-marker.json', 'utf8'));
+            console.log(`📍 Channel ID: ${updateData.channelId}, Guild ID: ${updateData.guildId}`);
+            
             const guild = client.guilds.cache.get(updateData.guildId);
             if (guild) {
+                console.log(`✅ Guild found: ${guild.name}`);
                 const channel = guild.channels.cache.get(updateData.channelId);
                 if (channel) {
+                    console.log(`✅ Channel found: #${channel.name}`);
                     const onlineEmbed = new EmbedBuilder()
                         .setTitle('🟢 Bot Back Online')
                         .setDescription('Update complete and bot successfully restarted!')
@@ -1246,13 +1252,21 @@ client.once('clientReady', async () => {
                         )
                         .setTimestamp();
                     await channel.send({ embeds: [onlineEmbed] });
+                    console.log('✅ Online notification sent!');
+                } else {
+                    console.log('❌ Channel not found');
                 }
+            } else {
+                console.log('❌ Guild not found');
             }
             // Delete marker file
             fsSync.unlinkSync('./update-marker.json');
+            console.log('🗑️ Update marker deleted');
+        } else {
+            console.log('ℹ️ No update marker found (normal restart)');
         }
     } catch (error) {
-        console.error('Failed to send update complete notification:', error);
+        console.error('❌ Failed to send update complete notification:', error);
     }
     
     // Start server stats updates
