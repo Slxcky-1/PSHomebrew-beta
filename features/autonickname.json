@@ -2,8 +2,27 @@
     "commands": [
         {
             "name": "setupname",
+             {
+    "commands": [
+        {
+            "name": "setupname",
             "description": "Auto-nickname new members - Interactive panel (Admin only)",
             "options": []
         }
     ]
 }
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "setupname",
+            "description": "Auto-nickname new members - Interactive panel (Admin only)",
+            "options": []
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() uto-nickname new members - Interactive panel (Admin only)",
+            "options": []
+        }
+    ]
+}
+

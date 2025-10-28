@@ -2,6 +2,10 @@
     "commands": [
         {
             "name": "addkeyword",
+             {
+    "commands": [
+        {
+            "name": "addkeyword",
             "description": "Add a keyword to detect (Admin only)",
             "options": [
                 {
@@ -42,3 +46,616 @@
         }
     ]
 }
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "addkeyword",
+            "description": "Add a keyword to detect (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to add",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "removekeyword",
+            "description": "Remove a keyword (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to remove",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "listkeywords",
+            "description": "List all active keywords (Admin only)"
+        },
+        {
+            "name": "setkeywordresponse",
+            "description": "Set custom keyword response (Admin only)",
+            "options": [
+                {
+                    "name": "response",
+                    "description": "Custom response message",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() dd a keyword to detect (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                     {
+    "commands": [
+        {
+            "name": "addkeyword",
+            "description": "Add a keyword to detect (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to add",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "removekeyword",
+            "description": "Remove a keyword (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to remove",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "listkeywords",
+            "description": "List all active keywords (Admin only)"
+        },
+        {
+            "name": "setkeywordresponse",
+            "description": "Set custom keyword response (Admin only)",
+            "options": [
+                {
+                    "name": "response",
+                    "description": "Custom response message",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "addkeyword",
+            "description": "Add a keyword to detect (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to add",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "removekeyword",
+            "description": "Remove a keyword (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to remove",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "listkeywords",
+            "description": "List all active keywords (Admin only)"
+        },
+        {
+            "name": "setkeywordresponse",
+            "description": "Set custom keyword response (Admin only)",
+            "options": [
+                {
+                    "name": "response",
+                    "description": "Custom response message",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() eyword to add",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "removekeyword",
+             {
+    "commands": [
+        {
+            "name": "addkeyword",
+            "description": "Add a keyword to detect (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to add",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "removekeyword",
+            "description": "Remove a keyword (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to remove",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "listkeywords",
+            "description": "List all active keywords (Admin only)"
+        },
+        {
+            "name": "setkeywordresponse",
+            "description": "Set custom keyword response (Admin only)",
+            "options": [
+                {
+                    "name": "response",
+                    "description": "Custom response message",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "addkeyword",
+            "description": "Add a keyword to detect (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to add",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "removekeyword",
+            "description": "Remove a keyword (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to remove",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "listkeywords",
+            "description": "List all active keywords (Admin only)"
+        },
+        {
+            "name": "setkeywordresponse",
+            "description": "Set custom keyword response (Admin only)",
+            "options": [
+                {
+                    "name": "response",
+                    "description": "Custom response message",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() emove a keyword (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                     {
+    "commands": [
+        {
+            "name": "addkeyword",
+            "description": "Add a keyword to detect (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to add",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "removekeyword",
+            "description": "Remove a keyword (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to remove",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "listkeywords",
+            "description": "List all active keywords (Admin only)"
+        },
+        {
+            "name": "setkeywordresponse",
+            "description": "Set custom keyword response (Admin only)",
+            "options": [
+                {
+                    "name": "response",
+                    "description": "Custom response message",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "addkeyword",
+            "description": "Add a keyword to detect (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to add",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "removekeyword",
+            "description": "Remove a keyword (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to remove",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "listkeywords",
+            "description": "List all active keywords (Admin only)"
+        },
+        {
+            "name": "setkeywordresponse",
+            "description": "Set custom keyword response (Admin only)",
+            "options": [
+                {
+                    "name": "response",
+                    "description": "Custom response message",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() eyword to remove",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "listkeywords",
+             {
+    "commands": [
+        {
+            "name": "addkeyword",
+            "description": "Add a keyword to detect (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to add",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "removekeyword",
+            "description": "Remove a keyword (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to remove",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "listkeywords",
+            "description": "List all active keywords (Admin only)"
+        },
+        {
+            "name": "setkeywordresponse",
+            "description": "Set custom keyword response (Admin only)",
+            "options": [
+                {
+                    "name": "response",
+                    "description": "Custom response message",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "addkeyword",
+            "description": "Add a keyword to detect (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to add",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "removekeyword",
+            "description": "Remove a keyword (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to remove",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "listkeywords",
+            "description": "List all active keywords (Admin only)"
+        },
+        {
+            "name": "setkeywordresponse",
+            "description": "Set custom keyword response (Admin only)",
+            "options": [
+                {
+                    "name": "response",
+                    "description": "Custom response message",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() ist all active keywords (Admin only)"
+        },
+        {
+            "name": "setkeywordresponse",
+             {
+    "commands": [
+        {
+            "name": "addkeyword",
+            "description": "Add a keyword to detect (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to add",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "removekeyword",
+            "description": "Remove a keyword (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to remove",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "listkeywords",
+            "description": "List all active keywords (Admin only)"
+        },
+        {
+            "name": "setkeywordresponse",
+            "description": "Set custom keyword response (Admin only)",
+            "options": [
+                {
+                    "name": "response",
+                    "description": "Custom response message",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "addkeyword",
+            "description": "Add a keyword to detect (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to add",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "removekeyword",
+            "description": "Remove a keyword (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to remove",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "listkeywords",
+            "description": "List all active keywords (Admin only)"
+        },
+        {
+            "name": "setkeywordresponse",
+            "description": "Set custom keyword response (Admin only)",
+            "options": [
+                {
+                    "name": "response",
+                    "description": "Custom response message",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() et custom keyword response (Admin only)",
+            "options": [
+                {
+                    "name": "response",
+                     {
+    "commands": [
+        {
+            "name": "addkeyword",
+            "description": "Add a keyword to detect (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to add",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "removekeyword",
+            "description": "Remove a keyword (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to remove",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "listkeywords",
+            "description": "List all active keywords (Admin only)"
+        },
+        {
+            "name": "setkeywordresponse",
+            "description": "Set custom keyword response (Admin only)",
+            "options": [
+                {
+                    "name": "response",
+                    "description": "Custom response message",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "addkeyword",
+            "description": "Add a keyword to detect (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to add",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "removekeyword",
+            "description": "Remove a keyword (Admin only)",
+            "options": [
+                {
+                    "name": "keyword",
+                    "description": "Keyword to remove",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "listkeywords",
+            "description": "List all active keywords (Admin only)"
+        },
+        {
+            "name": "setkeywordresponse",
+            "description": "Set custom keyword response (Admin only)",
+            "options": [
+                {
+                    "name": "response",
+                    "description": "Custom response message",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() ustom response message",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+

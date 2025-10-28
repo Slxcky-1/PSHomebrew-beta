@@ -2,6 +2,10 @@
     "commands": [
         {
             "name": "welcome",
+             {
+    "commands": [
+        {
+            "name": "welcome",
             "description": "Setup welcome messages - Interactive panel (Admin only)",
             "options": []
         },
@@ -60,3 +64,1240 @@
         }
     ]
 }
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() etup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+             {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() etup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+             {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() et welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                     {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() hannel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+             {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() et leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                     {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() hannel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+             {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() et custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                     {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() ustom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+             {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() et custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                     {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[1].Value + {
+    "commands": [
+        {
+            "name": "welcome",
+            "description": "Setup welcome messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "leaving",
+            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "options": []
+        },
+        {
+            "name": "setwelcomechannel",
+            "description": "Set welcome message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for welcome messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavechannel",
+            "description": "Set leave message channel (Admin only)",
+            "options": [
+                {
+                    "name": "channel",
+                    "description": "Channel name for leave messages",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setwelcomemessage",
+            "description": "Set custom welcome message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "setleavemessage",
+            "description": "Set custom leave message (Admin only)",
+            "options": [
+                {
+                    "name": "message",
+                    "description": "Custom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+.Groups[2].Value.ToUpper() ustom message ({user}, {server}, {memberCount})",
+                    "type": 3,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
+

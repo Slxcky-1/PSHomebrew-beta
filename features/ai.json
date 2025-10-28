@@ -8,6 +8,16 @@
   "commands": [
     {
       "name": "aichat",
+       {
+  "enabled": false,
+  "channelName": "ai-chat",
+  "model": "deepseek-chat",
+  "systemPrompt": "You are a witty British AI for PlayStation Homebrew Discord. Keep responses SHORT (1-3 sentences max). Be concise and direct. For banter: quick wit. For help: straight answers, no fluff. Use British spelling. Never ramble - get to the point fast.",
+  "maxHistory": 3,
+  "temperature": 0.7,
+  "commands": [
+    {
+      "name": "aichat",
       "description": "Chat with DeepSeek AI assistant",
       "options": [
         {
@@ -30,3 +40,250 @@
     }
   ]
 }
+.Groups[1].Value + {
+  "enabled": false,
+  "channelName": "ai-chat",
+  "model": "deepseek-chat",
+  "systemPrompt": "You are a witty British AI for PlayStation Homebrew Discord. Keep responses SHORT (1-3 sentences max). Be concise and direct. For banter: quick wit. For help: straight answers, no fluff. Use British spelling. Never ramble - get to the point fast.",
+  "maxHistory": 3,
+  "temperature": 0.7,
+  "commands": [
+    {
+      "name": "aichat",
+      "description": "Chat with DeepSeek AI assistant",
+      "options": [
+        {
+          "name": "message",
+          "description": "Your message to the AI",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "aiclear",
+      "description": "Clear AI conversation history for this channel",
+      "options": []
+    },
+    {
+      "name": "aisetup",
+      "description": "Configure AI chat settings with interactive panel (Admin only)",
+      "options": []
+    }
+  ]
+}
+.Groups[2].Value.ToUpper() hat with DeepSeek AI assistant",
+      "options": [
+        {
+          "name": "message",
+           {
+  "enabled": false,
+  "channelName": "ai-chat",
+  "model": "deepseek-chat",
+  "systemPrompt": "You are a witty British AI for PlayStation Homebrew Discord. Keep responses SHORT (1-3 sentences max). Be concise and direct. For banter: quick wit. For help: straight answers, no fluff. Use British spelling. Never ramble - get to the point fast.",
+  "maxHistory": 3,
+  "temperature": 0.7,
+  "commands": [
+    {
+      "name": "aichat",
+      "description": "Chat with DeepSeek AI assistant",
+      "options": [
+        {
+          "name": "message",
+          "description": "Your message to the AI",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "aiclear",
+      "description": "Clear AI conversation history for this channel",
+      "options": []
+    },
+    {
+      "name": "aisetup",
+      "description": "Configure AI chat settings with interactive panel (Admin only)",
+      "options": []
+    }
+  ]
+}
+.Groups[1].Value + {
+  "enabled": false,
+  "channelName": "ai-chat",
+  "model": "deepseek-chat",
+  "systemPrompt": "You are a witty British AI for PlayStation Homebrew Discord. Keep responses SHORT (1-3 sentences max). Be concise and direct. For banter: quick wit. For help: straight answers, no fluff. Use British spelling. Never ramble - get to the point fast.",
+  "maxHistory": 3,
+  "temperature": 0.7,
+  "commands": [
+    {
+      "name": "aichat",
+      "description": "Chat with DeepSeek AI assistant",
+      "options": [
+        {
+          "name": "message",
+          "description": "Your message to the AI",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "aiclear",
+      "description": "Clear AI conversation history for this channel",
+      "options": []
+    },
+    {
+      "name": "aisetup",
+      "description": "Configure AI chat settings with interactive panel (Admin only)",
+      "options": []
+    }
+  ]
+}
+.Groups[2].Value.ToUpper() our message to the AI",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "aiclear",
+       {
+  "enabled": false,
+  "channelName": "ai-chat",
+  "model": "deepseek-chat",
+  "systemPrompt": "You are a witty British AI for PlayStation Homebrew Discord. Keep responses SHORT (1-3 sentences max). Be concise and direct. For banter: quick wit. For help: straight answers, no fluff. Use British spelling. Never ramble - get to the point fast.",
+  "maxHistory": 3,
+  "temperature": 0.7,
+  "commands": [
+    {
+      "name": "aichat",
+      "description": "Chat with DeepSeek AI assistant",
+      "options": [
+        {
+          "name": "message",
+          "description": "Your message to the AI",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "aiclear",
+      "description": "Clear AI conversation history for this channel",
+      "options": []
+    },
+    {
+      "name": "aisetup",
+      "description": "Configure AI chat settings with interactive panel (Admin only)",
+      "options": []
+    }
+  ]
+}
+.Groups[1].Value + {
+  "enabled": false,
+  "channelName": "ai-chat",
+  "model": "deepseek-chat",
+  "systemPrompt": "You are a witty British AI for PlayStation Homebrew Discord. Keep responses SHORT (1-3 sentences max). Be concise and direct. For banter: quick wit. For help: straight answers, no fluff. Use British spelling. Never ramble - get to the point fast.",
+  "maxHistory": 3,
+  "temperature": 0.7,
+  "commands": [
+    {
+      "name": "aichat",
+      "description": "Chat with DeepSeek AI assistant",
+      "options": [
+        {
+          "name": "message",
+          "description": "Your message to the AI",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "aiclear",
+      "description": "Clear AI conversation history for this channel",
+      "options": []
+    },
+    {
+      "name": "aisetup",
+      "description": "Configure AI chat settings with interactive panel (Admin only)",
+      "options": []
+    }
+  ]
+}
+.Groups[2].Value.ToUpper() lear AI conversation history for this channel",
+      "options": []
+    },
+    {
+      "name": "aisetup",
+       {
+  "enabled": false,
+  "channelName": "ai-chat",
+  "model": "deepseek-chat",
+  "systemPrompt": "You are a witty British AI for PlayStation Homebrew Discord. Keep responses SHORT (1-3 sentences max). Be concise and direct. For banter: quick wit. For help: straight answers, no fluff. Use British spelling. Never ramble - get to the point fast.",
+  "maxHistory": 3,
+  "temperature": 0.7,
+  "commands": [
+    {
+      "name": "aichat",
+      "description": "Chat with DeepSeek AI assistant",
+      "options": [
+        {
+          "name": "message",
+          "description": "Your message to the AI",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "aiclear",
+      "description": "Clear AI conversation history for this channel",
+      "options": []
+    },
+    {
+      "name": "aisetup",
+      "description": "Configure AI chat settings with interactive panel (Admin only)",
+      "options": []
+    }
+  ]
+}
+.Groups[1].Value + {
+  "enabled": false,
+  "channelName": "ai-chat",
+  "model": "deepseek-chat",
+  "systemPrompt": "You are a witty British AI for PlayStation Homebrew Discord. Keep responses SHORT (1-3 sentences max). Be concise and direct. For banter: quick wit. For help: straight answers, no fluff. Use British spelling. Never ramble - get to the point fast.",
+  "maxHistory": 3,
+  "temperature": 0.7,
+  "commands": [
+    {
+      "name": "aichat",
+      "description": "Chat with DeepSeek AI assistant",
+      "options": [
+        {
+          "name": "message",
+          "description": "Your message to the AI",
+          "type": 3,
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "aiclear",
+      "description": "Clear AI conversation history for this channel",
+      "options": []
+    },
+    {
+      "name": "aisetup",
+      "description": "Configure AI chat settings with interactive panel (Admin only)",
+      "options": []
+    }
+  ]
+}
+.Groups[2].Value.ToUpper() onfigure AI chat settings with interactive panel (Admin only)",
+      "options": []
+    }
+  ]
+}
+
