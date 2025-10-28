@@ -1,5 +1,5 @@
 ﻿// --- Global error handling ---
-// Test workflow deployment with password auth
+// Testing fixed workflow - should be green now!
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
 });
