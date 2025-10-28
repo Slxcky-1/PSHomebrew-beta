@@ -207,17 +207,29 @@ function analyzeUserTone(message, userId) {
 function getPersonalityForTone(tone, username) {
     switch (tone) {
         case 'question':
-            return `The user ${username} is asking a question and needs help. Provide a clear, complete answer. Be professional and informative, with a touch of warmth. Stay focused on helping them understand. Keep any humour subtle and dry - a light touch only.`;
+            return { 
+                instruction: `The user ${username} is asking a question and needs help. Provide a clear, complete answer. Be professional and informative, with a touch of warmth. Stay focused on helping them understand. Keep any humour subtle and dry - a light touch only. If it's a simple question (like "what is X"), keep it brief (2-4 sentences). For more complex questions, provide full details.`,
+                maxTokens: 250
+            };
         
         case 'technical':
-            return `The user ${username} is asking a technical question. Provide precise, thorough technical information. Be professional and methodical. Use clear step-by-step guidance when needed. You can include a subtle bit of dry humour if natural, but prioritise accuracy and clarity.`;
+            return { 
+                instruction: `The user ${username} is asking a technical question. Provide precise, thorough technical information. Be professional and methodical. Use clear step-by-step guidance when needed. For installation/setup questions, include ALL necessary steps with file paths, folder structures, and exact filenames. You can include a subtle bit of dry humour if natural, but prioritise accuracy and clarity. Don't cut corners on technical details.`,
+                maxTokens: 350
+            };
         
         case 'joke':
-            return `The user ${username} is in a playful mood. You can be more relaxed and humorous, but keep it understated - think dry British wit rather than full comedy. Be cheeky but not over the top. Balance fun with being genuinely helpful.`;
+            return { 
+                instruction: `The user ${username} is in a playful mood. You can be more relaxed and humorous, but keep it understated - think dry British wit rather than full comedy. Be cheeky but not over the top. Balance fun with being genuinely helpful.`,
+                maxTokens: 150
+            };
         
         case 'casual':
         default:
-            return `The user ${username} is having a casual chat. Be friendly and approachable with occasional subtle humour. Think 'knowledgeable mate at the pub' rather than 'standup comedian'. Keep it natural and balanced.`;
+            return { 
+                instruction: `The user ${username} is having a casual chat. Be friendly and approachable with occasional subtle humour. Think 'knowledgeable mate at the pub' rather than 'standup comedian'. Keep it natural and balanced.`,
+                maxTokens: 200
+            };
     }
 }
 
@@ -1468,7 +1480,7 @@ client.on('messageCreate', async (message) => {
         
         // Analyze tone and add message
         const userTone = analyzeUserTone(message.content, userId);
-        const toneInstruction = getPersonalityForTone(userTone, message.author.username);
+        const toneConfig = getPersonalityForTone(userTone, message.author.username);
         
         aiConversations[channelId].push({
             role: 'user',
@@ -1500,17 +1512,17 @@ client.on('messageCreate', async (message) => {
                 
                 // Build message array (strip metadata for token efficiency)
                 const messages = [
-                    { role: 'system', content: `${settings.ai.systemPrompt}\n\n${toneInstruction}${searchContext}` },
+                    { role: 'system', content: `${settings.ai.systemPrompt}\n\n${toneConfig.instruction}${searchContext}` },
                     ...aiConversations[channelId].map(m => ({ role: m.role, content: m.content }))
                 ];
                 
-                // Call DeepSeek API
+                // Call DeepSeek API with dynamic token limit based on question type
                 const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
                 const response = await generateText({
                     model: deepseek(settings.ai.model),
                     messages,
                     temperature: settings.ai.temperature,
-                    maxTokens: 200 // Optimized for fastest responses
+                    maxTokens: toneConfig.maxTokens
                 });
                 
                 const text = response.text;
@@ -1524,11 +1536,11 @@ client.on('messageCreate', async (message) => {
                     return message.reply('❌ Empty response received. Try again!');
                 }
 
-                // Safeguard: Truncate to 200 tokens (approximate, whitespace split)
+                // Safeguard: Truncate based on dynamic token limit
                 let safeText = text;
                 const words = text.split(/\s+/);
-                if (words.length > 200) {
-                    safeText = words.slice(0, 200).join(' ') + '...';
+                if (words.length > toneConfig.maxTokens) {
+                    safeText = words.slice(0, toneConfig.maxTokens).join(' ') + '...';
                 }
 
                 // Add to history
@@ -2571,7 +2583,7 @@ client.on('interactionCreate', async (interaction) => {
         
         // Analyze user's conversation tone
         const userTone = analyzeUserTone(userMessage, userId);
-        const toneInstruction = getPersonalityForTone(userTone, interaction.user.username);
+        const toneConfig = getPersonalityForTone(userTone, interaction.user.username);
         
         // Initialize conversation history for this channel
         if (!aiConversations[channelId]) {
@@ -2615,7 +2627,7 @@ client.on('interactionCreate', async (interaction) => {
             const messages = [
                 {
                     role: 'system',
-                    content: `${settings.ai.systemPrompt}\n\n${toneInstruction}${searchContext}`
+                    content: `${settings.ai.systemPrompt}\n\n${toneConfig.instruction}${searchContext}`
                 },
                 // Only send content, not metadata (saves tokens)
                 ...aiConversations[channelId].map(msg => ({
@@ -2624,7 +2636,7 @@ client.on('interactionCreate', async (interaction) => {
                 }))
             ];
             
-            // Use @ai-sdk/deepseek for DeepSeek API
+            // Use @ai-sdk/deepseek for DeepSeek API with dynamic token limit
             const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
             let aiResponse = '';
             
@@ -2633,7 +2645,7 @@ client.on('interactionCreate', async (interaction) => {
                     model: settings.ai.model,
                     messages: messages,
                     temperature: settings.ai.temperature,
-                    max_tokens: 200 // Optimized for fastest responses
+                    max_tokens: toneConfig.maxTokens
                 });
                 
                 aiResponse = completion.choices[0]?.message?.content;
