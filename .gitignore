@@ -1,6 +1,9 @@
 # Dependency directories
 node_modules/
 
+# Config files with sensitive data
+config.json
+
 # OS files
 .DS_Store
 Thumbs.db
