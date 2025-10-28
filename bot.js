@@ -1322,7 +1322,20 @@ client.once('clientReady', async () => {
                     features.push(`✅ User Data: ${fsSync.existsSync('./userData.json') ? 'Loaded' : 'Missing'}`);
                     features.push(`✅ PS3 Error Codes: ${Object.keys(ps3ErrorCodes).length} loaded`);
                     features.push(`✅ PS4 Error Codes: ${Object.keys(ps4ErrorCodes).filter(k => !k.startsWith('_')).length} loaded`);
-                    features.push(`✅ Commands: Registered`);
+                    
+                    // Count registered commands from feature files
+                    let totalCommands = 0;
+                    try {
+                        const featuresDir = path.join(__dirname, 'features');
+                        const featureFiles = fsSync.readdirSync(featuresDir).filter(f => f.endsWith('.json'));
+                        for (const file of featureFiles) {
+                            const feature = JSON.parse(fsSync.readFileSync(path.join(featuresDir, file), 'utf8'));
+                            if (feature.commands) totalCommands += feature.commands.length;
+                        }
+                    } catch (e) {
+                        totalCommands = 'Unknown';
+                    }
+                    features.push(`✅ Commands: ${totalCommands} registered`);
                     
                     const onlineEmbed = new EmbedBuilder()
                         .setTitle('🟢 Bot Online - Update Complete')
