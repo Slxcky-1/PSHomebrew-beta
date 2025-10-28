@@ -22,9 +22,9 @@ jobs:
           script_stop: true
           script: |
             cd /home/elontusk/Desktop/PSHomebrew-beta-main
+            rm -f serverSettings.json userData.json ticketData.json moderationData.json
             git fetch origin
             git reset --hard origin/main
-            git clean -fd
             sudo systemctl restart discord-bot
             echo "✅ Bot updated and restarted successfully!"
             exit 0
