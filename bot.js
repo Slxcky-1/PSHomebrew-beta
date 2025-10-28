@@ -1220,12 +1220,18 @@ function startServerStatsUpdates() {
 
 // Bot ready event
 client.once('clientReady', async () => {
+    console.log('\n' + '='.repeat(60));
     console.log(`✅ ${client.user.tag} is online and ready!`);
     console.log(`🤖 Bot is in ${client.guilds.cache.size} server(s)`);
-    console.log(`⚡ Low-end PC optimizations enabled`);
-    console.log(`💾 Memory optimizations: Active`);
-    console.log(`🧹 Cache limits: 25 msgs | 50 members | 50 users`);
-    console.log(`🔄 Sweepers: 15min intervals | 10min lifetime`);
+    console.log('='.repeat(60));
+    
+    // Performance optimizations status
+    console.log('\n📊 PERFORMANCE STATUS:');
+    console.log(`  ⚡ Low-end PC optimizations: ACTIVE`);
+    console.log(`  💾 Memory optimizations: ACTIVE`);
+    console.log(`  🧹 Cache limits: 25 msgs | 50 members | 50 users`);
+    console.log(`  🔄 Sweepers: 15min intervals | 10min lifetime`);
+    console.log(`  💾 Debounced saves: 10s user | 5s settings | 3s tickets`);
     
     // Set bot activity
     client.user.setActivity('PSHomebrew Community', { type: ActivityType.Watching });
@@ -1235,6 +1241,71 @@ client.once('clientReady', async () => {
     loadSettings();
     loadTicketData();
     loadModerationData();
+    
+    // Feature verification checklist
+    console.log('\n🔍 FEATURE VERIFICATION:');
+    
+    const checklist = {
+        'Config loaded': config.token && config.clientId && config.botOwnerId,
+        'DeepSeek API key': config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE',
+        'User data file': fsSync.existsSync('./userData.json'),
+        'Settings file': fsSync.existsSync('./serverSettings.json'),
+        'Ticket data file': fsSync.existsSync('./ticketData.json'),
+        'Moderation data file': fsSync.existsSync('./moderationData.json'),
+        'PS3 Error codes': Object.keys(ps3ErrorCodes).length > 0,
+        'Commands registered': client.application?.commands ? true : false,
+        'AI enabled': Object.values(serverSettings).some(s => s.ai?.enabled),
+        'Leveling enabled': Object.values(serverSettings).some(s => s.leveling?.enabled),
+        'Logging enabled': Object.values(serverSettings).some(s => s.logging?.enabled)
+    };
+    
+    for (const [feature, status] of Object.entries(checklist)) {
+        console.log(`  ${status ? '✅' : '❌'} ${feature}`);
+    }
+    
+    // Count active features across all guilds
+    let activeFeatures = {
+        leveling: 0,
+        ai: 0,
+        welcome: 0,
+        leave: 0,
+        keywords: 0,
+        tickets: 0,
+        autoNickname: 0,
+        raidProtection: 0,
+        logging: 0,
+        serverStats: 0,
+        youtubeNotifications: 0
+    };
+    
+    for (const settings of Object.values(serverSettings)) {
+        if (settings.leveling?.enabled) activeFeatures.leveling++;
+        if (settings.ai?.enabled) activeFeatures.ai++;
+        if (settings.welcome?.enabled) activeFeatures.welcome++;
+        if (settings.leave?.enabled) activeFeatures.leave++;
+        if (settings.keywords?.enabled) activeFeatures.keywords++;
+        if (settings.tickets?.enabled) activeFeatures.tickets++;
+        if (settings.autoNickname?.enabled) activeFeatures.autoNickname++;
+        if (settings.raidProtection?.enabled) activeFeatures.raidProtection++;
+        if (settings.logging?.enabled) activeFeatures.logging++;
+        if (settings.serverStats?.enabled) activeFeatures.serverStats++;
+        if (settings.youtubeNotifications?.enabled) activeFeatures.youtubeNotifications++;
+    }
+    
+    console.log('\n📈 ACTIVE FEATURES BY SERVER:');
+    console.log(`  🎮 Leveling: ${activeFeatures.leveling} servers`);
+    console.log(`  🤖 AI Chat: ${activeFeatures.ai} servers`);
+    console.log(`  👋 Welcome: ${activeFeatures.welcome} servers`);
+    console.log(`  👋 Leave: ${activeFeatures.leave} servers`);
+    console.log(`  🚨 Keywords: ${activeFeatures.keywords} servers`);
+    console.log(`  🎫 Tickets: ${activeFeatures.tickets} servers`);
+    console.log(`  ✏️ Auto-nickname: ${activeFeatures.autoNickname} servers`);
+    console.log(`  🛡️ Raid Protection: ${activeFeatures.raidProtection} servers`);
+    console.log(`  📝 Logging: ${activeFeatures.logging} servers`);
+    console.log(`  📊 Server Stats: ${activeFeatures.serverStats} servers`);
+    console.log(`  📺 YouTube Notifications: ${activeFeatures.youtubeNotifications} servers`);
+    
+    console.log('\n' + '='.repeat(60) + '\n');
     
     // Check if bot was restarted via /update command
     try {
