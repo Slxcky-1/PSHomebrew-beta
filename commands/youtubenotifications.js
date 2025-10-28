@@ -6,14 +6,16 @@ const ytDataPath = path.join(__dirname, '..', 'features', 'youtubeNotifications.
 
 function loadYTData() {
     try {
-        return JSON.parse(fs.readFileSync(ytDataPath, 'utf8'));
+        const fsSync = require('fs');
+        return JSON.parse(fsSync.readFileSync(ytDataPath, 'utf8'));
     } catch {
         return {};
     }
 }
 
 function saveYTData(data) {
-    fs.writeFileSync(ytDataPath, JSON.stringify(data, null, 2));
+    const fsSync = require('fs');
+    fsSync.writeFileSync(ytDataPath, JSON.stringify(data, null, 2));
 }
 
 module.exports = {

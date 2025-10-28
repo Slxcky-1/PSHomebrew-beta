@@ -345,8 +345,8 @@ scheduleMidnightRestart();
 // Load existing user data
 function loadUserData() {
     try {
-        if (fs.existsSync(userDataFile)) {
-            userData = JSON.parse(fs.readFileSync(userDataFile, 'utf8'));
+        if (fsSync.existsSync(userDataFile)) {
+            userData = JSON.parse(fsSync.readFileSync(userDataFile, 'utf8'));
         }
     } catch (error) {
         console.error('Error loading user data:', error);
@@ -1228,7 +1228,7 @@ function startYouTubeMonitoring() {
     
     async function checkYouTubeChannels() {
         try {
-            const ytData = JSON.parse(fs.readFileSync(ytDataPath, 'utf8'));
+            const ytData = JSON.parse(fsSync.readFileSync(ytDataPath, 'utf8'));
             
             for (const [guildId, config] of Object.entries(ytData)) {
                 if (!config.enabled || !config.notificationChannelId || config.channels.length === 0) continue;
@@ -1255,7 +1255,7 @@ function startYouTubeMonitoring() {
                         
                         // Update last checked
                         config.lastChecked[ytChannel.channelId] = videoId;
-                        fs.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
+                        fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
                         
                         // Build custom message
                         let customMsg = config.customMessage
@@ -1297,7 +1297,7 @@ function startYouTubeMonitoring() {
     // Set up periodic checking (will use each guild's interval)
     setInterval(async () => {
         try {
-            const ytData = JSON.parse(fs.readFileSync(ytDataPath, 'utf8'));
+            const ytData = JSON.parse(fsSync.readFileSync(ytDataPath, 'utf8'));
             for (const [guildId, config] of Object.entries(ytData)) {
                 if (config.enabled) {
                     checkYouTubeChannels();
@@ -7499,7 +7499,7 @@ async function updateAIKnowledge() {
         }
         
         // Update all server settings with REAL-TIME knowledge
-        const allSettings = JSON.parse(fs.readFileSync('./serverSettings.json', 'utf8'));
+        const allSettings = JSON.parse(fsSync.readFileSync('./serverSettings.json', 'utf8'));
         let updated = false;
         
         for (const guildId in allSettings) {
@@ -7512,7 +7512,7 @@ async function updateAIKnowledge() {
         }
         
         if (updated) {
-            fs.writeFileSync('./serverSettings.json', JSON.stringify(allSettings, null, 2));
+            fsSync.writeFileSync('./serverSettings.json', JSON.stringify(allSettings, null, 2));
             const now = new Date();
             console.log(`✅ AI knowledge LIVE-UPDATED from web (${now.toLocaleString()})`);
             console.log(`📊 REAL-TIME DB: PS3 ${psData.ps3OFW}/${psData.ps3CFW} | PS4 ${psData.ps4OFW}/${psData.ps4PPPwn}/${psData.ps4BDJB} | PS5 ${psData.ps5OFW}/${psData.ps5Lapse}/${psData.ps5kstuff}`);
@@ -7557,7 +7557,7 @@ async function checkPlayStationUpdates() {
             vita: 'https://www.playstation.com/en-gb/support/hardware/psvita/system-software/'
         };
         
-        const allSettings = JSON.parse(fs.readFileSync('./serverSettings.json', 'utf8'));
+        const allSettings = JSON.parse(fsSync.readFileSync('./serverSettings.json', 'utf8'));
         let updatesFound = [];
         
         // Check PS4 firmware
@@ -7719,7 +7719,7 @@ async function checkPlayStationUpdates() {
             }
             
             // Save updated settings if PS4 firmware changed
-            fs.writeFileSync('./serverSettings.json', JSON.stringify(allSettings, null, 2));
+            fsSync.writeFileSync('./serverSettings.json', JSON.stringify(allSettings, null, 2));
         } else {
             console.log('✅ No new PlayStation firmware updates detected');
         }
