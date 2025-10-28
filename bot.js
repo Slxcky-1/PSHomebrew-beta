@@ -1302,39 +1302,42 @@ client.once('clientReady', async () => {
             const updateData = JSON.parse(fsSync.readFileSync('./update-marker.json', 'utf8'));
             console.log(`📍 Channel ID: ${updateData.channelId}, Guild ID: ${updateData.guildId}`);
             
-            const guild = client.guilds.cache.get(updateData.guildId);
-            if (guild) {
-                console.log(`✅ Guild found: ${guild.name}`);
-                const channel = guild.channels.cache.get(updateData.channelId);
-                if (channel) {
-                    console.log(`✅ Channel found: #${channel.name}`);
-                    const downtime = Math.round((Date.now() - updateData.timestamp) / 1000);
-                    
-                    // Build feature checklist
-                    const features = [];
-                    features.push(`✅ Config: Loaded`);
-                    features.push(`✅ DeepSeek API: ${config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
-                    features.push(`✅ User Data: ${fsSync.existsSync('./userData.json') ? 'Loaded' : 'Missing'}`);
-                    features.push(`✅ PS3 Error Codes: ${Object.keys(ps3ErrorCodes).length} loaded`);
-                    features.push(`✅ Commands: Registered`);
-                    
-                    const onlineEmbed = new EmbedBuilder()
-                        .setTitle('🟢 Bot Online - Update Complete')
-                        .setDescription(`Successfully updated and restarted!\n\n**Git Pull:**\n\`\`\`${updateData.gitOutput || 'Updated successfully'}\`\`\`\n\n**System Check:**\n${features.join('\n')}`)
-                        .setColor(0x00FF00)
-                        .addFields(
-                            { name: '⏰ Downtime', value: `${downtime}s`, inline: true },
-                            { name: '🤖 Servers', value: `${client.guilds.cache.size}`, inline: true },
-                            { name: '👥 Users', value: `${client.guilds.cache.reduce((acc, g) => acc + g.memberCount, 0)}`, inline: true }
-                        )
-                        .setTimestamp();
-                    await channel.send({ embeds: [onlineEmbed] });
-                    console.log('✅ Online notification sent!');
-                } else {
-                    console.log('❌ Channel not found');
+            // Send DM to bot owner instead of public message
+            const downtime = Math.round((Date.now() - updateData.timestamp) / 1000);
+            
+            // Build feature checklist
+            const features = [];
+            features.push(`✅ Config: Loaded`);
+            features.push(`✅ DeepSeek API: ${config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
+            features.push(`✅ User Data: ${fsSync.existsSync('./userData.json') ? 'Loaded' : 'Missing'}`);
+            features.push(`✅ PS3 Error Codes: ${Object.keys(ps3ErrorCodes).length} loaded`);
+            features.push(`✅ Commands: Registered`);
+            
+            const onlineEmbed = new EmbedBuilder()
+                .setTitle('🟢 Bot Online - Update Complete')
+                .setDescription(`Successfully updated and restarted!\n\n**Git Pull:**\n\`\`\`${updateData.gitOutput || 'Updated successfully'}\`\`\`\n\n**System Check:**\n${features.join('\n')}`)
+                .setColor(0x00FF00)
+                .addFields(
+                    { name: '⏰ Downtime', value: `${downtime}s`, inline: true },
+                    { name: '🤖 Servers', value: `${client.guilds.cache.size}`, inline: true },
+                    { name: '👥 Users', value: `${client.guilds.cache.reduce((acc, g) => acc + g.memberCount, 0)}`, inline: true }
+                )
+                .setTimestamp();
+            
+            try {
+                const owner = await client.users.fetch(config.botOwnerId);
+                await owner.send({ embeds: [onlineEmbed] });
+                console.log('✅ Update notification sent via DM to bot owner!');
+            } catch (error) {
+                console.log('❌ Failed to DM owner, trying channel fallback...');
+                const guild = client.guilds.cache.get(updateData.guildId);
+                if (guild) {
+                    const channel = guild.channels.cache.get(updateData.channelId);
+                    if (channel) {
+                        await channel.send({ embeds: [onlineEmbed] });
+                        console.log('✅ Online notification sent to channel!');
+                    }
                 }
-            } else {
-                console.log('❌ Guild not found');
             }
             // Delete marker file
             fsSync.unlinkSync('./update-marker.json');
