@@ -7,8 +7,8 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 // --- End global error handling ---
 const { Client, GatewayIntentBits, EmbedBuilder, ActivityType, PermissionFlagsBits, ChannelType, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
-const fs = require('fs').promises;
 const fsSync = require('fs');
+const fs = require('fs').promises;
 const ps3ErrorCodes = require('./features/ps3ErrorCodes.json');
 const { Snake, TicTacToe, Connect4, Wordle, Minesweeper, TwoZeroFourEight, MatchPairs, FastType, FindEmoji, GuessThePokemon, RockPaperScissors, Hangman, Trivia, Slots, WouldYouRather } = require('discord-gamecord');
 const { search } = require('duck-duck-scrape');
