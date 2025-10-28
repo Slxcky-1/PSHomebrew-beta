@@ -1,4 +1,12 @@
-﻿const { Client, GatewayIntentBits, EmbedBuilder, ActivityType, PermissionFlagsBits, ChannelType, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
+﻿// --- Global error handling ---
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+// --- End global error handling ---
+const { Client, GatewayIntentBits, EmbedBuilder, ActivityType, PermissionFlagsBits, ChannelType, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 const fs = require('fs');
 const ps3ErrorCodes = require('./features/ps3ErrorCodes.json');
 const { Snake, TicTacToe, Connect4, Wordle, Minesweeper, TwoZeroFourEight, MatchPairs, FastType, FindEmoji, GuessThePokemon, RockPaperScissors, Hangman, Trivia, Slots, WouldYouRather } = require('discord-gamecord');
@@ -15,10 +23,44 @@ try {
     console.error('❌ ERROR: config.json not found!');
     console.error('Please create config.json with your bot token and client ID');
     process.exit(1);
+// --- Modular command handler setup ---
+// --- Modular command handler setup ---
+const path = require('path');
+const fsSync = require('fs');
+const commandFiles = fsSync.readdirSync(path.join(__dirname, 'commands')).filter(file => file.endsWith('.js'));
+const commands = new Map();
+for (const file of commandFiles) {
+    const command = require(path.join(__dirname, 'commands', file));
+    if (command.name && typeof command.execute === 'function') {
+        commands.set(command.name, command);
+    }
+}
+// --- End modular command handler setup ---
+// --- End modular command handler setup ---
 }
 
 // Validate required configuration
 if (!config.token || !config.clientId) {
+client.on('messageCreate', async (message) => {
+    if (message.author.bot || !message.guild) return;
+
+    // Command prefix (change as needed)
+    const prefix = '!';
+    if (!message.content.startsWith(prefix)) return;
+
+    const args = message.content.slice(prefix.length).trim().split(/ +/);
+    const commandName = args.shift().toLowerCase();
+    const command = commands.get(commandName);
+    if (command) {
+        try {
+            await command.execute(message, args);
+        } catch (error) {
+            console.error(`Error executing command ${commandName}:`, error);
+            await message.reply('There was an error executing that command.');
+        }
+    }
+});
+// --- End modular command handler in message event ---
     console.error('❌ ERROR: Missing required configuration!');
     console.error('config.json must contain "token" and "clientId"');
     process.exit(1);
@@ -52,6 +94,8 @@ const client = new Client({
             interval: 1800, // 30 minutes in seconds
             lifetime: 900 // Keep messages for 15 minutes
         },
+        // --- Modular command handler setup ---
+        // --- End modular command handler setup ---
         users: {
             interval: 1800,
             filter: () => user => user.bot && user.id !== client.user.id
@@ -361,8 +405,17 @@ const saveTicketData = createDebouncedSave(ticketDataFile, () => ticketData, 100
 const saveModerationData = createDebouncedSave(moderationDataFile, () => moderationData, 1000);
 
 // Load server settings
-function loadSettings() {
-    serverSettings = loadJSON(settingsFile, {});
+async function loadSettings() {
+    try {
+        await fs.access(settingsFile);
+        const data = await fs.readFile(settingsFile, 'utf8');
+        serverSettings = JSON.parse(data);
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            console.error('Error loading server settings:', error);
+        }
+        serverSettings = {};
+    }
 }
 
 // Get settings for a guild (with defaults)
@@ -375,13 +428,31 @@ function getGuildSettings(guildId) {
 }
 
 // Load ticket data
-function loadTicketData() {
-    ticketData = loadJSON(ticketDataFile, {});
+async function loadTicketData() {
+    try {
+        await fs.access(ticketDataFile);
+        const data = await fs.readFile(ticketDataFile, 'utf8');
+        ticketData = JSON.parse(data);
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            console.error('Error loading ticket data:', error);
+        }
+        ticketData = {};
+    }
 }
 
 // Load moderation data
-function loadModerationData() {
-    moderationData = loadJSON(moderationDataFile, {});
+async function loadModerationData() {
+    try {
+        await fs.access(moderationDataFile);
+        const data = await fs.readFile(moderationDataFile, 'utf8');
+        moderationData = JSON.parse(data);
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            console.error('Error loading moderation data:', error);
+        }
+        moderationData = {};
+    }
 }
 
 // Initialize moderation data for a guild - optimized
@@ -7803,9 +7874,9 @@ async function gracefulShutdown(signal) {
     if (typeof saveModerationDataTimer !== 'undefined') clearTimeout(saveModerationDataTimer);
     
     fs.writeFileSync(userDataFile, JSON.stringify(userData, null, 2));
-    fs.writeFileSync(settingsFile, JSON.stringify(serverSettings, null, 2));
-    fs.writeFileSync(ticketDataFile, JSON.stringify(ticketData, null, 2));
-    fs.writeFileSync(moderationDataFile, JSON.stringify(moderationData, null, 2));
+    await fs.writeFile(settingsFile, JSON.stringify(serverSettings, null, 2));
+    await fs.writeFile(ticketDataFile, JSON.stringify(ticketData, null, 2));
+    await fs.writeFile(moderationDataFile, JSON.stringify(moderationData, null, 2));
     console.log('💾 All data saved');
     console.log('👋 Goodbye!');
     process.exit(0);
@@ -7844,9 +7915,9 @@ process.on('uncaughtException', async (error) => {
     // Save data before attempting recovery
     try {
         fs.writeFileSync(userDataFile, JSON.stringify(userData, null, 2));
-        fs.writeFileSync(settingsFile, JSON.stringify(serverSettings, null, 2));
-        fs.writeFileSync(ticketDataFile, JSON.stringify(ticketData, null, 2));
-        fs.writeFileSync(moderationDataFile, JSON.stringify(moderationData, null, 2));
+    await fs.writeFile(settingsFile, JSON.stringify(serverSettings, null, 2));
+    await fs.writeFile(ticketDataFile, JSON.stringify(ticketData, null, 2));
+    await fs.writeFile(moderationDataFile, JSON.stringify(moderationData, null, 2));
         console.log('💾 Emergency data save completed');
     } catch (saveError) {
         console.error('❌ Failed to save data during crash:', saveError);
