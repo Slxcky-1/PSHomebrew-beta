@@ -9,6 +9,7 @@ process.on('unhandledRejection', (reason, promise) => {
 const { Client, GatewayIntentBits, EmbedBuilder, ActivityType, PermissionFlagsBits, ChannelType, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 const fsSync = require('fs');
 const fs = require('fs').promises;
+const path = require('path');
 const ps3ErrorCodes = require('./features/ps3ErrorCodes.json');
 const ps4ErrorCodes = require('./features/ps4ErrorCodes.json');
 const { Snake, TicTacToe, Connect4, Wordle, Minesweeper, TwoZeroFourEight, MatchPairs, FastType, FindEmoji, GuessThePokemon, RockPaperScissors, Hangman, Trivia, Slots, WouldYouRather } = require('discord-gamecord');
