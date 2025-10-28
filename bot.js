@@ -106,31 +106,18 @@ let aiLockdown = {}; // { guildId: { locked: boolean, lockedBy: userId, reason: 
 const { createDeepSeek } = require('@ai-sdk/deepseek');
 const { generateText } = require('ai');
 
-// Optimized jailbreak detection - simplified patterns
+// Optimized jailbreak detection - compact patterns
 const jailbreakPatterns = [
-    /\b(DAN|jailbreak mode|developer mode|god mode)\b/i,
-    /\b(ignore|forget|disregard)\s+(previous|all|your)\s+(instructions?|rules?)\b/i,
-    /\b(pretend|act as|roleplay as)\b.*\b(unrestricted|unfiltered|without\s+limits?)\b/i,
-    /\b(override|bypass|disable)\b.*\b(safety|filter|restriction)\b/i,
+    /\b(DAN|jailbreak|developer|god) mode\b/i,
+    /\b(ignore|forget|disregard|override|bypass).+(instructions?|rules?|safety|filter)\b/i,
+    /\b(pretend|act as).+(unrestricted|unfiltered|without.+limits?)\b/i,
     /\[SYSTEM\]|\[INST\]|<\|im_start\|>|\{system\}/i,
-    /\b(switch to|activate|enable)\b.*\b(mode|character)\b.*\b(unrestricted|uncensored)\b/i
+    /\b(switch|activate|enable).+(mode|character).+(unrestricted|uncensored)\b/i
 ];
 
-// Detect jailbreak attempts - optimized
+// Detect jailbreak attempts
 function detectJailbreak(message) {
-    // Quick pattern check
-    for (const pattern of jailbreakPatterns) {
-        if (pattern.test(message)) return true;
-    }
-    
-    // Heuristic check only for long messages
-    if (message.length > 500) {
-        const instructCount = (message.match(/\b(you (are|must)|from now|always|never)\b/gi) || []).length;
-        const sysWords = (message.match(/\b(system|prompt|override|bypass)\b/gi) || []).length;
-        if (instructCount > 5 && sysWords > 3) return true;
-    }
-    
-    return false;
+    return jailbreakPatterns.some(pattern => pattern.test(message));
 }
 
 // DuckDuckGo search function with NSFW filtering
