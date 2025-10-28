@@ -8,12 +8,24 @@ echo "🔄 Updating PSHomebrew Discord Bot..."
 # Navigate to bot directory
 cd /home/elontusk/Desktop/PSHomebrew-beta-main || exit 1
 
+# Clean up node_modules to prevent buildup
+echo "🧹 Cleaning old dependencies..."
+rm -rf node_modules
+
+# Reset any local changes to code files (keeps data files)
+echo "🔄 Resetting code files..."
+git reset --hard HEAD
+
 # Pull latest changes
 echo "📥 Pulling latest changes from GitHub..."
 git pull origin main
 
 if [ $? -eq 0 ]; then
     echo "✅ Successfully pulled updates"
+    
+    # Reinstall dependencies
+    echo "📦 Installing dependencies..."
+    npm install --production
     
     # Restart the bot service
     echo "🔄 Restarting bot service..."
