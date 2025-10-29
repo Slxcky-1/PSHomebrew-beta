@@ -5780,9 +5780,9 @@ client.on('interactionCreate', async (interaction) => {
             
             const channelInput = new TextInputBuilder()
                 .setCustomId('channel_name')
-                .setLabel('Channel Name (without #)')
+                .setLabel('Channel Name or ID')
                 .setStyle(TextInputStyle.Short)
-                .setPlaceholder('general')
+                .setPlaceholder('general or 1234567890')
                 .setValue(config.channelName || '')
                 .setRequired(true)
                 .setMaxLength(100);
@@ -5876,9 +5876,9 @@ client.on('interactionCreate', async (interaction) => {
             
             const channelInput = new TextInputBuilder()
                 .setCustomId('channel_name')
-                .setLabel('Channel Name (without #)')
+                .setLabel('Channel Name or ID')
                 .setStyle(TextInputStyle.Short)
-                .setPlaceholder('general')
+                .setPlaceholder('general or 1234567890')
                 .setValue(config.channelName || '')
                 .setRequired(true)
                 .setMaxLength(100);
@@ -7583,7 +7583,31 @@ client.on('interactionCreate', async (interaction) => {
                     
                     // Welcome system modals
                     else if (interaction.customId === 'welcome_channel_modal') {
-                        const channelName = interaction.fields.getTextInputValue('channel_name').trim();
+                        let channelInput = interaction.fields.getTextInputValue('channel_name').trim();
+                        
+                        // Check if it's a channel ID (numeric)
+                        let channelName = channelInput;
+                        if (/^\d+$/.test(channelInput)) {
+                            // It's an ID, find the channel
+                            const channel = interaction.guild.channels.cache.get(channelInput);
+                            if (!channel) {
+                                return interaction.reply({ 
+                                    content: `❌ Channel with ID \`${channelInput}\` not found!`, 
+                                    ephemeral: true 
+                                });
+                            }
+                            channelName = channel.name;
+                        } else {
+                            // It's a name, verify it exists
+                            const channel = interaction.guild.channels.cache.find(c => c.name === channelInput);
+                            if (!channel) {
+                                return interaction.reply({ 
+                                    content: `❌ Channel \`#${channelInput}\` not found!`, 
+                                    ephemeral: true 
+                                });
+                            }
+                        }
+                        
                         settings.welcome.channelName = channelName;
                         saveSettings();
                         
@@ -7605,7 +7629,31 @@ client.on('interactionCreate', async (interaction) => {
                     
                     // Leave system modals
                     else if (interaction.customId === 'leave_channel_modal') {
-                        const channelName = interaction.fields.getTextInputValue('channel_name').trim();
+                        let channelInput = interaction.fields.getTextInputValue('channel_name').trim();
+                        
+                        // Check if it's a channel ID (numeric)
+                        let channelName = channelInput;
+                        if (/^\d+$/.test(channelInput)) {
+                            // It's an ID, find the channel
+                            const channel = interaction.guild.channels.cache.get(channelInput);
+                            if (!channel) {
+                                return interaction.reply({ 
+                                    content: `❌ Channel with ID \`${channelInput}\` not found!`, 
+                                    ephemeral: true 
+                                });
+                            }
+                            channelName = channel.name;
+                        } else {
+                            // It's a name, verify it exists
+                            const channel = interaction.guild.channels.cache.find(c => c.name === channelInput);
+                            if (!channel) {
+                                return interaction.reply({ 
+                                    content: `❌ Channel \`#${channelInput}\` not found!`, 
+                                    ephemeral: true 
+                                });
+                            }
+                        }
+                        
                         settings.leave.channelName = channelName;
                         saveSettings();
                         
