@@ -99,7 +99,7 @@
         },
         {
             "name": "serverfeatures",
-            "description": "View all bot features (anyone can view)"
+            "description": "View all bot features and capabilities in a beautiful panel"
         }
     ]
 }
