@@ -2436,18 +2436,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '👋',
-                    value: `**Welcome Messages**\n${settings.welcome.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nChannel: **#${settings.welcome.channelName}**\n${settings.welcome.customMessage ? '✅ Custom message' : '📝 Default message'}`,
+                    name: '👋 Welcome Messages',
+                    value: `Greet new members\nCustom messages\nAuto-post to channel`,
                     inline: true
                 },
                 {
-                    name: '📭',
-                    value: `**Leave Messages**\n${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nChannel: **#${settings.leave.channelName}**\n${settings.leave.customMessage ? '✅ Custom message' : '📝 Default message'}`,
+                    name: '📭 Leave Messages',
+                    value: `Goodbye messages\nCustom farewell text\nAuto-post to channel`,
                     inline: true
                 },
                 {
-                    name: '🎫',
-                    value: `**Ticket System**\n${settings.tickets?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nSupport ticket management\nUse **/setuptickets**\nStaff and user panels`,
+                    name: '🎫 Ticket System',
+                    value: `Support ticket management\nUse **/setuptickets**\nStaff and user panels`,
                     inline: true
                 },
                 {
