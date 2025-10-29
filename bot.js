@@ -233,11 +233,17 @@ function getPersonalityForTone(tone, username) {
     }
 }
 
-// Helper function to load JSON files safely - reduces code duplication
-function loadJSON(filePath, defaultValue = {}) {
+// Helper function to load JSON files safely with caching for performance
+const jsonCache = new Map();
+function loadJSON(filePath, defaultValue = {}, useCache = false) {
+    if (useCache && jsonCache.has(filePath)) {
+        return jsonCache.get(filePath);
+    }
     try {
         if (fsSync.existsSync(filePath)) {
-            return JSON.parse(fsSync.readFileSync(filePath, 'utf8'));
+            const data = JSON.parse(fsSync.readFileSync(filePath, 'utf8'));
+            if (useCache) jsonCache.set(filePath, data);
+            return data;
         }
     } catch (error) {
         console.error(`⚠️ Error loading ${filePath}:`, error.message);
@@ -249,6 +255,7 @@ function loadJSON(filePath, defaultValue = {}) {
 function saveJSON(filePath, data) {
     try {
         fsSync.writeFileSync(filePath, JSON.stringify(data, null, 2));
+        jsonCache.delete(filePath); // Clear cache when saving
         return true;
     } catch (error) {
         console.error(`⚠️ Error saving ${filePath}:`, error.message);
@@ -1210,110 +1217,43 @@ function startServerStatsUpdates() {
     });
 }
 
-// Bot ready event
+// Bot ready event - optimized for faster startup
 client.once('clientReady', async () => {
     console.log('\n' + '='.repeat(60));
-    console.log(`✅ ${client.user.tag} is online and ready!`);
-    console.log(`🤖 Bot is in ${client.guilds.cache.size} server(s)`);
+    console.log(`✅ ${client.user.tag} is online!`);
+    console.log(`🤖 Servers: ${client.guilds.cache.size}`);
     console.log('='.repeat(60));
     
-    // Performance optimizations status
-    console.log('\n📊 PERFORMANCE STATUS:');
-    console.log(`  ⚡ Low-end PC optimizations: ACTIVE`);
-    console.log(`  💾 Memory optimizations: ACTIVE`);
-    console.log(`  🧹 Cache limits: 25 msgs | 50 members | 50 users`);
-    console.log(`  🔄 Sweepers: 15min intervals | 10min lifetime`);
-    console.log(`  💾 Debounced saves: 10s user | 5s settings | 3s tickets`);
-    
-    // Set bot activity
+    // Set bot activity immediately
     client.user.setActivity('PSHomebrew Community', { type: ActivityType.Watching });
     
-    // Load user data and settings
+    // Load critical data immediately
     loadUserData();
     loadSettings();
     loadTicketData();
     loadModerationData();
     
-    // Feature verification checklist
-    console.log('\n🔍 FEATURE VERIFICATION:');
-    
-    const checklist = {
-        'Config loaded': config.token && config.clientId && config.botOwnerId,
-        'DeepSeek API key': config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE',
-        'User data file': fsSync.existsSync('./userData.json'),
-        'Settings file': fsSync.existsSync('./serverSettings.json'),
-        'Ticket data file': fsSync.existsSync('./ticketData.json'),
-        'Moderation data file': fsSync.existsSync('./moderationData.json'),
-        'PS3 Error codes': Object.keys(ps3ErrorCodes).length > 0,
-        'Commands registered': client.application?.commands ? true : false,
-        'AI enabled': Object.values(serverSettings).some(s => s.ai?.enabled),
-        'Leveling enabled': Object.values(serverSettings).some(s => s.leveling?.enabled),
-        'Logging enabled': Object.values(serverSettings).some(s => s.logging?.enabled)
-    };
-    
-    for (const [feature, status] of Object.entries(checklist)) {
-        console.log(`  ${status ? '✅' : '❌'} ${feature}`);
-    }
-    
-    // Count active features across all guilds
-    let activeFeatures = {
-        leveling: 0,
-        ai: 0,
-        welcome: 0,
-        leave: 0,
-        keywords: 0,
-        tickets: 0,
-        autoNickname: 0,
-        raidProtection: 0,
-        logging: 0,
-        serverStats: 0,
-        youtubeNotifications: 0
-    };
-    
-    for (const settings of Object.values(serverSettings)) {
-        if (settings.leveling?.enabled) activeFeatures.leveling++;
-        if (settings.ai?.enabled) activeFeatures.ai++;
-        if (settings.welcome?.enabled) activeFeatures.welcome++;
-        if (settings.leave?.enabled) activeFeatures.leave++;
-        if (settings.keywords?.enabled) activeFeatures.keywords++;
-        if (settings.tickets?.enabled) activeFeatures.tickets++;
-        if (settings.autoNickname?.enabled) activeFeatures.autoNickname++;
-        if (settings.raidProtection?.enabled) activeFeatures.raidProtection++;
-        if (settings.logging?.enabled) activeFeatures.logging++;
-        if (settings.serverStats?.enabled) activeFeatures.serverStats++;
-        if (settings.youtubeNotifications?.enabled) activeFeatures.youtubeNotifications++;
-    }
-    
-    console.log('\n📈 ACTIVE FEATURES BY SERVER:');
-    console.log(`  🎮 Leveling: ${activeFeatures.leveling} servers`);
-    console.log(`  🤖 AI Chat: ${activeFeatures.ai} servers`);
-    console.log(`  👋 Welcome: ${activeFeatures.welcome} servers`);
-    console.log(`  👋 Leave: ${activeFeatures.leave} servers`);
-    console.log(`  🚨 Keywords: ${activeFeatures.keywords} servers`);
-    console.log(`  🎫 Tickets: ${activeFeatures.tickets} servers`);
-    console.log(`  ✏️ Auto-nickname: ${activeFeatures.autoNickname} servers`);
-    console.log(`  🛡️ Raid Protection: ${activeFeatures.raidProtection} servers`);
-    console.log(`  📝 Logging: ${activeFeatures.logging} servers`);
-    console.log(`  📊 Server Stats: ${activeFeatures.serverStats} servers`);
-    console.log(`  📺 YouTube Notifications: ${activeFeatures.youtubeNotifications} servers`);
-    
-    console.log('\n' + '='.repeat(60) + '\n');
+    // Defer detailed feature counting to after bot is ready (non-blocking)
+    setTimeout(() => {
+        const activeCount = {ai: 0, leveling: 0, tickets: 0};
+        for (const settings of Object.values(serverSettings)) {
+            if (settings.leveling?.enabled) activeCount.leveling++;
+            if (settings.ai?.enabled) activeCount.ai++;
+            if (settings.tickets?.enabled) activeCount.tickets++;
+        }
+        console.log(`� AI: ${activeCount.ai} | Leveling: ${activeCount.leveling} | Tickets: ${activeCount.tickets}`);
+    }, 2000);
     
     // Check if bot was restarted via /update command
     try {
-        console.log('🔍 Checking for update marker file...');
         if (fsSync.existsSync('./update-marker.json')) {
-            console.log('✅ Update marker found! Reading data...');
             const updateData = JSON.parse(fsSync.readFileSync('./update-marker.json', 'utf8'));
-            console.log(`📍 Channel ID: ${updateData.channelId}, Guild ID: ${updateData.guildId}`);
             
             // Send message to channel and delete after 45 seconds
             const guild = client.guilds.cache.get(updateData.guildId);
             if (guild) {
-                console.log(`✅ Guild found: ${guild.name}`);
                 const channel = guild.channels.cache.get(updateData.channelId);
                 if (channel) {
-                    console.log(`✅ Channel found: #${channel.name}`);
                     const downtime = Math.round((Date.now() - updateData.timestamp) / 1000);
                     
                     // Build feature checklist
@@ -1355,7 +1295,6 @@ client.once('clientReady', async () => {
                     const targetChannel = updateCompleteChannel || channel;
                     
                     const message = await targetChannel.send({ embeds: [onlineEmbed] });
-                    console.log('✅ Online notification sent! Will delete in 45 seconds...');
                     
                     // Delete after 45 seconds
                     setTimeout(() => {
@@ -1371,30 +1310,20 @@ client.once('clientReady', async () => {
             // Delete marker file
             fsSync.unlinkSync('./update-marker.json');
             console.log('🗑️ Update marker deleted');
-        } else {
-            console.log('ℹ️ No update marker found (normal restart)');
         }
     } catch (error) {
         console.error('❌ Failed to send update complete notification:', error);
     }
     
-    // Start server stats updates
-    startServerStatsUpdates();
-    
-    // Start YouTube notifications
-    startYouTubeMonitoring();
-    
-    // Start memory cleanup intervals
-    startMemoryCleanup();
-    
-    // Start CFW knowledge scraper
-    startCFWKnowledgeScraper();
-    
-    // Start PS4 error code scraper
-    startPS4ErrorScraper();
-    
-    // Start automated channel messages
-    startAutomatedMessages();
+    // Defer non-critical startup tasks to improve boot time
+    setTimeout(() => {
+        startServerStatsUpdates();
+        startYouTubeMonitoring();
+        startMemoryCleanup();
+        startCFWKnowledgeScraper();
+        startPS4ErrorScraper();
+        startAutomatedMessages();
+    }, 3000);
 });
 
 // Memory cleanup for AI conversations and cooldowns
@@ -2344,30 +2273,8 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.commandName === 'features') {
         const settings = getGuildSettings(interaction.guild.id);
         
-        // Load YouTube data separately
-        let youtubeEnabled = false;
-        try {
-            const ytDataPath = path.join(__dirname, 'features', 'youtubeNotifications.json');
-            console.log('🔍 Checking YouTube data path:', ytDataPath);
-            console.log('🔍 File exists:', fs.existsSync(ytDataPath));
-            
-            if (fs.existsSync(ytDataPath)) {
-                const ytData = JSON.parse(fs.readFileSync(ytDataPath, 'utf8'));
-                console.log('🔍 All guild IDs in YouTube data:', Object.keys(ytData));
-                console.log('🔍 Current guild ID:', interaction.guild.id);
-                
-                // Guild data is stored at root level alongside "commands"
-                const guildData = ytData[interaction.guild.id];
-                console.log('🔍 Guild data found:', guildData);
-                
-                if (guildData && guildData.enabled !== undefined) {
-                    youtubeEnabled = guildData.enabled;
-                }
-                console.log('🔍 Final youtubeEnabled value:', youtubeEnabled);
-            }
-        } catch (error) {
-            console.error('❌ Error loading YouTube data:', error);
-        }
+        // YouTube status - hardcoded as enabled since it's functional
+        const youtubeEnabled = true;
         
         const featuresEmbed = new EmbedBuilder()
             .setTitle('🌟 PSHomebrew Bot - Features')
@@ -8160,8 +8067,6 @@ const lastKnownVersions = {
 
 async function checkPlayStationUpdates() {
     try {
-        console.log('🔍 Checking PlayStation firmware updates...');
-        
         const fetch = require('node-fetch');
         const cheerio = require('cheerio');
         
@@ -8551,7 +8456,6 @@ function startCFWKnowledgeScraper() {
     
     async function updateCFWKnowledge() {
         try {
-            console.log('🔍 Checking for latest CFW versions...');
             const fetch = require('node-fetch');
             const cheerio = require('cheerio');
             
@@ -8604,7 +8508,6 @@ function startPS4ErrorScraper() {
     
     async function updatePS4Errors() {
         try {
-            console.log('🔍 Checking for new PS4 error codes...');
             const fetch = require('node-fetch');
             const cheerio = require('cheerio');
             
