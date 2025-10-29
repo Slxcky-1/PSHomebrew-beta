@@ -7,23 +7,6 @@
   "temperature": 0.5,
   "commands": [
     {
-      "name": "aichat",
-      "description": "Chat with DeepSeek AI assistant",
-      "options": [
-        {
-          "name": "message",
-          "description": "Your message to the AI",
-          "type": 3,
-          "required": true
-        }
-      ]
-    },
-    {
-      "name": "aiclear",
-      "description": "Clear AI conversation history for this channel",
-      "options": []
-    },
-    {
       "name": "aisetup",
       "description": "Configure AI chat settings with interactive panel (Admin only)",
       "options": []
