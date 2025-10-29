@@ -2456,18 +2456,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '🛡️',
-                    value: `**Raid Protection**\n${settings.raidProtection?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nAuto-kick spam accounts\nNew account detection\nMass join protection`,
+                    name: '🛡️ Raid Protection',
+                    value: `Auto-kick spam accounts\nNew account detection\nMass join protection`,
                     inline: true
                 },
                 {
-                    name: '✏️',
-                    value: `**Auto Nickname**\n${settings.autoNickname?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nPrefix: **${settings.autoNickname?.prefix || 'PS'}**\nAuto-rename on join\nKeeps names organized`,
+                    name: '✏️ Auto Nickname',
+                    value: `Prefix: **PS**\nAuto-rename on join\nKeeps names organized`,
                     inline: true
                 },
                 {
-                    name: '📺',
-                    value: `**YouTube Notifs**\n✅ Enabled\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
+                    name: '📺 YouTube Notifs',
+                    value: `New video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
                     inline: true
                 },
                 {
@@ -2476,18 +2476,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '📊',
-                    value: `**Server Stats**\n${settings.serverStats?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nLive member counter\nAuto-updating channels\nMember/bot statistics`,
+                    name: '📊 Server Stats',
+                    value: `Live member counter\nAuto-updating channels\nMember/bot statistics`,
                     inline: true
                 },
                 {
-                    name: '💬',
-                    value: `**Custom Commands**\nAlways Available\n\nClickable server commands\nUse **/pcommands**\nAdd/edit/remove easily`,
+                    name: '💬 Custom Commands',
+                    value: `Clickable server commands\nUse **/pcommands**\nAdd/edit/remove easily`,
                     inline: true
                 },
                 {
-                    name: '📝',
-                    value: `**Moderation Logging**\n${settings.logging?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nTracks all mod actions\nBans, kicks, timeouts\nAudit trail for staff`,
+                    name: '📝 Moderation Logging',
+                    value: `Tracks all mod actions\nBans, kicks, timeouts\nAudit trail for staff`,
                     inline: true
                 }
             )
