@@ -2206,7 +2206,7 @@ client.on('interactionCreate', async (interaction) => {
         
         // Execute git pull with force reset to handle conflicts
         const { exec } = require('child_process');
-        exec('git fetch origin && git reset --hard origin/main && npm install', (error, stdout, stderr) => {
+        exec('git fetch origin && git reset --hard origin/main && npm install --silent --no-audit --no-fund 2>&1', (error, stdout, stderr) => {
             if (error) {
                 console.error(`Update error: ${error}`);
                 return interaction.editReply({ 
@@ -2218,9 +2218,19 @@ client.on('interactionCreate', async (interaction) => {
                 });
             }
             
+            // Filter out npm noise and only show important info
+            const cleanOutput = stdout.split('\n')
+                .filter(line => !line.includes('npm fund') && 
+                               !line.includes('npm audit') && 
+                               !line.includes('looking for funding') &&
+                               !line.includes('found 0 vulnerabilities') &&
+                               !line.match(/^\s*\d+\s+packages?\s+/))
+                .filter(line => line.trim())
+                .join('\n') || 'Updated successfully';
+            
             const resultEmbed = new EmbedBuilder()
                 .setTitle('✅ Update Complete - Restarting...')
-                .setDescription(`**Git Pull:**\n\`\`\`${stdout}\`\`\`\n\n🔄 Bot is restarting now...`)
+                .setDescription(`**Update:**\n\`\`\`${cleanOutput}\`\`\`\n\n🔄 Bot is restarting now...`)
                 .setColor(0x00FF00)
                 .setTimestamp();
             
