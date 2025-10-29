@@ -2353,6 +2353,7 @@ client.on('interactionCreate', async (interaction) => {
                 // Guild data is stored at root level alongside "commands"
                 const guildData = ytData[interaction.guild.id];
                 youtubeEnabled = guildData?.enabled || false;
+                console.log(`🔍 YouTube status for guild ${interaction.guild.id}: ${youtubeEnabled}`, guildData);
             }
         } catch (error) {
             console.error('Error loading YouTube data:', error);
