@@ -347,7 +347,7 @@ module.exports = {
                 return;
             }
 
-            // Handle individual command button clicks
+            // Handle individual command button clicks (anyone can view)
             if (interaction.customId.startsWith('pcmd_view_')) {
                 const commandId = interaction.customId.replace('pcmd_view_', '');
                 const command = guildCommands[commandId];
@@ -362,7 +362,7 @@ module.exports = {
                     .setColor(0x5865F2)
                     .setTimestamp();
 
-                await interaction.update({ embeds: [infoEmbed], components: [] });
+                await interaction.reply({ embeds: [infoEmbed], ephemeral: true });
                 return;
             }
 
