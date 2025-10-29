@@ -2396,6 +2396,107 @@ client.on('interactionCreate', async (interaction) => {
         await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
     }
     
+    // Server Features command - Anyone with role can view
+    if (interaction.commandName === 'serverfeatures') {
+        const allowedRoleId = '920779112270946384';
+        const hasRole = interaction.member.roles.cache.has(allowedRoleId);
+        const isOwner = interaction.user.id === config.botOwnerId;
+        
+        if (!hasRole && !isOwner) {
+            return interaction.reply({ content: '❌ You need the staff role to view features.', ephemeral: true });
+        }
+        
+        const settings = getGuildSettings(interaction.guild.id);
+        const youtubeEnabled = true;
+        
+        const featuresEmbed = new EmbedBuilder()
+            .setTitle('🌟 PSHomebrew Bot - Features')
+            .setDescription('Welcome to the PSHomebrew Discord Bot! Here\'s everything this bot can do.')
+            .setColor(0x00FF88)
+            .setThumbnail(client.user.displayAvatarURL())
+            .addFields(
+                {
+                    name: '⭐',
+                    value: `**Leveling System**\n${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nEarn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\n**${settings.leveling.cooldown / 1000}s** cooldown\n**${settings.leveling.maxLevel} levels** total`,
+                    inline: true
+                },
+                {
+                    name: '🎮',
+                    value: `**Error Codes**\n${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDetects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
+                    inline: true
+                },
+                {
+                    name: '🤖',
+                    value: `**AI Chat**\n${settings.ai?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDeepSeek assistant\nUse **/aisetup** to configure\nAnswers PS homebrew questions`,
+                    inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: '👋',
+                    value: `**Welcome Messages**\n${settings.welcome.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nChannel: **#${settings.welcome.channelName}**\n${settings.welcome.customMessage ? '✅ Custom message' : '📝 Default message'}`,
+                    inline: true
+                },
+                {
+                    name: '📭',
+                    value: `**Leave Messages**\n${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nChannel: **#${settings.leave.channelName}**\n${settings.leave.customMessage ? '✅ Custom message' : '📝 Default message'}`,
+                    inline: true
+                },
+                {
+                    name: '🎫',
+                    value: `**Ticket System**\n${settings.tickets?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nSupport ticket management\nUse **/setuptickets**\nStaff and user panels`,
+                    inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: '🛡️',
+                    value: `**Raid Protection**\n${settings.raidProtection?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nAuto-kick spam accounts\nNew account detection\nMass join protection`,
+                    inline: true
+                },
+                {
+                    name: '✏️',
+                    value: `**Auto Nickname**\n${settings.autoNickname?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nPrefix: **${settings.autoNickname?.prefix || 'PS'}**\nAuto-rename on join\nKeeps names organized`,
+                    inline: true
+                },
+                {
+                    name: '📺',
+                    value: `**YouTube Notifs**\n✅ Enabled\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
+                    inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: '📊',
+                    value: `**Server Stats**\n${settings.serverStats?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nLive member counter\nAuto-updating channels\nMember/bot statistics`,
+                    inline: true
+                },
+                {
+                    name: '💬',
+                    value: `**Custom Commands**\nAlways Available\n\nClickable server commands\nUse **/pcommands**\nAdd/edit/remove easily`,
+                    inline: true
+                },
+                {
+                    name: '📝',
+                    value: `**Moderation Logging**\n${settings.logging?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nTracks all mod actions\nBans, kicks, timeouts\nAudit trail for staff`,
+                    inline: true
+                }
+            )
+            .setFooter({ text: 'Use /viewsettings to see all server settings' })
+            .setTimestamp();
+        
+        await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
+    }
+    
     // Toggle command
     if (interaction.commandName === 'toggle') {
         if (!requireAdmin(interaction)) return;
