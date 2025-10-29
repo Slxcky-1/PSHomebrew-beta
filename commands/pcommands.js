@@ -148,17 +148,7 @@ module.exports = {
                     return interaction.reply({ content: '❌ No commands have been added yet. Use "Add Command" to create one!', ephemeral: true });
                 }
 
-                const commandList = Object.entries(guildCommands)
-                    .map(([id, cmd]) => `**${cmd.label}**\n└ Title: ${cmd.title}\n└ Description: ${cmd.description.substring(0, 100)}...`)
-                    .join('\n\n');
-
-                const listEmbed = new EmbedBuilder()
-                    .setTitle('📋 All PCommands')
-                    .setDescription(commandList)
-                    .setColor(0x5865F2)
-                    .setFooter({ text: `Total: ${Object.keys(guildCommands).length} commands` });
-
-                await interaction.reply({ embeds: [listEmbed], ephemeral: true });
+                await this.showCommandPanel(interaction, guildCommands, true);
                 return;
             }
 
