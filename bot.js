@@ -2427,7 +2427,7 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '📺',
-                    value: `**YouTube Notifs**\n${youtubeEnabled ? '✅ Enabled' : '❌ Disabled'}\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
+                    value: `**YouTube Notifs**\n✅ Enabled\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
                     inline: true
                 },
                 {
