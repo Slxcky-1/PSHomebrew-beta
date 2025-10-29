@@ -156,22 +156,27 @@ module.exports = {
                     return interaction.reply({ content: '❌ No commands to edit!', ephemeral: true });
                 }
 
-                const modal = new ModalBuilder()
-                    .setCustomId('pcmd_modal_edit_select')
-                    .setTitle('Edit PCommand - Step 1');
+                const embed = new EmbedBuilder()
+                    .setTitle('✏️ Select Command to Edit')
+                    .setDescription('Click a button below to edit that command.')
+                    .setColor(0x5865F2);
 
-                const labelInput = new TextInputBuilder()
-                    .setCustomId('label')
-                    .setLabel('Button Label to Edit')
-                    .setStyle(TextInputStyle.Short)
-                    .setPlaceholder('Enter the exact button label...')
-                    .setRequired(true)
-                    .setMaxLength(80);
+                // Create buttons for each command (max 25)
+                const buttons = Object.entries(guildCommands).slice(0, 25).map(([id, cmd]) =>
+                    new ButtonBuilder()
+                        .setCustomId(`pcmd_edit_select_${id}`)
+                        .setLabel(cmd.label)
+                        .setStyle(ButtonStyle.Primary)
+                );
 
-                const row = new ActionRowBuilder().addComponents(labelInput);
-                modal.addComponents(row);
+                // Distribute buttons across rows (5 buttons per row max)
+                const rows = [];
+                for (let i = 0; i < buttons.length; i += 5) {
+                    const row = new ActionRowBuilder().addComponents(buttons.slice(i, i + 5));
+                    rows.push(row);
+                }
 
-                await interaction.showModal(modal);
+                await interaction.reply({ embeds: [embed], components: rows, ephemeral: true });
                 return;
             }
 
@@ -189,22 +194,27 @@ module.exports = {
                     return interaction.reply({ content: '❌ No commands to remove!', ephemeral: true });
                 }
 
-                const modal = new ModalBuilder()
-                    .setCustomId('pcmd_modal_remove')
-                    .setTitle('Remove PCommand');
+                const embed = new EmbedBuilder()
+                    .setTitle('🗑️ Select Command to Remove')
+                    .setDescription('Click a button below to remove that command.')
+                    .setColor(0xFF0000);
 
-                const labelInput = new TextInputBuilder()
-                    .setCustomId('label')
-                    .setLabel('Button Label to Remove')
-                    .setStyle(TextInputStyle.Short)
-                    .setPlaceholder('Enter the exact button label...')
-                    .setRequired(true)
-                    .setMaxLength(80);
+                // Create buttons for each command (max 25)
+                const buttons = Object.entries(guildCommands).slice(0, 25).map(([id, cmd]) =>
+                    new ButtonBuilder()
+                        .setCustomId(`pcmd_remove_select_${id}`)
+                        .setLabel(cmd.label)
+                        .setStyle(ButtonStyle.Danger)
+                );
 
-                const row = new ActionRowBuilder().addComponents(labelInput);
-                modal.addComponents(row);
+                // Distribute buttons across rows (5 buttons per row max)
+                const rows = [];
+                for (let i = 0; i < buttons.length; i += 5) {
+                    const row = new ActionRowBuilder().addComponents(buttons.slice(i, i + 5));
+                    rows.push(row);
+                }
 
-                await interaction.showModal(modal);
+                await interaction.reply({ embeds: [embed], components: rows, ephemeral: true });
                 return;
             }
 
@@ -216,6 +226,71 @@ module.exports = {
             if (interaction.customId === 'pcmd_post') {
                 await this.showCommandPanel(interaction, guildCommands, false);
                 await interaction.reply({ content: '✅ PCommands panel posted to this channel!', ephemeral: true });
+                return;
+            }
+
+            // Handle edit selection button clicks
+            if (interaction.customId.startsWith('pcmd_edit_select_')) {
+                const commandId = interaction.customId.replace('pcmd_edit_select_', '');
+                const command = guildCommands[commandId];
+
+                if (!command) {
+                    return interaction.reply({ content: '❌ Command not found.', ephemeral: true });
+                }
+
+                // Show edit modal with current values
+                const editModal = new ModalBuilder()
+                    .setCustomId(`pcmd_modal_edit_${commandId}`)
+                    .setTitle('Edit PCommand');
+
+                const labelInput = new TextInputBuilder()
+                    .setCustomId('label')
+                    .setLabel('Button Label')
+                    .setStyle(TextInputStyle.Short)
+                    .setValue(command.label)
+                    .setRequired(true)
+                    .setMaxLength(80);
+
+                const titleInput = new TextInputBuilder()
+                    .setCustomId('title')
+                    .setLabel('Command Title')
+                    .setStyle(TextInputStyle.Short)
+                    .setValue(command.title)
+                    .setRequired(true)
+                    .setMaxLength(256);
+
+                const descriptionInput = new TextInputBuilder()
+                    .setCustomId('description')
+                    .setLabel('Command Description')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setValue(command.description)
+                    .setRequired(true)
+                    .setMaxLength(4000);
+
+                const row1 = new ActionRowBuilder().addComponents(labelInput);
+                const row2 = new ActionRowBuilder().addComponents(titleInput);
+                const row3 = new ActionRowBuilder().addComponents(descriptionInput);
+
+                editModal.addComponents(row1, row2, row3);
+                await interaction.showModal(editModal);
+                return;
+            }
+
+            // Handle remove selection button clicks
+            if (interaction.customId.startsWith('pcmd_remove_select_')) {
+                const commandId = interaction.customId.replace('pcmd_remove_select_', '');
+                const command = guildCommands[commandId];
+
+                if (!command) {
+                    return interaction.reply({ content: '❌ Command not found.', ephemeral: true });
+                }
+
+                // Delete the command
+                const data = loadPCommandsData();
+                delete data[guildId].commands[commandId];
+                savePCommandsData(data);
+
+                await interaction.reply({ content: `✅ Command **${command.label}** removed successfully!`, ephemeral: true });
                 return;
             }
 
@@ -274,53 +349,7 @@ module.exports = {
                 return;
             }
 
-            if (interaction.customId === 'pcmd_modal_edit_select') {
-                const label = interaction.fields.getTextInputValue('label');
-                const commandId = label.toLowerCase().replace(/[^a-z0-9]/g, '_');
 
-                if (!data[guildId]?.commands[commandId]) {
-                    return interaction.reply({ content: `❌ Command **${label}** not found!`, ephemeral: true });
-                }
-
-                const command = data[guildId].commands[commandId];
-
-                // Show edit modal with current values
-                const editModal = new ModalBuilder()
-                    .setCustomId(`pcmd_modal_edit_${commandId}`)
-                    .setTitle('Edit PCommand - Step 2');
-
-                const labelInput = new TextInputBuilder()
-                    .setCustomId('label')
-                    .setLabel('Button Label')
-                    .setStyle(TextInputStyle.Short)
-                    .setValue(command.label)
-                    .setRequired(true)
-                    .setMaxLength(80);
-
-                const titleInput = new TextInputBuilder()
-                    .setCustomId('title')
-                    .setLabel('Command Title')
-                    .setStyle(TextInputStyle.Short)
-                    .setValue(command.title)
-                    .setRequired(true)
-                    .setMaxLength(256);
-
-                const descriptionInput = new TextInputBuilder()
-                    .setCustomId('description')
-                    .setLabel('Command Description')
-                    .setStyle(TextInputStyle.Paragraph)
-                    .setValue(command.description)
-                    .setRequired(true)
-                    .setMaxLength(4000);
-
-                const row1 = new ActionRowBuilder().addComponents(labelInput);
-                const row2 = new ActionRowBuilder().addComponents(titleInput);
-                const row3 = new ActionRowBuilder().addComponents(descriptionInput);
-
-                editModal.addComponents(row1, row2, row3);
-                await interaction.showModal(editModal);
-                return;
-            }
 
             if (interaction.customId.startsWith('pcmd_modal_edit_')) {
                 const oldCommandId = interaction.customId.replace('pcmd_modal_edit_', '');
@@ -356,19 +385,7 @@ module.exports = {
                 return;
             }
 
-            if (interaction.customId === 'pcmd_modal_remove') {
-                const label = interaction.fields.getTextInputValue('label');
-                const commandId = label.toLowerCase().replace(/[^a-z0-9]/g, '_');
 
-                if (!data[guildId]?.commands[commandId]) {
-                    return interaction.reply({ content: `❌ Command **${label}** not found!`, ephemeral: true });
-                }
-
-                delete data[guildId].commands[commandId];
-                savePCommandsData(data);
-                await interaction.reply({ content: `✅ Command **${label}** removed successfully!`, ephemeral: true });
-                return;
-            }
 
         } catch (error) {
             console.error('Error in pcommands modal handler:', error);
