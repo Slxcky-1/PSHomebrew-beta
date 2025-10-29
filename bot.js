@@ -8593,45 +8593,9 @@ function startPS4ErrorScraper() {
     console.log('✅ PS4 error scraper started (monthly updates on 1st at 3 AM)');
 }
 
-// Automated channel messages - Random AI messages and daily reminders
+// Automated channel messages - Daily 7 PM reminder only
 function startAutomatedMessages() {
     const CHANNEL_ID = '920750934085222470';
-    
-    // Random AI messages every 12-24 hours (bot talks on its own)
-    function sendRandomAIMessage() {
-        try {
-            const channel = client.channels.cache.get(CHANNEL_ID);
-            if (!channel) {
-                console.log('⚠️ Automated message channel not found');
-                return;
-            }
-            
-            // Random topics for the bot to talk about
-            const topics = [
-                "Just thinking about PlayStation homebrew development... The community has come so far!",
-                "Did you know? PS3 CFW has been around since 2011. That's over a decade of homebrew evolution!",
-                "Random thought: The PS Vita homebrew scene is incredibly active. Respect to all the devs keeping it alive.",
-                "PSA: Always make sure your CFW is up to date for the best stability and features.",
-                "The dedication of the homebrew community never ceases to amaze me. Keep creating!",
-                "Fun fact: Some of the best homebrew apps started as simple proof-of-concepts.",
-                "Remember when everyone thought the PS4 would never be jailbroken? Look where we are now!",
-                "Shoutout to all the homebrew developers sharing their knowledge freely. You're the real MVPs.",
-                "The evolution from PS3 to PS4 to PS5 homebrew has been fascinating to watch.",
-                "Just a reminder: Homebrew is about learning, creating, and sharing. Keep that spirit alive! ✨"
-            ];
-            
-            const randomTopic = topics[Math.floor(Math.random() * topics.length)];
-            channel.send(randomTopic);
-            console.log('🤖 Sent automated AI message to channel');
-            
-        } catch (error) {
-            console.error('❌ Failed to send random AI message:', error);
-        }
-        
-        // Schedule next random message (12-24 hours)
-        const nextInterval = Math.floor(Math.random() * (24 - 12 + 1) + 12) * 60 * 60 * 1000; // 12-24 hours in ms
-        setTimeout(sendRandomAIMessage, nextInterval);
-    }
     
     // Daily reminder at 7 PM
     function scheduleDailyReminder() {
@@ -8674,10 +8638,9 @@ function startAutomatedMessages() {
         console.log(`⏰ Daily reminder scheduled for ${next7PM.toLocaleString()}`);
     }
     
-    // Start both functions
-    setTimeout(sendRandomAIMessage, 60000); // First random message after 1 minute
+    // Start daily reminder only
     scheduleDailyReminder();
-    console.log('✅ Automated messages started for channel ' + CHANNEL_ID);
+    console.log('✅ Daily 7 PM reminder started for channel ' + CHANNEL_ID);
 }
 
 // Login to Discord with error handling
