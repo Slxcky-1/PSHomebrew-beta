@@ -2417,17 +2417,17 @@ client.on('interactionCreate', async (interaction) => {
             .addFields(
                 {
                     name: '⭐ Leveling System',
-                    value: `🚀 **Gamified progression system**\nReward active members automatically\nUnlock roles as you rank up`,
+                    value: `🚀 **Gamified progression system**\n\nReward active members automatically\nUnlock roles as you rank up`,
                     inline: true
                 },
                 {
                     name: '🎮 Error Codes',
-                    value: `🔍 **Instant PS3/PS4 code lookup**\n351 error codes in database\nAutomated troubleshooting assistant`,
+                    value: `🔍 **Instant PS3/PS4 code lookup**\n\n351 error codes in database\nAutomated troubleshooting assistant`,
                     inline: true
                 },
                 {
                     name: '🤖 AI Chat',
-                    value: `🧠 **Powered by DeepSeek AI**\nPS homebrew expert assistance\nSmart contextual responses`,
+                    value: `🧠 **Powered by DeepSeek AI**\n\nPS homebrew expert assistance\nSmart contextual responses`,
                     inline: true
                 },
                 {
@@ -2437,17 +2437,17 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '👋 Welcome Messages',
-                    value: `✨ **Professional member onboarding**\nFully customizable greetings\nMake great first impressions`,
+                    value: `✨ **Professional member onboarding**\n\nFully customizable greetings\nMake great first impressions`,
                     inline: true
                 },
                 {
                     name: '📭 Leave Messages',
-                    value: `💫 **Elegant farewell system**\nCustom goodbye messages\nTrack member departures`,
+                    value: `💫 **Elegant farewell system**\n\nCustom goodbye messages\nTrack member departures`,
                     inline: true
                 },
                 {
                     name: '🎫 Ticket System',
-                    value: `🎯 **Advanced support platform**\nOrganized help desk solution\nProfessional ticket management`,
+                    value: `🎯 **Advanced support platform**\n\nOrganized help desk solution\nProfessional ticket management`,
                     inline: true
                 },
                 {
@@ -2457,17 +2457,17 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '🛡️ Raid Protection',
-                    value: `⚔️ **Military-grade server defense**\nAI-powered spam detection\nReal-time threat neutralization`,
+                    value: `⚔️ **Military-grade server defense**\n\nAI-powered spam detection\nReal-time threat neutralization`,
                     inline: true
                 },
                 {
                     name: '✏️ Auto Nickname',
-                    value: `🏷️ **Smart member branding**\nAutomatic **PS** prefix system\nProfessional server identity`,
+                    value: `🏷️ **Smart member branding**\n\nAutomatic **PS** prefix system\nProfessional server identity`,
                     inline: true
                 },
                 {
                     name: '📺 YouTube Notifs',
-                    value: `🎬 **Content update alerts**\nInstant new video notifications\nNever miss an upload`,
+                    value: `🎬 **Content update alerts**\n\nInstant new video notifications\nNever miss an upload`,
                     inline: true
                 },
                 {
@@ -2477,17 +2477,17 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '📊 Server Stats',
-                    value: `📈 **Real-time analytics dashboard**\nLive member tracking\nDynamic voice channel stats`,
+                    value: `📈 **Real-time analytics dashboard**\n\nLive member tracking\nDynamic voice channel stats`,
                     inline: true
                 },
                 {
                     name: '💬 Custom Commands',
-                    value: `⚡ **Interactive command builder**\nCreate clickable buttons\nNo coding required`,
+                    value: `⚡ **Interactive command builder**\n\nCreate clickable buttons\nNo coding required`,
                     inline: true
                 },
                 {
                     name: '📝 Moderation Logging',
-                    value: `📋 **Complete audit system**\nFull action history tracking\nAccountability & transparency`,
+                    value: `📋 **Complete audit system**\n\nFull action history tracking\nAccountability & transparency`,
                     inline: true
                 }
             )
