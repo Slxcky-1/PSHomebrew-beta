@@ -8617,11 +8617,11 @@ function startAutomatedMessages() {
                 if (channel) {
                     // Format: ## for bigger text, ** for bold
                     const reminders = [
-                        "## **Don't forget to check out `/commands` to see all server commands!** 🎮",
-                        "## **Reminder: Use `/commands` to explore all the cool features I have!** ⚡",
-                        "## **Hey! Did you know you can type `/commands` to see everything I can do?** 🔧",
-                        "## **Pro tip: Check `/commands` for a full list of server features!** 💡",
-                        "## **Don't miss out! Use `/commands` to discover all available commands!** 🚀"
+                        "## **Don't forget to check out `Pcommand` to see all server commands!** 🎮",
+                        "## **Reminder: Use `Pcommand` to explore all the cool features I have!** ⚡",
+                        "## **Hey! Did you know you can type `Pcommand` to see everything I can do?** 🔧",
+                        "## **Pro tip: Check `Pcommand` for a full list of server features!** 💡",
+                        "## **Don't miss out! Use `Pcommand` to discover all available commands!** 🚀"
                     ];
                     
                     const randomReminder = reminders[Math.floor(Math.random() * reminders.length)];
