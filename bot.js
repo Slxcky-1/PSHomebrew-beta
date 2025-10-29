@@ -2165,7 +2165,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 }
             )
-            .setFooter({ text: 'PSHomebrew Community Bot â€¢ Use /features for more info' })
+            .setFooter({ text: 'PSHomebrew Community Bot • Use /features for more info' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [helpEmbed] });
@@ -2718,7 +2718,7 @@ client.on('interactionCreate', async (interaction) => {
                 { name: '⭐ Total XP', value: progress.totalXP.toLocaleString(), inline: true },
                 { name: '📈 Progress', value: `${progress.currentLevelXP}/${progress.xpRequiredForCurrentLevel} XP`, inline: true }
             )
-            .setFooter({ text: 'PSHomebrew Leveling System â€¢ Use /help for more info' })
+            .setFooter({ text: 'PSHomebrew Leveling System • Use /help for more info' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [levelEmbed] });
@@ -2746,7 +2746,7 @@ client.on('interactionCreate', async (interaction) => {
                 { name: '⭐ Total XP', value: progress.totalXP.toLocaleString(), inline: true },
                 { name: '📊 Progress to Next Level', value: `${progress.currentLevelXP}/${progress.xpRequiredForCurrentLevel} XP`, inline: false }
             )
-            .setFooter({ text: 'PSHomebrew Leveling System â€¢ Keep chatting to rank up!' })
+            .setFooter({ text: 'PSHomebrew Leveling System • Keep chatting to rank up!' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [rankEmbed] });
@@ -3057,7 +3057,7 @@ client.on('interactionCreate', async (interaction) => {
             .setTitle('🏆 XP Leaderboard - Top 10')
             .setDescription(leaderboardText || 'No users found')
             .setColor(0xFFD700)
-            .setFooter({ text: 'PSHomebrew Leveling System â€¢ Use /rank to see your position' })
+            .setFooter({ text: 'PSHomebrew Leveling System • Use /rank to see your position' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [leaderboardEmbed] });
