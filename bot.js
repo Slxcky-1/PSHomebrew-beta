@@ -4423,6 +4423,13 @@ client.on('interactionCreate', async (interaction) => {
         return;
     }
 
+    // PCommands command - Interactive panel
+    if (interaction.commandName === 'pcommands') {
+        const pcommandsCommand = require('./commands/pcommands.js');
+        await pcommandsCommand.execute(interaction);
+        return;
+    }
+
     // Setup ticket system command
     if (interaction.commandName === 'setuptickets') {
         if (!requireAdmin(interaction)) return;
@@ -4679,6 +4686,20 @@ client.on('interactionCreate', async (interaction) => {
                     return;
                 } catch (error) {
                     console.error('❌ Keyword button error:', error);
+                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    return;
+                }
+            }
+
+            // PCommands button handlers
+            if (interaction.customId.startsWith('pcmd_')) {
+                try {
+                    delete require.cache[require.resolve('./commands/pcommands.js')];
+                    const pcommandsCommand = require('./commands/pcommands.js');
+                    await pcommandsCommand.handleButton(interaction);
+                    return;
+                } catch (error) {
+                    console.error('❌ PCommands button error:', error);
                     await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
@@ -7176,6 +7197,20 @@ client.on('interactionCreate', async (interaction) => {
                     return;
                 }
             }
+
+            // PCommands modal handlers
+            if (interaction.customId.includes('pcmd_modal_')) {
+                try {
+                    delete require.cache[require.resolve('./commands/pcommands.js')];
+                    const pcommandsCommand = require('./commands/pcommands.js');
+                    await pcommandsCommand.handleModal(interaction);
+                    return;
+                } catch (error) {
+                    console.error('❌ PCommands modal error:', error);
+                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    return;
+                }
+            }
             
             // Logging system modal handlers
             if (interaction.customId.startsWith('log_modal_')) {
@@ -8617,11 +8652,11 @@ function startAutomatedMessages() {
                 if (channel) {
                     // Format: ## for bigger text, ** for bold
                     const reminders = [
-                        "## **Don't forget to check out `Pcommand` to see all server commands!** 🎮",
-                        "## **Reminder: Use `Pcommand` to explore all the cool features I have!** ⚡",
-                        "## **Hey! Did you know you can type `Pcommand` to see everything I can do?** 🔧",
-                        "## **Pro tip: Check `Pcommand` for a full list of server features!** 💡",
-                        "## **Don't miss out! Use `Pcommand` to discover all available commands!** 🚀"
+                        "## **Don't forget to check out `/pcommands` to see all server commands!** 🎮",
+                        "## **Reminder: Use `/pcommands` to explore all the cool features I have!** ⚡",
+                        "## **Hey! Did you know you can type `/pcommands` to see everything I can do?** 🔧",
+                        "## **Pro tip: Check `/pcommands` for a full list of server features!** 💡",
+                        "## **Don't miss out! Use `/pcommands` to discover all available commands!** 🚀"
                     ];
                     
                     const randomReminder = reminders[Math.floor(Math.random() * reminders.length)];

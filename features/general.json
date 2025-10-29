@@ -1,6 +1,11 @@
 {
     "commands": [
         {
+            "name": "pcommands",
+            "description": "Manage custom clickable server commands (Admin only)",
+            "options": []
+        },
+        {
             "name": "help",
             "description": "Display all available commands"
         },
