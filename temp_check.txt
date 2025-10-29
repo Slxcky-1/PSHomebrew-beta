@@ -1,0 +1,31 @@
+﻿serverStats.channels.totalCount);
+            if (!totalChannel) {
+                settings.serverStats.channels.totalCount = null;
+                channelsCleanedUp = true;
+            }
+        }
+        if (settings.serverStats.channels.statusChannel) {
+            const statusChannel = interaction.guild.channels.cache.get(settings.serverStats.channels.statusChannel);
+            if (!statusChannel) {
+                settings.serverStats.channels.statusChannel = null;
+                channelsCleanedUp = true;
+            }
+        }
+        
+        // Save if any channels were cleaned up
+        if (channelsCleanedUp) {
+            saveSettings();
+        }
+        
+        const embed = new EmbedBuilder()
+            .setTitle('📊 Server Stats Settings')
+            .setDescription('Manage your server statistics tracking system')
+            .setColor(settings.serverStats.enabled ? 0x00FF00 : 0xFF0000)
+            .addFields(
+                { name: '📡 Status', value: settings.serverStats.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: '⏱️ Update Interval', value: `${settings.serverStats.updateInterval / 60000} minute(s)`, inline: true },
+                { name: '\u200B', value: '\u200B', inline: false },
+                { name: '👥 Member Count Channel', value: settings.serverStats.channels.memberCount ? `<#${settings.serverStats.channels.memberCount}>` : '❌ Not set', inline: false },
+                { name: '🤖 Bot Count Channel', value: settings.serverStats.channels.botCount ? `<#${settings.serverStats.channels.botCount}>` : '❌ Not set', inline: false },
+                { name: '📊 Total Count Channel', value: settings.serverStats.channels.totalCount ? `<#${settings.serverStats.channels.totalCount}>` : '❌ Not set', inline: false },
+                { name: '🟢 Bot Status Channel', value: settings.serverStats.channels.statusChannel ? `<#${settings.serverStats.channels.statusChannel}>` : '❌ Not set', 
