@@ -2350,7 +2350,9 @@ client.on('interactionCreate', async (interaction) => {
             const ytDataPath = path.join(__dirname, 'features', 'youtubeNotifications.json');
             if (fs.existsSync(ytDataPath)) {
                 const ytData = JSON.parse(fs.readFileSync(ytDataPath, 'utf8'));
-                youtubeEnabled = ytData[interaction.guild.id]?.enabled || false;
+                // Guild data is stored at root level alongside "commands"
+                const guildData = ytData[interaction.guild.id];
+                youtubeEnabled = guildData?.enabled || false;
             }
         } catch (error) {
             console.error('Error loading YouTube data:', error);
