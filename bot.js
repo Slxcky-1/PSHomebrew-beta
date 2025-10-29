@@ -2371,10 +2371,10 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 }
             )
-            .setFooter({ text: 'PSHomebrew Community Bot â€¢ Use /help for commands' })
+            .setFooter({ text: 'PSHomebrew Community Bot • Use /help for commands' })
             .setTimestamp();
         
-        await interaction.reply({ embeds: [featuresEmbed] });
+        await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
     }
     
     // Toggle command
