@@ -2339,6 +2339,18 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.commandName === 'features') {
         const settings = getGuildSettings(interaction.guild.id);
         
+        // Load YouTube data separately
+        let youtubeEnabled = false;
+        try {
+            const ytDataPath = path.join(__dirname, 'youtubeData.json');
+            if (fs.existsSync(ytDataPath)) {
+                const ytData = JSON.parse(fs.readFileSync(ytDataPath, 'utf8'));
+                youtubeEnabled = ytData[interaction.guild.id]?.enabled || false;
+            }
+        } catch (error) {
+            console.error('Error loading YouTube data:', error);
+        }
+        
         const featuresEmbed = new EmbedBuilder()
             .setTitle('🌟 PSHomebrew Bot - Features')
             .setDescription('Welcome to the PSHomebrew Discord Bot! Here\'s everything this bot can do.')
@@ -2397,7 +2409,7 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '📺',
-                    value: `**YouTube Notifs**\n${settings.youtubeNotifications?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
+                    value: `**YouTube Notifs**\n${youtubeEnabled ? '✅ Enabled' : '❌ Disabled'}\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
                     inline: true
                 },
                 {
