@@ -60,19 +60,27 @@ module.exports = {
                         .setStyle(ButtonStyle.Success)
                         .setEmoji('➕'),
                     new ButtonBuilder()
-                        .setCustomId('pcmd_list')
-                        .setLabel('View All Commands')
+                        .setCustomId('pcmd_edit')
+                        .setLabel('Edit Command')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('📋'),
+                        .setEmoji('✏️')
+                        .setDisabled(commandCount === 0),
                     new ButtonBuilder()
                         .setCustomId('pcmd_remove')
                         .setLabel('Remove Command')
                         .setStyle(ButtonStyle.Danger)
                         .setEmoji('🗑️')
+                        .setDisabled(commandCount === 0)
                 );
 
             const row2 = new ActionRowBuilder()
                 .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('pcmd_list')
+                        .setLabel('View All Commands')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setEmoji('📋')
+                        .setDisabled(commandCount === 0),
                     new ButtonBuilder()
                         .setCustomId('pcmd_preview')
                         .setLabel('Preview Panel')
@@ -139,6 +147,30 @@ module.exports = {
                 const row3 = new ActionRowBuilder().addComponents(descriptionInput);
 
                 modal.addComponents(row1, row2, row3);
+                await interaction.showModal(modal);
+                return;
+            }
+
+            if (interaction.customId === 'pcmd_edit') {
+                if (Object.keys(guildCommands).length === 0) {
+                    return interaction.reply({ content: '❌ No commands to edit!', ephemeral: true });
+                }
+
+                const modal = new ModalBuilder()
+                    .setCustomId('pcmd_modal_edit_select')
+                    .setTitle('Edit PCommand - Step 1');
+
+                const labelInput = new TextInputBuilder()
+                    .setCustomId('label')
+                    .setLabel('Button Label to Edit')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('Enter the exact button label...')
+                    .setRequired(true)
+                    .setMaxLength(80);
+
+                const row = new ActionRowBuilder().addComponents(labelInput);
+                modal.addComponents(row);
+
                 await interaction.showModal(modal);
                 return;
             }
@@ -239,6 +271,88 @@ module.exports = {
 
                 savePCommandsData(data);
                 await interaction.reply({ content: `✅ Command **${label}** added successfully!`, ephemeral: true });
+                return;
+            }
+
+            if (interaction.customId === 'pcmd_modal_edit_select') {
+                const label = interaction.fields.getTextInputValue('label');
+                const commandId = label.toLowerCase().replace(/[^a-z0-9]/g, '_');
+
+                if (!data[guildId]?.commands[commandId]) {
+                    return interaction.reply({ content: `❌ Command **${label}** not found!`, ephemeral: true });
+                }
+
+                const command = data[guildId].commands[commandId];
+
+                // Show edit modal with current values
+                const editModal = new ModalBuilder()
+                    .setCustomId(`pcmd_modal_edit_${commandId}`)
+                    .setTitle('Edit PCommand - Step 2');
+
+                const labelInput = new TextInputBuilder()
+                    .setCustomId('label')
+                    .setLabel('Button Label')
+                    .setStyle(TextInputStyle.Short)
+                    .setValue(command.label)
+                    .setRequired(true)
+                    .setMaxLength(80);
+
+                const titleInput = new TextInputBuilder()
+                    .setCustomId('title')
+                    .setLabel('Command Title')
+                    .setStyle(TextInputStyle.Short)
+                    .setValue(command.title)
+                    .setRequired(true)
+                    .setMaxLength(256);
+
+                const descriptionInput = new TextInputBuilder()
+                    .setCustomId('description')
+                    .setLabel('Command Description')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setValue(command.description)
+                    .setRequired(true)
+                    .setMaxLength(4000);
+
+                const row1 = new ActionRowBuilder().addComponents(labelInput);
+                const row2 = new ActionRowBuilder().addComponents(titleInput);
+                const row3 = new ActionRowBuilder().addComponents(descriptionInput);
+
+                editModal.addComponents(row1, row2, row3);
+                await interaction.showModal(editModal);
+                return;
+            }
+
+            if (interaction.customId.startsWith('pcmd_modal_edit_')) {
+                const oldCommandId = interaction.customId.replace('pcmd_modal_edit_', '');
+                const label = interaction.fields.getTextInputValue('label');
+                const title = interaction.fields.getTextInputValue('title');
+                const description = interaction.fields.getTextInputValue('description');
+
+                // Create new ID from new label
+                const newCommandId = label.toLowerCase().replace(/[^a-z0-9]/g, '_');
+
+                if (!data[guildId]?.commands[oldCommandId]) {
+                    return interaction.reply({ content: `❌ Original command not found!`, ephemeral: true });
+                }
+
+                const oldCommand = data[guildId].commands[oldCommandId];
+
+                // Delete old command
+                delete data[guildId].commands[oldCommandId];
+
+                // Add updated command
+                data[guildId].commands[newCommandId] = {
+                    label,
+                    title,
+                    description,
+                    createdBy: oldCommand.createdBy,
+                    createdAt: oldCommand.createdAt,
+                    updatedBy: interaction.user.id,
+                    updatedAt: new Date().toISOString()
+                };
+
+                savePCommandsData(data);
+                await interaction.reply({ content: `✅ Command **${label}** updated successfully!`, ephemeral: true });
                 return;
             }
 
