@@ -8597,7 +8597,7 @@ function startPS4ErrorScraper() {
 function startAutomatedMessages() {
     const CHANNEL_ID = '920750934085222470';
     
-    // Random AI messages every 2-6 hours (bot talks on its own)
+    // Random AI messages every 12-24 hours (bot talks on its own)
     function sendRandomAIMessage() {
         try {
             const channel = client.channels.cache.get(CHANNEL_ID);
@@ -8628,8 +8628,8 @@ function startAutomatedMessages() {
             console.error('❌ Failed to send random AI message:', error);
         }
         
-        // Schedule next random message (2-6 hours)
-        const nextInterval = Math.floor(Math.random() * (6 - 2 + 1) + 2) * 60 * 60 * 1000; // 2-6 hours in ms
+        // Schedule next random message (12-24 hours)
+        const nextInterval = Math.floor(Math.random() * (24 - 12 + 1) + 12) * 60 * 60 * 1000; // 12-24 hours in ms
         setTimeout(sendRandomAIMessage, nextInterval);
     }
     
