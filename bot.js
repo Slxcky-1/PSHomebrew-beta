@@ -2164,13 +2164,16 @@ client.on('interactionCreate', async (interaction) => {
             return interaction.reply({ content: '❌ Only the bot owner can use this command!', ephemeral: true });
         }
         
+        // Defer reply immediately to prevent timeout (gives 15 minutes instead of 3 seconds)
+        await interaction.deferReply({ ephemeral: true });
+        
         const updateEmbed = new EmbedBuilder()
             .setTitle('🔄 Updating Bot')
             .setDescription('Pulling latest code from GitHub...')
             .setColor(0xFFAA00)
             .setTimestamp();
         
-        await interaction.reply({ embeds: [updateEmbed], ephemeral: true });
+        await interaction.editReply({ embeds: [updateEmbed] });
         
         // Execute git pull with force reset to handle conflicts
         const { exec } = require('child_process');
