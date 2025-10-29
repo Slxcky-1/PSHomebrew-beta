@@ -2346,32 +2346,32 @@ client.on('interactionCreate', async (interaction) => {
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
-                    name: `⭐ Leveling System (${settings.leveling.enabled ? '✅ Enabled' : 'âŒ Disabled'})`,
-                    value: `â€¢ Earn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\nâ€¢ **${settings.leveling.cooldown / 1000}s cooldown** between XP gains\nâ€¢ **${settings.leveling.maxLevel} levels** total\nâ€¢ Level up notifications ${settings.leveling.showLevelUpMessages ? 'enabled' : 'disabled'}`,
-                    inline: false
+                    name: '⭐ Leveling System',
+                    value: `**${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}**\nEarn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\n**${settings.leveling.cooldown / 1000}s** cooldown between gains\n**${settings.leveling.maxLevel} levels** total`,
+                    inline: true
                 },
                 {
-                    name: `🎮 PS3 Error Code Detection (${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'})`,
-                    value: `Automatically detects and explains **${Object.keys(ps3ErrorCodes).length} PS3 error codes**\nSimply type an error code (e.g., 80710016) and get instant troubleshooting help!`,
-                    inline: false
+                    name: '🎮 PS3 Error Codes',
+                    value: `**${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}**\nDetects **${Object.keys(ps3ErrorCodes).length} error codes**\nType a code for instant help\nExample: \`80710016\``,
+                    inline: true
                 },
                 {
-                    name: `👋 Welcome Messages (${settings.welcome.enabled ? '✅ Enabled' : '❌ Disabled'})`,
-                    value: `Channel: #${settings.welcome.channelName}${settings.welcome.customMessage ? '\n📝 Custom message set' : ''}`,
-                    inline: false
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: true
                 },
                 {
-                    name: `👋 Leave Messages (${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'})`,
-                    value: `Channel: #${settings.leave.channelName}${settings.leave.customMessage ? '\n📝 Custom message set' : ''}`,
-                    inline: false
+                    name: '👋 Welcome Messages',
+                    value: `**${settings.welcome.enabled ? '✅ Enabled' : '❌ Disabled'}**\nChannel: **#${settings.welcome.channelName}**\n${settings.welcome.customMessage ? '✅ Custom message' : '📝 Default message'}`,
+                    inline: true
                 },
                 {
-                    name: '⚙️ Customize Features',
-                    value: 'Admins can use individual commands to customize features!\nUse `/viewsettings` to see all current settings.',
-                    inline: false
+                    name: '👋 Leave Messages',
+                    value: `**${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'}**\nChannel: **#${settings.leave.channelName}**\n${settings.leave.customMessage ? '✅ Custom message' : '📝 Default message'}`,
+                    inline: true
                 }
             )
-            .setFooter({ text: 'PSHomebrew Community Bot • Use /help for commands' })
+            .setFooter({ text: 'Use /viewsettings to see all server settings' }))
             .setTimestamp();
         
         await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
