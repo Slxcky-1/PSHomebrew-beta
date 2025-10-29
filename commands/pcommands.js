@@ -24,12 +24,12 @@ function savePCommandsData(data) {
 module.exports = {
     async execute(interaction) {
         try {
-            const allowedViewerId = '920779112270946384';
+            const allowedRoleId = '920779112270946384';
             const isOwner = interaction.user.id === interaction.guild.ownerId;
-            const isViewer = interaction.user.id === allowedViewerId;
+            const hasRole = interaction.member.roles.cache.has(allowedRoleId);
 
             // Check if user has permission
-            if (!isOwner && !isViewer) {
+            if (!isOwner && !hasRole) {
                 return interaction.reply({ content: '❌ Only the server owner can use this command.', ephemeral: true });
             }
 
@@ -44,8 +44,8 @@ module.exports = {
             const guildCommands = data[guildId].commands;
             const commandCount = Object.keys(guildCommands).length;
 
-            // If user is viewer only, show simplified panel
-            if (isViewer && !isOwner) {
+            // If user has role only (not owner), show simplified panel
+            if (hasRole && !isOwner) {
                 const embed = new EmbedBuilder()
                     .setTitle('📋 Server Commands')
                     .setColor(0x5865F2)
@@ -134,9 +134,9 @@ module.exports = {
 
     async handleButton(interaction) {
         try {
-            const allowedViewerId = '920779112270946384';
+            const allowedRoleId = '920779112270946384';
             const isOwner = interaction.user.id === interaction.guild.ownerId;
-            const isViewer = interaction.user.id === allowedViewerId;
+            const hasRole = interaction.member.roles.cache.has(allowedRoleId);
 
             const guildId = interaction.guild.id;
             const data = loadPCommandsData();
@@ -159,9 +159,9 @@ module.exports = {
                 }
             }
 
-            // Allow viewer to use pcmd_list
+            // Allow users with role to use pcmd_list
             if (interaction.customId === 'pcmd_list') {
-                if (!isOwner && !isViewer) {
+                if (!isOwner && !hasRole) {
                     return interaction.reply({ content: '❌ You do not have permission to view commands.', ephemeral: true });
                 }
             }

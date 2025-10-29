@@ -2225,9 +2225,10 @@ client.on('interactionCreate', async (interaction) => {
     
     // Update command - Pull latest code from GitHub and restart
     if (interaction.commandName === 'update') {
-        // Check if user is bot owner or allowed user
-        const allowedUserId = '920779112270946384';
-        if (interaction.user.id !== config.botOwnerId && interaction.user.id !== allowedUserId) {
+        // Check if user is bot owner or has allowed role
+        const allowedRoleId = '920779112270946384';
+        const hasRole = interaction.member.roles.cache.has(allowedRoleId);
+        if (interaction.user.id !== config.botOwnerId && !hasRole) {
             return interaction.reply({ content: '❌ Only the bot owner can use this command!', ephemeral: true });
         }
         
