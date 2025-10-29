@@ -2172,9 +2172,9 @@ client.on('interactionCreate', async (interaction) => {
         
         await interaction.reply({ embeds: [updateEmbed], ephemeral: true });
         
-        // Execute git pull with auto-stash and restart
+        // Execute git pull with force reset to handle conflicts
         const { exec } = require('child_process');
-        exec('git stash && git pull && git stash pop && npm install', (error, stdout, stderr) => {
+        exec('git fetch origin && git reset --hard origin/main && npm install', (error, stdout, stderr) => {
             if (error) {
                 console.error(`Update error: ${error}`);
                 return interaction.editReply({ 
