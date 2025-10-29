@@ -1349,7 +1349,12 @@ client.once('clientReady', async () => {
                         )
                         .setTimestamp();
                     
-                    const message = await channel.send({ embeds: [onlineEmbed] });
+                    // Send to specified channel instead of the channel where /update was used
+                    const updateCompleteChannelId = '1311681018612158508';
+                    const updateCompleteChannel = client.channels.cache.get(updateCompleteChannelId);
+                    const targetChannel = updateCompleteChannel || channel;
+                    
+                    const message = await targetChannel.send({ embeds: [onlineEmbed] });
                     console.log('✅ Online notification sent! Will delete in 45 seconds...');
                     
                     // Delete after 45 seconds
