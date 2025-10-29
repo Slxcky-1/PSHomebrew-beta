@@ -2172,15 +2172,15 @@ client.on('interactionCreate', async (interaction) => {
         
         await interaction.reply({ embeds: [updateEmbed], ephemeral: true });
         
-        // Execute git pull and restart
+        // Execute git pull with auto-stash and restart
         const { exec } = require('child_process');
-        exec('git pull && npm install', (error, stdout, stderr) => {
+        exec('git stash && git pull && git stash pop && npm install', (error, stdout, stderr) => {
             if (error) {
                 console.error(`Update error: ${error}`);
                 return interaction.editReply({ 
                     embeds: [new EmbedBuilder()
                         .setTitle('❌ Update Failed')
-                        .setDescription(`\`\`\`${error.message}\`\`\``)
+                        .setDescription(`\`\`\`${error.message}\`\`\`\n\n**Tip:** Check if there are local file conflicts`)
                         .setColor(0xFF0000)
                         .setTimestamp()]
                 });
