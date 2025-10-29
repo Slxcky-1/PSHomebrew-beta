@@ -2417,17 +2417,17 @@ client.on('interactionCreate', async (interaction) => {
             .addFields(
                 {
                     name: '⭐ Leveling System',
-                    value: `Earn XP per message\n**60s** cooldown\n**7 levels** total`,
+                    value: `🚀 **Gamified progression system**\nReward active members automatically\nUnlock roles as you rank up`,
                     inline: true
                 },
                 {
                     name: '🎮 Error Codes',
-                    value: `Detects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
+                    value: `🔍 **Instant PS3/PS4 code lookup**\n351 error codes in database\nAutomated troubleshooting assistant`,
                     inline: true
                 },
                 {
                     name: '🤖 AI Chat',
-                    value: `DeepSeek assistant\nUse **/aisetup** to configure\nAnswers PS homebrew questions`,
+                    value: `🧠 **Powered by DeepSeek AI**\nPS homebrew expert assistance\nSmart contextual responses`,
                     inline: true
                 },
                 {
@@ -2437,17 +2437,17 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '👋 Welcome Messages',
-                    value: `Greet new members\nCustom messages\nAuto-post to channel`,
+                    value: `✨ **Professional member onboarding**\nFully customizable greetings\nMake great first impressions`,
                     inline: true
                 },
                 {
                     name: '📭 Leave Messages',
-                    value: `Goodbye messages\nCustom farewell text\nAuto-post to channel`,
+                    value: `💫 **Elegant farewell system**\nCustom goodbye messages\nTrack member departures`,
                     inline: true
                 },
                 {
                     name: '🎫 Ticket System',
-                    value: `Support ticket management\nUse **/setuptickets**\nStaff and user panels`,
+                    value: `🎯 **Advanced support platform**\nOrganized help desk solution\nProfessional ticket management`,
                     inline: true
                 },
                 {
@@ -2457,17 +2457,17 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '🛡️ Raid Protection',
-                    value: `Auto-kick spam accounts\nNew account detection\nMass join protection`,
+                    value: `⚔️ **Military-grade server defense**\nAI-powered spam detection\nReal-time threat neutralization`,
                     inline: true
                 },
                 {
                     name: '✏️ Auto Nickname',
-                    value: `Prefix: **PS**\nAuto-rename on join\nKeeps names organized`,
+                    value: `🏷️ **Smart member branding**\nAutomatic **PS** prefix system\nProfessional server identity`,
                     inline: true
                 },
                 {
                     name: '📺 YouTube Notifs',
-                    value: `New video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
+                    value: `🎬 **Content update alerts**\nInstant new video notifications\nNever miss an upload`,
                     inline: true
                 },
                 {
@@ -2477,17 +2477,17 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '📊 Server Stats',
-                    value: `Live member counter\nAuto-updating channels\nMember/bot statistics`,
+                    value: `📈 **Real-time analytics dashboard**\nLive member tracking\nDynamic voice channel stats`,
                     inline: true
                 },
                 {
                     name: '💬 Custom Commands',
-                    value: `Clickable server commands\nUse **/pcommands**\nAdd/edit/remove easily`,
+                    value: `⚡ **Interactive command builder**\nCreate clickable buttons\nNo coding required`,
                     inline: true
                 },
                 {
                     name: '📝 Moderation Logging',
-                    value: `Tracks all mod actions\nBans, kicks, timeouts\nAudit trail for staff`,
+                    value: `📋 **Complete audit system**\nFull action history tracking\nAccountability & transparency`,
                     inline: true
                 }
             )
