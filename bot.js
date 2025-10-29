@@ -2206,6 +2206,7 @@ client.on('interactionCreate', async (interaction) => {
         
         // Execute git pull with force reset to handle conflicts
         const { exec } = require('child_process');
+        const startTime = Date.now();
         exec('git fetch origin && git reset --hard origin/main && npm install --silent --no-audit --no-fund 2>&1', (error, stdout, stderr) => {
             if (error) {
                 console.error(`Update error: ${error}`);
@@ -2218,19 +2219,31 @@ client.on('interactionCreate', async (interaction) => {
                 });
             }
             
-            // Filter out npm noise and only show important info
-            const cleanOutput = stdout.split('\n')
-                .filter(line => !line.includes('npm fund') && 
-                               !line.includes('npm audit') && 
-                               !line.includes('looking for funding') &&
-                               !line.includes('found 0 vulnerabilities') &&
-                               !line.match(/^\s*\d+\s+packages?\s+/))
-                .filter(line => line.trim())
-                .join('\n') || 'Updated successfully';
+            const timeTaken = ((Date.now() - startTime) / 1000).toFixed(2);
+            
+            // Extract git HEAD info
+            const headMatch = stdout.match(/HEAD is now at ([a-f0-9]+)\s+(.+)/i);
+            const commitHash = headMatch ? headMatch[1] : 'unknown';
+            const commitMsg = headMatch ? headMatch[2] : 'Updated successfully';
+            
+            // Extract npm install info
+            const packagesMatch = stdout.match(/added (\d+)|removed (\d+)|changed (\d+)|audited (\d+)/gi);
+            let packageInfo = 'No changes';
+            if (packagesMatch) {
+                packageInfo = packagesMatch.join(', ');
+            } else if (stdout.includes('up to date')) {
+                packageInfo = 'All packages up to date';
+            }
             
             const resultEmbed = new EmbedBuilder()
                 .setTitle('✅ Update Complete - Restarting...')
-                .setDescription(`**Update:**\n\`\`\`${cleanOutput}\`\`\`\n\n🔄 Bot is restarting now...`)
+                .setDescription(
+                    `**HEAD is now at** \`${commitHash}\`\n` +
+                    `${commitMsg}\n\n` +
+                    `📦 **Packages:** ${packageInfo}\n` +
+                    `⏱️ **Time taken:** ${timeTaken}s\n\n` +
+                    `🔄 Bot is restarting now...`
+                )
                 .setColor(0x00FF00)
                 .setTimestamp();
             
