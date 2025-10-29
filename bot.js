@@ -7492,15 +7492,22 @@ client.on('interactionCreate', async (interaction) => {
                         // Check if it's a channel ID (numeric)
                         let channelName = channelInput;
                         if (/^\d+$/.test(channelInput)) {
-                            // It's an ID, find the channel
-                            const channel = interaction.guild.channels.cache.get(channelInput);
-                            if (!channel) {
+                            // It's an ID, fetch the channel
+                            try {
+                                const channel = await interaction.guild.channels.fetch(channelInput);
+                                if (!channel) {
+                                    return interaction.reply({ 
+                                        content: `❌ Channel with ID \`${channelInput}\` not found!`, 
+                                        ephemeral: true 
+                                    });
+                                }
+                                channelName = channel.name;
+                            } catch (error) {
                                 return interaction.reply({ 
                                     content: `❌ Channel with ID \`${channelInput}\` not found!`, 
                                     ephemeral: true 
                                 });
                             }
-                            channelName = channel.name;
                         } else {
                             // It's a name, verify it exists
                             const channel = interaction.guild.channels.cache.find(c => c.name === channelInput);
@@ -7538,15 +7545,22 @@ client.on('interactionCreate', async (interaction) => {
                         // Check if it's a channel ID (numeric)
                         let channelName = channelInput;
                         if (/^\d+$/.test(channelInput)) {
-                            // It's an ID, find the channel
-                            const channel = interaction.guild.channels.cache.get(channelInput);
-                            if (!channel) {
+                            // It's an ID, fetch the channel
+                            try {
+                                const channel = await interaction.guild.channels.fetch(channelInput);
+                                if (!channel) {
+                                    return interaction.reply({ 
+                                        content: `❌ Channel with ID \`${channelInput}\` not found!`, 
+                                        ephemeral: true 
+                                    });
+                                }
+                                channelName = channel.name;
+                            } catch (error) {
                                 return interaction.reply({ 
                                     content: `❌ Channel with ID \`${channelInput}\` not found!`, 
                                     ephemeral: true 
                                 });
                             }
-                            channelName = channel.name;
                         } else {
                             // It's a name, verify it exists
                             const channel = interaction.guild.channels.cache.find(c => c.name === channelInput);
