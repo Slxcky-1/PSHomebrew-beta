@@ -7485,112 +7485,6 @@ client.on('interactionCreate', async (interaction) => {
                         });
                     }
                     
-                    // Welcome system modals
-                    else if (interaction.customId === 'welcome_channel_modal') {
-                        let channelInput = interaction.fields.getTextInputValue('channel_name').trim();
-                        
-                        // Check if it's a channel ID (numeric)
-                        let channelName = channelInput;
-                        if (/^\d+$/.test(channelInput)) {
-                            // It's an ID, fetch the channel
-                            try {
-                                const channel = await interaction.guild.channels.fetch(channelInput);
-                                if (!channel) {
-                                    return interaction.reply({ 
-                                        content: `❌ Channel with ID \`${channelInput}\` not found!`, 
-                                        ephemeral: true 
-                                    });
-                                }
-                                channelName = channel.name;
-                            } catch (error) {
-                                return interaction.reply({ 
-                                    content: `❌ Channel with ID \`${channelInput}\` not found!`, 
-                                    ephemeral: true 
-                                });
-                            }
-                        } else {
-                            // It's a name, verify it exists
-                            const channel = interaction.guild.channels.cache.find(c => c.name === channelInput);
-                            if (!channel) {
-                                return interaction.reply({ 
-                                    content: `❌ Channel \`#${channelInput}\` not found!`, 
-                                    ephemeral: true 
-                                });
-                            }
-                        }
-                        
-                        settings.welcome.channelName = channelName;
-                        saveSettings();
-                        
-                        await interaction.reply({ 
-                            content: `✅ Welcome channel set to **#${channelName}**!`, 
-                            ephemeral: true 
-                        });
-                    }
-                    else if (interaction.customId === 'welcome_message_modal') {
-                        const messageText = interaction.fields.getTextInputValue('message_text').trim();
-                        settings.welcome.customMessage = messageText;
-                        saveSettings();
-                        
-                        await interaction.reply({ 
-                            content: `✅ Welcome message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`, 
-                            ephemeral: true 
-                        });
-                    }
-                    
-                    // Leave system modals
-                    else if (interaction.customId === 'leave_channel_modal') {
-                        let channelInput = interaction.fields.getTextInputValue('channel_name').trim();
-                        
-                        // Check if it's a channel ID (numeric)
-                        let channelName = channelInput;
-                        if (/^\d+$/.test(channelInput)) {
-                            // It's an ID, fetch the channel
-                            try {
-                                const channel = await interaction.guild.channels.fetch(channelInput);
-                                if (!channel) {
-                                    return interaction.reply({ 
-                                        content: `❌ Channel with ID \`${channelInput}\` not found!`, 
-                                        ephemeral: true 
-                                    });
-                                }
-                                channelName = channel.name;
-                            } catch (error) {
-                                return interaction.reply({ 
-                                    content: `❌ Channel with ID \`${channelInput}\` not found!`, 
-                                    ephemeral: true 
-                                });
-                            }
-                        } else {
-                            // It's a name, verify it exists
-                            const channel = interaction.guild.channels.cache.find(c => c.name === channelInput);
-                            if (!channel) {
-                                return interaction.reply({ 
-                                    content: `❌ Channel \`#${channelInput}\` not found!`, 
-                                    ephemeral: true 
-                                });
-                            }
-                        }
-                        
-                        settings.leave.channelName = channelName;
-                        saveSettings();
-                        
-                        await interaction.reply({ 
-                            content: `✅ Leave channel set to **#${channelName}**!`, 
-                            ephemeral: true 
-                        });
-                    }
-                    else if (interaction.customId === 'leave_message_modal') {
-                        const messageText = interaction.fields.getTextInputValue('message_text').trim();
-                        settings.leave.customMessage = messageText;
-                        saveSettings();
-                        
-                        await interaction.reply({ 
-                            content: `✅ Leave message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`, 
-                            ephemeral: true 
-                        });
-                    }
-                    
                     // Auto-nickname modals
                     else if (interaction.customId === 'autonick_prefix_modal') {
                         const prefixText = interaction.fields.getTextInputValue('prefix_text').trim();
@@ -7799,6 +7693,110 @@ client.on('interactionCreate', async (interaction) => {
                     
                 } catch (error) {
                     console.error('❌ [MOD MODAL] Error:', error);
+                    try {
+                        if (!interaction.replied && !interaction.deferred) {
+                            await interaction.reply({ content: '❌ An error occurred. Please try again.', ephemeral: true });
+                        }
+                    } catch (replyError) {
+                        console.error('Failed to send error message:', replyError);
+                    }
+                }
+                return;
+            }
+            
+            // Welcome/Leave system modal handlers
+            if (interaction.customId === 'welcome_channel_modal' || interaction.customId === 'leave_channel_modal') {
+                const guildId = interaction.guild.id;
+                
+                // Check admin permissions
+                if (!interaction.member.permissions.has('Administrator')) {
+                    return interaction.reply({ 
+                        content: '❌ You need Administrator permissions to use this command!', 
+                        ephemeral: true 
+                    });
+                }
+                
+                try {
+                    const settings = getGuildSettings(guildId);
+                    const isWelcome = interaction.customId === 'welcome_channel_modal';
+                    let channelInput = interaction.fields.getTextInputValue('channel_name').trim();
+                    
+                    // Check if it's a channel ID (numeric)
+                    let channelName = channelInput;
+                    if (/^\d+$/.test(channelInput)) {
+                        // It's an ID, fetch the channel
+                        const channel = await interaction.guild.channels.fetch(channelInput).catch(() => null);
+                        if (!channel) {
+                            return interaction.reply({ 
+                                content: `❌ Channel with ID \`${channelInput}\` not found!`, 
+                                ephemeral: true 
+                            });
+                        }
+                        channelName = channel.name;
+                    } else {
+                        // It's a name, verify it exists
+                        const channel = interaction.guild.channels.cache.find(c => c.name === channelInput);
+                        if (!channel) {
+                            return interaction.reply({ 
+                                content: `❌ Channel \`#${channelInput}\` not found!`, 
+                                ephemeral: true 
+                            });
+                        }
+                    }
+                    
+                    if (isWelcome) {
+                        settings.welcome.channelName = channelName;
+                    } else {
+                        settings.leave.channelName = channelName;
+                    }
+                    saveSettings();
+                    
+                    await interaction.reply({ 
+                        content: `✅ ${isWelcome ? 'Welcome' : 'Leave'} channel set to **#${channelName}**!`, 
+                        ephemeral: true 
+                    });
+                } catch (error) {
+                    console.error('❌ [WELCOME/LEAVE MODAL] Error:', error);
+                    try {
+                        if (!interaction.replied && !interaction.deferred) {
+                            await interaction.reply({ content: '❌ An error occurred. Please try again.', ephemeral: true });
+                        }
+                    } catch (replyError) {
+                        console.error('Failed to send error message:', replyError);
+                    }
+                }
+                return;
+            }
+            
+            if (interaction.customId === 'welcome_message_modal' || interaction.customId === 'leave_message_modal') {
+                const guildId = interaction.guild.id;
+                
+                // Check admin permissions
+                if (!interaction.member.permissions.has('Administrator')) {
+                    return interaction.reply({ 
+                        content: '❌ You need Administrator permissions to use this command!', 
+                        ephemeral: true 
+                    });
+                }
+                
+                try {
+                    const settings = getGuildSettings(guildId);
+                    const isWelcome = interaction.customId === 'welcome_message_modal';
+                    const messageText = interaction.fields.getTextInputValue('message_text').trim();
+                    
+                    if (isWelcome) {
+                        settings.welcome.customMessage = messageText;
+                    } else {
+                        settings.leave.customMessage = messageText;
+                    }
+                    saveSettings();
+                    
+                    await interaction.reply({ 
+                        content: `✅ ${isWelcome ? 'Welcome' : 'Leave'} message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`, 
+                        ephemeral: true 
+                    });
+                } catch (error) {
+                    console.error('❌ [WELCOME/LEAVE MESSAGE MODAL] Error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
                             await interaction.reply({ content: '❌ An error occurred. Please try again.', ephemeral: true });
