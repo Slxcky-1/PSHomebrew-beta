@@ -2347,7 +2347,7 @@ client.on('interactionCreate', async (interaction) => {
         // Load YouTube data separately
         let youtubeEnabled = false;
         try {
-            const ytDataPath = path.join(__dirname, 'youtubeData.json');
+            const ytDataPath = path.join(__dirname, 'features', 'youtubeNotifications.json');
             if (fs.existsSync(ytDataPath)) {
                 const ytData = JSON.parse(fs.readFileSync(ytDataPath, 'utf8'));
                 youtubeEnabled = ytData[interaction.guild.id]?.enabled || false;
