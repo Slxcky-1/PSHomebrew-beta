@@ -24,8 +24,12 @@ function savePCommandsData(data) {
 module.exports = {
     async execute(interaction) {
         try {
-            // Check if user is server owner
-            if (interaction.user.id !== interaction.guild.ownerId) {
+            const allowedViewerId = '920779112270946384';
+            const isOwner = interaction.user.id === interaction.guild.ownerId;
+            const isViewer = interaction.user.id === allowedViewerId;
+
+            // Check if user has permission
+            if (!isOwner && !isViewer) {
                 return interaction.reply({ content: '❌ Only the server owner can use this command.', ephemeral: true });
             }
 
@@ -40,6 +44,31 @@ module.exports = {
             const guildCommands = data[guildId].commands;
             const commandCount = Object.keys(guildCommands).length;
 
+            // If user is viewer only, show simplified panel
+            if (isViewer && !isOwner) {
+                const embed = new EmbedBuilder()
+                    .setTitle('📋 Server Commands')
+                    .setColor(0x5865F2)
+                    .setDescription('View available custom commands.')
+                    .addFields(
+                        { name: '📊 Total Commands', value: `${commandCount}`, inline: true }
+                    )
+                    .setTimestamp();
+
+                const row = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('pcmd_list')
+                            .setLabel('View All Commands')
+                            .setStyle(ButtonStyle.Primary)
+                            .setEmoji('📋')
+                            .setDisabled(commandCount === 0)
+                    );
+
+                return await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+            }
+
+            // Full management panel for owner
             const embed = new EmbedBuilder()
                 .setTitle('📋 PCommands Management Panel')
                 .setColor(0x5865F2)
@@ -105,6 +134,10 @@ module.exports = {
 
     async handleButton(interaction) {
         try {
+            const allowedViewerId = '920779112270946384';
+            const isOwner = interaction.user.id === interaction.guild.ownerId;
+            const isViewer = interaction.user.id === allowedViewerId;
+
             const guildId = interaction.guild.id;
             const data = loadPCommandsData();
             
@@ -114,16 +147,22 @@ module.exports = {
 
             const guildCommands = data[guildId].commands;
 
-            // Management buttons (add/edit/remove) - owner only
+            // Management buttons - owner only (but allow viewer for pcmd_list)
             if (interaction.customId.startsWith('pcmd_add') || 
                 interaction.customId.startsWith('pcmd_edit') || 
                 interaction.customId.startsWith('pcmd_remove') ||
-                interaction.customId === 'pcmd_list' ||
                 interaction.customId === 'pcmd_preview' ||
                 interaction.customId === 'pcmd_post') {
                 
-                if (interaction.user.id !== interaction.guild.ownerId) {
+                if (!isOwner) {
                     return interaction.reply({ content: '❌ Only the server owner can manage commands.', ephemeral: true });
+                }
+            }
+
+            // Allow viewer to use pcmd_list
+            if (interaction.customId === 'pcmd_list') {
+                if (!isOwner && !isViewer) {
+                    return interaction.reply({ content: '❌ You do not have permission to view commands.', ephemeral: true });
                 }
             }
 
