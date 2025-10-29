@@ -410,25 +410,19 @@ module.exports = {
 
 
             if (interaction.customId.startsWith('pcmd_modal_edit_')) {
-                const oldCommandId = interaction.customId.replace('pcmd_modal_edit_', '');
+                const commandId = interaction.customId.replace('pcmd_modal_edit_', '');
                 const label = interaction.fields.getTextInputValue('label');
                 const title = interaction.fields.getTextInputValue('title');
                 const description = interaction.fields.getTextInputValue('description');
 
-                // Create new ID from new label
-                const newCommandId = label.toLowerCase().replace(/[^a-z0-9]/g, '_');
-
-                if (!data[guildId]?.commands[oldCommandId]) {
-                    return interaction.reply({ content: `❌ Original command not found!`, ephemeral: true });
+                if (!data[guildId]?.commands[commandId]) {
+                    return interaction.reply({ content: `❌ Command not found!`, ephemeral: true });
                 }
 
-                const oldCommand = data[guildId].commands[oldCommandId];
+                const oldCommand = data[guildId].commands[commandId];
 
-                // Delete old command
-                delete data[guildId].commands[oldCommandId];
-
-                // Add updated command
-                data[guildId].commands[newCommandId] = {
+                // Update the command in place - keep the same ID!
+                data[guildId].commands[commandId] = {
                     label,
                     title,
                     description,
