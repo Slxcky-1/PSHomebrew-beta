@@ -24,8 +24,9 @@ function savePCommandsData(data) {
 module.exports = {
     async execute(interaction) {
         try {
-            if (!interaction.member.permissions.has('Administrator')) {
-                return interaction.reply({ content: '❌ You need Administrator permission to use this command.', ephemeral: true });
+            // Check if user is server owner
+            if (interaction.user.id !== interaction.guild.ownerId) {
+                return interaction.reply({ content: '❌ Only the server owner can use this command.', ephemeral: true });
             }
 
             const guildId = interaction.guild.id;
@@ -112,6 +113,19 @@ module.exports = {
             }
 
             const guildCommands = data[guildId].commands;
+
+            // Management buttons (add/edit/remove) - owner only
+            if (interaction.customId.startsWith('pcmd_add') || 
+                interaction.customId.startsWith('pcmd_edit') || 
+                interaction.customId.startsWith('pcmd_remove') ||
+                interaction.customId === 'pcmd_list' ||
+                interaction.customId === 'pcmd_preview' ||
+                interaction.customId === 'pcmd_post') {
+                
+                if (interaction.user.id !== interaction.guild.ownerId) {
+                    return interaction.reply({ content: '❌ Only the server owner can manage commands.', ephemeral: true });
+                }
+            }
 
             if (interaction.customId === 'pcmd_add') {
                 const modal = new ModalBuilder()
@@ -321,6 +335,11 @@ module.exports = {
 
     async handleModal(interaction) {
         try {
+            // Check if user is server owner
+            if (interaction.user.id !== interaction.guild.ownerId) {
+                return interaction.reply({ content: '❌ Only the server owner can manage commands.', ephemeral: true });
+            }
+
             const guildId = interaction.guild.id;
             const data = loadPCommandsData();
 
