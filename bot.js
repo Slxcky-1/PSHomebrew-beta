@@ -2157,6 +2157,35 @@ client.on('interactionCreate', async (interaction) => {
         }, 1000);
     }
     
+    // Clean PS4 errors - Delete local ps4ErrorCodes.json to fix git conflicts
+    if (interaction.commandName === 'cleanps4errors') {
+        if (interaction.user.id !== config.botOwnerId) {
+            return interaction.reply({ content: '❌ Only the bot owner can use this command!', ephemeral: true });
+        }
+        
+        const ps4ErrorPath = path.join(__dirname, 'features', 'ps4ErrorCodes.json');
+        
+        try {
+            if (fsSync.existsSync(ps4ErrorPath)) {
+                fsSync.unlinkSync(ps4ErrorPath);
+                await interaction.reply({ 
+                    content: '✅ **Deleted** `features/ps4ErrorCodes.json`\n\n🔄 You can now run `/update` without conflicts.\n📥 The file will be recreated from GitHub.', 
+                    ephemeral: true 
+                });
+            } else {
+                await interaction.reply({ 
+                    content: '❌ File `features/ps4ErrorCodes.json` not found!', 
+                    ephemeral: true 
+                });
+            }
+        } catch (error) {
+            await interaction.reply({ 
+                content: `❌ Error deleting file: ${error.message}`, 
+                ephemeral: true 
+            });
+        }
+    }
+    
     // Update command - Pull latest code from GitHub and restart
     if (interaction.commandName === 'update') {
         // Check if user is bot owner only
