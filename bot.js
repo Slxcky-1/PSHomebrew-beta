@@ -2347,17 +2347,17 @@ client.on('interactionCreate', async (interaction) => {
             .addFields(
                 {
                     name: '⭐ Leveling System',
-                    value: `**${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}**\nEarn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\n**${settings.leveling.cooldown / 1000}s** cooldown between gains\n**${settings.leveling.maxLevel} levels** total`,
+                    value: `**${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}**\nEarn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\n**${settings.leveling.cooldown / 1000}s** cooldown\n**${settings.leveling.maxLevel} levels** total`,
                     inline: true
                 },
                 {
-                    name: '🎮 PS3 Error Codes',
-                    value: `**${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}**\nDetects **${Object.keys(ps3ErrorCodes).length} error codes**\nType a code for instant help\nExample: \`80710016\``,
+                    name: '🎮 Error Codes',
+                    value: `**${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}**\nDetects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
                     inline: true
                 },
                 {
-                    name: '\u200B',
-                    value: '\u200B',
+                    name: '🤖 AI Chat',
+                    value: `**${settings.ai?.enabled ? '✅ Enabled' : '❌ Disabled'}**\nDeepSeek assistant\nUse **/aisetup** to configure\nAnswers PS homebrew questions`,
                     inline: true
                 },
                 {
@@ -2368,6 +2368,41 @@ client.on('interactionCreate', async (interaction) => {
                 {
                     name: '👋 Leave Messages',
                     value: `**${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'}**\nChannel: **#${settings.leave.channelName}**\n${settings.leave.customMessage ? '✅ Custom message' : '📝 Default message'}`,
+                    inline: true
+                },
+                {
+                    name: '🎫 Ticket System',
+                    value: `**${settings.tickets?.enabled ? '✅ Enabled' : '❌ Disabled'}**\nSupport ticket management\nUse **/setuptickets**\nStaff and user panels`,
+                    inline: true
+                },
+                {
+                    name: '🛡️ Raid Protection',
+                    value: `**${settings.raidProtection?.enabled ? '✅ Enabled' : '❌ Disabled'}**\nAuto-kick spam accounts\nNew account detection\nMass join protection`,
+                    inline: true
+                },
+                {
+                    name: '✏️ Auto Nickname',
+                    value: `**${settings.autoNickname?.enabled ? '✅ Enabled' : '❌ Disabled'}**\nPrefix: **${settings.autoNickname?.prefix || 'PS'}**\nAuto-rename on join\nKeeps names organized`,
+                    inline: true
+                },
+                {
+                    name: '📺 YouTube Notifs',
+                    value: `**${settings.youtubeNotifications?.enabled ? '✅ Enabled' : '❌ Disabled'}**\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
+                    inline: true
+                },
+                {
+                    name: '📊 Server Stats',
+                    value: `**${settings.serverStats?.enabled ? '✅ Enabled' : '❌ Disabled'}**\nLive member counter\nAuto-updating channels\nMember/bot statistics`,
+                    inline: true
+                },
+                {
+                    name: '🎮 Custom Commands',
+                    value: `**Always Available**\nClickable server commands\nUse **/pcommands**\nAdd/edit/remove easily`,
+                    inline: true
+                },
+                {
+                    name: '📝 Moderation Logging',
+                    value: `**${settings.logging?.enabled ? '✅ Enabled' : '❌ Disabled'}**\nTracks all mod actions\nBans, kicks, timeouts\nAudit trail for staff`,
                     inline: true
                 }
             )
