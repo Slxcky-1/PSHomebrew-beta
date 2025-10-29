@@ -7704,8 +7704,8 @@ client.on('interactionCreate', async (interaction) => {
                 return;
             }
             
-            // Welcome/Leave system modal handlers
-            if (interaction.customId === 'welcome_channel_modal' || interaction.customId === 'leave_channel_modal') {
+            // Welcome system modal handlers (inline command)
+            if (interaction.customId === 'welcome_channel_modal') {
                 const guildId = interaction.guild.id;
                 
                 // Check admin permissions
@@ -7718,7 +7718,6 @@ client.on('interactionCreate', async (interaction) => {
                 
                 try {
                     const settings = getGuildSettings(guildId);
-                    const isWelcome = interaction.customId === 'welcome_channel_modal';
                     let channelInput = interaction.fields.getTextInputValue('channel_name').trim();
                     
                     // Check if it's a channel ID (numeric)
@@ -7744,19 +7743,15 @@ client.on('interactionCreate', async (interaction) => {
                         }
                     }
                     
-                    if (isWelcome) {
-                        settings.welcome.channelName = channelName;
-                    } else {
-                        settings.leave.channelName = channelName;
-                    }
+                    settings.welcome.channelName = channelName;
                     saveSettings();
                     
                     await interaction.reply({ 
-                        content: `✅ ${isWelcome ? 'Welcome' : 'Leave'} channel set to **#${channelName}**!`, 
+                        content: `✅ Welcome channel set to **#${channelName}**!`, 
                         ephemeral: true 
                     });
                 } catch (error) {
-                    console.error('❌ [WELCOME/LEAVE MODAL] Error:', error);
+                    console.error('❌ [WELCOME MODAL] Error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
                             await interaction.reply({ content: '❌ An error occurred. Please try again.', ephemeral: true });
@@ -7768,7 +7763,7 @@ client.on('interactionCreate', async (interaction) => {
                 return;
             }
             
-            if (interaction.customId === 'welcome_message_modal' || interaction.customId === 'leave_message_modal') {
+            if (interaction.customId === 'welcome_message_modal') {
                 const guildId = interaction.guild.id;
                 
                 // Check admin permissions
@@ -7781,22 +7776,17 @@ client.on('interactionCreate', async (interaction) => {
                 
                 try {
                     const settings = getGuildSettings(guildId);
-                    const isWelcome = interaction.customId === 'welcome_message_modal';
                     const messageText = interaction.fields.getTextInputValue('message_text').trim();
                     
-                    if (isWelcome) {
-                        settings.welcome.customMessage = messageText;
-                    } else {
-                        settings.leave.customMessage = messageText;
-                    }
+                    settings.welcome.customMessage = messageText;
                     saveSettings();
                     
                     await interaction.reply({ 
-                        content: `✅ ${isWelcome ? 'Welcome' : 'Leave'} message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`, 
+                        content: `✅ Welcome message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`, 
                         ephemeral: true 
                     });
                 } catch (error) {
-                    console.error('❌ [WELCOME/LEAVE MESSAGE MODAL] Error:', error);
+                    console.error('❌ [WELCOME MESSAGE MODAL] Error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
                             await interaction.reply({ content: '❌ An error occurred. Please try again.', ephemeral: true });
