@@ -4334,6 +4334,13 @@ client.on('interactionCreate', async (interaction) => {
         return;
     }
 
+    // AI Setup command - Interactive panel
+    if (interaction.commandName === 'aisetup') {
+        const aisetupCommand = require('./commands/aisetup.js');
+        await aisetupCommand.execute(interaction);
+        return;
+    }
+
     // Setup ticket system command
     if (interaction.commandName === 'setuptickets') {
         if (!requireAdmin(interaction)) return;
@@ -5047,8 +5054,19 @@ client.on('interactionCreate', async (interaction) => {
                 return;
             }
             
-            // AI system button handlers
+            // AI system button handlers (new panel system)
             if (interaction.customId.startsWith('ai_')) {
+                if (!interaction.member.permissions.has('Administrator')) {
+                    return interaction.reply({ content: '❌ You need Administrator permission to use this.', ephemeral: true });
+                }
+                
+                const aisetupCommand = require('./commands/aisetup.js');
+                await aisetupCommand.handleButton(interaction);
+                return;
+            }
+            
+            // OLD AI system button handlers (legacy - can be removed later)
+            if (interaction.customId.startsWith('old_ai_')) {
                 if (!requireAdmin(interaction)) return;
                 
                 const settings = getGuildSettings(guildId);
@@ -5057,7 +5075,7 @@ client.on('interactionCreate', async (interaction) => {
                 }
                 
                 try {
-                    if (interaction.customId === 'ai_toggle') {
+                    if (interaction.customId === 'old_ai_toggle') {
                         settings.ai.enabled = !settings.ai.enabled;
                         saveSettings();
                         
@@ -5066,7 +5084,7 @@ client.on('interactionCreate', async (interaction) => {
                             ephemeral: true 
                         });
                     }
-                    else if (interaction.customId === 'ai_set_channel') {
+                    else if (interaction.customId === 'old_ai_set_channel') {
                         const modal = new ModalBuilder()
                             .setCustomId('ai_channel_modal')
                             .setTitle('Set AI Channel');
@@ -5085,7 +5103,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         await interaction.showModal(modal);
                     }
-                    else if (interaction.customId === 'ai_set_history') {
+                    else if (interaction.customId === 'old_ai_set_history') {
                         const modal = new ModalBuilder()
                             .setCustomId('ai_history_modal')
                             .setTitle('Set Max History');
@@ -7193,8 +7211,22 @@ client.on('interactionCreate', async (interaction) => {
                 return;
             }
             
-            // AI system modal handlers
-            if (interaction.customId.startsWith('ai_')) {
+            // AI system modal handlers (new panel system)
+            if (interaction.customId.startsWith('ai_modal_')) {
+                if (!interaction.member.permissions.has('Administrator')) {
+                    return interaction.reply({ 
+                        content: '❌ You need Administrator permissions to use this command!', 
+                        ephemeral: true 
+                    });
+                }
+                
+                const aisetupCommand = require('./commands/aisetup.js');
+                await aisetupCommand.handleModal(interaction);
+                return;
+            }
+            
+            // OLD AI system modal handlers (legacy)
+            if (interaction.customId.startsWith('old_ai_')) {
                 const guildId = interaction.guild.id;
                 
                 // Check admin permissions
@@ -7211,7 +7243,7 @@ client.on('interactionCreate', async (interaction) => {
                         settings.ai = defaultSettings.ai;
                     }
                     
-                    if (interaction.customId === 'ai_channel_modal') {
+                    if (interaction.customId === 'old_ai_channel_modal') {
                         const channelName = interaction.fields.getTextInputValue('channel_name').trim();
                         
                         // Remove # if user included it
