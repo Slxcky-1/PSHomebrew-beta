@@ -2416,18 +2416,18 @@ client.on('interactionCreate', async (interaction) => {
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
-                    name: '⭐',
-                    value: `**Leveling System**\n${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nEarn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\n**${settings.leveling.cooldown / 1000}s** cooldown\n**${settings.leveling.maxLevel} levels** total`,
+                    name: '⭐ Leveling System',
+                    value: `Earn XP per message\n**60s** cooldown\n**7 levels** total`,
                     inline: true
                 },
                 {
-                    name: '🎮',
-                    value: `**Error Codes**\n${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDetects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
+                    name: '🎮 Error Codes',
+                    value: `Detects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
                     inline: true
                 },
                 {
-                    name: '🤖',
-                    value: `**AI Chat**\n${settings.ai?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDeepSeek assistant\nUse **/aisetup** to configure\nAnswers PS homebrew questions`,
+                    name: '🤖 AI Chat',
+                    value: `DeepSeek assistant\nUse **/aisetup** to configure\nAnswers PS homebrew questions`,
                     inline: true
                 },
                 {
