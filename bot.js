@@ -2511,52 +2511,7 @@ client.on('interactionCreate', async (interaction) => {
     }
     
     // Set Welcome Channel command
-    if (interaction.commandName === 'setwelcomechannel') {
-        if (!requireAdmin(interaction)) return;
-        
-        const channel = interaction.options.getString('channel');
-        const settings = getGuildSettings(interaction.guild.id);
-        settings.welcome.channelName = channel;
-        saveSettings();
-        
-        await interaction.reply({ content: `✅ Welcome channel set to **#${channel}**!`, ephemeral: true });
-    }
-    
-    // Set Leave Channel command
-    if (interaction.commandName === 'setleavechannel') {
-        if (!requireAdmin(interaction)) return;
-        
-        const channel = interaction.options.getString('channel');
-        const settings = getGuildSettings(interaction.guild.id);
-        settings.leave.channelName = channel;
-        saveSettings();
-        
-        await interaction.reply({ content: `✅ Leave channel set to **#${channel}**!`, ephemeral: true });
-    }
-    
-    // Set Welcome Message command
-    if (interaction.commandName === 'setwelcomemessage') {
-        if (!requireAdmin(interaction)) return;
-        
-        const message = interaction.options.getString('message');
-        const settings = getGuildSettings(interaction.guild.id);
-        settings.welcome.customMessage = message;
-        saveSettings();
-        
-        await interaction.reply({ content: `✅ Custom welcome message set!\n**Placeholders:** {user}, {server}, {memberCount}`, ephemeral: true });
-    }
-    
-    // Set Leave Message command
-    if (interaction.commandName === 'setleavemessage') {
-        if (!requireAdmin(interaction)) return;
-        
-        const message = interaction.options.getString('message');
-        const settings = getGuildSettings(interaction.guild.id);
-        settings.leave.customMessage = message;
-        saveSettings();
-        
-        await interaction.reply({ content: `✅ Custom leave message set!\n**Placeholders:** {user}, {server}, {memberCount}`, ephemeral: true });
-    }
+
     
     // Add Keyword command
     if (interaction.commandName === 'addkeyword') {
@@ -3109,7 +3064,8 @@ client.on('interactionCreate', async (interaction) => {
     }
     
     // Welcome command - Interactive Panel
-    if (interaction.commandName === 'welcome') {
+    // Welcome Setup command - Interactive Panel
+    if (interaction.commandName === 'welcomesetup') {
         if (!requireAdmin(interaction)) return;
         
         const settings = getGuildSettings(interaction.guild.id);
@@ -3164,59 +3120,7 @@ client.on('interactionCreate', async (interaction) => {
     }
     
     // Leaving command - Interactive Panel
-    if (interaction.commandName === 'leaving') {
-        if (!requireAdmin(interaction)) return;
-        
-        const settings = getGuildSettings(interaction.guild.id);
-        const config = settings.leave;
-        
-        const messagePreview = (config.customMessage || '{user} has left {server}. We now have {memberCount} members.')
-            .substring(0, 200);
-        
-        const embed = new EmbedBuilder()
-            .setTitle('👋 Leave System Control Panel')
-            .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
-            .setDescription(
-                `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
-                `Automatically announce when members leave the server.\n\n` +
-                `Click the buttons below to configure settings.`
-            )
-            .addFields(
-                { name: '📡 Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                { name: '💬 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
-                { name: '📝 Custom Message', value: config.customMessage ? '✅ Set' : '❌ Using default', inline: true },
-                { name: '💭 Message Preview', value: messagePreview, inline: false },
-                { name: '🔖 Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
-            )
-            .setFooter({ text: 'Click buttons below to configure leave messages' })
-            .setTimestamp();
-        
-        const row1 = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('leave_toggle')
-                    .setLabel(config.enabled ? 'Disable' : 'Enable')
-                    .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '⏸️' : '▶️'),
-                new ButtonBuilder()
-                    .setCustomId('leave_set_channel')
-                    .setLabel('Set Channel')
-                    .setStyle(ButtonStyle.Primary)
-                    .setEmoji('💬'),
-                new ButtonBuilder()
-                    .setCustomId('leave_set_message')
-                    .setLabel('Set Message')
-                    .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📝'),
-                new ButtonBuilder()
-                    .setCustomId('leave_refresh')
-                    .setLabel('Refresh')
-                    .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄')
-            );
-        
-        await interaction.reply({ embeds: [embed], components: [row1], ephemeral: true });
-    }
+
     
     // Setupname command - Interactive Panel
     if (interaction.commandName === 'setupname') {

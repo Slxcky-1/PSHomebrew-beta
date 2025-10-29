@@ -1,67 +1,14 @@
 {
     "commands": [
         {
-            "name": "welcome",
-            "description": "Setup welcome messages - Interactive panel (Admin only)",
-            "options": []
-        },
-        {
-            "name": "leaving",
-            "description": "Setup leave messages - Interactive panel (Admin only)",
+            "name": "welcomesetup",
+            "description": "Setup welcome messages with interactive controls (Admin only)",
             "options": []
         },
         {
             "name": "leavesetup",
             "description": "Setup leave messages with interactive controls (Admin only)",
             "options": []
-        },
-        {
-            "name": "setwelcomechannel",
-            "description": "Set welcome message channel (Admin only)",
-            "options": [
-                {
-                    "name": "channel",
-                    "description": "Channel name for welcome messages",
-                    "type": 3,
-                    "required": true
-                }
-            ]
-        },
-        {
-            "name": "setleavechannel",
-            "description": "Set leave message channel (Admin only)",
-            "options": [
-                {
-                    "name": "channel",
-                    "description": "Channel name for leave messages",
-                    "type": 3,
-                    "required": true
-                }
-            ]
-        },
-        {
-            "name": "setwelcomemessage",
-            "description": "Set custom welcome message (Admin only)",
-            "options": [
-                {
-                    "name": "message",
-                    "description": "Custom message ({user}, {server}, {memberCount})",
-                    "type": 3,
-                    "required": true
-                }
-            ]
-        },
-        {
-            "name": "setleavemessage",
-            "description": "Set custom leave message (Admin only)",
-            "options": [
-                {
-                    "name": "message",
-                    "description": "Custom message ({user}, {server}, {memberCount})",
-                    "type": 3,
-                    "required": true
-                }
-            ]
         }
     ]
 }
