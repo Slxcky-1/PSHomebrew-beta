@@ -123,23 +123,23 @@ module.exports = {
             }
 
             if (interaction.customId === 'leave_set_channel') {
-                const channels = interaction.guild.channels.cache
-                    .filter(c => c.type === ChannelType.GuildText)
-                    .first(25);
+                const modal = new ModalBuilder()
+                    .setCustomId('leave_modal_channel')
+                    .setTitle('Set Leave Channel');
 
-                const selectMenu = new StringSelectMenuBuilder()
-                    .setCustomId('leave_select_channel')
-                    .setPlaceholder('Select a channel for leave messages')
-                    .addOptions(
-                        channels.map(channel => ({
-                            label: `#${channel.name}`,
-                            value: channel.name,
-                            description: `Send leave messages to #${channel.name}`
-                        }))
-                    );
+                const channelInput = new TextInputBuilder()
+                    .setCustomId('channel')
+                    .setLabel('Channel Name or ID')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('general or 1234567890123456789')
+                    .setValue(config.channelName || '')
+                    .setRequired(true)
+                    .setMaxLength(100);
 
-                const row = new ActionRowBuilder().addComponents(selectMenu);
-                await interaction.reply({ content: '📢 Select the channel for leave messages:', components: [row], ephemeral: true });
+                const row = new ActionRowBuilder().addComponents(channelInput);
+                modal.addComponents(row);
+
+                await interaction.showModal(modal);
                 return;
             }
 
@@ -209,7 +209,37 @@ module.exports = {
             const guildId = interaction.guild.id;
             const settings = loadSettings();
 
-            if (interaction.customId === 'leave_modal_message') {
+            if (interaction.customId === 'leave_modal_channel') {
+                let channelInput = interaction.fields.getTextInputValue('channel').trim();
+                
+                // Check if it's a channel ID (numeric)
+                let channelName = channelInput;
+                if (/^\d+$/.test(channelInput)) {
+                    // It's an ID, fetch the channel
+                    const channel = await interaction.guild.channels.fetch(channelInput).catch(() => null);
+                    if (!channel) {
+                        return interaction.reply({ 
+                            content: `❌ Channel with ID \`${channelInput}\` not found!`, 
+                            ephemeral: true 
+                        });
+                    }
+                    channelName = channel.name;
+                } else {
+                    // It's a name, verify it exists
+                    const channel = interaction.guild.channels.cache.find(c => c.name === channelInput);
+                    if (!channel) {
+                        return interaction.reply({ 
+                            content: `❌ Channel \`#${channelInput}\` not found!`, 
+                            ephemeral: true 
+                        });
+                    }
+                }
+                
+                settings[guildId].leave.channelName = channelName;
+                saveSettings(settings);
+                await interaction.reply({ content: `✅ Leave channel set to **#${channelName}**!`, ephemeral: true });
+            }
+            else if (interaction.customId === 'leave_modal_message') {
                 const message = interaction.fields.getTextInputValue('message');
                 settings[guildId].leave.customMessage = message;
                 saveSettings(settings);
@@ -221,22 +251,7 @@ module.exports = {
         }
     },
 
-    async handleSelectMenu(interaction) {
-        try {
-            const guildId = interaction.guild.id;
-            const settings = loadSettings();
 
-            if (interaction.customId === 'leave_select_channel') {
-                const channelName = interaction.values[0];
-                settings[guildId].leave.channelName = channelName;
-                saveSettings(settings);
-                await interaction.reply({ content: `✅ Leave messages will now be sent to #${channelName}`, ephemeral: true });
-            }
-        } catch (error) {
-            console.error('Error in leavesetup select menu handler:', error);
-            await interaction.reply({ content: '❌ An error occurred.', ephemeral: true }).catch(() => {});
-        }
-    },
 
     async updatePanel(interaction, settings) {
         const config = settings[interaction.guild.id].leave;
