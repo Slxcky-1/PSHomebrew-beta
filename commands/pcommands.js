@@ -238,7 +238,7 @@ module.exports = {
                     return interaction.reply({ content: '❌ No commands have been added yet. Use "Add Command" to create one!', ephemeral: true });
                 }
 
-                await this.showCommandPanel(interaction, guildCommands, true);
+                await this.showCommandPanel(interaction, guildCommands, true, true);
                 return;
             }
 
@@ -451,7 +451,7 @@ module.exports = {
         }
     },
 
-    async showCommandPanel(interaction, commands, isEphemeral) {
+    async showCommandPanel(interaction, commands, isEphemeral, isUpdate = false) {
         const embed = new EmbedBuilder()
             .setTitle('📋 Server Commands')
             .setDescription('Click a button below to view command information.')
@@ -474,7 +474,9 @@ module.exports = {
             rows.push(row);
         }
 
-        if (isEphemeral) {
+        if (isUpdate) {
+            await interaction.update({ embeds: [embed], components: rows });
+        } else if (isEphemeral) {
             await interaction.reply({ embeds: [embed], components: rows, ephemeral: true });
         } else {
             await interaction.channel.send({ embeds: [embed], components: rows });
