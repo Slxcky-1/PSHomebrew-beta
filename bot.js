@@ -2346,17 +2346,17 @@ client.on('interactionCreate', async (interaction) => {
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
-                    name: '⭐ Leveling System',
+                    name: '⭐  Leveling System',
                     value: `**${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nEarn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\n**${settings.leveling.cooldown / 1000}s** cooldown\n**${settings.leveling.maxLevel} levels** total`,
                     inline: true
                 },
                 {
-                    name: '🎮 Error Codes',
+                    name: '🎮  Error Codes',
                     value: `**${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nDetects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
                     inline: true
                 },
                 {
-                    name: '🤖 AI Chat',
+                    name: '🤖  AI Chat',
                     value: `**${settings.ai?.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nDeepSeek assistant\nUse **/aisetup** to configure\nAnswers PS homebrew questions`,
                     inline: true
                 },
@@ -2366,17 +2366,17 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '👋 Welcome Messages',
+                    name: '👋  Welcome Messages',
                     value: `**${settings.welcome.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nChannel: **#${settings.welcome.channelName}**\n${settings.welcome.customMessage ? '✅ Custom message' : '📝 Default message'}`,
                     inline: true
                 },
                 {
-                    name: '👋 Leave Messages',
+                    name: '👋  Leave Messages',
                     value: `**${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nChannel: **#${settings.leave.channelName}**\n${settings.leave.customMessage ? '✅ Custom message' : '📝 Default message'}`,
                     inline: true
                 },
                 {
-                    name: '🎫 Ticket System',
+                    name: '🎫  Ticket System',
                     value: `**${settings.tickets?.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nSupport ticket management\nUse **/setuptickets**\nStaff and user panels`,
                     inline: true
                 },
@@ -2386,17 +2386,17 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '🛡️ Raid Protection',
+                    name: '🛡️  Raid Protection',
                     value: `**${settings.raidProtection?.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nAuto-kick spam accounts\nNew account detection\nMass join protection`,
                     inline: true
                 },
                 {
-                    name: '✏️ Auto Nickname',
+                    name: '✏️  Auto Nickname',
                     value: `**${settings.autoNickname?.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nPrefix: **${settings.autoNickname?.prefix || 'PS'}**\nAuto-rename on join\nKeeps names organized`,
                     inline: true
                 },
                 {
-                    name: '📺 YouTube Notifs',
+                    name: '📺  YouTube Notifs',
                     value: `**${settings.youtubeNotifications?.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
                     inline: true
                 },
@@ -2406,17 +2406,17 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '📊 Server Stats',
+                    name: '📊  Server Stats',
                     value: `**${settings.serverStats?.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nLive member counter\nAuto-updating channels\nMember/bot statistics`,
                     inline: true
                 },
                 {
-                    name: '🎮 Custom Commands',
+                    name: '🎮  Custom Commands',
                     value: `**Always Available**\n\nClickable server commands\nUse **/pcommands**\nAdd/edit/remove easily`,
                     inline: true
                 },
                 {
-                    name: '📝 Moderation Logging',
+                    name: '📝  Moderation Logging',
                     value: `**${settings.logging?.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nTracks all mod actions\nBans, kicks, timeouts\nAudit trail for staff`,
                     inline: true
                 }
