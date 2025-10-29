@@ -8,17 +8,32 @@ function loadPCommandsData() {
     try {
         const fsSync = require('fs');
         if (fsSync.existsSync(dataPath)) {
-            return JSON.parse(fsSync.readFileSync(dataPath, 'utf8'));
+            const fileContent = fsSync.readFileSync(dataPath, 'utf8');
+            const parsed = JSON.parse(fileContent);
+            // If file only has _info, return empty object
+            if (parsed._info && Object.keys(parsed).length === 1) {
+                return {};
+            }
+            return parsed;
         }
     } catch (error) {
         console.error('Error loading pcommands data:', error);
     }
-    return { commands: {} };
+    return {};
 }
 
 function savePCommandsData(data) {
-    const fsSync = require('fs');
-    fsSync.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+    try {
+        const fsSync = require('fs');
+        // Keep _info field if it exists
+        const currentData = loadPCommandsData();
+        if (currentData._info) {
+            data._info = currentData._info;
+        }
+        fsSync.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+    } catch (error) {
+        console.error('Error saving pcommands data:', error);
+    }
 }
 
 module.exports = {
@@ -38,7 +53,6 @@ module.exports = {
             
             if (!data[guildId]) {
                 data[guildId] = { commands: {} };
-                savePCommandsData(data);
             }
 
             const guildCommands = data[guildId].commands;
