@@ -2371,7 +2371,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: true
                 }
             )
-            .setFooter({ text: 'Use /viewsettings to see all server settings' }))
+            .setFooter({ text: 'Use /viewsettings to see all server settings' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
