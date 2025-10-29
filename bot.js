@@ -2348,15 +2348,25 @@ client.on('interactionCreate', async (interaction) => {
         let youtubeEnabled = false;
         try {
             const ytDataPath = path.join(__dirname, 'features', 'youtubeNotifications.json');
+            console.log('🔍 Checking YouTube data path:', ytDataPath);
+            console.log('🔍 File exists:', fs.existsSync(ytDataPath));
+            
             if (fs.existsSync(ytDataPath)) {
                 const ytData = JSON.parse(fs.readFileSync(ytDataPath, 'utf8'));
+                console.log('🔍 All guild IDs in YouTube data:', Object.keys(ytData));
+                console.log('🔍 Current guild ID:', interaction.guild.id);
+                
                 // Guild data is stored at root level alongside "commands"
                 const guildData = ytData[interaction.guild.id];
-                youtubeEnabled = guildData?.enabled || false;
-                console.log(`🔍 YouTube status for guild ${interaction.guild.id}: ${youtubeEnabled}`, guildData);
+                console.log('🔍 Guild data found:', guildData);
+                
+                if (guildData && guildData.enabled !== undefined) {
+                    youtubeEnabled = guildData.enabled;
+                }
+                console.log('🔍 Final youtubeEnabled value:', youtubeEnabled);
             }
         } catch (error) {
-            console.error('Error loading YouTube data:', error);
+            console.error('❌ Error loading YouTube data:', error);
         }
         
         const featuresEmbed = new EmbedBuilder()
