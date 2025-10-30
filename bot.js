@@ -1960,8 +1960,8 @@ client.on('messageCreate', async (message) => {
     
     // PS3 Error Code Detection
     if (settings.keywords && settings.keywords.enabled) {
-        // Skip error code detection in channel 1431740126546890843
-        if (message.channel.id === '1431740126546890843') return;
+        // Skip error code detection in AI chat channels
+        if (message.channel.id === '1431740126546890843' || message.channel.id === '1433480720776433664') return;
         
         await checkKeywords(message, settings);
     }
