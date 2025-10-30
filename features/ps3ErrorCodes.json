@@ -3,8 +3,8 @@
   "_CURRENT_FIRMWARE": {
     "PS3_OFW": "4.92",
     "PS3_CFW": "4.92.2 Evilnat (Cobra v8.5)",
-    "Last_Update": "June 2025",
-    "Total_Codes": "347"
+    "Last_Update": "October 2025",
+    "Total_Codes": "348"
   },
   "_USAGE": "Error codes are automatically detected in messages. Format: 8-digit hex (80010001) or SYSCON format (A0203034)",
   "710102": "Answer: There was an issue connecting to the server - DNS error; IP conflict, PS3 cannot connect to router with current IP information. Try rebooting your router",
@@ -30,6 +30,7 @@
   "80029105": "Answer: Game data is corrupted - Go into Safe Mode and select 'Rebuild Database'",
   "80029135": "Answer: Unable to write data to storage media - Try transferring data from computer; if this fails, device may be bad",
   "80029513": "Answer: Copyright violation when attempting to install game",
+  "80029514": "Answer: PKG installation failed - Package file may be corrupted, incomplete download, or storage device error. Try re-downloading the PKG file or use a different USB drive",
   "80029519": "Answer: CFW: Bad permission - Trying to open FSELF PKG on retail or starting npdrm FSELF without installing",
   "80029530": "Answer: CFW: Copy/start operation error - CONTENT_ID mismatch or malformed ISO.BIN.EDAT/EBOOT.PBP",
   "80029563": "Answer: CFW: Invalid PKG format - Package corrupted or not created with make_package_npdrm",
