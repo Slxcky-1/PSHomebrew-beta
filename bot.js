@@ -1745,6 +1745,12 @@ client.on('messageCreate', async (message) => {
             return message.reply('⚠️ I can\'t respond to that. Keep it respectful and avoid sensitive topics. Cheers! 🇬🇧');
         }
         
+        // Rage bait / troll detection - dismiss obvious bait without long responses
+        if (/\b(didnt even|didn't even|cant even|can't even|dont even|don't even|absolute|mate you|bruh|bro you|imagine|literally|unironically|cope|seethe|skill issue|ratio|L \+|cringe|based and|touch grass|go outside)\b/i.test(lowercaseMsg) &&
+            /\b(finish|hold|understand|know how|figure out|too dumb|stupid|idiot|noob|bad at|suck at|terrible|trash|garbage)\b/i.test(lowercaseMsg)) {
+            return message.reply('Not here to debate mate. Ask a real question if you need help.');
+        }
+        
         // Jailbreak detection
         if (detectJailbreak(message.content)) {
             lockAI(message.guild.id, userId, message.author.username, 'Jailbreak attempt');
