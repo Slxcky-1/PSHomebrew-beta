@@ -103,6 +103,76 @@ npm start
 
 ---
 
+## 🔐 Encrypted Configuration System
+
+### Overview
+The bot supports encrypted credential storage for secure deployment. Your tokens and API keys can be encrypted with AES-256-GCM encryption and safely committed to GitHub.
+
+### Files
+- `.secure-config` - Encrypted credentials (safe for GitHub)
+- `config.json` - Local unencrypted config (gitignored)
+- `encrypt-config.js` - Encryption/decryption tool
+
+### How It Works
+
+**Local Development (Windows):**
+- Bot uses local `config.json` directly
+- `/update` command backs up config before pulling changes
+- Credentials never overwritten
+
+**Production Server (Linux/SSH):**
+- Bot auto-decrypts `.secure-config` on startup
+- Password required: hardcoded in bot
+- No manual decryption needed
+
+### Encryption Commands
+
+**Encrypt your config:**
+```bash
+node encrypt-config.js encrypt
+```
+Creates `.secure-config` from `config.json`
+
+**Decrypt to config:**
+```bash
+node encrypt-config.js decrypt
+```
+Creates `config.json` from `.secure-config`
+
+### Security Features
+1. **AES-256-GCM** - Military-grade encryption
+2. **Password Protected** - Requires password to decrypt
+3. **Authentication Tag** - Prevents tampering
+4. **GitHub Safe** - Encrypted data can be publicly committed
+5. **Auto-Backup** - Update command preserves local files
+
+### Update Protection
+When running `/update`, these files are automatically backed up:
+- `config.json`
+- `.secure-config`
+- `serverSettings.json`
+- `userData.json`
+- `ticketData.json`
+- `moderationData.json`
+
+### Updating Credentials
+1. Edit `config.json` locally
+2. Run `node encrypt-config.js encrypt`
+3. Commit `.secure-config` to GitHub
+4. Production server gets new config on next pull
+
+**Protected Data:**
+```json
+{
+  "token": "YOUR_BOT_TOKEN",
+  "clientId": "YOUR_CLIENT_ID",
+  "deepseekApiKey": "YOUR_API_KEY",
+  "botOwnerId": "YOUR_USER_ID"
+}
+```
+
+---
+
 ## Features
 
 ### 🎮 PS3 Error Code Detection (347 Codes)
