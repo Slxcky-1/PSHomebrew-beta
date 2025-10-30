@@ -1,0 +1,67 @@
+{
+  "name": "Español",
+  "code": "es",
+  "flag": "🇪🇸",
+  "translations": {
+    "error": {
+      "noPermission": "❌ ¡No tienes permiso para usar este comando!",
+      "adminOnly": "❌ ¡Este comando requiere permisos de Administrador!",
+      "cooldown": "⏱️ Por favor espera {time} segundos antes de usar este comando nuevamente.",
+      "generic": "❌ Ocurrió un error. ¡Por favor intenta de nuevo!",
+      "invalidInput": "❌ Entrada inválida. Por favor intenta de nuevo.",
+      "notFound": "❌ ¡No encontrado!",
+      "rateLimit": "⚠️ ¡Demasiadas solicitudes! Por favor más despacio."
+    },
+    "success": {
+      "updated": "✅ ¡Actualizado exitosamente!",
+      "saved": "✅ ¡Guardado!",
+      "deleted": "✅ ¡Eliminado!",
+      "enabled": "✅ ¡Activado!",
+      "disabled": "✅ ¡Desactivado!"
+    },
+    "ai": {
+      "tokenBlocked": "⚠️ **Solicitud bloqueada para ahorrar tokens.**\n\n¡Estoy optimizado para ayuda de homebrew de PlayStation, no ensayos, historias, repetición o solicitudes que desperdicien tokens! ¡Por favor pregunta sobre jailbreaking de PS3/PS4/PS5, firmware, homebrew o errores! 🎮",
+      "cooldownMessage": "⏱️ Por favor espera {time} segundos antes de enviar otro mensaje.",
+      "lockedMessage": "🔒 **La IA está bloqueada actualmente**\n\nRazón: {reason}\nBloqueada por: <@{userId}>\n\nPide a un administrador que la desbloquee con `/ai unlock`.",
+      "emptyResponse": "❌ Respuesta vacía recibida. ¡Intenta de nuevo!"
+    },
+    "errorCodes": {
+      "ps3Title": "❓ Código de Error PS3: {code}",
+      "ps4Title": "❓ Código de Error PS4: {code}",
+      "answer": "🗨️ Respuesta:",
+      "originalErrors": "🔵 Errores Originales de PS3"
+    },
+    "leveling": {
+      "levelUp": "🎉 ¡Felicidades {user}! ¡Alcanzaste el **Nivel {level}**!",
+      "xpGained": "+{xp} XP",
+      "rankCard": "📊 Tarjeta de Rango",
+      "level": "Nivel",
+      "xp": "XP",
+      "rank": "Rango"
+    },
+    "moderation": {
+      "warned": "⚠️ ¡{user} ha sido advertido!\n**Razón:** {reason}",
+      "muted": "🔇 ¡{user} ha sido silenciado por {duration}!\n**Razón:** {reason}",
+      "kicked": "👢 ¡{user} ha sido expulsado!\n**Razón:** {reason}",
+      "banned": "🔨 ¡{user} ha sido baneado!\n**Razón:** {reason}",
+      "raidDetected": "🚨 **RAID DETECTADO**\n¡{count} miembros se unieron en {time} segundos!"
+    },
+    "tickets": {
+      "created": "🎫 Ticket creado: {channel}",
+      "closed": "🎫 Ticket cerrado por {user}",
+      "claimed": "✅ Ticket reclamado por {user}",
+      "transcript": "📝 Transcripción del Ticket"
+    },
+    "games": {
+      "starting": "🎮 Iniciando {game}...",
+      "error": "❌ Error al iniciar el juego. Por favor intenta de nuevo.",
+      "wins": "Victorias",
+      "losses": "Derrotas",
+      "leaderboard": "🏆 Tabla de Clasificación"
+    },
+    "settings": {
+      "languageChanged": "✅ ¡Idioma cambiado a {language}!",
+      "currentLanguage": "Idioma actual: {language} {flag}"
+    }
+  }
+}

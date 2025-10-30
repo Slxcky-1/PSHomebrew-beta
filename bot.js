@@ -17,6 +17,56 @@ const { search } = require('duck-duck-scrape');
 const Parser = require('rss-parser');
 const rssParser = new Parser();
 
+// --- Language System ---
+const languages = {};
+const languageFiles = ['en.json', 'es.json', 'fr.json', 'de.json', 'pt.json', 'ja.json'];
+for (const file of languageFiles) {
+    try {
+        const langData = require(`./languages/${file}`);
+        languages[langData.code] = langData;
+        console.log(`✅ Loaded language: ${langData.name} (${langData.code})`);
+    } catch (error) {
+        console.error(`❌ Failed to load language file: ${file}`, error.message);
+    }
+}
+
+// Translation helper function
+function translate(guildId, key, replacements = {}) {
+    const settings = serverSettings[guildId] || {};
+    const langCode = settings.language || 'en';
+    const lang = languages[langCode] || languages['en'];
+    
+    // Navigate through nested keys (e.g., 'error.noPermission')
+    const keys = key.split('.');
+    let translation = lang.translations;
+    
+    for (const k of keys) {
+        if (!translation || !translation[k]) {
+            // Fallback to English if translation not found
+            translation = languages['en'].translations;
+            for (const fallbackKey of keys) {
+                translation = translation?.[fallbackKey];
+            }
+            break;
+        }
+        translation = translation[k];
+    }
+    
+    // If still not found, return the key itself
+    if (typeof translation !== 'string') {
+        return key;
+    }
+    
+    // Replace placeholders like {user}, {level}, {time}, etc.
+    let result = translation;
+    for (const [placeholder, value] of Object.entries(replacements)) {
+        result = result.replace(new RegExp(`\\{${placeholder}\\}`, 'g'), value);
+    }
+    
+    return result;
+}
+// --- End Language System ---
+
 // Load configuration
 let config;
 try {
@@ -288,6 +338,7 @@ function saveJSON(filePath, data) {
 
 // Default settings template
 const defaultSettings = {
+    language: 'en', // Default language code (en, es, fr, de, pt, ja)
     leveling: {
         enabled: true,
         minXP: 15,
@@ -812,8 +863,12 @@ function requireAdmin(interaction) {
     return true;
 }
 
-// Helper function to create standardized error embed
-function createErrorEmbed(title, description) {
+// Helper function to create standardized error embed with translation support
+function createErrorEmbed(title, description, guildId = null) {
+    // If guildId provided and description is a translation key, translate it
+    if (guildId && typeof description === 'string' && description.includes('.')) {
+        description = translate(guildId, description);
+    }
     return new EmbedBuilder()
         .setTitle(title)
         .setDescription(description)
@@ -821,8 +876,11 @@ function createErrorEmbed(title, description) {
         .setTimestamp();
 }
 
-// Helper function to create standardized success embed
-function createSuccessEmbed(title, description) {
+// Helper function to create standardized success embed with translation support
+function createSuccessEmbed(title, description, guildId = null) {
+    if (guildId && typeof description === 'string' && description.includes('.')) {
+        description = translate(guildId, description);
+    }
     return new EmbedBuilder()
         .setTitle(title)
         .setDescription(description)
@@ -830,8 +888,11 @@ function createSuccessEmbed(title, description) {
         .setTimestamp();
 }
 
-// Helper function to create standardized info embed
-function createInfoEmbed(title, description) {
+// Helper function to create standardized info embed with translation support
+function createInfoEmbed(title, description, guildId = null) {
+    if (guildId && typeof description === 'string' && description.includes('.')) {
+        description = translate(guildId, description);
+    }
     return new EmbedBuilder()
         .setTitle(title)
         .setDescription(description)
@@ -1726,9 +1787,14 @@ client.on('messageCreate', async (message) => {
                     }
                 }
                 
+                const levelUpMsg = translate(message.guild.id, 'leveling.levelUp', {
+                    user: message.author.toString(),
+                    level: result.newLevel
+                });
+                
                 const embed = new EmbedBuilder()
                     .setTitle('🎉 Level Up!')
-                    .setDescription(`Congratulations ${message.author}! You've reached **Level ${result.newLevel}**!`)
+                    .setDescription(levelUpMsg)
                     .setColor(0x00FF00)
                     .setThumbnail(message.author.displayAvatarURL())
                     .addFields(
@@ -1830,7 +1896,7 @@ client.on('messageCreate', async (message) => {
             /\b(list\s+(all|every|100|1000)|tell\s+me\s+everything|give\s+me\s+all|name\s+all|count\s+to\s+(100|1000|10000))\b/i.test(lowercaseMsg) ||
             // Overly long messages
             message.content.length > 500)) {
-            return message.reply('⚠️ **Request blocked to save tokens.**\n\nI\'m optimized for PlayStation homebrew help, not essays, stories, repetition, or token-wasting requests. Please ask about PS3/PS4/PS5 jailbreaking, firmware, homebrew, or errors instead! 🎮');
+            return message.reply(translate(message.guild.id, 'ai.tokenBlocked'));
         }
         
         aiCooldowns[userId] = now;
@@ -3279,8 +3345,8 @@ client.on('interactionCreate', async (interaction) => {
         if (/\b(prove|proof|calculate|solve|compute|equation|theorem|conjecture|demonstrate|show\s+that|find\s+all|list\s+all|enumerate|factorial|fibonacci|prime\s+number|integration|derivative|matrix|polynomial|algorithm|step\s+by\s+step|explain\s+in\s+detail|mathematical|infinity|summation|sequence|series|permutation|combination)\b/i.test(lowercaseMsg) ||
             /(\d+\s*[\+\-\*\/\^]\s*\d+.*[\+\-\*\/\^].*\d+)|(\d{5,})|([a-z]\s*[\+\-\*\/\^=]\s*[a-z])/i.test(userMessage) ||
             userMessage.length > 500) {
-            return interaction.reply({ 
-                content: '⚠️ **Request blocked to save tokens.**\n\nI\'m optimized for PlayStation homebrew help, not math problems or lengthy computations. Please ask about PS3/PS4/PS5 jailbreaking, firmware, homebrew, or errors instead! 🎮',
+            return interaction.reply({
+                content: translate(interaction.guild.id, 'ai.tokenBlocked'),
                 ephemeral: true 
             });
         }

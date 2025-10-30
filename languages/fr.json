@@ -1,0 +1,67 @@
+{
+  "name": "Français",
+  "code": "fr",
+  "flag": "🇫🇷",
+  "translations": {
+    "error": {
+      "noPermission": "❌ Vous n'avez pas la permission d'utiliser cette commande !",
+      "adminOnly": "❌ Cette commande nécessite des permissions d'Administrateur !",
+      "cooldown": "⏱️ Veuillez attendre {time} secondes avant d'utiliser cette commande à nouveau.",
+      "generic": "❌ Une erreur s'est produite. Veuillez réessayer !",
+      "invalidInput": "❌ Entrée invalide. Veuillez réessayer.",
+      "notFound": "❌ Non trouvé !",
+      "rateLimit": "⚠️ Trop de requêtes ! Veuillez ralentir."
+    },
+    "success": {
+      "updated": "✅ Mis à jour avec succès !",
+      "saved": "✅ Enregistré !",
+      "deleted": "✅ Supprimé !",
+      "enabled": "✅ Activé !",
+      "disabled": "✅ Désactivé !"
+    },
+    "ai": {
+      "tokenBlocked": "⚠️ **Demande bloquée pour économiser des tokens.**\n\nJe suis optimisé pour l'aide homebrew PlayStation, pas pour les essais, histoires, répétitions ou demandes gaspillant des tokens ! Veuillez poser des questions sur le jailbreak PS3/PS4/PS5, le firmware, homebrew ou les erreurs ! 🎮",
+      "cooldownMessage": "⏱️ Veuillez attendre {time} secondes avant d'envoyer un autre message.",
+      "lockedMessage": "🔒 **L'IA est actuellement verrouillée**\n\nRaison : {reason}\nVerrouillée par : <@{userId}>\n\nDemandez à un administrateur de la déverrouiller avec `/ai unlock`.",
+      "emptyResponse": "❌ Réponse vide reçue. Réessayez !"
+    },
+    "errorCodes": {
+      "ps3Title": "❓ Code d'Erreur PS3 : {code}",
+      "ps4Title": "❓ Code d'Erreur PS4 : {code}",
+      "answer": "🗨️ Réponse :",
+      "originalErrors": "🔵 Erreurs Originales PS3"
+    },
+    "leveling": {
+      "levelUp": "🎉 Félicitations {user} ! Vous avez atteint le **Niveau {level}** !",
+      "xpGained": "+{xp} XP",
+      "rankCard": "📊 Carte de Rang",
+      "level": "Niveau",
+      "xp": "XP",
+      "rank": "Rang"
+    },
+    "moderation": {
+      "warned": "⚠️ {user} a été averti !\n**Raison :** {reason}",
+      "muted": "🔇 {user} a été mis en sourdine pour {duration} !\n**Raison :** {reason}",
+      "kicked": "👢 {user} a été expulsé !\n**Raison :** {reason}",
+      "banned": "🔨 {user} a été banni !\n**Raison :** {reason}",
+      "raidDetected": "🚨 **RAID DÉTECTÉ**\n{count} membres ont rejoint en {time} secondes !"
+    },
+    "tickets": {
+      "created": "🎫 Ticket créé : {channel}",
+      "closed": "🎫 Ticket fermé par {user}",
+      "claimed": "✅ Ticket réclamé par {user}",
+      "transcript": "📝 Transcription du Ticket"
+    },
+    "games": {
+      "starting": "🎮 Démarrage de {game}...",
+      "error": "❌ Échec du démarrage du jeu. Veuillez réessayer.",
+      "wins": "Victoires",
+      "losses": "Défaites",
+      "leaderboard": "🏆 Classement"
+    },
+    "settings": {
+      "languageChanged": "✅ Langue changée en {language} !",
+      "currentLanguage": "Langue actuelle : {language} {flag}"
+    }
+  }
+}
