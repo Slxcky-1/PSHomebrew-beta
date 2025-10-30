@@ -1532,10 +1532,10 @@ client.on('messageCreate', async (message) => {
                     files: imageAttachments.map(att => att.url)
                 });
                 
-                // Delete the original message from the main channel after creating thread
-                await message.delete();
+                // Don't delete the original message - it needs to stay for the thread to remain visible
+                // The thread is attached to the original message
                 
-                console.log(`🧵 Created thread "${threadName}" for image post in channel 1094846351101132872 and deleted original`);
+                console.log(`🧵 Created thread "${threadName}" for image post in channel 1094846351101132872`);
             } catch (error) {
                 console.error('Error creating thread for image:', error);
             }
