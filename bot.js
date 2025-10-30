@@ -20,11 +20,28 @@ const rssParser = new Parser();
 // Load configuration
 let config;
 try {
-    config = require('./config.json');
-    console.log('✅ Loaded configuration from config.json');
+    // Try to load from config.json first
+    if (fsSync.existsSync('./config.json')) {
+        config = require('./config.json');
+        console.log('✅ Loaded configuration from config.json');
+    } 
+    // Fall back to encrypted config if available
+    else if (fsSync.existsSync('./.secure-config')) {
+        console.log('🔐 Loading encrypted configuration...');
+        const { decryptConfig } = require('./encrypt-config.js');
+        const encryptedData = JSON.parse(fsSync.readFileSync('./.secure-config', 'utf8'));
+        config = decryptConfig(encryptedData, 'Savannah23');
+        console.log('✅ Configuration decrypted successfully');
+    } else {
+        throw new Error('No configuration file found');
+    }
 } catch (error) {
-    console.error('❌ ERROR: config.json not found!');
-    console.error('Please create config.json with your bot token and client ID');
+    console.error('❌ ERROR: Failed to load configuration!');
+    console.error('Details:', error.message);
+    console.error('');
+    console.error('Options:');
+    console.error('1. Create config.json with your bot credentials');
+    console.error('2. Run: node encrypt-config.js decrypt (if you have .secure-config)');
     process.exit(1);
 }
 
@@ -2205,9 +2222,26 @@ client.on('interactionCreate', async (interaction) => {
         await interaction.editReply({ embeds: [updateEmbed] });
         
         // Execute git pull with force reset to handle conflicts
+        // Backup local config files before update
         const { exec } = require('child_process');
         const startTime = Date.now();
+        
+        // Backup critical local files
+        const backupFiles = ['config.json', '.secure-config', 'serverSettings.json', 'userData.json', 'ticketData.json', 'moderationData.json'];
+        backupFiles.forEach(file => {
+            if (fsSync.existsSync(file)) {
+                fsSync.copyFileSync(file, `${file}.backup`);
+            }
+        });
+        
         exec('git fetch origin && git reset --hard origin/main && npm install --silent --no-audit --no-fund 2>&1', (error, stdout, stderr) => {
+            // Restore backed up files
+            backupFiles.forEach(file => {
+                if (fsSync.existsSync(`${file}.backup`)) {
+                    fsSync.renameSync(`${file}.backup`, file);
+                }
+            });
+            
             if (error) {
                 console.error(`Update error: ${error}`);
                 return interaction.editReply({ 
