@@ -128,8 +128,9 @@ let aiUserProfiles = {}; // { userId: { messageCount: number, lastTone: 'questio
 let aiLockdown = {}; // { guildId: { locked: boolean, lockedBy: userId, reason: string, timestamp: number } }
 
 // Jailbreak detection patterns
-// Import AI SDK
+// Import AI SDKs
 const { createDeepSeek } = require('@ai-sdk/deepseek');
+const { createOpenAI } = require('@ai-sdk/openai');
 const { generateText } = require('ai');
 
 // Optimized jailbreak detection - compact patterns
@@ -1828,21 +1829,41 @@ client.on('messageCreate', async (message) => {
                     ...aiConversations[channelId].map(m => ({ role: m.role, content: m.content }))
                 ];
                 
-                // Use DeepSeek AI
-                const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
-                const response = await generateText({
-                    model: deepseek(settings.ai.model),
-                    messages,
-                    temperature: settings.ai.temperature,
-                    maxTokens: toneConfig.maxTokens
-                });
+                // Smart AI selection - ChatGPT ONLY in channel 1433480720776433664, DeepSeek everywhere else
+                const isChatGPTChannel = message.channel.id === '1433480720776433664';
+                
+                let aiProvider, modelName, response;
+                
+                if (isChatGPTChannel && config.openaiApiKey) {
+                    // Use ChatGPT exclusively in the designated channel
+                    aiProvider = '🧠 ChatGPT';
+                    const openai = createOpenAI({ apiKey: config.openaiApiKey });
+                    modelName = 'gpt-4o-mini';
+                    response = await generateText({
+                        model: openai(modelName),
+                        messages,
+                        temperature: settings.ai.temperature,
+                        maxTokens: toneConfig.maxTokens
+                    });
+                } else {
+                    // Use DeepSeek for all other channels
+                    aiProvider = '⚡ DeepSeek';
+                    const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
+                    modelName = settings.ai.model;
+                    response = await generateText({
+                        model: deepseek(modelName),
+                        messages,
+                        temperature: settings.ai.temperature,
+                        maxTokens: toneConfig.maxTokens
+                    });
+                }
                 
                 const text = response.text;
                 const completionTokens = response.usage?.completionTokens || response.usage?.outputTokens || 'N/A';
                 const totalTokens = response.usage?.totalTokens || 'N/A';
 
-                // Log token usage
-                console.log(`🤖 DeepSeek (${settings.ai.model}) | Total: ${totalTokens} tokens (Completion: ${completionTokens}) | Words: ${text.split(' ').length}`);
+                // Log token usage with AI provider
+                console.log(`🤖 ${aiProvider} (${modelName}) | Total: ${totalTokens} tokens (Completion: ${completionTokens}) | Words: ${text.split(' ').length}`);
 
                 if (!text?.trim()) {
                     return message.reply('❌ Empty response received. Try again!');
