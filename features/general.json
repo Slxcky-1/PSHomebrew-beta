@@ -94,6 +94,10 @@
             "description": "Pull latest code from GitHub and restart bot (Owner only)"
         },
         {
+            "name": "restart",
+            "description": "Manually restart the bot without updating code (Owner only)"
+        },
+        {
             "name": "cleanps4errors",
             "description": "Delete local ps4ErrorCodes.json to fix git conflicts (Owner only)"
         },

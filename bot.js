@@ -2488,6 +2488,33 @@ client.on('interactionCreate', async (interaction) => {
         });
     }
     
+    // Restart command - Simple manual restart without git update
+    if (interaction.commandName === 'restart') {
+        // Check if user is bot owner only
+        if (interaction.user.id !== config.botOwnerId) {
+            return interaction.reply({ content: '❌ Only the bot owner can use this command!', ephemeral: true });
+        }
+        
+        const restartEmbed = new EmbedBuilder()
+            .setTitle('🔄 Restarting Bot')
+            .setDescription('Performing manual restart...\n\nThe bot will be back online in a few seconds.')
+            .setColor(0x00BFFF)
+            .setTimestamp();
+        
+        await interaction.reply({ embeds: [restartEmbed] });
+        
+        // Write restart marker file so bot knows to send online message
+        fsSync.writeFileSync('./update-marker.json', JSON.stringify({
+            channelId: interaction.channel.id,
+            guildId: interaction.guild.id,
+            timestamp: Date.now(),
+            isManualRestart: true
+        }));
+        
+        console.log('🔄 Manual restart triggered via /restart command');
+        setTimeout(() => process.exit(0), 1000); // systemd/process manager will restart the bot
+    }
+    
     // View Settings command
     if (interaction.commandName === 'viewsettings') {
         if (!requireAdmin(interaction)) return;
