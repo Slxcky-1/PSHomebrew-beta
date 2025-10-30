@@ -231,27 +231,27 @@ function getPersonalityForTone(tone, username) {
     switch (tone) {
         case 'question':
             return { 
-                instruction: `The user ${username} is asking a question and needs help. Provide a clear, complete answer. Be professional and informative, with a touch of warmth. Stay focused on helping them understand. Keep any humour subtle and dry - a light touch only. If it's a simple question (like "what is X"), keep it brief (2-4 sentences). For more complex questions, provide full details.`,
-                maxTokens: 250
+                instruction: `The user ${username} is asking a question and needs help. Provide a BRIEF, clear answer. Be direct and concise. If it's a simple question (like "what is X"), keep it to 2-3 sentences. For complex questions, maximum 5 sentences. NO lengthy explanations or encyclopedic responses.`,
+                maxTokens: 150 // Reduced from 250
             };
         
         case 'technical':
             return { 
-                instruction: `The user ${username} is asking a technical question. Provide a direct, factual answer. No jokes or wordplay. State the essential information only in plain sentences. Maximum 4 sentences.`,
-                maxTokens: 200
+                instruction: `The user ${username} is asking a technical question. Provide a direct, factual answer. No jokes or wordplay. State the essential information only in plain sentences. Maximum 3 sentences.`,
+                maxTokens: 120 // Reduced from 200
             };
         
         case 'joke':
             return { 
-                instruction: `The user ${username} made a joke. Keep response brief and factual. 2 sentences maximum.`,
-                maxTokens: 80
+                instruction: `The user ${username} made a joke. Keep response brief and factual. 1-2 sentences maximum.`,
+                maxTokens: 50 // Reduced from 80
             };
         
         case 'casual':
         default:
             return { 
-                instruction: `The user ${username} is having a casual chat. Give a straightforward, helpful response. No jokes or clever wordplay. 2-3 sentences maximum.`,
-                maxTokens: 120
+                instruction: `The user ${username} is having a casual chat. Give a straightforward, helpful response. No jokes or clever wordplay. 2 sentences maximum. Be concise.`,
+                maxTokens: 80 // Reduced from 120
             };
     }
 }
@@ -1886,39 +1886,50 @@ client.on('messageCreate', async (message) => {
                     aiProvider = '⚡ DeepSeek';
                     const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
                     modelName = settings.ai.model;
+                    
+                    // DeepSeek AGGRESSIVE token limiting - enforce strict output limits
+                    const strictMaxTokens = Math.min(toneConfig.maxTokens, 300); // Hard cap at 300
+                    
                     response = await generateText({
                         model: deepseek(modelName),
                         messages,
                         temperature: settings.ai.temperature,
-                        maxTokens: toneConfig.maxTokens
+                        maxTokens: strictMaxTokens,
+                        maxRetries: 1 // Don't retry on failure to save tokens
                     });
                 }
                 
                 const text = response.text;
-                const completionTokens = response.usage?.completionTokens || response.usage?.outputTokens || 'N/A';
-                const totalTokens = response.usage?.totalTokens || 'N/A';
+                // DeepSeek and OpenAI use different token keys - prioritize output/completion tokens ONLY
+                const outputTokens = response.usage?.completionTokens || response.usage?.outputTokens || 0;
+                const inputTokens = response.usage?.promptTokens || response.usage?.inputTokens || 0;
+                const totalTokens = response.usage?.totalTokens || (inputTokens + outputTokens);
 
-                // Log token usage with AI provider
-                console.log(`🤖 ${aiProvider} (${modelName}) | Total: ${totalTokens} tokens (Completion: ${completionTokens}) | Words: ${text.split(' ').length}`);
+                // Log token usage with AI provider - show breakdown
+                console.log(`🤖 ${aiProvider} (${modelName}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${totalTokens} | Words: ${text.split(' ').length}`);
 
                 if (!text?.trim()) {
                     return message.reply('❌ Empty response received. Try again!');
                 }
 
-                // Safeguard: Truncate based on dynamic token limit
+                // AGGRESSIVE TRUNCATION: DeepSeek often ignores maxTokens, so enforce word limits
+                // Rough estimate: 1 token ≈ 0.75 words, so maxTokens * 0.75 = word limit
                 let safeText = text;
+                const maxWords = Math.floor(toneConfig.maxTokens * 0.75); // Conservative word limit
                 const words = text.split(/\s+/);
-                if (words.length > toneConfig.maxTokens) {
-                    safeText = words.slice(0, toneConfig.maxTokens).join(' ') + '...';
+                
+                if (words.length > maxWords) {
+                    safeText = words.slice(0, maxWords).join(' ') + '... *(truncated)*';
+                    console.log(`⚠️ Response truncated: ${words.length} words → ${maxWords} words (limit: ${toneConfig.maxTokens} tokens)`);
                 }
 
                 // Add to history
                 aiConversations[channelId].push({ role: 'assistant', content: safeText, timestamp: now });
 
-                // Send response with completion token usage and AI provider (chunk if needed)
+                // Send response with OUTPUT token usage only (not total tokens)
                 const tokenFooter = aiProvider === '🧠 ChatGPT' 
-                    ? `\n\n*🧠 ChatGPT: ${completionTokens} tokens*`
-                    : `\n\n*⚡ DeepSeek: ${completionTokens} tokens*`;
+                    ? `\n\n*🧠 ChatGPT: ${outputTokens} tokens*`
+                    : `\n\n*⚡ DeepSeek: ${outputTokens} tokens*`;
                 if (safeText.length > 1900) {
                     const chunks = safeText.match(/[\s\S]{1,1900}/g) || [];
                     await message.reply(chunks[0]);
