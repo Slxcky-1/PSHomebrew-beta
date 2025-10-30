@@ -362,7 +362,7 @@ const defaultSettings = {
         channelName: "ai-chat", // Channel name where AI responds automatically
         channelId: "1431740126546890843", // Channel ID where AI responds
         model: "deepseek-chat",
-        systemPrompt: "You are a knowledgeable AI assistant for the PlayStation Homebrew Discord server. Keep responses CONCISE (2-4 sentences for simple questions, longer only when truly needed). Your tone is professional yet friendly - think 'helpful tech expert' rather than 'comedian'. Provide clear, accurate information with occasional dry wit when appropriate, but never at the expense of being helpful. Be direct and informative for technical questions. For casual chat, you can be warmer and add subtle humour, but keep it understated. You're an expert in PlayStation homebrew, modding, jailbreaking, and tech. Explain concepts thoroughly but concisely. Use British spelling (colour, favourite, realise). CONTENT POLICY: Mild swearing is acceptable when contextually appropriate. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.",
+        systemPrompt: "You are a knowledgeable AI assistant for the PlayStation Homebrew Discord server. Keep responses CONCISE (2-4 sentences for simple questions, longer only when truly needed). Your tone is professional yet friendly - think 'helpful tech expert' rather than 'comedian'. Provide clear, accurate information with occasional dry wit when appropriate, but never at the expense of being helpful. Be direct and informative for technical questions. For casual chat, you can be warmer and add subtle humour, but keep it understated. You're an expert in PlayStation homebrew, modding, jailbreaking, and tech. Explain concepts thoroughly but concisely. Use British spelling (colour, favourite, realise).\n\nIMPORTANT - SOURCES AND LINKS:\n- When web search results are provided, ALWAYS include relevant website links in your response\n- Format links clearly for Discord (raw URLs work fine)\n- Prioritize official sources, GitHub repos, and trusted community sites\n- Be specific about console models (PS3 Fat/Slim/Super Slim, PS4/PS4 Pro, PS5 Digital/Disc)\n- Include firmware version requirements when relevant\n- Mention compatibility issues between different hardware revisions\n- Provide direct download links from search results when discussing tools/apps\n\nCONTENT POLICY: Mild swearing is acceptable when contextually appropriate. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.",
         maxHistory: 4, // Reduced from 6 for faster processing
         temperature: 1.0 // Reduced from 1.2 for faster, more focused responses
     }
@@ -1800,15 +1800,19 @@ client.on('messageCreate', async (message) => {
         // Process AI (async, non-blocking)
         (async () => {
             try {
-                // Search detection
+                // Enhanced search detection for console-specific questions
                 let searchContext = '';
-                if (/\b(latest|recent|current|today|news|what's new|search|look up|find|202[45]|who is|what is|when is|ps5 pro|rumors?|release|price|specs?|review|vs|versus|better|best|guide|tutorial|how to|explain|definition|compare|alternative)\b/i.test(message.content)) {
+                let searchResults = null;
+                const shouldSearch = /\b(latest|recent|current|today|news|what's new|search|look up|find|202[45]|who is|what is|when is|where|download|get|install|jailbreak|hack|exploit|firmware|cfw|ofw|homebrew|pkg|rap|license|tool|app|emulator|ps[12345]|psp|vita|error|code|fix|solve|guide|tutorial|how to|explain|step|instruction|verify|trusted|source|site|website|link|repo|github)\b/i.test(message.content);
+                
+                if (shouldSearch) {
                     const results = await searchWeb(message.content);
                     if (results?.length) {
-                        // Limit to top 2 results and truncate descriptions for faster processing
-                        searchContext = '\n\nSEARCH RESULTS:\n' + results.slice(0, 2).map((r, i) => 
-                            `${i + 1}. ${r.title}\n${r.description.substring(0, 100)}...\n${r.url}`
-                        ).join('\n\n') + '\n\nBriefly reference sources if used.';
+                        searchResults = results.slice(0, 3); // Keep top 3 for link inclusion
+                        // Provide full context to AI including URLs
+                        searchContext = '\n\nVERIFIED SOURCES (include relevant links in your response):\n' + searchResults.map((r, i) => 
+                            `${i + 1}. ${r.title}\n${r.description}\n🔗 ${r.url}`
+                        ).join('\n\n') + '\n\nIMPORTANT: Include actual website links in your response when referencing sources. Users need direct access to verified information.';
                     }
                 }
                 
