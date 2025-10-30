@@ -128,8 +128,9 @@ let aiUserProfiles = {}; // { userId: { messageCount: number, lastTone: 'questio
 let aiLockdown = {}; // { guildId: { locked: boolean, lockedBy: userId, reason: string, timestamp: number } }
 
 // Jailbreak detection patterns
-// Import DeepSeek SDK
+// Import AI SDKs
 const { createDeepSeek } = require('@ai-sdk/deepseek');
+const { createOpenAI } = require('@ai-sdk/openai');
 const { generateText } = require('ai');
 
 // Optimized jailbreak detection - compact patterns
@@ -1828,21 +1829,42 @@ client.on('messageCreate', async (message) => {
                     ...aiConversations[channelId].map(m => ({ role: m.role, content: m.content }))
                 ];
                 
-                // Call DeepSeek API with dynamic token limit based on question type
-                const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
-                const response = await generateText({
-                    model: deepseek(settings.ai.model),
-                    messages,
-                    temperature: settings.ai.temperature,
-                    maxTokens: toneConfig.maxTokens
-                });
+                // Smart AI selection - Use ChatGPT for complex/creative questions, DeepSeek for technical
+                const useChatGPT = /\b(explain|why|how does|what if|compare|difference|better|recommend|suggest|opinion|think|creative|story|imagine|scenario)\b/i.test(message.content) ||
+                                   message.content.includes('?') && message.content.split(/\s+/).length > 15;
+                
+                let aiProvider, modelName, response;
+                
+                if (useChatGPT && config.openaiApiKey) {
+                    // Use ChatGPT for complex reasoning
+                    aiProvider = '🧠 ChatGPT';
+                    const openai = createOpenAI({ apiKey: config.openaiApiKey });
+                    modelName = 'gpt-4o-mini'; // Fast and cost-effective
+                    response = await generateText({
+                        model: openai(modelName),
+                        messages,
+                        temperature: settings.ai.temperature,
+                        maxTokens: toneConfig.maxTokens
+                    });
+                } else {
+                    // Use DeepSeek for technical/factual questions (faster, cheaper)
+                    aiProvider = '⚡ DeepSeek';
+                    const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
+                    modelName = settings.ai.model;
+                    response = await generateText({
+                        model: deepseek(modelName),
+                        messages,
+                        temperature: settings.ai.temperature,
+                        maxTokens: toneConfig.maxTokens
+                    });
+                }
                 
                 const text = response.text;
                 const completionTokens = response.usage?.completionTokens || response.usage?.outputTokens || 'N/A';
                 const totalTokens = response.usage?.totalTokens || 'N/A';
 
-                // Log token usage
-                console.log(`🤖 AI Response | Total: ${totalTokens} tokens (Completion: ${completionTokens}) | Words: ${text.split(' ').length}`);
+                // Log token usage with AI provider
+                console.log(`🤖 ${aiProvider} (${modelName}) | Total: ${totalTokens} tokens (Completion: ${completionTokens}) | Words: ${text.split(' ').length}`);
 
                 if (!text?.trim()) {
                     return message.reply('❌ Empty response received. Try again!');
@@ -1858,8 +1880,8 @@ client.on('messageCreate', async (message) => {
                 // Add to history
                 aiConversations[channelId].push({ role: 'assistant', content: safeText, timestamp: now });
 
-                // Send response with completion token usage (chunk if needed)
-                const tokenFooter = `\n\n*Response: ${completionTokens} tokens*`;
+                // Send response with completion token usage and AI provider (chunk if needed)
+                const tokenFooter = `\n\n*${aiProvider}: ${completionTokens} tokens*`;
                 if (safeText.length > 1900) {
                     const chunks = safeText.match(/[\s\S]{1,1900}/g) || [];
                     await message.reply(chunks[0]);
