@@ -1508,19 +1508,32 @@ client.on('messageCreate', async (message) => {
         
         if (hasImage) {
             try {
-                // Create thread with image poster's name
+                // First, create a new message in the channel that mentions the user
+                let newMessage = `📸 Post by ${message.author}`;
+                if (message.content) {
+                    newMessage += `\n\n${message.content}`;
+                }
+                
+                // Get all image attachments
+                const imageAttachments = Array.from(message.attachments.values())
+                    .filter(att => att.contentType && att.contentType.startsWith('image/'));
+                
+                // Send the new message with mention and images
+                const mentionMessage = await message.channel.send({
+                    content: newMessage,
+                    files: imageAttachments.map(att => att.url)
+                });
+                
+                // Create thread from the NEW message (the one with the mention)
                 const threadName = `${message.author.username}'s post`;
-                const thread = await message.startThread({
+                await mentionMessage.startThread({
                     name: threadName,
                     autoArchiveDuration: 1440, // 24 hours
                     reason: 'Auto-thread for image post'
                 });
                 
-                // The original message with image stays in the channel and is automatically the first message in the thread
-                // No need to copy anything - the thread starter message already contains the image and text
-                
-                // Don't delete the original message - it needs to stay for the thread to remain visible
-                // The thread is attached to the original message
+                // Delete the original message (the one without mention)
+                await message.delete();
                 
                 console.log(`🧵 Created thread "${threadName}" for image post in channel 1094846351101132872`);
             } catch (error) {
