@@ -1516,10 +1516,10 @@ client.on('messageCreate', async (message) => {
                     reason: 'Auto-thread for image post'
                 });
                 
-                // Copy the message content and images to the thread
-                let threadMessage = `📸 **Original post by ${message.author}:**`;
+                // Copy the message content and images to the thread (without the header message)
+                let threadMessage = '';
                 if (message.content) {
-                    threadMessage += `\n\n${message.content}`;
+                    threadMessage = message.content;
                 }
                 
                 // Get all image attachments
@@ -1528,11 +1528,14 @@ client.on('messageCreate', async (message) => {
                 
                 // Send message with images to thread
                 await thread.send({
-                    content: threadMessage,
+                    content: threadMessage || `📸 Post by ${message.author}`,
                     files: imageAttachments.map(att => att.url)
                 });
                 
-                console.log(`🧵 Created thread "${threadName}" for image post in channel 1094846351101132872`);
+                // Delete the original message from the main channel after creating thread
+                await message.delete();
+                
+                console.log(`🧵 Created thread "${threadName}" for image post in channel 1094846351101132872 and deleted original`);
             } catch (error) {
                 console.error('Error creating thread for image:', error);
             }
