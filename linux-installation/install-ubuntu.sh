@@ -78,7 +78,7 @@ cd "$(dirname "$0")/.." || exit 1
 # Install bot dependencies
 echo ""
 echo "📦 Installing Discord bot dependencies..."
-npm install --production
+npm install --silent --no-audit --no-fund --production
 
 # Check if config.json exists
 if [ ! -f "config.json" ]; then
