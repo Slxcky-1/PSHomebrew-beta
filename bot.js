@@ -30,7 +30,8 @@ try {
         console.log('🔐 Loading encrypted configuration...');
         const { decryptConfig } = require('./encrypt-config.js');
         const encryptedData = JSON.parse(fsSync.readFileSync('./.secure-config', 'utf8'));
-        config = decryptConfig(encryptedData, 'Savannah23');
+        const encryptionKey = process.env.CONFIG_ENCRYPTION_KEY || 'Savannah23';
+        config = decryptConfig(encryptedData, encryptionKey);
         console.log('✅ Configuration decrypted successfully');
     } else {
         throw new Error('No configuration file found');
@@ -371,12 +372,13 @@ const defaultSettings = {
 
 // --- Scheduled restart at 00:00 every day ---
 function scheduleMidnightRestart() {
+    const timezone = process.env.RESTART_TIMEZONE || 'UTC';
     const now = new Date();
-    const nextMidnight = new Date(now);
-    nextMidnight.setHours(24, 0, 0, 0); // Next midnight
-    const msUntilMidnight = nextMidnight - now;
+    const nextMidnight = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
+    nextMidnight.setHours(24, 0, 0, 0); // Next midnight in specified timezone
+    const msUntilMidnight = nextMidnight - new Date(now.toLocaleString('en-US', { timeZone: timezone }));
     setTimeout(() => {
-        console.log('🔄 Scheduled restart: Restarting bot for daily maintenance.');
+        console.log(`🔄 Scheduled restart: Restarting bot for daily maintenance (Timezone: ${timezone}).`);
         process.exit(0); // Let your process manager restart the bot
     }, msUntilMidnight);
 }
@@ -947,6 +949,7 @@ const channelCache = new Map();
 const joinTracker = new Map(); // guildId -> array of {userId, timestamp}
 const lockedServers = new Set(); // Set of guildIds currently in lockdown
 const lockdownTimers = new Map(); // guildId -> setTimeout reference
+const raidActionQueue = new Map(); // guildId -> array of pending actions for rate limit control
 
 // Raid detection and handling
 async function checkForRaid(guild) {
@@ -1005,18 +1008,42 @@ async function handleRaid(guild, suspiciousJoins) {
             }
         }
         
-        // Take action on raiders
+        // Take action on raiders (with rate limit queue)
         if (settings.raidProtection.action !== 'none') {
+            // Initialize queue for this guild if not exists
+            if (!raidActionQueue.has(guild.id)) {
+                raidActionQueue.set(guild.id, []);
+            }
+            const queue = raidActionQueue.get(guild.id);
+            
+            // Add actions to queue
             for (const join of suspiciousJoins) {
+                // Skip whitelisted users
+                if (settings.raidProtection.whitelist.includes(join.userId)) continue;
+                queue.push(join);
+            }
+            
+            // Process queue with rate limiting (1 action per second)
+            const processQueue = async () => {
+                if (queue.length === 0) {
+                    raidActionQueue.delete(guild.id);
+                    return;
+                }
+                
+                const join = queue.shift();
                 try {
-                    // Skip whitelisted users
-                    if (settings.raidProtection.whitelist.includes(join.userId)) continue;
-                    
                     const member = await guild.members.fetch(join.userId).catch(() => null);
-                    if (!member) continue;
+                    if (!member) {
+                        // Continue to next in queue
+                        setTimeout(processQueue, 1000);
+                        return;
+                    }
                     
                     // Don't action server owner or members with admin
-                    if (member.id === guild.ownerId || member.permissions.has(PermissionFlagsBits.Administrator)) continue;
+                    if (member.id === guild.ownerId || member.permissions.has(PermissionFlagsBits.Administrator)) {
+                        setTimeout(processQueue, 1000);
+                        return;
+                    }
                     
                     if (settings.raidProtection.action === 'kick') {
                         await member.kick('Raid protection - suspicious join pattern');
@@ -1028,6 +1055,14 @@ async function handleRaid(guild, suspiciousJoins) {
                 } catch (error) {
                     console.error(`Error actioning user ${join.userId}:`, error);
                 }
+                
+                // Process next action after 1 second delay
+                setTimeout(processQueue, 1000);
+            };
+            
+            // Start processing queue if not already processing
+            if (queue.length === suspiciousJoins.filter(j => !settings.raidProtection.whitelist.includes(j.userId)).length) {
+                processQueue();
             }
         }
         
@@ -6795,7 +6830,12 @@ client.on('interactionCreate', async (interaction) => {
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
-                await game.startGame();
+                try {
+                    await game.startGame();
+                } catch (error) {
+                    console.error('❌ [SNAKE GAME] Error:', error);
+                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                }
             }
             
             else if (gameType === 'tictactoe') {
@@ -6853,7 +6893,12 @@ client.on('interactionCreate', async (interaction) => {
                     playerOnlyMessage: 'Only {player} and {opponent} can use these buttons.'
                 });
                 
-                await game.startGame();
+                try {
+                    await game.startGame();
+                } catch (error) {
+                    console.error('❌ [TICTACTOE GAME] Error:', error);
+                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                }
             }
             
             else if (gameType === 'connect4') {
@@ -6909,7 +6954,12 @@ client.on('interactionCreate', async (interaction) => {
                     playerOnlyMessage: 'Only {player} and {opponent} can use these buttons.'
                 });
                 
-                await game.startGame();
+                try {
+                    await game.startGame();
+                } catch (error) {
+                    console.error('❌ [CONNECT4 GAME] Error:', error);
+                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                }
             }
             
             else if (gameType === 'wordle') {
@@ -6927,7 +6977,12 @@ client.on('interactionCreate', async (interaction) => {
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
-                await game.startGame();
+                try {
+                    await game.startGame();
+                } catch (error) {
+                    console.error('❌ [WORDLE GAME] Error:', error);
+                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                }
             }
             
             else if (gameType === 'minesweeper') {
@@ -6947,7 +7002,12 @@ client.on('interactionCreate', async (interaction) => {
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
-                await game.startGame();
+                try {
+                    await game.startGame();
+                } catch (error) {
+                    console.error('❌ [MINESWEEPER GAME] Error:', error);
+                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                }
             }
             
             else if (gameType === '2048') {
@@ -6969,7 +7029,12 @@ client.on('interactionCreate', async (interaction) => {
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
-                await game.startGame();
+                try {
+                    await game.startGame();
+                } catch (error) {
+                    console.error('❌ [2048 GAME] Error:', error);
+                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                }
             }
             
             else if (gameType === 'memory') {
@@ -6988,7 +7053,12 @@ client.on('interactionCreate', async (interaction) => {
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
-                await game.startGame();
+                try {
+                    await game.startGame();
+                } catch (error) {
+                    console.error('❌ [MEMORY GAME] Error:', error);
+                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                }
             }
             
             else if (gameType === 'fasttype') {
@@ -7006,7 +7076,12 @@ client.on('interactionCreate', async (interaction) => {
                     loseMessage: '😢 You lost! You ran out of time.'
                 });
                 
-                await game.startGame();
+                try {
+                    await game.startGame();
+                } catch (error) {
+                    console.error('❌ [FASTTYPE GAME] Error:', error);
+                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                }
             }
             
             else if (gameType === 'findemoji') {
@@ -7028,7 +7103,12 @@ client.on('interactionCreate', async (interaction) => {
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
-                await game.startGame();
+                try {
+                    await game.startGame();
+                } catch (error) {
+                    console.error('❌ [FINDEMOJI GAME] Error:', error);
+                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                }
             }
             
             else if (gameType === 'guesspokemon') {
@@ -7046,7 +7126,12 @@ client.on('interactionCreate', async (interaction) => {
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
-                await game.startGame();
+                try {
+                    await game.startGame();
+                } catch (error) {
+                    console.error('❌ [GUESSPOKEMON GAME] Error:', error);
+                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                }
             }
             
             else if (gameType === 'rps') {
@@ -7079,7 +7164,12 @@ client.on('interactionCreate', async (interaction) => {
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
-                await game.startGame();
+                try {
+                    await game.startGame();
+                } catch (error) {
+                    console.error('❌ [RPS GAME] Error:', error);
+                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                }
             }
             
             else if (gameType === 'hangman') {
@@ -7099,7 +7189,12 @@ client.on('interactionCreate', async (interaction) => {
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
-                await game.startGame();
+                try {
+                    await game.startGame();
+                } catch (error) {
+                    console.error('❌ [HANGMAN GAME] Error:', error);
+                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                }
             }
             
             else if (gameType === 'trivia') {
@@ -7121,7 +7216,12 @@ client.on('interactionCreate', async (interaction) => {
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
-                await game.startGame();
+                try {
+                    await game.startGame();
+                } catch (error) {
+                    console.error('❌ [TRIVIA GAME] Error:', error);
+                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                }
             }
             
             else if (gameType === 'slots') {
@@ -7135,7 +7235,12 @@ client.on('interactionCreate', async (interaction) => {
                     slots: ['🍇', '🍊', '🍋', '🍌']
                 });
                 
-                await game.startGame();
+                try {
+                    await game.startGame();
+                } catch (error) {
+                    console.error('❌ [SLOTS GAME] Error:', error);
+                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                }
             }
             
             else if (gameType === 'wouldyourather') {
@@ -7155,7 +7260,12 @@ client.on('interactionCreate', async (interaction) => {
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
-                await game.startGame();
+                try {
+                    await game.startGame();
+                } catch (error) {
+                    console.error('❌ [WOULDYOURATHER GAME] Error:', error);
+                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                }
             }
             
         } catch (error) {
@@ -7909,6 +8019,14 @@ client.on('interactionCreate', async (interaction) => {
                         }
                         
                         const channelId = channelMatch[1];
+                        
+                        // Validate snowflake ID format
+                        if (!/^\d{17,19}$/.test(channelId)) {
+                            return interaction.reply({ 
+                                content: '❌ Invalid channel ID format!', 
+                                ephemeral: true 
+                            });
+                        }
                         const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
                         
                         if (!channel || !channel.isTextBased()) {
@@ -7946,6 +8064,14 @@ client.on('interactionCreate', async (interaction) => {
                         }
                         
                         const roleId = roleMatch[1];
+                        
+                        // Validate snowflake ID format
+                        if (!/^\d{17,19}$/.test(roleId)) {
+                            return interaction.reply({ 
+                                content: '❌ Invalid role ID format!', 
+                                ephemeral: true 
+                            });
+                        }
                         const role = await interaction.guild.roles.fetch(roleId).catch(() => null);
                         
                         if (!role) {
@@ -7975,6 +8101,14 @@ client.on('interactionCreate', async (interaction) => {
                         }
                         
                         const roleId = roleMatch[1];
+                        
+                        // Validate snowflake ID format
+                        if (!/^\d{17,19}$/.test(roleId)) {
+                            return interaction.reply({ 
+                                content: '❌ Invalid role ID format!', 
+                                ephemeral: true 
+                            });
+                        }
                         const role = await interaction.guild.roles.fetch(roleId).catch(() => null);
                         
                         if (!role) {
@@ -8011,6 +8145,14 @@ client.on('interactionCreate', async (interaction) => {
                         }
                         
                         const roleId = roleMatch[1];
+                        
+                        // Validate snowflake ID format
+                        if (!/^\d{17,19}$/.test(roleId)) {
+                            return interaction.reply({ 
+                                content: '❌ Invalid role ID format!', 
+                                ephemeral: true 
+                            });
+                        }
                         const role = await interaction.guild.roles.fetch(roleId).catch(() => null);
                         
                         const index = settings.moderation.moderatorRoles.indexOf(roleId);
@@ -8140,6 +8282,14 @@ client.on('interactionCreate', async (interaction) => {
                         }
                         
                         const channelId = channelMatch[1];
+                        
+                        // Validate snowflake ID format
+                        if (!/^\d{17,19}$/.test(channelId)) {
+                            return interaction.reply({ 
+                                content: '❌ Invalid channel ID format!', 
+                                ephemeral: true 
+                            });
+                        }
                         const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
                         
                         if (!channel || !channel.isTextBased()) {
@@ -8189,6 +8339,14 @@ client.on('interactionCreate', async (interaction) => {
                         }
                         
                         const userId = userMatch[1];
+                        
+                        // Validate snowflake ID format
+                        if (!/^\d{17,19}$/.test(userId)) {
+                            return interaction.reply({ 
+                                content: '❌ Invalid user ID format!', 
+                                ephemeral: true 
+                            });
+                        }
                         const user = await client.users.fetch(userId).catch(() => null);
                         
                         if (!user) {
@@ -8268,6 +8426,14 @@ client.on('interactionCreate', async (interaction) => {
                     // Check if it's a channel ID (numeric)
                     let channelName = channelInput;
                     if (/^\d+$/.test(channelInput)) {
+                        // Validate snowflake ID format
+                        if (!/^\d{17,19}$/.test(channelInput)) {
+                            return interaction.reply({ 
+                                content: '❌ Invalid channel ID format!', 
+                                ephemeral: true 
+                            });
+                        }
+                        
                         // It's an ID, fetch the channel
                         const channel = await interaction.guild.channels.fetch(channelInput).catch(() => null);
                         if (!channel) {
@@ -8607,8 +8773,20 @@ async function checkPlayStationUpdates() {
         let updatesFound = [];
         
         // Check PS4 firmware
+        let retryDelay = 1000; // Start with 1 second
         try {
-            const ps4Response = await fetch(urls.ps4);
+            let ps4Response;
+            for (let attempt = 0; attempt < 3; attempt++) {
+                try {
+                    ps4Response = await fetch(urls.ps4, { timeout: 10000 });
+                    if (ps4Response.ok) break;
+                } catch (err) {
+                    if (attempt < 2) {
+                        await new Promise(resolve => setTimeout(resolve, retryDelay));
+                        retryDelay *= 2; // Exponential backoff
+                    } else throw err;
+                }
+            }
             const ps4Html = await ps4Response.text();
             const $ps4 = cheerio.load(ps4Html);
             
@@ -8636,8 +8814,20 @@ async function checkPlayStationUpdates() {
         }
         
         // Check PS5 firmware
+        retryDelay = 1000; // Reset delay
         try {
-            const ps5Response = await fetch(urls.ps5);
+            let ps5Response;
+            for (let attempt = 0; attempt < 3; attempt++) {
+                try {
+                    ps5Response = await fetch(urls.ps5, { timeout: 10000 });
+                    if (ps5Response.ok) break;
+                } catch (err) {
+                    if (attempt < 2) {
+                        await new Promise(resolve => setTimeout(resolve, retryDelay));
+                        retryDelay *= 2;
+                    } else throw err;
+                }
+            }
             const ps5Html = await ps5Response.text();
             const $ps5 = cheerio.load(ps5Html);
             
@@ -8663,8 +8853,20 @@ async function checkPlayStationUpdates() {
         }
         
         // Check PS3 firmware
+        retryDelay = 1000; // Reset delay
         try {
-            const ps3Response = await fetch(urls.ps3);
+            let ps3Response;
+            for (let attempt = 0; attempt < 3; attempt++) {
+                try {
+                    ps3Response = await fetch(urls.ps3, { timeout: 10000 });
+                    if (ps3Response.ok) break;
+                } catch (err) {
+                    if (attempt < 2) {
+                        await new Promise(resolve => setTimeout(resolve, retryDelay));
+                        retryDelay *= 2;
+                    } else throw err;
+                }
+            }
             const ps3Html = await ps3Response.text();
             const $ps3 = cheerio.load(ps3Html);
             
@@ -8690,8 +8892,20 @@ async function checkPlayStationUpdates() {
         }
         
         // Check PS Vita firmware
+        retryDelay = 1000; // Reset delay
         try {
-            const vitaResponse = await fetch(urls.vita);
+            let vitaResponse;
+            for (let attempt = 0; attempt < 3; attempt++) {
+                try {
+                    vitaResponse = await fetch(urls.vita, { timeout: 10000 });
+                    if (vitaResponse.ok) break;
+                } catch (err) {
+                    if (attempt < 2) {
+                        await new Promise(resolve => setTimeout(resolve, retryDelay));
+                        retryDelay *= 2;
+                    } else throw err;
+                }
+            }
             const vitaHtml = await vitaResponse.text();
             const $vita = cheerio.load(vitaHtml);
             
@@ -8797,19 +9011,23 @@ setInterval(() => {
     
     // Clean up AI conversations older than 1 hour (prevent memory leaks)
     const oneHourAgo = now - 3600000;
-    for (const [channelId, messages] of Object.entries(aiConversations)) {
-        if (messages.length > 0) {
+    for (const channelId of Object.keys(aiConversations)) {
+        const messages = aiConversations[channelId];
+        if (messages && messages.length > 0) {
             // Remove old messages from the conversation
-            aiConversations[channelId] = messages.filter(msg => {
+            const filteredMessages = messages.filter(msg => {
                 // Keep messages without timestamp or recent messages
                 return !msg.timestamp || msg.timestamp > oneHourAgo;
             });
             
-            // Delete empty conversations
-            if (aiConversations[channelId].length === 0) {
+            // Update or delete based on filtered results
+            if (filteredMessages.length > 0) {
+                aiConversations[channelId] = filteredMessages;
+            } else {
                 delete aiConversations[channelId];
             }
         } else {
+            // Delete empty or invalid conversations
             delete aiConversations[channelId];
         }
     }
