@@ -550,6 +550,10 @@ function saveJSON(filePath, data) {
 // Default settings template
 const defaultSettings = {
     language: 'en', // Default language code (en, es, fr, de, pt, ja)
+    customization: {
+        botName: null, // Custom bot nickname for this server (null = use global name)
+        botAvatar: null // Custom bot avatar URL for this server (null = use global avatar)
+    },
     leveling: {
         enabled: true,
         minXP: 15,
@@ -1630,7 +1634,13 @@ client.once('clientReady', async () => {
             if (settings.ai?.enabled) activeCount.ai++;
             if (settings.tickets?.enabled) activeCount.tickets++;
         }
-        console.log(`� AI: ${activeCount.ai} | Leveling: ${activeCount.leveling} | Tickets: ${activeCount.tickets}`);
+        console.log(`📊 AI: ${activeCount.ai} | Leveling: ${activeCount.leveling} | Tickets: ${activeCount.tickets}`);
+        
+        // Apply server-specific customizations to all servers
+        console.log('🎨 Applying server customizations...');
+        client.guilds.cache.forEach(async (guild) => {
+            await applyServerCustomization(guild);
+        });
     }, 2000);
     
     // Check if bot was restarted via /update command
@@ -1861,6 +1871,58 @@ function startYouTubeMonitoring() {
     
     console.log('📺 YouTube monitoring started');
 }
+
+// Apply server-specific bot customization
+async function applyServerCustomization(guild) {
+    try {
+        const settings = getGuildSettings(guild.id);
+        
+        if (!settings.customization) {
+            settings.customization = defaultSettings.customization;
+        }
+        
+        const member = guild.members.cache.get(client.user.id);
+        if (!member) return;
+        
+        // Apply custom nickname if set
+        if (settings.customization.botName && settings.customization.botName !== member.nickname) {
+            try {
+                await member.setNickname(settings.customization.botName);
+                console.log(`✅ Set bot nickname to "${settings.customization.botName}" in ${guild.name}`);
+            } catch (err) {
+                console.error(`❌ Failed to set nickname in ${guild.name}:`, err.message);
+            }
+        } else if (!settings.customization.botName && member.nickname) {
+            // Reset to default if custom name removed
+            try {
+                await member.setNickname(null);
+                console.log(`✅ Reset bot nickname to default in ${guild.name}`);
+            } catch (err) {
+                console.error(`❌ Failed to reset nickname in ${guild.name}:`, err.message);
+            }
+        }
+        
+        // Note: Avatar cannot be changed per-server (Discord API limitation)
+        // Only global avatar can be changed
+        
+    } catch (error) {
+        console.error(`Error applying customization for ${guild.name}:`, error);
+    }
+}
+
+// When bot joins a new server
+client.on('guildCreate', async (guild) => {
+    console.log(`✅ Joined new server: ${guild.name} (${guild.id})`);
+    
+    // Initialize settings for new server
+    if (!serverSettings[guild.id]) {
+        serverSettings[guild.id] = JSON.parse(JSON.stringify(defaultSettings));
+        saveSettings();
+    }
+    
+    // Apply any customization
+    await applyServerCustomization(guild);
+});
 
 // Message event for XP system and keyword detection
 client.on('messageCreate', async (message) => {
@@ -3840,6 +3902,75 @@ client.on('interactionCreate', async (interaction) => {
         
         embed.setTimestamp();
         await interaction.reply({ embeds: [embed], ephemeral: true });
+    }
+    
+    // Bot Customization command
+    if (interaction.commandName === 'botcustom') {
+        if (!requireAdmin(interaction)) return;
+        
+        const subcommand = interaction.options.getSubcommand();
+        const settings = getGuildSettings(interaction.guild.id);
+        
+        if (!settings.customization) {
+            settings.customization = defaultSettings.customization;
+        }
+        
+        if (subcommand === 'view') {
+            const embed = new EmbedBuilder()
+                .setTitle('🎨 Bot Customization Settings')
+                .setColor(0x5865F2)
+                .setDescription('Current bot customization for this server')
+                .addFields(
+                    { 
+                        name: '📝 Bot Nickname', 
+                        value: settings.customization.botName || '*Using default name*',
+                        inline: false 
+                    },
+                    {
+                        name: 'ℹ️ Note',
+                        value: 'Bot avatar cannot be changed per-server (Discord limitation).\nOnly the nickname can be customized per server.',
+                        inline: false
+                    }
+                )
+                .setFooter({ text: 'Use /botcustom name to change the bot nickname' })
+                .setTimestamp();
+            
+            return interaction.reply({ embeds: [embed], ephemeral: true });
+        }
+        
+        if (subcommand === 'name') {
+            const nickname = interaction.options.getString('nickname');
+            
+            if (!nickname) {
+                // Reset to default
+                settings.customization.botName = null;
+                saveSettings();
+                await applyServerCustomization(interaction.guild);
+                
+                return interaction.reply({
+                    content: '✅ Bot nickname reset to default!',
+                    ephemeral: true
+                });
+            }
+            
+            // Validate nickname length
+            if (nickname.length > 32) {
+                return interaction.reply({
+                    content: '❌ Nickname must be 32 characters or less!',
+                    ephemeral: true
+                });
+            }
+            
+            // Set custom nickname
+            settings.customization.botName = nickname;
+            saveSettings();
+            await applyServerCustomization(interaction.guild);
+            
+            return interaction.reply({
+                content: `✅ Bot nickname changed to **${nickname}**!`,
+                ephemeral: true
+            });
+        }
     }
     
     // AI Setup command - Interactive Panel
