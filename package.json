@@ -26,5 +26,8 @@
     "duck-duck-scrape": "^2.2.5",
     "node-fetch": "^2.7.0",
     "rss-parser": "^3.13.0"
+  },
+  "devDependencies": {
+    "javascript-obfuscator": "^4.1.1"
   }
 }

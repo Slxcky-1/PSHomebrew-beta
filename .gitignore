@@ -11,6 +11,9 @@ userData.json
 ticketData.json
 moderationData.json
 
+# Obfuscated code directory (don't commit - manually push separately)
+obfuscated/
+
 # OS files
 .DS_Store
 Thumbs.db
