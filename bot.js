@@ -117,6 +117,10 @@ const ticketDataFile = './ticketData.json';
 let moderationData = {};
 const moderationDataFile = './moderationData.json';
 
+// Analytics data
+let analyticsData = {};
+const analyticsDataFile = './analyticsData.json';
+
 // AI conversation history (stored in memory only, not persisted)
 let aiConversations = {}; // { channelId: [ { role: 'user'|'assistant', content: 'message', userId?: string } ] }
 let aiCooldowns = {}; // { userId: timestamp} - Track cooldowns per user
@@ -404,6 +408,7 @@ const saveUserData = createDebouncedSave(userDataFile, () => userData, 10000); /
 const saveSettings = createDebouncedSave(settingsFile, () => serverSettings, 5000); // 5s (was 3s)
 const saveTicketData = createDebouncedSave(ticketDataFile, () => ticketData, 3000); // 3s (was 1s)
 const saveModerationData = createDebouncedSave(moderationDataFile, () => moderationData, 3000); // 3s (was 1s)
+const saveAnalyticsData = createDebouncedSave(analyticsDataFile, () => analyticsData, 30000); // 30s - analytics can be saved less frequently
 
 // Load server settings
 async function loadSettings() {
@@ -462,6 +467,53 @@ function initializeModerationData(guildId) {
         moderationData[guildId] = { warnings: {}, infractions: {}, mutedUsers: [] };
         saveModerationData();
     }
+}
+
+// Load analytics data
+async function loadAnalyticsData() {
+    try {
+        await fs.access(analyticsDataFile);
+        const data = await fs.readFile(analyticsDataFile, 'utf8');
+        analyticsData = JSON.parse(data);
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            console.error('Error loading analytics data:', error);
+        }
+        analyticsData = {};
+    }
+}
+
+// Initialize analytics data for a guild
+function initializeAnalyticsData(guildId) {
+    if (!analyticsData[guildId]) {
+        analyticsData[guildId] = {
+            messages: {
+                total: 0,
+                byUser: {}, // { userId: count }
+                byChannel: {}, // { channelId: count }
+                byHour: Array(24).fill(0), // Hourly distribution [0-23]
+                byDay: Array(7).fill(0) // Daily distribution [0-6] (Sunday-Saturday)
+            },
+            members: {
+                joins: [], // [{ userId, timestamp }]
+                leaves: [], // [{ userId, timestamp }]
+                currentCount: 0
+            },
+            voice: {
+                totalMinutes: 0,
+                byUser: {}, // { userId: minutes }
+                sessions: [] // [{ userId, channelId, startTime, endTime }]
+            },
+            commands: {
+                total: 0,
+                byCommand: {} // { commandName: count }
+            },
+            lastReset: Date.now(),
+            startDate: Date.now()
+        };
+        saveAnalyticsData();
+    }
+    return analyticsData[guildId];
 }
 
 // Check if user is a moderator - optimized
@@ -1249,6 +1301,7 @@ client.once('clientReady', async () => {
     loadSettings();
     loadTicketData();
     loadModerationData();
+    loadAnalyticsData();
     
     // Defer detailed feature counting to after bot is ready (non-blocking)
     setTimeout(() => {
@@ -1499,6 +1552,21 @@ client.on('messageCreate', async (message) => {
     const settings = getGuildSettings(message.guild.id);
     const userId = message.author.id;
     const now = Date.now();
+    
+    // Track message analytics
+    const analytics = initializeAnalyticsData(message.guild.id);
+    analytics.messages.total++;
+    analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1;
+    analytics.messages.byChannel[message.channel.id] = (analytics.messages.byChannel[message.channel.id] || 0) + 1;
+    
+    // Track by hour (0-23) and day (0-6)
+    const messageDate = new Date(now);
+    const hour = messageDate.getHours();
+    const day = messageDate.getDay(); // 0 = Sunday, 6 = Saturday
+    analytics.messages.byHour[hour]++;
+    analytics.messages.byDay[day]++;
+    
+    saveAnalyticsData();
     
     // Auto-thread channel (1094846351101132872) - Create thread for images, delete text-only messages
     if (message.channel.id === '1094846351101132872') {
@@ -1869,6 +1937,16 @@ async function checkKeywords(message, settings) {
 client.on('guildMemberAdd', async (member) => {
     const settings = getGuildSettings(member.guild.id);
     
+    // Track member join in analytics
+    const analytics = initializeAnalyticsData(member.guild.id);
+    analytics.members.joins.push({
+        userId: member.id,
+        username: member.user.tag,
+        timestamp: Date.now()
+    });
+    analytics.members.currentCount = member.guild.memberCount;
+    saveAnalyticsData();
+    
     // Log member join
     await logEvent(member.guild, 'memberJoin', {
         user: member.user.tag,
@@ -1964,6 +2042,16 @@ client.on('guildMemberAdd', async (member) => {
 // Member leave event
 client.on('guildMemberRemove', (member) => {
     const settings = getGuildSettings(member.guild.id);
+    
+    // Track member leave in analytics
+    const analytics = initializeAnalyticsData(member.guild.id);
+    analytics.members.leaves.push({
+        userId: member.id,
+        username: member.user.tag,
+        timestamp: Date.now()
+    });
+    analytics.members.currentCount = member.guild.memberCount;
+    saveAnalyticsData();
     
     // Log member leave
     const roles = member.roles.cache.filter(r => r.id !== member.guild.id).map(r => r.name).join(', ') || 'None';
@@ -2124,6 +2212,14 @@ client.on('interactionCreate', async (interaction) => {
     try {
         // Handle slash commands
         if (interaction.isChatInputCommand()) {
+            // Track command usage in analytics
+            if (interaction.guild) {
+                const analytics = initializeAnalyticsData(interaction.guild.id);
+                analytics.commands.total++;
+                analytics.commands.byCommand[interaction.commandName] = (analytics.commands.byCommand[interaction.commandName] || 0) + 1;
+                saveAnalyticsData();
+            }
+            
             // Verify bot has necessary permissions
             if (interaction.guild && interaction.guild.members.me && !interaction.guild.members.me.permissions.has(PermissionFlagsBits.SendMessages)) {
                 console.error(`Missing SendMessages permission in guild: ${interaction.guild.name}`);
@@ -3296,6 +3392,119 @@ client.on('interactionCreate', async (interaction) => {
             .setTimestamp();
         
         await interaction.reply({ embeds: [leaderboardEmbed] });
+    }
+    
+    // Analytics command
+    if (interaction.commandName === 'analytics') {
+        if (!requireAdmin(interaction)) return;
+        
+        const analytics = initializeAnalyticsData(interaction.guild.id);
+        const now = Date.now();
+        const daysSinceStart = Math.floor((now - analytics.startDate) / (1000 * 60 * 60 * 24));
+        const daysSinceReset = Math.floor((now - analytics.lastReset) / (1000 * 60 * 60 * 24));
+        
+        // Get top 5 most active users
+        const topUsers = Object.entries(analytics.messages.byUser)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 5);
+        
+        const userPromises = topUsers.map(([userId]) => 
+            client.users.fetch(userId).catch(() => null)
+        );
+        const users = await Promise.all(userPromises);
+        
+        let topUsersText = '';
+        for (let i = 0; i < topUsers.length; i++) {
+            const [userId, count] = topUsers[i];
+            const user = users[i];
+            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+            const username = user ? user.tag : 'Unknown User';
+            topUsersText += `${medal} **${username}** - ${count.toLocaleString()} messages\n`;
+        }
+        
+        // Get top 3 most active channels
+        const topChannels = Object.entries(analytics.messages.byChannel)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 3);
+        
+        let topChannelsText = '';
+        for (let i = 0; i < topChannels.length; i++) {
+            const [channelId, count] = topChannels[i];
+            const channel = interaction.guild.channels.cache.get(channelId);
+            topChannelsText += `${i + 1}. ${channel ? `<#${channelId}>` : 'Unknown Channel'} - ${count.toLocaleString()} messages\n`;
+        }
+        
+        // Calculate hourly activity peak
+        const peakHour = analytics.messages.byHour.indexOf(Math.max(...analytics.messages.byHour));
+        const peakHourFormatted = peakHour === 0 ? '12 AM' : peakHour < 12 ? `${peakHour} AM` : peakHour === 12 ? '12 PM' : `${peakHour - 12} PM`;
+        
+        // Calculate daily activity peak
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const peakDay = analytics.messages.byDay.indexOf(Math.max(...analytics.messages.byDay));
+        
+        // Calculate member growth
+        const joinsLast7Days = analytics.members.joins.filter(j => (now - j.timestamp) < (7 * 24 * 60 * 60 * 1000)).length;
+        const leavesLast7Days = analytics.members.leaves.filter(l => (now - l.timestamp) < (7 * 24 * 60 * 60 * 1000)).length;
+        const netGrowth = joinsLast7Days - leavesLast7Days;
+        
+        // Top commands
+        const topCommands = Object.entries(analytics.commands.byCommand)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 5);
+        
+        let topCommandsText = '';
+        for (let i = 0; i < topCommands.length; i++) {
+            const [command, count] = topCommands[i];
+            topCommandsText += `${i + 1}. \`/${command}\` - ${count.toLocaleString()} uses\n`;
+        }
+        
+        const analyticsEmbed = new EmbedBuilder()
+            .setTitle('📊 Server Analytics Dashboard')
+            .setDescription(`Comprehensive server statistics and insights`)
+            .setColor(0x5865F2)
+            .addFields(
+                { 
+                    name: '💬 Message Activity', 
+                    value: `**Total Messages:** ${analytics.messages.total.toLocaleString()}\n` +
+                           `**Peak Hour:** ${peakHourFormatted}\n` +
+                           `**Peak Day:** ${days[peakDay]}`,
+                    inline: true
+                },
+                { 
+                    name: '👥 Member Growth (7 Days)', 
+                    value: `**Joins:** ${joinsLast7Days}\n` +
+                           `**Leaves:** ${leavesLast7Days}\n` +
+                           `**Net Growth:** ${netGrowth >= 0 ? '+' : ''}${netGrowth}\n` +
+                           `**Current:** ${analytics.members.currentCount}`,
+                    inline: true
+                },
+                { 
+                    name: '🎮 Command Usage', 
+                    value: `**Total Commands:** ${analytics.commands.total.toLocaleString()}`,
+                    inline: true
+                },
+                { 
+                    name: '🏆 Top Active Users', 
+                    value: topUsersText || 'No data yet',
+                    inline: false
+                },
+                { 
+                    name: '📺 Top Active Channels', 
+                    value: topChannelsText || 'No data yet',
+                    inline: false
+                },
+                { 
+                    name: '⭐ Most Used Commands', 
+                    value: topCommandsText || 'No commands used yet',
+                    inline: false
+                }
+            )
+            .setFooter({ 
+                text: `Tracking since ${new Date(analytics.startDate).toLocaleDateString()} • ${daysSinceStart} days of data` 
+            })
+            .setTimestamp();
+        
+        await interaction.reply({ embeds: [analyticsEmbed] });
     }
     
     // Welcome command - Interactive Panel
