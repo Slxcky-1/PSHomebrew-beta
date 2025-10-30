@@ -1811,13 +1811,22 @@ client.on('messageCreate', async (message) => {
         // Check if message contains PS3/PS4 error code patterns (allow these through)
         const containsErrorCode = /\b(8[0-9]{7}|[AEF][0-9]{7})\b/i.test(message.content);
         
-        // Token-heavy request detection (math problems, proofs, complex calculations)
-        // BUT allow PS3/PS4 error codes through
+        // AGGRESSIVE token-wasting detection
+        // Block attempts to make AI generate long responses on purpose
         if (!containsErrorCode && (
+            // Math/calculation spam
             /\b(prove|proof|calculate|solve|compute|equation|theorem|conjecture|demonstrate|show\s+that|find\s+all|list\s+all|enumerate|factorial|fibonacci|prime\s+number|integration|derivative|matrix|polynomial|algorithm|step\s+by\s+step|explain\s+in\s+detail|mathematical|infinity|summation|sequence|series|permutation|combination)\b/i.test(lowercaseMsg) ||
             /(\d+\s*[\+\-\*\/\^]\s*\d+.*[\+\-\*\/\^].*\d+)|(\d{5,})|([a-z]\s*[\+\-\*\/\^=]\s*[a-z])/i.test(message.content) ||
+            // Requests designed to waste tokens
+            /\b(write\s+(me\s+)?(a\s+)?(long|detailed|comprehensive|extensive|complete|full|entire|lengthy)|essay|paragraph|story|novel|article|blog|document|report|thesis|summary|analysis|breakdown|walkthrough|encyclopedia|history|timeline)\b/i.test(lowercaseMsg) ||
+            /\b(500\s+word|1000\s+word|2000\s+word|[0-9]+\s+word|multiple\s+paragraph|several\s+paragraph|many\s+sentence)\b/i.test(lowercaseMsg) ||
+            /\b(use\s+(all|more|lots|many|maximum)\s+(token|word)|token\s+(test|explosion|bomb|waste)|make\s+it\s+long|be\s+verbose|as\s+long\s+as\s+possible|longest\s+response)\b/i.test(lowercaseMsg) ||
+            // Repetition/list spam
+            /\b(repeat|say\s+again|copy\s+paste|spam|flood)\s+(this|that|it|100|1000|times|words)/i.test(lowercaseMsg) ||
+            /\b(list\s+(all|every|100|1000)|tell\s+me\s+everything|give\s+me\s+all|name\s+all|count\s+to\s+(100|1000|10000))\b/i.test(lowercaseMsg) ||
+            // Overly long messages
             message.content.length > 500)) {
-            return message.reply('⚠️ **Request blocked to save tokens.**\n\nI\'m optimized for PlayStation homebrew help, not math problems or lengthy computations. Please ask about PS3/PS4/PS5 jailbreaking, firmware, homebrew, or errors instead! 🎮');
+            return message.reply('⚠️ **Request blocked to save tokens.**\n\nI\'m optimized for PlayStation homebrew help, not essays, stories, repetition, or token-wasting requests. Please ask about PS3/PS4/PS5 jailbreaking, firmware, homebrew, or errors instead! 🎮');
         }
         
         aiCooldowns[userId] = now;
