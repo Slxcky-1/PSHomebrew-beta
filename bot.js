@@ -1829,14 +1829,13 @@ client.on('messageCreate', async (message) => {
                     ...aiConversations[channelId].map(m => ({ role: m.role, content: m.content }))
                 ];
                 
-                // Smart AI selection - Use ChatGPT for complex/creative questions, DeepSeek for technical
-                const useChatGPT = /\b(explain|why|how does|what if|compare|difference|better|recommend|suggest|opinion|think|creative|story|imagine|scenario)\b/i.test(message.content) ||
-                                   message.content.includes('?') && message.content.split(/\s+/).length > 15;
+                // Smart AI selection - ChatGPT ONLY in channel 1433480720776433664, DeepSeek everywhere else
+                const isChatGPTChannel = message.channel.id === '1433480720776433664';
                 
                 let aiProvider, modelName, response;
                 
-                if (useChatGPT && config.openaiApiKey) {
-                    // Use ChatGPT for complex reasoning
+                if (isChatGPTChannel && config.openaiApiKey) {
+                    // Use ChatGPT exclusively in the designated channel
                     aiProvider = '🧠 ChatGPT';
                     const openai = createOpenAI({ apiKey: config.openaiApiKey });
                     modelName = 'gpt-4o-mini'; // Fast and cost-effective
@@ -1847,7 +1846,7 @@ client.on('messageCreate', async (message) => {
                         maxTokens: toneConfig.maxTokens
                     });
                 } else {
-                    // Use DeepSeek for technical/factual questions (faster, cheaper)
+                    // Use DeepSeek for all other channels
                     aiProvider = '⚡ DeepSeek';
                     const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
                     modelName = settings.ai.model;
