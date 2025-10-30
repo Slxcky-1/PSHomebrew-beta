@@ -5423,6 +5423,87 @@ client.on('interactionCreate', async (interaction) => {
         return;
     }
 
+    // Moderator command - Interactive panel
+    if (interaction.commandName === 'moderator') {
+        if (!requireAdmin(interaction)) return;
+        
+        const settings = getGuildSettings(interaction.guild.id);
+        if (!settings.moderation) settings.moderation = defaultSettings.moderation;
+        
+        // Create interactive panel
+        const embed = new EmbedBuilder()
+            .setTitle('🛡️ Moderation Control Panel')
+            .setColor(0x3498DB)
+            .setDescription(
+                `Complete moderation toolkit for your server.\n\n` +
+                `**Quick Actions:**\n` +
+                `Use the buttons below to perform moderation actions.`
+            )
+            .addFields(
+                { name: '⚠️ Warn', value: 'Issue a warning to a user', inline: true },
+                { name: '🔇 Timeout', value: 'Timeout a user temporarily', inline: true },
+                { name: '👢 Kick', value: 'Kick a user from server', inline: true },
+                { name: '🔨 Ban', value: 'Permanently ban a user', inline: true },
+                { name: '🔕 Mute', value: 'Mute a user in channels', inline: true },
+                { name: '🔊 Unmute', value: 'Remove mute from a user', inline: true },
+                { name: '📋 Infractions', value: 'View user\'s infraction history', inline: true },
+                { name: '🧹 Clear Warnings', value: 'Clear all warnings for a user', inline: true },
+                { name: '\u200B', value: '\u200B', inline: true }
+            )
+            .setFooter({ text: 'Click buttons below to perform moderation actions' })
+            .setTimestamp();
+        
+        const row1 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('mod_warn')
+                    .setLabel('Warn User')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('⚠️'),
+                new ButtonBuilder()
+                    .setCustomId('mod_timeout')
+                    .setLabel('Timeout')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🔇'),
+                new ButtonBuilder()
+                    .setCustomId('mod_kick')
+                    .setLabel('Kick')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('👢'),
+                new ButtonBuilder()
+                    .setCustomId('mod_ban')
+                    .setLabel('Ban')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('🔨')
+            );
+        
+        const row2 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('mod_mute')
+                    .setLabel('Mute')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🔕'),
+                new ButtonBuilder()
+                    .setCustomId('mod_unmute')
+                    .setLabel('Unmute')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji('🔊'),
+                new ButtonBuilder()
+                    .setCustomId('mod_infractions')
+                    .setLabel('View Infractions')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('📋'),
+                new ButtonBuilder()
+                    .setCustomId('mod_clearwarnings')
+                    .setLabel('Clear Warnings')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🧹')
+            );
+        
+        await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
+    }
+
     // Setup ticket system command
     if (interaction.commandName === 'setuptickets') {
         if (!requireAdmin(interaction)) return;
@@ -6479,6 +6560,216 @@ client.on('interactionCreate', async (interaction) => {
         const settings = getGuildSettings(guildId);
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
+        // Moderation action handlers (from /moderator panel)
+        if (interaction.customId === 'mod_warn') {
+            const modal = new ModalBuilder()
+                .setCustomId('mod_warn_modal')
+                .setTitle('⚠️ Warn User');
+            
+            const userInput = new TextInputBuilder()
+                .setCustomId('user_id')
+                .setLabel('User ID or mention')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('@user or user ID')
+                .setRequired(true);
+            
+            const reasonInput = new TextInputBuilder()
+                .setCustomId('reason')
+                .setLabel('Reason')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Why are you warning this user?')
+                .setRequired(true);
+            
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(userInput),
+                new ActionRowBuilder().addComponents(reasonInput)
+            );
+            
+            await interaction.showModal(modal);
+            return;
+        }
+        
+        else if (interaction.customId === 'mod_timeout') {
+            const modal = new ModalBuilder()
+                .setCustomId('mod_timeout_action_modal')
+                .setTitle('🔇 Timeout User');
+            
+            const userInput = new TextInputBuilder()
+                .setCustomId('user_id')
+                .setLabel('User ID or mention')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('@user or user ID')
+                .setRequired(true);
+            
+            const durationInput = new TextInputBuilder()
+                .setCustomId('duration')
+                .setLabel('Duration in minutes (1-40320)')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('10')
+                .setRequired(true);
+            
+            const reasonInput = new TextInputBuilder()
+                .setCustomId('reason')
+                .setLabel('Reason')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Reason for timeout')
+                .setRequired(false);
+            
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(userInput),
+                new ActionRowBuilder().addComponents(durationInput),
+                new ActionRowBuilder().addComponents(reasonInput)
+            );
+            
+            await interaction.showModal(modal);
+            return;
+        }
+        
+        else if (interaction.customId === 'mod_kick') {
+            const modal = new ModalBuilder()
+                .setCustomId('mod_kick_modal')
+                .setTitle('👢 Kick User');
+            
+            const userInput = new TextInputBuilder()
+                .setCustomId('user_id')
+                .setLabel('User ID or mention')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('@user or user ID')
+                .setRequired(true);
+            
+            const reasonInput = new TextInputBuilder()
+                .setCustomId('reason')
+                .setLabel('Reason')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Reason for kick')
+                .setRequired(false);
+            
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(userInput),
+                new ActionRowBuilder().addComponents(reasonInput)
+            );
+            
+            await interaction.showModal(modal);
+            return;
+        }
+        
+        else if (interaction.customId === 'mod_ban') {
+            const modal = new ModalBuilder()
+                .setCustomId('mod_ban_modal')
+                .setTitle('🔨 Ban User');
+            
+            const userInput = new TextInputBuilder()
+                .setCustomId('user_id')
+                .setLabel('User ID or mention')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('@user or user ID')
+                .setRequired(true);
+            
+            const reasonInput = new TextInputBuilder()
+                .setCustomId('reason')
+                .setLabel('Reason')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Reason for ban')
+                .setRequired(false);
+            
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(userInput),
+                new ActionRowBuilder().addComponents(reasonInput)
+            );
+            
+            await interaction.showModal(modal);
+            return;
+        }
+        
+        else if (interaction.customId === 'mod_mute') {
+            const modal = new ModalBuilder()
+                .setCustomId('mod_mute_modal')
+                .setTitle('🔕 Mute User');
+            
+            const userInput = new TextInputBuilder()
+                .setCustomId('user_id')
+                .setLabel('User ID or mention')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('@user or user ID')
+                .setRequired(true);
+            
+            const reasonInput = new TextInputBuilder()
+                .setCustomId('reason')
+                .setLabel('Reason')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Reason for mute')
+                .setRequired(false);
+            
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(userInput),
+                new ActionRowBuilder().addComponents(reasonInput)
+            );
+            
+            await interaction.showModal(modal);
+            return;
+        }
+        
+        else if (interaction.customId === 'mod_unmute') {
+            const modal = new ModalBuilder()
+                .setCustomId('mod_unmute_modal')
+                .setTitle('🔊 Unmute User');
+            
+            const userInput = new TextInputBuilder()
+                .setCustomId('user_id')
+                .setLabel('User ID or mention')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('@user or user ID')
+                .setRequired(true);
+            
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(userInput)
+            );
+            
+            await interaction.showModal(modal);
+            return;
+        }
+        
+        else if (interaction.customId === 'mod_infractions') {
+            const modal = new ModalBuilder()
+                .setCustomId('mod_infractions_modal')
+                .setTitle('📋 View Infractions');
+            
+            const userInput = new TextInputBuilder()
+                .setCustomId('user_id')
+                .setLabel('User ID or mention')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('@user or user ID')
+                .setRequired(true);
+            
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(userInput)
+            );
+            
+            await interaction.showModal(modal);
+            return;
+        }
+        
+        else if (interaction.customId === 'mod_clearwarnings') {
+            const modal = new ModalBuilder()
+                .setCustomId('mod_clearwarnings_modal')
+                .setTitle('🧹 Clear Warnings');
+            
+            const userInput = new TextInputBuilder()
+                .setCustomId('user_id')
+                .setLabel('User ID or mention')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('@user or user ID')
+                .setRequired(true);
+            
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(userInput)
+            );
+            
+            await interaction.showModal(modal);
+            return;
+        }
+        
+        // Moderation settings handlers (existing)
         if (interaction.customId === 'mod_toggle') {
             settings.moderation.enabled = !settings.moderation.enabled;
             saveSettings();
@@ -8702,6 +8993,382 @@ client.on('interactionCreate', async (interaction) => {
                         
                         await interaction.reply({ 
                             content: `✅ ${role ? role : 'Role'} removed from moderator roles!`, 
+                            ephemeral: true 
+                        });
+                    }
+                    
+                    // Moderation action modals (from /moderator panel)
+                    else if (interaction.customId === 'mod_warn_modal') {
+                        const userInput = interaction.fields.getTextInputValue('user_id').trim();
+                        const reason = interaction.fields.getTextInputValue('reason').trim();
+                        
+                        const userMatch = userInput.match(/(\d{17,19})/);
+                        if (!userMatch) {
+                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                        }
+                        
+                        const userId = userMatch[1];
+                        const user = await client.users.fetch(userId).catch(() => null);
+                        if (!user) {
+                            return interaction.reply({ content: '❌ User not found!', ephemeral: true });
+                        }
+                        
+                        initializeModerationData(guildId);
+                        if (!moderationData[guildId].warnings[userId]) {
+                            moderationData[guildId].warnings[userId] = [];
+                        }
+                        
+                        const warning = { reason, timestamp: Date.now(), moderator: interaction.user.id };
+                        moderationData[guildId].warnings[userId].push(warning);
+                        saveModerationData();
+                        
+                        addInfraction(guildId, userId, 'warn', interaction.user.id, reason);
+                        
+                        if (settings.moderation.dmOnAction) {
+                            try {
+                                await user.send({
+                                    embeds: [new EmbedBuilder()
+                                        .setTitle('⚠️ You Have Been Warned')
+                                        .setDescription(`You have been warned in **${interaction.guild.name}**`)
+                                        .addFields({ name: 'Reason', value: reason })
+                                        .setColor(0xFFAA00)
+                                        .setTimestamp()]
+                                });
+                            } catch (error) {}
+                        }
+                        
+                        await logModerationAction(interaction.guild, '⚠️ Warning Issued', interaction.user, user, reason);
+                        
+                        const warningCount = moderationData[guildId].warnings[userId].length;
+                        await interaction.reply({ 
+                            embeds: [new EmbedBuilder()
+                                .setTitle('✅ User Warned')
+                                .setDescription(`${user} has been warned (${warningCount}/${settings.moderation.warningThreshold})`)
+                                .addFields({ name: 'Reason', value: reason })
+                                .setColor(0xFFAA00)],
+                            ephemeral: true 
+                        });
+                    }
+                    
+                    else if (interaction.customId === 'mod_timeout_action_modal') {
+                        const userInput = interaction.fields.getTextInputValue('user_id').trim();
+                        const durationStr = interaction.fields.getTextInputValue('duration').trim();
+                        const reason = interaction.fields.getTextInputValue('reason')?.trim() || 'No reason provided';
+                        
+                        const duration = parseInt(durationStr);
+                        if (isNaN(duration) || duration < 1 || duration > 40320) {
+                            return interaction.reply({ content: '❌ Invalid duration! Must be between 1-40320 minutes.', ephemeral: true });
+                        }
+                        
+                        const userMatch = userInput.match(/(\d{17,19})/);
+                        if (!userMatch) {
+                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                        }
+                        
+                        const userId = userMatch[1];
+                        const user = await client.users.fetch(userId).catch(() => null);
+                        const member = await interaction.guild.members.fetch(userId).catch(() => null);
+                        
+                        if (!member) {
+                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+                        }
+                        
+                        if (member.permissions.has(PermissionFlagsBits.Administrator)) {
+                            return interaction.reply({ content: '❌ You cannot timeout administrators!', ephemeral: true });
+                        }
+                        
+                        try {
+                            await member.timeout(duration * 60 * 1000, reason);
+                            addInfraction(guildId, userId, 'timeout', interaction.user.id, reason);
+                            
+                            if (settings.moderation.dmOnAction) {
+                                try {
+                                    await user.send({
+                                        embeds: [new EmbedBuilder()
+                                            .setTitle('🔇 You Have Been Timed Out')
+                                            .setDescription(`You have been timed out in **${interaction.guild.name}** for ${duration} minutes`)
+                                            .addFields({ name: 'Reason', value: reason })
+                                            .setColor(0xFF6600)
+                                            .setTimestamp()]
+                                    });
+                                } catch (error) {}
+                            }
+                            
+                            await logModerationAction(interaction.guild, `🔇 Timeout (${duration}m)`, interaction.user, user, reason);
+                            await interaction.reply({ 
+                                embeds: [new EmbedBuilder()
+                                    .setTitle('✅ User Timed Out')
+                                    .setDescription(`${user} has been timed out for ${duration} minutes`)
+                                    .addFields({ name: 'Reason', value: reason })
+                                    .setColor(0xFF6600)],
+                                ephemeral: true 
+                            });
+                        } catch (error) {
+                            await interaction.reply({ content: `❌ Failed to timeout user: ${error.message}`, ephemeral: true });
+                        }
+                    }
+                    
+                    else if (interaction.customId === 'mod_kick_modal') {
+                        const userInput = interaction.fields.getTextInputValue('user_id').trim();
+                        const reason = interaction.fields.getTextInputValue('reason')?.trim() || 'No reason provided';
+                        
+                        const userMatch = userInput.match(/(\d{17,19})/);
+                        if (!userMatch) {
+                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                        }
+                        
+                        const userId = userMatch[1];
+                        const user = await client.users.fetch(userId).catch(() => null);
+                        const member = await interaction.guild.members.fetch(userId).catch(() => null);
+                        
+                        if (!member) {
+                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+                        }
+                        
+                        if (member.permissions.has(PermissionFlagsBits.Administrator)) {
+                            return interaction.reply({ content: '❌ You cannot kick administrators!', ephemeral: true });
+                        }
+                        
+                        if (!member.kickable) {
+                            return interaction.reply({ content: '❌ I cannot kick this user (role hierarchy)!', ephemeral: true });
+                        }
+                        
+                        try {
+                            addInfraction(guildId, userId, 'kick', interaction.user.id, reason);
+                            
+                            if (settings.moderation.dmOnAction) {
+                                try {
+                                    await user.send({
+                                        embeds: [new EmbedBuilder()
+                                            .setTitle('👢 You Have Been Kicked')
+                                            .setDescription(`You have been kicked from **${interaction.guild.name}**`)
+                                            .addFields({ name: 'Reason', value: reason })
+                                            .setColor(0xFF6600)
+                                            .setTimestamp()]
+                                    });
+                                } catch (error) {}
+                            }
+                            
+                            await member.kick(reason);
+                            await logModerationAction(interaction.guild, '👢 Kick', interaction.user, user, reason);
+                            await interaction.reply({ 
+                                embeds: [new EmbedBuilder()
+                                    .setTitle('✅ User Kicked')
+                                    .setDescription(`${user.tag} has been kicked`)
+                                    .addFields({ name: 'Reason', value: reason })
+                                    .setColor(0xFF6600)],
+                                ephemeral: true 
+                            });
+                        } catch (error) {
+                            await interaction.reply({ content: `❌ Failed to kick user: ${error.message}`, ephemeral: true });
+                        }
+                    }
+                    
+                    else if (interaction.customId === 'mod_ban_modal') {
+                        const userInput = interaction.fields.getTextInputValue('user_id').trim();
+                        const reason = interaction.fields.getTextInputValue('reason')?.trim() || 'No reason provided';
+                        
+                        const userMatch = userInput.match(/(\d{17,19})/);
+                        if (!userMatch) {
+                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                        }
+                        
+                        const userId = userMatch[1];
+                        const user = await client.users.fetch(userId).catch(() => null);
+                        const member = await interaction.guild.members.fetch(userId).catch(() => null);
+                        
+                        if (member?.permissions.has(PermissionFlagsBits.Administrator)) {
+                            return interaction.reply({ content: '❌ You cannot ban administrators!', ephemeral: true });
+                        }
+                        
+                        try {
+                            addInfraction(guildId, userId, 'ban', interaction.user.id, reason);
+                            
+                            if (settings.moderation.dmOnAction && member) {
+                                try {
+                                    await user.send({
+                                        embeds: [new EmbedBuilder()
+                                            .setTitle('🔨 You Have Been Banned')
+                                            .setDescription(`You have been banned from **${interaction.guild.name}**`)
+                                            .addFields({ name: 'Reason', value: reason })
+                                            .setColor(0xFF0000)
+                                            .setTimestamp()]
+                                    });
+                                } catch (error) {}
+                            }
+                            
+                            await interaction.guild.members.ban(userId, { reason, deleteMessageSeconds: 604800 });
+                            await logModerationAction(interaction.guild, '🔨 Ban', interaction.user, user, reason);
+                            await interaction.reply({ 
+                                embeds: [new EmbedBuilder()
+                                    .setTitle('✅ User Banned')
+                                    .setDescription(`${user ? user.tag : userId} has been banned`)
+                                    .addFields({ name: 'Reason', value: reason })
+                                    .setColor(0xFF0000)],
+                                ephemeral: true 
+                            });
+                        } catch (error) {
+                            await interaction.reply({ content: `❌ Failed to ban user: ${error.message}`, ephemeral: true });
+                        }
+                    }
+                    
+                    else if (interaction.customId === 'mod_mute_modal') {
+                        const userInput = interaction.fields.getTextInputValue('user_id').trim();
+                        const reason = interaction.fields.getTextInputValue('reason')?.trim() || 'No reason provided';
+                        
+                        const userMatch = userInput.match(/(\d{17,19})/);
+                        if (!userMatch) {
+                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                        }
+                        
+                        const userId = userMatch[1];
+                        const user = await client.users.fetch(userId).catch(() => null);
+                        const member = await interaction.guild.members.fetch(userId).catch(() => null);
+                        
+                        if (!member) {
+                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+                        }
+                        
+                        if (!settings.moderation.muteRole) {
+                            return interaction.reply({ content: '❌ Mute role not set! Use moderation settings to configure.', ephemeral: true });
+                        }
+                        
+                        try {
+                            await member.roles.add(settings.moderation.muteRole, reason);
+                            addInfraction(guildId, userId, 'mute', interaction.user.id, reason);
+                            
+                            if (settings.moderation.dmOnAction) {
+                                try {
+                                    await user.send({
+                                        embeds: [new EmbedBuilder()
+                                            .setTitle('🔕 You Have Been Muted')
+                                            .setDescription(`You have been muted in **${interaction.guild.name}**`)
+                                            .addFields({ name: 'Reason', value: reason })
+                                            .setColor(0x808080)
+                                            .setTimestamp()]
+                                    });
+                                } catch (error) {}
+                            }
+                            
+                            await logModerationAction(interaction.guild, '🔕 Mute', interaction.user, user, reason);
+                            await interaction.reply({ 
+                                embeds: [new EmbedBuilder()
+                                    .setTitle('✅ User Muted')
+                                    .setDescription(`${user} has been muted`)
+                                    .addFields({ name: 'Reason', value: reason })
+                                    .setColor(0x808080)],
+                                ephemeral: true 
+                            });
+                        } catch (error) {
+                            await interaction.reply({ content: `❌ Failed to mute user: ${error.message}`, ephemeral: true });
+                        }
+                    }
+                    
+                    else if (interaction.customId === 'mod_unmute_modal') {
+                        const userInput = interaction.fields.getTextInputValue('user_id').trim();
+                        
+                        const userMatch = userInput.match(/(\d{17,19})/);
+                        if (!userMatch) {
+                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                        }
+                        
+                        const userId = userMatch[1];
+                        const user = await client.users.fetch(userId).catch(() => null);
+                        const member = await interaction.guild.members.fetch(userId).catch(() => null);
+                        
+                        if (!member) {
+                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+                        }
+                        
+                        if (!settings.moderation.muteRole) {
+                            return interaction.reply({ content: '❌ Mute role not set!', ephemeral: true });
+                        }
+                        
+                        try {
+                            await member.roles.remove(settings.moderation.muteRole);
+                            await logModerationAction(interaction.guild, '🔊 Unmute', interaction.user, user, 'Unmuted');
+                            await interaction.reply({ 
+                                embeds: [new EmbedBuilder()
+                                    .setTitle('✅ User Unmuted')
+                                    .setDescription(`${user} has been unmuted`)
+                                    .setColor(0x00FF00)],
+                                ephemeral: true 
+                            });
+                        } catch (error) {
+                            await interaction.reply({ content: `❌ Failed to unmute user: ${error.message}`, ephemeral: true });
+                        }
+                    }
+                    
+                    else if (interaction.customId === 'mod_infractions_modal') {
+                        const userInput = interaction.fields.getTextInputValue('user_id').trim();
+                        
+                        const userMatch = userInput.match(/(\d{17,19})/);
+                        if (!userMatch) {
+                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                        }
+                        
+                        const userId = userMatch[1];
+                        const user = await client.users.fetch(userId).catch(() => null);
+                        
+                        initializeModerationData(guildId);
+                        const infractions = moderationData[guildId].infractions[userId] || [];
+                        
+                        if (infractions.length === 0) {
+                            return interaction.reply({ content: `${user ? user.tag : userId} has no infractions.`, ephemeral: true });
+                        }
+                        
+                        const embed = new EmbedBuilder()
+                            .setTitle(`📋 Infractions for ${user ? user.tag : userId}`)
+                            .setColor(0xFF0000)
+                            .setThumbnail(user?.displayAvatarURL())
+                            .setDescription(`Total infractions: **${infractions.length}**`);
+                        
+                        infractions.slice(-10).reverse().forEach((infraction, index) => {
+                            const date = new Date(infraction.timestamp);
+                            const typeEmoji = {
+                                warn: '⚠️',
+                                timeout: '🔇',
+                                kick: '👢',
+                                ban: '🔨',
+                                mute: '🔕'
+                            }[infraction.type] || '📝';
+                            
+                            embed.addFields({
+                                name: `${typeEmoji} ${infraction.type.charAt(0).toUpperCase() + infraction.type.slice(1)} #${infractions.length - index}`,
+                                value: `**Reason:** ${infraction.reason}\n**Moderator:** <@${infraction.moderatorId}>\n**Date:** <t:${Math.floor(date.getTime() / 1000)}:F>`,
+                                inline: false
+                            });
+                        });
+                        
+                        if (infractions.length > 10) {
+                            embed.setFooter({ text: `Showing 10 most recent infractions out of ${infractions.length} total` });
+                        }
+                        
+                        await interaction.reply({ embeds: [embed], ephemeral: true });
+                    }
+                    
+                    else if (interaction.customId === 'mod_clearwarnings_modal') {
+                        const userInput = interaction.fields.getTextInputValue('user_id').trim();
+                        
+                        const userMatch = userInput.match(/(\d{17,19})/);
+                        if (!userMatch) {
+                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                        }
+                        
+                        const userId = userMatch[1];
+                        const user = await client.users.fetch(userId).catch(() => null);
+                        
+                        initializeModerationData(guildId);
+                        const warningCount = (moderationData[guildId].warnings[userId] || []).length;
+                        moderationData[guildId].warnings[userId] = [];
+                        saveModerationData();
+                        
+                        await logModerationAction(interaction.guild, '🧹 Warnings Cleared', interaction.user, user, `Cleared ${warningCount} warnings`);
+                        await interaction.reply({ 
+                            embeds: [new EmbedBuilder()
+                                .setTitle('✅ Warnings Cleared')
+                                .setDescription(`Cleared **${warningCount}** warnings for ${user ? user.tag : userId}`)
+                                .setColor(0x00FF00)],
                             ephemeral: true 
                         });
                     }
