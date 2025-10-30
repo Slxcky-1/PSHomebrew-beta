@@ -1718,8 +1718,9 @@ client.on('messageCreate', async (message) => {
         }
     }
     
-    // AI Chat in designated channel - Optimized
-    if (settings.ai?.enabled && (message.channel.name === settings.ai.channelName || message.channel.id === settings.ai.channelId)) {
+    // AI Chat in designated channel - Optimized (includes ChatGPT channel)
+    const isChatGPTChannel = message.channel.id === '1433480720776433664';
+    if (settings.ai?.enabled && (message.channel.name === settings.ai.channelName || message.channel.id === settings.ai.channelId || isChatGPTChannel)) {
         if (message.author.bot || !config.deepseekApiKey || config.deepseekApiKey === 'YOUR_DEEPSEEK_API_KEY_HERE') return;
         
         // Don't respond to users in automated message channel
@@ -1830,11 +1831,11 @@ client.on('messageCreate', async (message) => {
                 ];
                 
                 // Smart AI selection - ChatGPT ONLY in channel 1433480720776433664, DeepSeek everywhere else
-                const isChatGPTChannel = message.channel.id === '1433480720776433664';
+                const isChatGPTChannelHere = message.channel.id === '1433480720776433664';
                 
                 let aiProvider, modelName, response;
                 
-                if (isChatGPTChannel && config.openaiApiKey) {
+                if (isChatGPTChannelHere && config.openaiApiKey && config.openaiApiKey !== 'YOUR_OPENAI_API_KEY_HERE') {
                     // Use ChatGPT exclusively in the designated channel
                     aiProvider = '🧠 ChatGPT';
                     const openai = createOpenAI({ apiKey: config.openaiApiKey });
@@ -1846,7 +1847,7 @@ client.on('messageCreate', async (message) => {
                         maxTokens: toneConfig.maxTokens
                     });
                 } else {
-                    // Use DeepSeek for all other channels
+                    // Use DeepSeek for all other channels (or fallback if OpenAI key missing)
                     aiProvider = '⚡ DeepSeek';
                     const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
                     modelName = settings.ai.model;
