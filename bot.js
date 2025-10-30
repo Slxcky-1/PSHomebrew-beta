@@ -1883,7 +1883,7 @@ client.on('messageCreate', async (message) => {
                     });
                 } else {
                     // Use DeepSeek for all other channels (or fallback if OpenAI key missing)
-                    aiProvider = '🔷 DeepSeek';
+                    aiProvider = '🤖 ChatGPT';
                     const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
                     modelName = settings.ai.model;
                     
@@ -1929,7 +1929,7 @@ client.on('messageCreate', async (message) => {
                 // Send response with OUTPUT token usage only (not total tokens)
                 const tokenFooter = aiProvider === '🧠 ChatGPT' 
                     ? `\n\n*🧠 ChatGPT: ${outputTokens} tokens*`
-                    : `\n\n*🔷 DeepSeek: ${outputTokens} tokens*`;
+                    : `\n\n*🤖 ChatGPT: ${outputTokens} tokens*`;
                 if (safeText.length > 1900) {
                     const chunks = safeText.match(/[\s\S]{1,1900}/g) || [];
                     await message.reply(chunks[0]);
