@@ -1765,10 +1765,15 @@ client.on('messageCreate', async (message) => {
             return message.reply('⚠️ **Manipulation attempt detected.** 🔒\n\nAI disabled. Owner notified.');
         }
         
+        // Check if message contains PS3/PS4 error code patterns (allow these through)
+        const containsErrorCode = /\b(8[0-9]{7}|[AEF][0-9]{7})\b/i.test(message.content);
+        
         // Token-heavy request detection (math problems, proofs, complex calculations)
-        if (/\b(prove|proof|calculate|solve|compute|equation|theorem|conjecture|demonstrate|show\s+that|find\s+all|list\s+all|enumerate|factorial|fibonacci|prime\s+number|integration|derivative|matrix|polynomial|algorithm|step\s+by\s+step|explain\s+in\s+detail|mathematical|infinity|summation|sequence|series|permutation|combination)\b/i.test(lowercaseMsg) ||
+        // BUT allow PS3/PS4 error codes through
+        if (!containsErrorCode && (
+            /\b(prove|proof|calculate|solve|compute|equation|theorem|conjecture|demonstrate|show\s+that|find\s+all|list\s+all|enumerate|factorial|fibonacci|prime\s+number|integration|derivative|matrix|polynomial|algorithm|step\s+by\s+step|explain\s+in\s+detail|mathematical|infinity|summation|sequence|series|permutation|combination)\b/i.test(lowercaseMsg) ||
             /(\d+\s*[\+\-\*\/\^]\s*\d+.*[\+\-\*\/\^].*\d+)|(\d{5,})|([a-z]\s*[\+\-\*\/\^=]\s*[a-z])/i.test(message.content) ||
-            message.content.length > 500) {
+            message.content.length > 500)) {
             return message.reply('⚠️ **Request blocked to save tokens.**\n\nI\'m optimized for PlayStation homebrew help, not math problems or lengthy computations. Please ask about PS3/PS4/PS5 jailbreaking, firmware, homebrew, or errors instead! 🎮');
         }
         
