@@ -198,6 +198,46 @@ let tokenQuota = {
     }
 };
 
+// Per-user token tracking (5k tokens per user per day)
+let userTokenQuota = {}; // { userId: { dailyUsed: number, lastReset: string } }
+const USER_DAILY_LIMIT = 5000; // 5k tokens per user per day
+
+// Check and reset user quota
+function checkAndResetUserQuota(userId) {
+    const today = new Date().toDateString();
+    
+    if (!userTokenQuota[userId]) {
+        userTokenQuota[userId] = {
+            dailyUsed: 0,
+            lastReset: today
+        };
+    }
+    
+    // Reset if new day
+    if (userTokenQuota[userId].lastReset !== today) {
+        userTokenQuota[userId].dailyUsed = 0;
+        userTokenQuota[userId].lastReset = today;
+    }
+}
+
+// Track user token usage
+function trackUserTokenUsage(userId, tokens) {
+    checkAndResetUserQuota(userId);
+    userTokenQuota[userId].dailyUsed += tokens;
+}
+
+// Check if user has exceeded their daily limit
+function hasUserExceededLimit(userId) {
+    checkAndResetUserQuota(userId);
+    return userTokenQuota[userId].dailyUsed >= USER_DAILY_LIMIT;
+}
+
+// Get user remaining tokens
+function getUserRemainingTokens(userId) {
+    checkAndResetUserQuota(userId);
+    return USER_DAILY_LIMIT - userTokenQuota[userId].dailyUsed;
+}
+
 // Reset quota counters if new day/month
 function checkAndResetQuota() {
     const today = new Date().toDateString();
@@ -2013,6 +2053,12 @@ client.on('messageCreate', async (message) => {
         const channelId = message.channel.id;
         const now = Date.now();
         
+        // Check user daily token limit (5k per user per day)
+        if (hasUserExceededLimit(userId)) {
+            const remaining = getUserRemainingTokens(userId);
+            return message.reply(`🚫 **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ⚡`);
+        }
+        
         // Cooldown check (3 seconds)
         if (aiCooldowns[userId] && now < aiCooldowns[userId] + 3000) {
             return message.reply(`⏱️ Wait ${((aiCooldowns[userId] + 3000 - now) / 1000).toFixed(1)}s before asking again.`);
@@ -2177,14 +2223,17 @@ client.on('messageCreate', async (message) => {
 
                 // Track token usage for quota system
                 trackTokenUsage(aiProvider, totalTokens);
+                trackUserTokenUsage(userId, totalTokens);
                 
                 // Get quota status
                 const quotaStatus = getTokenQuotaStatus();
                 const providerQuota = aiProvider.includes('ChatGPT') ? quotaStatus.chatgpt : quotaStatus.deepseek;
+                const userRemaining = getUserRemainingTokens(userId);
 
                 // Log token usage with AI provider - show breakdown and quota
                 console.log(`🤖 ${aiProvider} (${modelName}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${totalTokens} | Words: ${text.split(' ').length}`);
                 console.log(`📊 Quota Today: ${providerQuota.dailyUsed} used | Month: ${providerQuota.monthlyUsed} used | Remaining: ${providerQuota.monthlyRemaining}`);
+                console.log(`👤 User ${message.author.username}: ${totalTokens} tokens used | ${userRemaining} remaining today`);
 
                 if (!text?.trim()) {
                     return message.reply('❌ Empty response received. Try again!');
@@ -3513,6 +3562,15 @@ client.on('interactionCreate', async (interaction) => {
         const channelId = interaction.channel.id;
         const userId = interaction.user.id;
         
+        // Check user daily token limit (5k per user per day)
+        if (hasUserExceededLimit(userId)) {
+            const remaining = getUserRemainingTokens(userId);
+            return interaction.reply({
+                content: `🚫 **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ⚡`,
+                ephemeral: true
+            });
+        }
+        
         // Check response cache first
         const cachedResponse = getCachedResponse(userMessage);
         if (cachedResponse) {
@@ -3645,10 +3703,13 @@ client.on('interactionCreate', async (interaction) => {
                 const outputTokens = completion.usage?.completion_tokens || 0;
                 
                 trackTokenUsage('DeepSeek', tokensUsed);
+                trackUserTokenUsage(userId, tokensUsed);
                 const quotaStatus = getTokenQuotaStatus();
+                const userRemaining = getUserRemainingTokens(userId);
                 
                 console.log(`🤖 DeepSeek (${settings.ai.model}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${tokensUsed}`);
                 console.log(`📊 Quota Today: ${quotaStatus.deepseek.dailyUsed} used | Month: ${quotaStatus.deepseek.monthlyUsed} used | Remaining: ${quotaStatus.deepseek.monthlyRemaining}`);
+                console.log(`👤 User ${interaction.user.username}: ${tokensUsed} tokens used | ${userRemaining} remaining today`);
                 
                 // Check if response is valid
                 if (!aiResponse || aiResponse.trim().length === 0) {
@@ -3717,16 +3778,32 @@ client.on('interactionCreate', async (interaction) => {
     
     // AI Stats command - Display token quota usage
     if (interaction.commandName === 'aistats') {
-        if (!requireAdmin(interaction)) return;
+        const userId = interaction.user.id;
+        const isAdmin = interaction.member.permissions.has('Administrator');
         
         const quotaStatus = getTokenQuotaStatus();
+        checkAndResetUserQuota(userId);
+        const userUsed = userTokenQuota[userId]?.dailyUsed || 0;
+        const userRemaining = USER_DAILY_LIMIT - userUsed;
         
         const embed = new EmbedBuilder()
             .setTitle('📊 AI Token Usage Statistics')
             .setColor(0x00D9FF)
             .setDescription('Current token consumption for DeepSeek and ChatGPT')
             .addFields(
-                { name: '\u200B', value: '**🤖 DeepSeek (Primary AI)**', inline: false },
+                { name: '\u200B', value: '**👤 Your Personal Usage**', inline: false },
+                { 
+                    name: '📅 Today', 
+                    value: `Used: **${userUsed.toLocaleString()}** / **5,000** tokens\nRemaining: **${userRemaining.toLocaleString()}** tokens\n${userRemaining < 1000 ? '⚠️ Running low!' : '✅ Plenty left!'}`,
+                    inline: false 
+                }
+            );
+        
+        // Add server-wide stats for admins only
+        if (isAdmin) {
+            embed.addFields(
+                { name: '\u200B', value: '\u200B', inline: false }, // Spacer
+                { name: '\u200B', value: '**🤖 DeepSeek (Server-Wide)**', inline: false },
                 { 
                     name: '📅 Today', 
                     value: `Used: **${quotaStatus.deepseek.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.dailyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.deepseek.dailyRemaining.toLocaleString()}**`,
@@ -3738,7 +3815,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: true 
                 },
                 { name: '\u200B', value: '\u200B', inline: true }, // Spacer
-                { name: '\u200B', value: '**🧠 ChatGPT (Channel-Specific)**', inline: false },
+                { name: '\u200B', value: '**🧠 ChatGPT (Server-Wide)**', inline: false },
                 { 
                     name: '📅 Today', 
                     value: `Used: **${quotaStatus.chatgpt.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.dailyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.chatgpt.dailyRemaining.toLocaleString()}**`,
@@ -3755,10 +3832,13 @@ client.on('interactionCreate', async (interaction) => {
                     value: `Cached responses: **${responseCache.size}**/100\nAPI calls saved: **~${Math.round(responseCache.size * 0.3)}**`,
                     inline: false 
                 }
-            )
-            .setFooter({ text: 'Token limits can be configured in config.json (dailyLimit/monthlyLimit)' })
-            .setTimestamp();
+            );
+            embed.setFooter({ text: 'Admin view: Server-wide statistics | User limit: 5,000 tokens/day' });
+        } else {
+            embed.setFooter({ text: 'Your personal usage | Daily limit: 5,000 tokens (resets at midnight)' });
+        }
         
+        embed.setTimestamp();
         await interaction.reply({ embeds: [embed], ephemeral: true });
     }
     
