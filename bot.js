@@ -1881,7 +1881,9 @@ client.on('messageCreate', async (message) => {
                 aiConversations[channelId].push({ role: 'assistant', content: safeText, timestamp: now });
 
                 // Send response with completion token usage and AI provider (chunk if needed)
-                const tokenFooter = `\n\n*${aiProvider}: ${completionTokens} tokens*`;
+                const tokenFooter = aiProvider === '🧠 ChatGPT' 
+                    ? `\n\n*🧠 ChatGPT: ${completionTokens} tokens*`
+                    : `\n\n*⚡ DeepSeek: ${completionTokens} tokens*`;
                 if (safeText.length > 1900) {
                     const chunks = safeText.match(/[\s\S]{1,1900}/g) || [];
                     await message.reply(chunks[0]);
