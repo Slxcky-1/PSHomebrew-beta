@@ -1516,21 +1516,8 @@ client.on('messageCreate', async (message) => {
                     reason: 'Auto-thread for image post'
                 });
                 
-                // Copy the message content and images to the thread (without the header message)
-                let threadMessage = '';
-                if (message.content) {
-                    threadMessage = message.content;
-                }
-                
-                // Get all image attachments
-                const imageAttachments = Array.from(message.attachments.values())
-                    .filter(att => att.contentType && att.contentType.startsWith('image/'));
-                
-                // Send message with images to thread
-                await thread.send({
-                    content: threadMessage || `📸 Post by ${message.author}`,
-                    files: imageAttachments.map(att => att.url)
-                });
+                // The original message with image stays in the channel and is automatically the first message in the thread
+                // No need to copy anything - the thread starter message already contains the image and text
                 
                 // Don't delete the original message - it needs to stay for the thread to remain visible
                 // The thread is attached to the original message
