@@ -1500,6 +1500,61 @@ client.on('messageCreate', async (message) => {
     const userId = message.author.id;
     const now = Date.now();
     
+    // Auto-thread channel (1094846351101132872) - Create thread for images, delete text-only messages
+    if (message.channel.id === '1094846351101132872') {
+        const hasImage = message.attachments.size > 0 && message.attachments.some(att => 
+            att.contentType && att.contentType.startsWith('image/')
+        );
+        
+        if (hasImage) {
+            try {
+                // Create thread with image poster's name
+                const threadName = `${message.author.username}'s post`;
+                const thread = await message.startThread({
+                    name: threadName,
+                    autoArchiveDuration: 1440, // 24 hours
+                    reason: 'Auto-thread for image post'
+                });
+                
+                // Copy the message content and images to the thread
+                let threadMessage = `📸 **Original post by ${message.author}:**`;
+                if (message.content) {
+                    threadMessage += `\n\n${message.content}`;
+                }
+                
+                // Get all image attachments
+                const imageAttachments = Array.from(message.attachments.values())
+                    .filter(att => att.contentType && att.contentType.startsWith('image/'));
+                
+                // Send message with images to thread
+                await thread.send({
+                    content: threadMessage,
+                    files: imageAttachments.map(att => att.url)
+                });
+                
+                console.log(`🧵 Created thread "${threadName}" for image post in channel 1094846351101132872`);
+            } catch (error) {
+                console.error('Error creating thread for image:', error);
+            }
+        } else {
+            // No image - delete message and notify user to use threads
+            try {
+                await message.delete();
+                const reply = await message.channel.send({
+                    content: `${message.author}, please don't type in this channel! 📝\n\n**Use the threads** created from image posts to discuss. Post an image to create a new thread, or join an existing thread to chat! 💬`
+                });
+                
+                // Auto-delete the warning after 10 seconds
+                setTimeout(() => {
+                    reply.delete().catch(() => {});
+                }, 10000);
+            } catch (error) {
+                console.error('Error handling text-only message in auto-thread channel:', error);
+            }
+            return; // Stop processing this message
+        }
+    }
+    
     // Bot owner mention to unlock AI (priority check)
     if (message.mentions.has(client.user) && userId === config.botOwnerId && isAILocked(message.guild.id)) {
         const lockInfo = aiLockdown[message.guild.id];
