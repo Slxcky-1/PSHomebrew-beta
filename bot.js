@@ -5426,6 +5426,82 @@ client.on('interactionCreate', async (interaction) => {
         return;
     }
 
+    // Ticket Setup command - Interactive panel
+    if (interaction.commandName === 'ticketsetup') {
+        if (!requireAdmin(interaction)) return;
+        
+        const guildId = interaction.guild.id;
+        initializeTicketSystem(guildId);
+        const settings = ticketData[guildId].settings;
+        
+        const staffRole = settings.staffRoleId ? `<@&${settings.staffRoleId}>` : 'Not set';
+        
+        // Create interactive panel
+        const embed = new EmbedBuilder()
+            .setTitle('🎫 Ticket System Control Panel')
+            .setColor(settings.enabled ? 0x00FF00 : 0xFF0000)
+            .setDescription(
+                `System is currently **${settings.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                `Manage your server's support ticket system.\n\n` +
+                `Click the buttons below to configure ticket settings.`
+            )
+            .addFields(
+                { name: '📡 Status', value: settings.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: '👮 Staff Role', value: staffRole, inline: true },
+                { name: '📁 Category', value: settings.categoryName, inline: true },
+                { name: '🎫 Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
+                { name: '📝 Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
+                { name: '🔒 Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
+            )
+            .setFooter({ text: 'Click buttons below to configure ticket system' })
+            .setTimestamp();
+        
+        const row1 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('ticket_toggle')
+                    .setLabel(settings.enabled ? 'Disable System' : 'Enable System')
+                    .setStyle(settings.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
+                    .setEmoji(settings.enabled ? '❌' : '✅'),
+                new ButtonBuilder()
+                    .setCustomId('ticket_staffrole')
+                    .setLabel('Set Staff Role')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('👮'),
+                new ButtonBuilder()
+                    .setCustomId('ticket_category')
+                    .setLabel('Set Category')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('📁'),
+                new ButtonBuilder()
+                    .setCustomId('ticket_panel')
+                    .setLabel('Create Panel')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji('🎫')
+            );
+        
+        const row2 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('ticket_welcomemsg')
+                    .setLabel('Welcome Message')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('📝'),
+                new ButtonBuilder()
+                    .setCustomId('ticket_closemsg')
+                    .setLabel('Close Message')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🔒'),
+                new ButtonBuilder()
+                    .setCustomId('ticket_refresh')
+                    .setLabel('Refresh')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🔄')
+            );
+        
+        await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
+    }
+
     // Moderator command - Interactive panel
     if (interaction.commandName === 'moderator') {
         if (!requireAdmin(interaction)) return;
@@ -6382,6 +6458,175 @@ client.on('interactionCreate', async (interaction) => {
                 } catch (error) {
                     await interaction.editReply({ content: `❌ Error refreshing stats: ${error.message}` });
                 }
+            }
+        }
+        
+        // Ticket system button handlers
+        if (interaction.customId.startsWith('ticket_')) {
+            if (!requireAdmin(interaction)) return;
+            
+            const guildId = interaction.guild.id;
+            initializeTicketSystem(guildId);
+            const settings = ticketData[guildId].settings;
+            
+            if (interaction.customId === 'ticket_toggle') {
+                settings.enabled = !settings.enabled;
+                saveTicketData();
+                await interaction.reply({ 
+                    content: `✅ Ticket system ${settings.enabled ? 'enabled' : 'disabled'}!`, 
+                    ephemeral: true 
+                });
+            }
+            
+            else if (interaction.customId === 'ticket_staffrole') {
+                const modal = new ModalBuilder()
+                    .setCustomId('ticket_staffrole_modal')
+                    .setTitle('Set Staff Role');
+                
+                const roleInput = new TextInputBuilder()
+                    .setCustomId('role_id')
+                    .setLabel('Role ID or mention')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('@Staff or role ID')
+                    .setRequired(true);
+                
+                modal.addComponents(new ActionRowBuilder().addComponents(roleInput));
+                await interaction.showModal(modal);
+            }
+            
+            else if (interaction.customId === 'ticket_category') {
+                const modal = new ModalBuilder()
+                    .setCustomId('ticket_category_modal')
+                    .setTitle('Set Category Name');
+                
+                const categoryInput = new TextInputBuilder()
+                    .setCustomId('category_name')
+                    .setLabel('Category name for tickets')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('Support Tickets')
+                    .setValue(settings.categoryName)
+                    .setRequired(true);
+                
+                modal.addComponents(new ActionRowBuilder().addComponents(categoryInput));
+                await interaction.showModal(modal);
+            }
+            
+            else if (interaction.customId === 'ticket_welcomemsg') {
+                const modal = new ModalBuilder()
+                    .setCustomId('ticket_welcomemsg_modal')
+                    .setTitle('Set Welcome Message');
+                
+                const messageInput = new TextInputBuilder()
+                    .setCustomId('message')
+                    .setLabel('Message shown in new tickets')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setPlaceholder('Thank you for creating a ticket!')
+                    .setValue(settings.ticketMessage)
+                    .setRequired(true);
+                
+                modal.addComponents(new ActionRowBuilder().addComponents(messageInput));
+                await interaction.showModal(modal);
+            }
+            
+            else if (interaction.customId === 'ticket_closemsg') {
+                const modal = new ModalBuilder()
+                    .setCustomId('ticket_closemsg_modal')
+                    .setTitle('Set Close Message');
+                
+                const messageInput = new TextInputBuilder()
+                    .setCustomId('message')
+                    .setLabel('DM sent when ticket is closed')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setPlaceholder('Your ticket has been closed.')
+                    .setValue(settings.closedMessage)
+                    .setRequired(true);
+                
+                modal.addComponents(new ActionRowBuilder().addComponents(messageInput));
+                await interaction.showModal(modal);
+            }
+            
+            else if (interaction.customId === 'ticket_panel') {
+                const modal = new ModalBuilder()
+                    .setCustomId('ticket_panel_modal')
+                    .setTitle('Create Ticket Panel');
+                
+                const channelInput = new TextInputBuilder()
+                    .setCustomId('channel_id')
+                    .setLabel('Channel ID or mention')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('#support or channel ID')
+                    .setRequired(true);
+                
+                modal.addComponents(new ActionRowBuilder().addComponents(channelInput));
+                await interaction.showModal(modal);
+            }
+            
+            else if (interaction.customId === 'ticket_refresh') {
+                const staffRole = settings.staffRoleId ? `<@&${settings.staffRoleId}>` : 'Not set';
+                
+                const embed = new EmbedBuilder()
+                    .setTitle('🎫 Ticket System Control Panel')
+                    .setColor(settings.enabled ? 0x00FF00 : 0xFF0000)
+                    .setDescription(
+                        `System is currently **${settings.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                        `Manage your server's support ticket system.\n\n` +
+                        `Click the buttons below to configure ticket settings.`
+                    )
+                    .addFields(
+                        { name: '📡 Status', value: settings.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                        { name: '👮 Staff Role', value: staffRole, inline: true },
+                        { name: '📁 Category', value: settings.categoryName, inline: true },
+                        { name: '🎫 Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
+                        { name: '📝 Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
+                        { name: '🔒 Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
+                    )
+                    .setFooter({ text: 'Click buttons below to configure ticket system' })
+                    .setTimestamp();
+                
+                const row1 = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('ticket_toggle')
+                            .setLabel(settings.enabled ? 'Disable System' : 'Enable System')
+                            .setStyle(settings.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
+                            .setEmoji(settings.enabled ? '❌' : '✅'),
+                        new ButtonBuilder()
+                            .setCustomId('ticket_staffrole')
+                            .setLabel('Set Staff Role')
+                            .setStyle(ButtonStyle.Primary)
+                            .setEmoji('👮'),
+                        new ButtonBuilder()
+                            .setCustomId('ticket_category')
+                            .setLabel('Set Category')
+                            .setStyle(ButtonStyle.Primary)
+                            .setEmoji('📁'),
+                        new ButtonBuilder()
+                            .setCustomId('ticket_panel')
+                            .setLabel('Create Panel')
+                            .setStyle(ButtonStyle.Success)
+                            .setEmoji('🎫')
+                    );
+                
+                const row2 = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('ticket_welcomemsg')
+                            .setLabel('Welcome Message')
+                            .setStyle(ButtonStyle.Primary)
+                            .setEmoji('📝'),
+                        new ButtonBuilder()
+                            .setCustomId('ticket_closemsg')
+                            .setLabel('Close Message')
+                            .setStyle(ButtonStyle.Primary)
+                            .setEmoji('🔒'),
+                        new ButtonBuilder()
+                            .setCustomId('ticket_refresh')
+                            .setLabel('Refresh')
+                            .setStyle(ButtonStyle.Secondary)
+                            .setEmoji('🔄')
+                    );
+                
+                await interaction.update({ embeds: [embed], components: [row1, row2] });
             }
         }
         
@@ -8585,6 +8830,151 @@ client.on('interactionCreate', async (interaction) => {
                     } catch (replyError) {
                         console.error('Failed to send error message:', replyError);
                     }
+                }
+                return;
+            }
+            
+            // Ticket system modal handlers
+            if (interaction.customId.startsWith('ticket_')) {
+                const guildId = interaction.guild.id;
+                
+                if (!interaction.member.permissions.has('Administrator')) {
+                    return interaction.reply({ 
+                        content: '❌ You need Administrator permissions!', 
+                        ephemeral: true 
+                    });
+                }
+                
+                try {
+                    initializeTicketSystem(guildId);
+                    const settings = ticketData[guildId].settings;
+                    
+                    if (interaction.customId === 'ticket_staffrole_modal') {
+                        const roleInput = interaction.fields.getTextInputValue('role_id').trim();
+                        const roleMatch = roleInput.match(/(\d{17,19})/);
+                        
+                        if (!roleMatch) {
+                            return interaction.reply({ content: '❌ Invalid role ID or mention!', ephemeral: true });
+                        }
+                        
+                        const roleId = roleMatch[1];
+                        const role = await interaction.guild.roles.fetch(roleId).catch(() => null);
+                        
+                        if (!role) {
+                            return interaction.reply({ content: '❌ Role not found!', ephemeral: true });
+                        }
+                        
+                        settings.staffRoleId = roleId;
+                        saveTicketData();
+                        
+                        await interaction.reply({ 
+                            content: `✅ Staff role set to ${role}!`, 
+                            ephemeral: true 
+                        });
+                    }
+                    
+                    else if (interaction.customId === 'ticket_category_modal') {
+                        const categoryName = interaction.fields.getTextInputValue('category_name').trim();
+                        settings.categoryName = categoryName;
+                        saveTicketData();
+                        
+                        await interaction.reply({ 
+                            content: `✅ Category name set to: **${categoryName}**`, 
+                            ephemeral: true 
+                        });
+                    }
+                    
+                    else if (interaction.customId === 'ticket_welcomemsg_modal') {
+                        const message = interaction.fields.getTextInputValue('message').trim();
+                        settings.ticketMessage = message;
+                        saveTicketData();
+                        
+                        const embed = new EmbedBuilder()
+                            .setTitle('✅ Welcome Message Updated')
+                            .setDescription('**Preview:**\n\n' + message)
+                            .setColor(0x00FF00)
+                            .setFooter({ text: 'This message will appear in new tickets' })
+                            .setTimestamp();
+                        
+                        await interaction.reply({ embeds: [embed], ephemeral: true });
+                    }
+                    
+                    else if (interaction.customId === 'ticket_closemsg_modal') {
+                        const message = interaction.fields.getTextInputValue('message').trim();
+                        settings.closedMessage = message;
+                        saveTicketData();
+                        
+                        const embed = new EmbedBuilder()
+                            .setTitle('✅ Close Message Updated')
+                            .setDescription('**Preview:**\n\n' + message)
+                            .setColor(0x00FF00)
+                            .setFooter({ text: 'This message will be sent in DMs when tickets close' })
+                            .setTimestamp();
+                        
+                        await interaction.reply({ embeds: [embed], ephemeral: true });
+                    }
+                    
+                    else if (interaction.customId === 'ticket_panel_modal') {
+                        const channelInput = interaction.fields.getTextInputValue('channel_id').trim();
+                        const channelMatch = channelInput.match(/(\d{17,19})/);
+                        
+                        if (!channelMatch) {
+                            return interaction.reply({ content: '❌ Invalid channel ID or mention!', ephemeral: true });
+                        }
+                        
+                        const channelId = channelMatch[1];
+                        const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
+                        
+                        if (!channel || channel.type !== ChannelType.GuildText) {
+                            return interaction.reply({ content: '❌ Channel not found or not a text channel!', ephemeral: true });
+                        }
+                        
+                        const panelEmbed = new EmbedBuilder()
+                            .setTitle('🎫 Support Ticket System')
+                            .setDescription(
+                                '**Need help?** Create a support ticket!\n\n' +
+                                '**How it works:**\n' +
+                                '• Click the button below to open a ticket\n' +
+                                '• A private channel will be created for you\n' +
+                                '• Our staff team will assist you shortly\n\n' +
+                                '**What to include:**\n' +
+                                '• Describe your issue clearly\n' +
+                                '• Include any relevant details\n' +
+                                '• Be patient while we help you\n\n' +
+                                '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+                                '**Click the button below to get started! 👇**'
+                            )
+                            .setColor(0x5865F2)
+                            .setFooter({ text: `${interaction.guild.name} Support` })
+                            .setTimestamp();
+                        
+                        const panelButton = new ActionRowBuilder()
+                            .addComponents(
+                                new ButtonBuilder()
+                                    .setCustomId('create_ticket_panel')
+                                    .setLabel('Create Ticket')
+                                    .setStyle(ButtonStyle.Success)
+                                    .setEmoji('🎫')
+                            );
+                        
+                        try {
+                            await channel.send({ embeds: [panelEmbed], components: [panelButton] });
+                            await interaction.reply({ 
+                                content: `✅ Ticket panel created in ${channel}!`, 
+                                ephemeral: true 
+                            });
+                        } catch (error) {
+                            console.error('Error creating ticket panel:', error);
+                            await interaction.reply({ 
+                                content: '❌ Failed to create panel. Check bot permissions!', 
+                                ephemeral: true 
+                            });
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Ticket modal error:', error);
+                    await interaction.reply({ content: '❌ An error occurred!', ephemeral: true }).catch(() => {});
                 }
                 return;
             }
