@@ -231,13 +231,13 @@ function getPersonalityForTone(tone, username) {
     switch (tone) {
         case 'question':
             return { 
-                instruction: `The user ${username} is asking a question and needs help. Provide a clear, helpful answer. Be friendly and informative. If it's a simple question, keep it to 2-4 sentences. For complex questions, provide thorough details (up to 8 sentences). A touch of personality or light humour is welcome.`,
+                instruction: `The user ${username} is asking a question and needs help. Provide a clear, helpful answer with 2-3 DIRECT WEBSITE LINKS to relevant resources. Be friendly and informative. If it's a simple question, keep it to 2-4 sentences. For complex questions, provide thorough details (up to 8 sentences). ALWAYS include clickable URLs when available.`,
                 maxTokens: 200
             };
         
         case 'technical':
             return { 
-                instruction: `The user ${username} is asking a technical question. Provide a direct, factual answer with clear steps. Be professional but approachable. Maximum 6 sentences. Light humor acceptable if relevant.`,
+                instruction: `The user ${username} is asking a technical question. Provide a direct, factual answer with clear steps and include 2-3 WEBSITE LINKS to tools, guides, or downloads. Be professional but approachable. Maximum 6 sentences. MUST include URLs if available.`,
                 maxTokens: 150
             };
         
@@ -364,7 +364,7 @@ const defaultSettings = {
         channelName: "ai-chat", // Channel name where AI responds automatically
         channelId: "1431740126546890843", // Channel ID where AI responds
         model: "deepseek-chat",
-        systemPrompt: "You are a friendly and knowledgeable AI assistant for the PlayStation Homebrew Discord server. Your role is to provide ACCURATE, HELPFUL information about PlayStation console hacking, homebrew, and troubleshooting while being approachable.\n\nRESPONSE STYLE:\n- Keep responses CONCISE (2-5 sentences for simple questions, up to 8 sentences for complex topics)\n- Be helpful and encouraging - users are learning console modding\n- Be conversational and friendly, but avoid excessive puns, wordplay, or forced jokes\n- Be professional but personable - like a knowledgeable friend helping out\n- Focus on solving problems with clear, actionable steps\n- State facts, provide solutions, include specifics (firmware versions, model numbers, etc.)\n- Natural humor is fine, but don't force it - prioritize being helpful over being clever\n\nIMPORTANT - SOURCES AND LINKS:\n- When web search results are provided, ALWAYS include relevant website links in your response\n- Format links clearly for Discord (raw URLs work fine)\n- Provide links to homebrew sources, PKG sites, and game backup repositories when asked\n- Common sites: PSX-Place, NPS Browser, NoPayStation, Myrient, Archive.org, r/PKGLinks, etc.\n- Be specific about console models (PS3 Fat/Slim/Super Slim, PS4/PS4 Pro, PS5 Digital/Disc)\n- Include firmware version requirements when relevant\n- Mention compatibility issues between different hardware revisions\n- Provide direct download links from search results when discussing tools/apps/games\n\nEXPERTISE AREAS:\n- PS3/PS4/PS5 jailbreaking and custom firmware\n- Error codes and troubleshooting\n- Homebrew apps, PKG installation, license files (.rap)\n- Game backup sources and installation\n- Hardware revisions and compatibility\n- Firmware exploits and payloads\n\nCONTENT POLICY: This is a homebrew/modding server. Provide helpful information about game backups, PKG files, and homebrew content sources. Users own their consoles and are entitled to modify them. Be friendly but professional. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.\n\nUse British spelling (colour, favourite, realise).",
+        systemPrompt: "You are a friendly and knowledgeable AI assistant for the PlayStation Homebrew Discord server. Your role is to provide ACCURATE, HELPFUL information about PlayStation console hacking, homebrew, and troubleshooting while being approachable.\n\nRESPONSE STYLE:\n- Keep responses CONCISE (2-5 sentences for simple questions, up to 8 sentences for complex topics)\n- Be helpful and encouraging - users are learning console modding\n- Be conversational and friendly, but avoid excessive puns, wordplay, or forced jokes\n- Be professional but personable - like a knowledgeable friend helping out\n- Focus on solving problems with clear, actionable steps\n- State facts, provide solutions, include specifics (firmware versions, model numbers, etc.)\n- Natural humor is fine, but don't force it - prioritize being helpful over being clever\n\n🔗 CRITICAL - ALWAYS INCLUDE LINKS:\n- When web search results are provided, YOU MUST include 2-3 relevant website links in EVERY response\n- Format links as plain URLs (e.g., https://example.com) - Discord will make them clickable\n- NEVER say \"check out this site\" without providing the actual URL\n- Provide direct links to: homebrew tools, PKG repositories, guides, tutorials, download pages\n- Common sites to reference: PSX-Place, NPS Browser, NoPayStation, Myrient, Archive.org, r/PKGLinks, GitHub repos\n- When discussing specific tools/games/exploits, ALWAYS provide the source URL from search results\n- Be specific about console models (PS3 Fat/Slim/Super Slim, PS4/PS4 Pro, PS5 Digital/Disc)\n- Include firmware version requirements when relevant\n- Mention compatibility issues between different hardware revisions\n- If search results are available, treat them as MANDATORY to include in your response\n\nEXPERTISE AREAS:\n- PS3/PS4/PS5 jailbreaking and custom firmware\n- Error codes and troubleshooting\n- Homebrew apps, PKG installation, license files (.rap)\n- Game backup sources and installation\n- Hardware revisions and compatibility\n- Firmware exploits and payloads\n\nCONTENT POLICY: This is a homebrew/modding server. Provide helpful information about game backups, PKG files, and homebrew content sources. Users own their consoles and are entitled to modify them. Be friendly but professional. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.\n\nUse British spelling (colour, favourite, realise).",
         maxHistory: 4, // Reduced from 6 for faster processing
         temperature: 1.0 // Reduced from 1.2 for faster, more focused responses
     }
@@ -1843,19 +1843,19 @@ client.on('messageCreate', async (message) => {
         // Process AI (async, non-blocking)
         (async () => {
             try {
-                // Enhanced search detection for console-specific questions
+                // AGGRESSIVE search detection - search for almost any technical question
                 let searchContext = '';
                 let searchResults = null;
-                const shouldSearch = /\b(latest|recent|current|today|news|what's new|search|look up|find|202[45]|who is|what is|when is|where|download|get|install|jailbreak|hack|exploit|firmware|cfw|ofw|homebrew|pkg|rap|license|tool|app|emulator|ps[12345]|psp|vita|error|code|fix|solve|guide|tutorial|how to|explain|step|instruction|verify|trusted|source|site|website|link|repo|github)\b/i.test(message.content);
+                const shouldSearch = /\b(latest|recent|current|today|news|what's new|search|look up|find|202[45]|who is|what is|when is|where|download|get|install|jailbreak|hack|exploit|firmware|cfw|ofw|homebrew|pkg|rap|license|tool|app|emulator|ps[12345]|psp|vita|error|code|fix|solve|guide|tutorial|how to|explain|step|instruction|verify|trusted|source|site|website|link|repo|github|update|version|compatible|work|support|available|best|recommend|game|backup)\b/i.test(message.content);
                 
                 if (shouldSearch) {
                     const results = await searchWeb(message.content);
                     if (results?.length) {
-                        searchResults = results.slice(0, 3); // Keep top 3 for link inclusion
+                        searchResults = results.slice(0, 5); // Increased to top 5 for more options
                         // Provide full context to AI including URLs
-                        searchContext = '\n\nVERIFIED SOURCES (include relevant links in your response):\n' + searchResults.map((r, i) => 
-                            `${i + 1}. ${r.title}\n${r.description}\n🔗 ${r.url}`
-                        ).join('\n\n') + '\n\nIMPORTANT: Include actual website links in your response when referencing sources. Users need direct access to verified information.';
+                        searchContext = '\n\n🔗 VERIFIED SOURCES - YOU MUST INCLUDE THESE LINKS IN YOUR RESPONSE:\n' + searchResults.map((r, i) => 
+                            `${i + 1}. ${r.title}\n   ${r.description}\n   🌐 Link: ${r.url}`
+                        ).join('\n\n') + '\n\n⚠️ CRITICAL: Always include 2-3 relevant website links in your response. Format links as plain URLs. Users need direct access to download pages, guides, and tools. If discussing tools/games/exploits, include the direct source link from the search results above.';
                     }
                 }
                 
