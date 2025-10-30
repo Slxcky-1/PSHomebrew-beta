@@ -14,8 +14,9 @@
     "leveling",
     "pshomebrew"
   ],
-  "author": "Your Name",
-  "license": "MIT",
+  "author": "Slxcky-1",
+  "license": "UNLICENSED",
+  "private": true,
   "dependencies": {
     "@ai-sdk/deepseek": "^1.0.23",
     "ai": "^5.0.80",
