@@ -1,6 +1,6 @@
 # 🎮 PSHomebrew Discord Bot
 
-> ⚠️ **IMPORTANT:** This code is **PROPRIETARY** and **NOT OPEN SOURCE**. See [NOTICE.md](NOTICE.md) and [LICENSE](LICENSE) for restrictions.
+> ⚠️ **IMPORTANT:** This code is **PROPRIETARY** and **NOT OPEN SOURCE**. See [NOTICE.md](docs/NOTICE.md) and [LICENSE](LICENSE) for restrictions.
 
 ---
 
@@ -22,7 +22,7 @@
 
 **Unauthorized use will result in DMCA takedowns and legal action.**
 
-See [NOTICE.md](NOTICE.md) for full terms.
+See [NOTICE.md](docs/NOTICE.md) for full terms.
 
 ---
 
