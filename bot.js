@@ -1821,6 +1821,10 @@ client.on('messageCreate', async (message) => {
             /\b(write\s+(me\s+)?(a\s+)?(long|detailed|comprehensive|extensive|complete|full|entire|lengthy)|essay|paragraph|story|novel|article|blog|document|report|thesis|summary|analysis|breakdown|walkthrough|encyclopedia|history|timeline)\b/i.test(lowercaseMsg) ||
             /\b(500\s+word|1000\s+word|2000\s+word|[0-9]+\s+word|multiple\s+paragraph|several\s+paragraph|many\s+sentence)\b/i.test(lowercaseMsg) ||
             /\b(use\s+(all|more|lots|many|maximum)\s+(token|word)|token\s+(test|explosion|bomb|waste)|make\s+it\s+long|be\s+verbose|as\s+long\s+as\s+possible|longest\s+response)\b/i.test(lowercaseMsg) ||
+            // Sneaky "make it longer" attempts
+            /\b(make\s+it\s+(longer|bigger|more)|include\s+(more|all|every|each)\s+(detail|info|information)|add\s+more\s+(detail|info|content|word)|expand\s+on|elaborate\s+on)\b/i.test(lowercaseMsg) ||
+            /\b(all\s+the\s+(detail|difference|info|information|spec)|every\s+(detail|difference|aspect|feature)|small\s+detail|minor\s+detail)\b/i.test(lowercaseMsg) ||
+            /\b(longer\s+response|more\s+complete|even\s+include|also\s+include\s+how|what\s+files|what\s+drives|how\s+different|all\s+the\s+differences)\b/i.test(lowercaseMsg) ||
             // Repetition/list spam
             /\b(repeat|say\s+again|copy\s+paste|spam|flood)\s+(this|that|it|100|1000|times|words)/i.test(lowercaseMsg) ||
             /\b(list\s+(all|every|100|1000)|tell\s+me\s+everything|give\s+me\s+all|name\s+all|count\s+to\s+(100|1000|10000))\b/i.test(lowercaseMsg) ||
