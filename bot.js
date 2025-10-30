@@ -5343,8 +5343,79 @@ client.on('interactionCreate', async (interaction) => {
         
         // Check if ticket system is enabled
         if (!ticketData[guildId].settings.enabled) {
+            // If admin, show setup panel
+            if (interaction.member.permissions.has('Administrator')) {
+                const settings = ticketData[guildId].settings;
+                const staffRole = settings.staffRoleId ? `<@&${settings.staffRoleId}>` : 'Not set';
+                
+                const embed = new EmbedBuilder()
+                    .setTitle('🎫 Ticket System Control Panel')
+                    .setColor(0xFF0000)
+                    .setDescription(
+                        `System is currently **❌ Disabled**\n\n` +
+                        `Manage your server's support ticket system.\n\n` +
+                        `Click the buttons below to configure ticket settings.`
+                    )
+                    .addFields(
+                        { name: '📡 Status', value: '❌ Disabled', inline: true },
+                        { name: '👮 Staff Role', value: staffRole, inline: true },
+                        { name: '📁 Category', value: settings.categoryName, inline: true },
+                        { name: '🎫 Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
+                        { name: '📝 Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
+                        { name: '🔒 Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
+                    )
+                    .setFooter({ text: 'Click buttons below to configure ticket system' })
+                    .setTimestamp();
+                
+                const row1 = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('ticket_toggle')
+                            .setLabel('Enable System')
+                            .setStyle(ButtonStyle.Success)
+                            .setEmoji('✅'),
+                        new ButtonBuilder()
+                            .setCustomId('ticket_staffrole')
+                            .setLabel('Set Staff Role')
+                            .setStyle(ButtonStyle.Primary)
+                            .setEmoji('👮'),
+                        new ButtonBuilder()
+                            .setCustomId('ticket_category')
+                            .setLabel('Set Category')
+                            .setStyle(ButtonStyle.Primary)
+                            .setEmoji('📁'),
+                        new ButtonBuilder()
+                            .setCustomId('ticket_panel')
+                            .setLabel('Create Panel')
+                            .setStyle(ButtonStyle.Success)
+                            .setEmoji('🎫')
+                    );
+                
+                const row2 = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('ticket_welcomemsg')
+                            .setLabel('Welcome Message')
+                            .setStyle(ButtonStyle.Primary)
+                            .setEmoji('📝'),
+                        new ButtonBuilder()
+                            .setCustomId('ticket_closemsg')
+                            .setLabel('Close Message')
+                            .setStyle(ButtonStyle.Primary)
+                            .setEmoji('🔒'),
+                        new ButtonBuilder()
+                            .setCustomId('ticket_refresh')
+                            .setLabel('Refresh')
+                            .setStyle(ButtonStyle.Secondary)
+                            .setEmoji('🔄')
+                    );
+                
+                return interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
+            }
+            
+            // For non-admins, show disabled message
             return interaction.reply({ 
-                content: '❌ The ticket system is not enabled on this server. Please ask an administrator to enable it using `/setuptickets enable`!', 
+                content: '❌ The ticket system is not enabled on this server. Please ask an administrator to enable it using `/ticketsetup`!', 
                 ephemeral: true 
             });
         }
