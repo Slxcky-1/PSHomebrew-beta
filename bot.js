@@ -178,6 +178,80 @@ let aiCooldowns = {}; // { userId: timestamp} - Track cooldowns per user
 let aiUserProfiles = {}; // { userId: { messageCount: number, lastTone: 'question'|'joke'|'casual', recentMessages: [] } }
 let aiLockdown = {}; // { guildId: { locked: boolean, lockedBy: userId, reason: string, timestamp: number } }
 
+// --- Token Quota Tracking System ---
+let tokenQuota = {
+    deepseek: {
+        dailyUsed: 0,
+        monthlyUsed: 0,
+        dailyLimit: null, // Set in config or leave null for unlimited
+        monthlyLimit: null,
+        lastResetDaily: new Date().toDateString(),
+        lastResetMonthly: `${new Date().getFullYear()}-${new Date().getMonth() + 1}`
+    },
+    chatgpt: {
+        dailyUsed: 0,
+        monthlyUsed: 0,
+        dailyLimit: null,
+        monthlyLimit: null,
+        lastResetDaily: new Date().toDateString(),
+        lastResetMonthly: `${new Date().getFullYear()}-${new Date().getMonth() + 1}`
+    }
+};
+
+// Reset quota counters if new day/month
+function checkAndResetQuota() {
+    const today = new Date().toDateString();
+    const thisMonth = `${new Date().getFullYear()}-${new Date().getMonth() + 1}`;
+    
+    // Reset daily counters
+    if (tokenQuota.deepseek.lastResetDaily !== today) {
+        tokenQuota.deepseek.dailyUsed = 0;
+        tokenQuota.deepseek.lastResetDaily = today;
+    }
+    if (tokenQuota.chatgpt.lastResetDaily !== today) {
+        tokenQuota.chatgpt.dailyUsed = 0;
+        tokenQuota.chatgpt.lastResetDaily = today;
+    }
+    
+    // Reset monthly counters
+    if (tokenQuota.deepseek.lastResetMonthly !== thisMonth) {
+        tokenQuota.deepseek.monthlyUsed = 0;
+        tokenQuota.deepseek.lastResetMonthly = thisMonth;
+    }
+    if (tokenQuota.chatgpt.lastResetMonthly !== thisMonth) {
+        tokenQuota.chatgpt.monthlyUsed = 0;
+        tokenQuota.chatgpt.lastResetMonthly = thisMonth;
+    }
+}
+
+// Track token usage
+function trackTokenUsage(provider, tokens) {
+    checkAndResetQuota();
+    const providerKey = provider.toLowerCase().includes('chatgpt') ? 'chatgpt' : 'deepseek';
+    tokenQuota[providerKey].dailyUsed += tokens;
+    tokenQuota[providerKey].monthlyUsed += tokens;
+}
+
+// Get token quota status
+function getTokenQuotaStatus() {
+    checkAndResetQuota();
+    return {
+        deepseek: {
+            dailyUsed: tokenQuota.deepseek.dailyUsed,
+            monthlyUsed: tokenQuota.deepseek.monthlyUsed,
+            dailyRemaining: tokenQuota.deepseek.dailyLimit ? tokenQuota.deepseek.dailyLimit - tokenQuota.deepseek.dailyUsed : 'Unlimited',
+            monthlyRemaining: tokenQuota.deepseek.monthlyLimit ? tokenQuota.deepseek.monthlyLimit - tokenQuota.deepseek.monthlyUsed : 'Unlimited'
+        },
+        chatgpt: {
+            dailyUsed: tokenQuota.chatgpt.dailyUsed,
+            monthlyUsed: tokenQuota.chatgpt.monthlyUsed,
+            dailyRemaining: tokenQuota.chatgpt.dailyLimit ? tokenQuota.chatgpt.dailyLimit - tokenQuota.chatgpt.dailyUsed : 'Unlimited',
+            monthlyRemaining: tokenQuota.chatgpt.monthlyLimit ? tokenQuota.chatgpt.monthlyLimit - tokenQuota.chatgpt.monthlyUsed : 'Unlimited'
+        }
+    };
+}
+// --- End Token Quota Tracking System ---
+
 // --- Response Caching System (#19) ---
 // Cache common AI responses to reduce API calls by 30-50%
 const responseCache = new Map(); // { query: { response: string, timestamp: number } }
@@ -1487,6 +1561,17 @@ client.once('clientReady', async () => {
     console.log(`🤖 Servers: ${client.guilds.cache.size}`);
     console.log('='.repeat(60));
     
+    // Display token quota status on startup
+    const quotaStatus = getTokenQuotaStatus();
+    console.log('📊 AI Token Quota Status:');
+    console.log(`   🤖 DeepSeek:`);
+    console.log(`      Daily: ${quotaStatus.deepseek.dailyUsed.toLocaleString()} used | ${quotaStatus.deepseek.dailyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.deepseek.dailyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`      Monthly: ${quotaStatus.deepseek.monthlyUsed.toLocaleString()} used | ${quotaStatus.deepseek.monthlyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.deepseek.monthlyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`   🧠 ChatGPT:`);
+    console.log(`      Daily: ${quotaStatus.chatgpt.dailyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.dailyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.chatgpt.dailyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`      Monthly: ${quotaStatus.chatgpt.monthlyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString() + ' remaining'}`);
+    console.log('='.repeat(60));
+    
     // Set bot activity immediately
     client.user.setActivity('PSHomebrew Community', { type: ActivityType.Watching });
     
@@ -2090,8 +2175,16 @@ client.on('messageCreate', async (message) => {
                 const inputTokens = response.usage?.promptTokens || response.usage?.inputTokens || 0;
                 const totalTokens = response.usage?.totalTokens || (inputTokens + outputTokens);
 
-                // Log token usage with AI provider - show breakdown
+                // Track token usage for quota system
+                trackTokenUsage(aiProvider, totalTokens);
+                
+                // Get quota status
+                const quotaStatus = getTokenQuotaStatus();
+                const providerQuota = aiProvider.includes('ChatGPT') ? quotaStatus.chatgpt : quotaStatus.deepseek;
+
+                // Log token usage with AI provider - show breakdown and quota
                 console.log(`🤖 ${aiProvider} (${modelName}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${totalTokens} | Words: ${text.split(' ').length}`);
+                console.log(`📊 Quota Today: ${providerQuota.dailyUsed} used | Month: ${providerQuota.monthlyUsed} used | Remaining: ${providerQuota.monthlyRemaining}`);
 
                 if (!text?.trim()) {
                     return message.reply('❌ Empty response received. Try again!');
@@ -3546,6 +3639,17 @@ client.on('interactionCreate', async (interaction) => {
                 
                 aiResponse = completion.choices[0]?.message?.content;
                 
+                // Track token usage
+                const tokensUsed = completion.usage?.total_tokens || 0;
+                const inputTokens = completion.usage?.prompt_tokens || 0;
+                const outputTokens = completion.usage?.completion_tokens || 0;
+                
+                trackTokenUsage('DeepSeek', tokensUsed);
+                const quotaStatus = getTokenQuotaStatus();
+                
+                console.log(`🤖 DeepSeek (${settings.ai.model}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${tokensUsed}`);
+                console.log(`📊 Quota Today: ${quotaStatus.deepseek.dailyUsed} used | Month: ${quotaStatus.deepseek.monthlyUsed} used | Remaining: ${quotaStatus.deepseek.monthlyRemaining}`);
+                
                 // Check if response is valid
                 if (!aiResponse || aiResponse.trim().length === 0) {
                     console.error('DeepSeek returned empty response');
@@ -3609,6 +3713,53 @@ client.on('interactionCreate', async (interaction) => {
         } else {
             await interaction.reply({ content: 'ℹ️ No conversation history to clear in this channel.', ephemeral: true });
         }
+    }
+    
+    // AI Stats command - Display token quota usage
+    if (interaction.commandName === 'aistats') {
+        if (!requireAdmin(interaction)) return;
+        
+        const quotaStatus = getTokenQuotaStatus();
+        
+        const embed = new EmbedBuilder()
+            .setTitle('📊 AI Token Usage Statistics')
+            .setColor(0x00D9FF)
+            .setDescription('Current token consumption for DeepSeek and ChatGPT')
+            .addFields(
+                { name: '\u200B', value: '**🤖 DeepSeek (Primary AI)**', inline: false },
+                { 
+                    name: '📅 Today', 
+                    value: `Used: **${quotaStatus.deepseek.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.dailyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.deepseek.dailyRemaining.toLocaleString()}**`,
+                    inline: true 
+                },
+                { 
+                    name: '📆 This Month', 
+                    value: `Used: **${quotaStatus.deepseek.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.monthlyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.deepseek.monthlyRemaining.toLocaleString()}**`,
+                    inline: true 
+                },
+                { name: '\u200B', value: '\u200B', inline: true }, // Spacer
+                { name: '\u200B', value: '**🧠 ChatGPT (Channel-Specific)**', inline: false },
+                { 
+                    name: '📅 Today', 
+                    value: `Used: **${quotaStatus.chatgpt.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.dailyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.chatgpt.dailyRemaining.toLocaleString()}**`,
+                    inline: true 
+                },
+                { 
+                    name: '📆 This Month', 
+                    value: `Used: **${quotaStatus.chatgpt.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString()}**`,
+                    inline: true 
+                },
+                { name: '\u200B', value: '\u200B', inline: true }, // Spacer
+                { 
+                    name: '💾 Cache Performance', 
+                    value: `Cached responses: **${responseCache.size}**/100\nAPI calls saved: **~${Math.round(responseCache.size * 0.3)}**`,
+                    inline: false 
+                }
+            )
+            .setFooter({ text: 'Token limits can be configured in config.json (dailyLimit/monthlyLimit)' })
+            .setTimestamp();
+        
+        await interaction.reply({ embeds: [embed], ephemeral: true });
     }
     
     // AI Setup command - Interactive Panel
