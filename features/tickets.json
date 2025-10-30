@@ -3,10 +3,6 @@
         {
             "name": "ticket",
             "description": "Open a support ticket"
-        },
-        {
-            "name": "transcript",
-            "description": "View the transcript of the current ticket (Staff only)"
         }
     ]
 }

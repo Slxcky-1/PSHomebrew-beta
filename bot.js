@@ -5267,75 +5267,6 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.reply({ embeds: [embed], ephemeral: true });
     }
     
-    // Ticket Transcript command - View ticket transcript (Staff only)
-    if (interaction.commandName === 'transcript') {
-        const guildId = interaction.guild.id;
-        initializeTicketSystem(guildId);
-        
-        const ticketInfo = ticketData[guildId].tickets[interaction.channel.id];
-        
-        if (!ticketInfo) {
-            return interaction.reply({ 
-                content: '❌ This is not a ticket channel!', 
-                ephemeral: true 
-            });
-        }
-        
-        // Check permissions (Staff only)
-        const hasStaffRole = ticketData[guildId].settings.staffRoleId && 
-            interaction.member.roles.cache.has(ticketData[guildId].settings.staffRoleId);
-        
-        if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator) && 
-            !interaction.member.permissions.has(PermissionFlagsBits.ManageChannels) &&
-            !hasStaffRole) {
-            return interaction.reply({ 
-                content: '❌ You need to be a staff member, administrator, or have Manage Channels permission to view transcript!', 
-                ephemeral: true 
-            });
-        }
-        
-        await interaction.deferReply({ ephemeral: true });
-        
-        try {
-            const transcript = await generateTranscript(interaction.channel);
-            
-            if (transcript) {
-                const transcriptBuffer = Buffer.from(transcript, 'utf-8');
-                const creator = await client.users.fetch(ticketInfo.creator);
-                
-                const logsEmbed = new EmbedBuilder()
-                    .setTitle(`📋 Ticket #${ticketInfo.number} Transcript`)
-                    .setDescription(
-                        `**� Creator:** ${creator.tag}\n` +
-                        `**📅 Created:** <t:${Math.floor(ticketInfo.createdAt / 1000)}:F>\n` +
-                        `**📝 Reason:** ${ticketInfo.reason}\n` +
-                        `**🔔 Status:** ${ticketInfo.status === 'open' ? '🟢 Open' : '🔴 Closed'}\n` +
-                        `**✋ Claimed:** ${ticketInfo.claimed ? `Yes, by <@${ticketInfo.claimedBy}>` : 'No'}\n\n` +
-                        `Transcript file attached below.`
-                    )
-                    .setColor(0x3498DB)
-                    .setTimestamp();
-                
-                await interaction.editReply({
-                    embeds: [logsEmbed],
-                    files: [{
-                        attachment: transcriptBuffer,
-                        name: `ticket-${ticketInfo.number}-transcript.txt`
-                    }]
-                });
-            } else {
-                await interaction.editReply({ 
-                    content: '❌ Failed to generate transcript.' 
-                });
-            }
-        } catch (error) {
-            console.error('Error generating transcript:', error);
-            await interaction.editReply({ 
-                content: '❌ An error occurred while generating the transcript.' 
-            });
-        }
-    }
-    
     // Ticket command - Interactive ticket creation panel
     if (interaction.commandName === 'ticket') {
         const guildId = interaction.guild.id;
@@ -8299,6 +8230,70 @@ client.on('interactionCreate', async (interaction) => {
         await interaction.reply({ embeds: [claimEmbed] });
     }
     
+    // Transcript ticket button (Staff only)
+    if (interaction.customId.startsWith('transcript_ticket_')) {
+        const channelId = interaction.customId.replace('transcript_ticket_', '');
+        const ticketInfo = ticketData[guildId].tickets[channelId];
+        
+        if (!ticketInfo) {
+            return interaction.reply({ content: '❌ Ticket not found!', ephemeral: true });
+        }
+        
+        // Check permissions (Staff only)
+        const hasStaffRole = ticketData[guildId].settings.staffRoleId && 
+            interaction.member.roles.cache.has(ticketData[guildId].settings.staffRoleId);
+        
+        if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator) && 
+            !interaction.member.permissions.has(PermissionFlagsBits.ManageChannels) &&
+            !hasStaffRole) {
+            return interaction.reply({ 
+                content: '❌ You need to be a staff member, administrator, or have Manage Channels permission to view transcript!', 
+                ephemeral: true 
+            });
+        }
+        
+        await interaction.deferReply({ ephemeral: true });
+        
+        try {
+            const transcript = await generateTranscript(interaction.channel);
+            
+            if (transcript) {
+                const transcriptBuffer = Buffer.from(transcript, 'utf-8');
+                const creator = await client.users.fetch(ticketInfo.creator);
+                
+                const logsEmbed = new EmbedBuilder()
+                    .setTitle(`📋 Ticket #${ticketInfo.number} Transcript`)
+                    .setDescription(
+                        `**👤 Creator:** ${creator.tag}\n` +
+                        `**📅 Created:** <t:${Math.floor(ticketInfo.createdAt / 1000)}:F>\n` +
+                        `**📝 Reason:** ${ticketInfo.reason}\n` +
+                        `**🔔 Status:** ${ticketInfo.status === 'open' ? '🟢 Open' : '🔴 Closed'}\n` +
+                        `**✋ Claimed:** ${ticketInfo.claimed ? `Yes, by <@${ticketInfo.claimedBy}>` : 'No'}\n\n` +
+                        `Transcript file attached below.`
+                    )
+                    .setColor(0x3498DB)
+                    .setTimestamp();
+                
+                await interaction.editReply({
+                    embeds: [logsEmbed],
+                    files: [{
+                        attachment: transcriptBuffer,
+                        name: `ticket-${ticketInfo.number}-transcript.txt`
+                    }]
+                });
+            } else {
+                await interaction.editReply({ 
+                    content: '❌ Failed to generate transcript.' 
+                });
+            }
+        } catch (error) {
+            console.error('Error generating transcript:', error);
+            await interaction.editReply({ 
+                content: '❌ An error occurred while generating the transcript.' 
+            });
+        }
+    }
+    
     // Close ticket button - shows confirmation
     if (interaction.customId.startsWith('close_ticket_')) {
         const channelId = interaction.customId.replace('close_ticket_', '');
@@ -8630,6 +8625,11 @@ client.on('interactionCreate', async (interaction) => {
                         .setLabel('Claim Ticket')
                         .setStyle(ButtonStyle.Primary)
                         .setEmoji('✋'),
+                    new ButtonBuilder()
+                        .setCustomId(`transcript_ticket_${ticketChannel.id}`)
+                        .setLabel('View Transcript')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setEmoji('📋'),
                     new ButtonBuilder()
                         .setCustomId(`close_ticket_${ticketChannel.id}`)
                         .setLabel('Close Ticket')
