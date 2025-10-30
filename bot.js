@@ -3307,61 +3307,6 @@ client.on('interactionCreate', async (interaction) => {
         await interaction.reply({ content: `✅ Max level set to **${level}**!`, ephemeral: true });
     }
     
-    // Set Level Role command
-    if (interaction.commandName === 'setlevelrole') {
-        if (!requireAdmin(interaction)) return;
-        
-        const level = interaction.options.getInteger('level');
-        const role = interaction.options.getRole('role');
-        
-        const settings = getGuildSettings(interaction.guild.id);
-        
-        if (!settings.leveling.levelRoles) {
-            settings.leveling.levelRoles = {};
-        }
-        
-        settings.leveling.levelRoles[level] = role.id;
-        saveSettings();
-        
-        await interaction.reply({ content: `✅ Level **${level}** now grants the role ${role}!`, ephemeral: true });
-    }
-    
-    // Remove Level Role command
-    if (interaction.commandName === 'removelevelrole') {
-        if (!requireAdmin(interaction)) return;
-        
-        const level = interaction.options.getInteger('level');
-        
-        const settings = getGuildSettings(interaction.guild.id);
-        
-        if (!settings.leveling.levelRoles || !settings.leveling.levelRoles[level]) {
-            return interaction.reply({ content: `❌ No role is set for level **${level}**!`, ephemeral: true });
-        }
-        
-        delete settings.leveling.levelRoles[level];
-        saveSettings();
-        
-        await interaction.reply({ content: `✅ Removed role for level **${level}**!`, ephemeral: true });
-    }
-    
-    // Set Level Up Channel command
-    if (interaction.commandName === 'setlevelupchannel') {
-        if (!requireAdmin(interaction)) return;
-        
-        const channel = interaction.options.getString('channel');
-        const settings = getGuildSettings(interaction.guild.id);
-        
-        if (channel) {
-            settings.leveling.levelUpChannel = channel;
-            saveSettings();
-            await interaction.reply({ content: `✅ Level up messages will now be sent to **#${channel}**!`, ephemeral: true });
-        } else {
-            settings.leveling.levelUpChannel = null;
-            saveSettings();
-            await interaction.reply({ content: `✅ Level up messages will now appear in the **current channel** where users chat!`, ephemeral: true });
-        }
-    }
-    
     // Set Welcome Channel command
 
     
