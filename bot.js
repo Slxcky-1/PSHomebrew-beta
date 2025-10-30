@@ -2327,7 +2327,7 @@ client.on('messageCreate', async (message) => {
                 // Send response with OUTPUT token usage only (not total tokens)
                 const tokenFooter = aiProvider === '🧠 ChatGPT' 
                     ? `\n\n*🧠 ChatGPT: ${outputTokens} tokens*`
-                    : `\n\n*🤖 ChatGPT: ${outputTokens} tokens*`;
+                    : `\n\n*🤖 DeepSeek: ${outputTokens} tokens*`;
                 if (safeText.length > 1900) {
                     const chunks = safeText.match(/[\s\S]{1,1900}/g) || [];
                     await message.reply(chunks[0]);
