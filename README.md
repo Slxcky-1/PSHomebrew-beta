@@ -8,12 +8,15 @@
 
 **This repository is publicly visible for transparency and portfolio purposes ONLY.**
 
+**⚠️ NOTE:** All source code in this repository is **heavily obfuscated**. The code is intentionally scrambled and unreadable to prevent unauthorized use.
+
 ❌ **You are NOT permitted to:**
 - Download and use this bot
 - Copy or modify this code  
 - Run this bot on any server
 - Create derivative works
 - Redistribute in any form
+- Attempt to deobfuscate or reverse engineer
 
 ✅ **Authorized use only** - This bot is exclusively for the PSHomebrew Discord community.
 
@@ -43,6 +46,7 @@ A fully customizable Discord bot for the PSHomebrew community featuring:
 
 - **AES-256-GCM Encryption** for sensitive data
 - **Password-protected** configuration
+- **Code Obfuscation** - Source code is obfuscated and unreadable
 - **Environment-specific** deployment
 - **Automatic backup** on updates
 - **GDPR compliant** data handling
