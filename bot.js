@@ -3168,7 +3168,7 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '🤖 AI Chat',
-                    value: `🧠 **Powered by DeepSeek AI**\n\nPS homebrew expert assistance\nSmart contextual responses`,
+                    value: `🧠 **Powered by DeepSeek AI + ChatGPT**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily`,
                     inline: true
                 },
                 {
