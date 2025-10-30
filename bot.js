@@ -1616,8 +1616,11 @@ client.once('clientReady', async () => {
     console.log(`      Monthly: ${quotaStatus.chatgpt.monthlyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString() + ' remaining'}`);
     console.log('='.repeat(60));
     
-    // Set bot activity immediately
-    client.user.setActivity('PSHomebrew Community', { type: ActivityType.Watching });
+    // Set bot status to DND and activity
+    client.user.setPresence({
+        status: 'dnd',
+        activities: [{ name: 'PSHomebrew Community', type: ActivityType.Watching }]
+    });
     
     // Load critical data immediately
     loadUserData();
