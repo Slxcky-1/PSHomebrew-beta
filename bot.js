@@ -16,6 +16,8 @@ const { Snake, TicTacToe, Connect4, Wordle, Minesweeper, TwoZeroFourEight, Match
 const { search } = require('duck-duck-scrape');
 const Parser = require('rss-parser');
 const rssParser = new Parser();
+const express = require('express');
+const sellixApp = express();
 
 // --- Language System ---
 const languages = {};
@@ -11283,6 +11285,141 @@ function startAutomatedMessages() {
     scheduleDailyReminder();
     console.log('✅ Daily 7 PM reminder started for channel ' + CHANNEL_ID);
 }
+
+// ===== SELLIX WEBHOOK SYSTEM =====
+sellixApp.use(express.json());
+
+sellixApp.post('/sellix-webhook', async (req, res) => {
+    try {
+        const event = req.body;
+        
+        console.log('📦 Sellix webhook received:', event.event);
+        
+        // Verify webhook secret if configured
+        if (config.sellixWebhookSecret && config.sellixWebhookSecret !== 'YOUR_WEBHOOK_SECRET') {
+            const receivedSecret = req.headers['x-sellix-signature'];
+            if (receivedSecret !== config.sellixWebhookSecret) {
+                console.log('❌ Invalid Sellix webhook signature');
+                return res.status(401).send('Unauthorized');
+            }
+        }
+        
+        // Handle order:paid event (successful purchase)
+        if (event.event === 'order:paid') {
+            const orderData = event.data;
+            const customFields = orderData.custom_fields || {};
+            
+            // Extract Discord ID from custom fields
+            let discordId = null;
+            if (customFields.discord_id) {
+                discordId = customFields.discord_id;
+            } else if (customFields['Discord ID']) {
+                discordId = customFields['Discord ID'];
+            } else if (orderData.customer_email) {
+                // Try to extract from email if it contains Discord ID
+                const emailMatch = orderData.customer_email.match(/(\d{17,19})/);
+                if (emailMatch) discordId = emailMatch[1];
+            }
+            
+            if (!discordId) {
+                console.log('⚠️ No Discord ID found in order:', orderData.uniqid);
+                return res.status(200).send('No Discord ID provided');
+            }
+            
+            // Get guild and member
+            const guild = client.guilds.cache.get(config.sellixGuildId);
+            if (!guild) {
+                console.log('❌ Guild not found:', config.sellixGuildId);
+                return res.status(200).send('Guild not found');
+            }
+            
+            const member = await guild.members.fetch(discordId).catch(() => null);
+            if (!member) {
+                console.log('❌ Member not found:', discordId);
+                
+                // Log failed purchase
+                const logChannel = guild.channels.cache.get(config.sellixLogChannelId);
+                if (logChannel) {
+                    const failEmbed = new EmbedBuilder()
+                        .setTitle('❌ Purchase Failed - User Not Found')
+                        .setColor(0xFF0000)
+                        .addFields(
+                            { name: '🆔 Order ID', value: orderData.uniqid, inline: true },
+                            { name: '💰 Amount', value: `$${orderData.total}`, inline: true },
+                            { name: '📧 Email', value: orderData.customer_email || 'N/A', inline: false },
+                            { name: '🎮 Discord ID', value: discordId, inline: false },
+                            { name: '❌ Error', value: 'User not in server', inline: false }
+                        )
+                        .setTimestamp();
+                    await logChannel.send({ embeds: [failEmbed] });
+                }
+                
+                return res.status(200).send('Member not in server');
+            }
+            
+            // Assign role
+            const role = guild.roles.cache.get(config.sellixRoleId);
+            if (!role) {
+                console.log('❌ Role not found:', config.sellixRoleId);
+                return res.status(200).send('Role not found');
+            }
+            
+            await member.roles.add(role);
+            console.log(`✅ Assigned role to ${member.user.tag}`);
+            
+            // Send DM to user
+            try {
+                const dmEmbed = new EmbedBuilder()
+                    .setTitle('✅ Purchase Successful!')
+                    .setDescription(`Thank you for your purchase! You have been given access to **${role.name}**.`)
+                    .setColor(0x00FF00)
+                    .addFields(
+                        { name: '🆔 Order ID', value: orderData.uniqid, inline: true },
+                        { name: '💰 Amount Paid', value: `$${orderData.total}`, inline: true }
+                    )
+                    .setFooter({ text: guild.name })
+                    .setTimestamp();
+                
+                await member.send({ embeds: [dmEmbed] });
+            } catch (error) {
+                console.log('Could not DM user:', error.message);
+            }
+            
+            // Log purchase in channel
+            const logChannel = guild.channels.cache.get(config.sellixLogChannelId);
+            if (logChannel) {
+                const logEmbed = new EmbedBuilder()
+                    .setTitle('✅ New Purchase')
+                    .setColor(0x00FF00)
+                    .addFields(
+                        { name: '👤 Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
+                        { name: '🆔 Order ID', value: orderData.uniqid, inline: true },
+                        { name: '💰 Amount', value: `$${orderData.total}`, inline: true },
+                        { name: '📧 Email', value: orderData.customer_email || 'N/A', inline: false },
+                        { name: '🎁 Role Given', value: role.name, inline: false },
+                        { name: '📦 Product', value: orderData.product_title || 'Unknown', inline: false }
+                    )
+                    .setThumbnail(member.user.displayAvatarURL())
+                    .setTimestamp();
+                
+                await logChannel.send({ embeds: [logEmbed] });
+            }
+        }
+        
+        res.status(200).send('OK');
+    } catch (error) {
+        console.error('❌ Sellix webhook error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Start Sellix webhook server on port 3000
+const SELLIX_PORT = process.env.SELLIX_PORT || 3000;
+sellixApp.listen(SELLIX_PORT, () => {
+    console.log(`🔗 Sellix webhook server running on port ${SELLIX_PORT}`);
+    console.log(`📍 Webhook URL: http://YOUR_SERVER_IP:${SELLIX_PORT}/sellix-webhook`);
+});
+// ===== END SELLIX WEBHOOK SYSTEM =====
 
 // Login to Discord with error handling
 client.login(config.token).catch(error => {
