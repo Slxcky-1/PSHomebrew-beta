@@ -1662,6 +1662,7 @@ client.once('clientReady', async () => {
                     const features = [];
                     features.push(`✅ Config: Loaded`);
                     features.push(`✅ DeepSeek API: ${config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
+                    features.push(`✅ ChatGPT API: ${config.openaiApiKey && config.openaiApiKey !== 'YOUR_OPENAI_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
                     features.push(`✅ User Data: ${fsSync.existsSync('./userData.json') ? 'Loaded' : 'Missing'}`);
                     features.push(`✅ PS3 Error Codes: ${Object.keys(ps3ErrorCodes).length} loaded`);
                     features.push(`✅ PS4 Error Codes: ${Object.keys(ps4ErrorCodes).filter(k => !k.startsWith('_')).length} loaded`);
@@ -1673,19 +1674,26 @@ client.once('clientReady', async () => {
                     features.push(`${fsSync.existsSync('./analyticsData.json') ? '✅' : '❌'} Analytics Data: ${fsSync.existsSync('./analyticsData.json') ? 'Loaded' : 'Missing'}`);
                     features.push(`${fsSync.existsSync('./cfwKnowledge.json') ? '✅' : '❌'} CFW Knowledge: ${fsSync.existsSync('./cfwKnowledge.json') ? 'Loaded' : 'Missing'}`);
                     
-                    // Count registered commands from feature files
+                    // Count registered commands from feature files and list them
                     let totalCommands = 0;
+                    let commandsList = [];
                     try {
                         const featuresDir = path.join(__dirname, 'features');
                         const featureFiles = fsSync.readdirSync(featuresDir).filter(f => f.endsWith('.json'));
                         for (const file of featureFiles) {
                             const feature = JSON.parse(fsSync.readFileSync(path.join(featuresDir, file), 'utf8'));
-                            if (feature.commands) totalCommands += feature.commands.length;
+                            if (feature.commands) {
+                                totalCommands += feature.commands.length;
+                                commandsList.push(...feature.commands.map(cmd => `/${cmd.name}`));
+                            }
                         }
                     } catch (e) {
                         totalCommands = 'Unknown';
                     }
                     features.push(`✅ Commands: ${totalCommands} registered`);
+                    if (commandsList.length > 0) {
+                        features.push(`   ${commandsList.join(', ')}`);
+                    }
                     
                     const onlineEmbed = new EmbedBuilder()
                         .setTitle('🟢 Bot Online - Update Complete')
