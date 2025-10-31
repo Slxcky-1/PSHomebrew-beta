@@ -3373,54 +3373,6 @@ client.on('interactionCreate', async (interaction) => {
         }
     }
     
-    // Set XP command
-    if (interaction.commandName === 'setxp') {
-        if (!requireAdmin(interaction)) return;
-        
-        const min = interaction.options.getInteger('min');
-        const max = interaction.options.getInteger('max');
-        
-        if (min > max) {
-            return interaction.reply({ content: 'âŒ Min XP cannot be greater than Max XP!', ephemeral: true });
-        }
-        
-        const settings = getGuildSettings(interaction.guild.id);
-        settings.leveling.minXP = min;
-        settings.leveling.maxXP = max;
-        saveSettings();
-        
-        await interaction.reply({ content: `✅ XP range set to **${min}-${max}** per message!`, ephemeral: true });
-    }
-    
-    // Set Cooldown command
-    if (interaction.commandName === 'setcooldown') {
-        if (!requireAdmin(interaction)) return;
-        
-        const seconds = interaction.options.getInteger('seconds');
-        const settings = getGuildSettings(interaction.guild.id);
-        settings.leveling.cooldown = seconds * 1000;
-        saveSettings();
-        
-        await interaction.reply({ content: `✅ XP cooldown set to **${seconds} seconds**!`, ephemeral: true });
-    }
-    
-    // Set Max Level command
-    if (interaction.commandName === 'setmaxlevel') {
-        if (!requireAdmin(interaction)) return;
-        
-        const level = interaction.options.getInteger('level');
-        
-        if (level < 1 || level > 1000) {
-            return interaction.reply({ content: 'âŒ Max level must be between 1 and 1000!', ephemeral: true });
-        }
-        
-        const settings = getGuildSettings(interaction.guild.id);
-        settings.leveling.maxLevel = level;
-        saveSettings();
-        
-        await interaction.reply({ content: `✅ Max level set to **${level}**!`, ephemeral: true });
-    }
-    
     // Set Welcome Channel command
 
     
@@ -3609,58 +3561,6 @@ client.on('interactionCreate', async (interaction) => {
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
-    }
-    
-    // Level command
-    if (interaction.commandName === 'level') {
-        const targetUser = interaction.options.getUser('user') || interaction.user;
-        const userId = targetUser.id;
-        
-        initializeUser(userId);
-        const progress = getXPProgress(userData[userId].xp);
-        
-        const levelEmbed = new EmbedBuilder()
-            .setTitle(`📊 Level Stats for ${targetUser.tag}`)
-            .setDescription(`**Level ${progress.level}** • ${progress.totalXP.toLocaleString()} Total XP`)
-            .setColor(0x0099FF)
-            .setThumbnail(targetUser.displayAvatarURL())
-            .addFields(
-                { name: '🎯 Current Level', value: progress.level.toString(), inline: true },
-                { name: '⭐ Total XP', value: progress.totalXP.toLocaleString(), inline: true },
-                { name: '📈 Progress', value: `${progress.currentLevelXP}/${progress.xpRequiredForCurrentLevel} XP`, inline: true }
-            )
-            .setFooter({ text: 'PSHomebrew Leveling System • Use /help for more info' })
-            .setTimestamp();
-        
-        await interaction.reply({ embeds: [levelEmbed] });
-    }
-    
-    // Rank command
-    if (interaction.commandName === 'rank') {
-        const userId = interaction.user.id;
-        initializeUser(userId);
-        
-        const sortedUsers = Object.entries(userData)
-            .sort(([,a], [,b]) => b.xp - a.xp);
-        
-        const userRank = sortedUsers.findIndex(([id]) => id === userId) + 1;
-        const progress = getXPProgress(userData[userId].xp);
-        
-        const rankEmbed = new EmbedBuilder()
-            .setTitle(`🏅 Rank Information for ${interaction.user.tag}`)
-            .setDescription(`You are ranked **#${userRank}** out of **${sortedUsers.length}** members!`)
-            .setColor(0xFF6B00)
-            .setThumbnail(interaction.user.displayAvatarURL())
-            .addFields(
-                { name: '🏆 Your Rank', value: `#${userRank}`, inline: true },
-                { name: '🎯 Your Level', value: progress.level.toString(), inline: true },
-                { name: '⭐ Total XP', value: progress.totalXP.toLocaleString(), inline: true },
-                { name: '📊 Progress to Next Level', value: `${progress.currentLevelXP}/${progress.xpRequiredForCurrentLevel} XP`, inline: false }
-            )
-            .setFooter({ text: 'PSHomebrew Leveling System • Keep chatting to rank up!' })
-            .setTimestamp();
-        
-        await interaction.reply({ embeds: [rankEmbed] });
     }
     
     // AI Chat command
@@ -4116,36 +4016,6 @@ client.on('interactionCreate', async (interaction) => {
     }
     
     // Leaderboard command (optimized to reduce API calls)
-    if (interaction.commandName === 'leaderboard') {
-        const sortedUsers = Object.entries(userData)
-            .sort(([,a], [,b]) => b.xp - a.xp)
-            .slice(0, 10);
-        
-        // Batch fetch users to reduce API calls
-        const userPromises = sortedUsers.map(([userId]) => 
-            client.users.fetch(userId).catch(() => null)
-        );
-        const users = await Promise.all(userPromises);
-        
-        let leaderboardText = '';
-        for (let i = 0; i < sortedUsers.length; i++) {
-            const [userId, data] = sortedUsers[i];
-            const user = users[i];
-            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
-            const username = user ? user.tag : 'Unknown User';
-            leaderboardText += `${medal} **${username}** - Level ${data.level} (${data.xp.toLocaleString()} XP)\n`;
-        }
-        
-        const leaderboardEmbed = new EmbedBuilder()
-            .setTitle('🏆 XP Leaderboard - Top 10')
-            .setDescription(leaderboardText || 'No users found')
-            .setColor(0xFFD700)
-            .setFooter({ text: 'PSHomebrew Leveling System • Use /rank to see your position' })
-            .setTimestamp();
-        
-        await interaction.reply({ embeds: [leaderboardEmbed] });
-    }
-    
     // Analytics command
     if (interaction.commandName === 'analytics') {
         if (!requireAdmin(interaction)) return;
