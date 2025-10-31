@@ -2368,6 +2368,12 @@ async function checkKeywords(message, settings) {
     try {
         const messageContent = message.content.toUpperCase();
         
+        // Only trigger on questions or help requests, not casual mentions
+        const isQuestion = messageContent.includes('?') || 
+                          messageContent.match(/\b(what|why|how|help|fix|error|issue|problem|getting)\b/i);
+        
+        if (!isQuestion) return; // Don't trigger on casual error code mentions
+        
         // Search PS3 error codes first
         let foundErrorCode = null;
         let errorDatabase = null;
