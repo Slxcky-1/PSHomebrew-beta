@@ -1,7 +1,7 @@
 {
     "commands": [
         {
-            "name": "keywordsetup",
+            "name": "keyword",
             "description": "Setup keyword/error code detection with interactive controls (Admin only)",
             "options": []
         },

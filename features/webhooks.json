@@ -2,7 +2,7 @@
   "enabled": true,
   "commands": [
     {
-      "name": "webhooksetup",
+      "name": "webhook",
       "description": "Create and manage webhooks with custom embeds (Admin only)",
       "options": []
     }

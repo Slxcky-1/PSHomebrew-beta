@@ -7,7 +7,7 @@
   "temperature": 0.5,
   "commands": [
     {
-      "name": "aisetup",
+      "name": "ai",
       "description": "Configure AI chat settings with interactive panel (Admin only)",
       "options": []
     },

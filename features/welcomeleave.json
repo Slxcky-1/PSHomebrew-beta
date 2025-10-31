@@ -1,12 +1,12 @@
 {
     "commands": [
         {
-            "name": "welcomesetup",
+            "name": "welcome",
             "description": "Setup welcome messages with interactive controls (Admin only)",
             "options": []
         },
         {
-            "name": "leavesetup",
+            "name": "leave",
             "description": "Setup leave messages with interactive controls (Admin only)",
             "options": []
         }

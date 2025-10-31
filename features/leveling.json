@@ -105,7 +105,7 @@
             ]
         },
         {
-            "name": "levelingsetup",
+            "name": "leveling",
             "description": "Interactive leveling system setup panel (Admin only)"
         }
     ]

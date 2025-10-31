@@ -4044,7 +4044,7 @@ client.on('interactionCreate', async (interaction) => {
     }
     
     // AI Setup command - Interactive Panel
-    if (interaction.commandName === 'aisetup') {
+    if (interaction.commandName === 'ai') {
         if (!requireAdmin(interaction)) return;
         
         const settings = getGuildSettings(interaction.guild.id);
@@ -4261,7 +4261,7 @@ client.on('interactionCreate', async (interaction) => {
     
     // Welcome command - Interactive Panel
     // Welcome Setup command - Interactive Panel
-    if (interaction.commandName === 'welcomesetup') {
+    if (interaction.commandName === 'welcome') {
         if (!requireAdmin(interaction)) return;
         
         const settings = getGuildSettings(interaction.guild.id);
@@ -5464,22 +5464,22 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     // Leveling Setup command - Interactive panel
-    if (interaction.commandName === 'levelingsetup') {
-        const lvlCommand = require('./commands/levelingsetup.js');
+    if (interaction.commandName === 'leveling') {
+        const lvlCommand = require('./commands/leveling.js');
         await lvlCommand.execute(interaction);
         return;
     }
 
     // Leave Setup command - Interactive panel
-    if (interaction.commandName === 'leavesetup') {
-        const leaveCommand = require('./commands/leavesetup.js');
+    if (interaction.commandName === 'leave') {
+        const leaveCommand = require('./commands/leave.js');
         await leaveCommand.execute(interaction);
         return;
     }
 
     // Keyword Setup command - Interactive panel
-    if (interaction.commandName === 'keywordsetup') {
-        const keywordCommand = require('./commands/keywordsetup.js');
+    if (interaction.commandName === 'keyword') {
+        const keywordCommand = require('./commands/keyword.js');
         await keywordCommand.execute(interaction);
         return;
     }
@@ -5492,14 +5492,14 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     // AI Setup command - Interactive panel
-    if (interaction.commandName === 'aisetup') {
-        const aisetupCommand = require('./commands/aisetup.js');
-        await aisetupCommand.execute(interaction);
+    if (interaction.commandName === 'ai') {
+        const aiCommand = require('./commands/ai.js');
+        await aiCommand.execute(interaction);
         return;
     }
 
     // Ticket Setup command - Interactive panel
-    if (interaction.commandName === 'ticketsetup') {
+    if (interaction.commandName === 'ticket') {
         if (!requireAdmin(interaction)) return;
         
         const guildId = interaction.guild.id;
@@ -5575,7 +5575,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     // Webhook Setup command - Interactive panel
-    if (interaction.commandName === 'webhooksetup') {
+    if (interaction.commandName === 'webhook') {
         if (!requireAdmin(interaction)) return;
         
         const embed = new EmbedBuilder()

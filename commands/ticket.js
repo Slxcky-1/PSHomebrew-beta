@@ -2,7 +2,7 @@ const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('ticketsetup')
+        .setName('ticket')
         .setDescription('Configure the ticket system (Admin only)')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     
