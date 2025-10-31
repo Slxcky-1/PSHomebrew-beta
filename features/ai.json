@@ -10,6 +10,11 @@
       "name": "aisetup",
       "description": "Configure AI chat settings with interactive panel (Admin only)",
       "options": []
+    },
+    {
+      "name": "aistats",
+      "description": "View AI usage statistics and token consumption",
+      "options": []
     }
   ]
 }
