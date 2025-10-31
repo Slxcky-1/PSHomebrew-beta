@@ -169,18 +169,6 @@
                     "required": true
                 }
             ]
-        },
-        {
-            "name": "infractions",
-            "description": "View all infractions for a user",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "User to check infractions for",
-                    "type": 6,
-                    "required": true
-                }
-            ]
         }
     ]
 }

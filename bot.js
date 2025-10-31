@@ -5337,47 +5337,6 @@ client.on('interactionCreate', async (interaction) => {
         }
     }
     
-    // Infractions command
-    if (interaction.commandName === 'infractions') {
-        const user = interaction.options.getUser('user');
-        initializeModerationData(interaction.guild.id);
-        
-        const infractions = moderationData[interaction.guild.id].infractions[user.id] || [];
-        
-        if (infractions.length === 0) {
-            return interaction.reply({ content: `${user} has no infractions.`, ephemeral: true });
-        }
-        
-        const embed = new EmbedBuilder()
-            .setTitle(`📋 Infractions for ${user.tag}`)
-            .setColor(0xFF0000)
-            .setThumbnail(user.displayAvatarURL())
-            .setDescription(`Total infractions: **${infractions.length}**`);
-        
-        infractions.slice(-10).reverse().forEach((infraction, index) => {
-            const date = new Date(infraction.timestamp);
-            const typeEmoji = {
-                warn: '⚠️',
-                timeout: '🔇',
-                kick: '👢',
-                ban: '🔨',
-                mute: '🔇'
-            }[infraction.type] || '📝';
-            
-            embed.addFields({
-                name: `${typeEmoji} ${infraction.type.charAt(0).toUpperCase() + infraction.type.slice(1)} #${infractions.length - index}`,
-                value: `**Reason:** ${infraction.reason}\n**Moderator:** <@${infraction.moderatorId}>\n**Date:** <t:${Math.floor(date.getTime() / 1000)}:F>`,
-                inline: false
-            });
-        });
-        
-        if (infractions.length > 10) {
-            embed.setFooter({ text: `Showing 10 most recent infractions out of ${infractions.length} total` });
-        }
-        
-        return interaction.reply({ embeds: [embed], ephemeral: true });
-    }
-    
     // Ticket command - Interactive ticket creation panel
     if (interaction.commandName === 'ticket') {
         const guildId = interaction.guild.id;
