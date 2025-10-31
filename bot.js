@@ -1674,9 +1674,8 @@ client.once('clientReady', async () => {
                     features.push(`${fsSync.existsSync('./analyticsData.json') ? '✅' : '❌'} Analytics Data: ${fsSync.existsSync('./analyticsData.json') ? 'Loaded' : 'Missing'}`);
                     features.push(`${fsSync.existsSync('./cfwKnowledge.json') ? '✅' : '❌'} CFW Knowledge: ${fsSync.existsSync('./cfwKnowledge.json') ? 'Loaded' : 'Missing'}`);
                     
-                    // Count registered commands from feature files and list them
+                    // Count registered commands from feature files
                     let totalCommands = 0;
-                    let commandsList = [];
                     try {
                         const featuresDir = path.join(__dirname, 'features');
                         const featureFiles = fsSync.readdirSync(featuresDir).filter(f => f.endsWith('.json'));
@@ -1684,16 +1683,12 @@ client.once('clientReady', async () => {
                             const feature = JSON.parse(fsSync.readFileSync(path.join(featuresDir, file), 'utf8'));
                             if (feature.commands) {
                                 totalCommands += feature.commands.length;
-                                commandsList.push(...feature.commands.map(cmd => `/${cmd.name}`));
                             }
                         }
                     } catch (e) {
                         totalCommands = 'Unknown';
                     }
-                    features.push(`✅ Commands: ${totalCommands} registered`);
-                    if (commandsList.length > 0) {
-                        features.push(`   ${commandsList.join(', ')}`);
-                    }
+                    features.push(`✅ Commands: ${totalCommands} loaded`);
                     
                     const onlineEmbed = new EmbedBuilder()
                         .setTitle('🟢 Bot Online - Update Complete')
