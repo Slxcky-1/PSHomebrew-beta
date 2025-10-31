@@ -2550,11 +2550,24 @@ client.on('guildMemberRemove', (member) => {
         roles: roles
     });
     
-    if (!settings.leave.enabled) return;
+    if (!settings.leave.enabled) {
+        console.log(`[Leave] Leave messages disabled for ${member.guild.name}`);
+        return;
+    }
+    
+    console.log(`[Leave] Looking for channel: "${settings.leave.channelName}" in ${member.guild.name}`);
     
     const leaveChannel = findChannel(member.guild, settings.leave.channelName) 
         || findChannel(member.guild, 'general') 
         || findChannel(member.guild, 'goodbye');
+    
+    if (!leaveChannel) {
+        console.log(`[Leave] ❌ No leave channel found! Tried: "${settings.leave.channelName}", "general", "goodbye"`);
+        console.log(`[Leave] Available channels:`, member.guild.channels.cache.filter(ch => ch.type === 0).map(ch => ch.name).join(', '));
+        return;
+    }
+    
+    console.log(`[Leave] ✅ Found leave channel: ${leaveChannel.name}`);
     
     if (leaveChannel) {
         const description = settings.leave.customMessage
