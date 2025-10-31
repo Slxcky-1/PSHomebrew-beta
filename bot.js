@@ -1621,7 +1621,7 @@ client.once('clientReady', async () => {
     // Set bot status to DND and activity
     client.user.setPresence({
         status: 'dnd',
-        activities: [{ name: 'PSHomebrew Community', type: ActivityType.Watching }]
+        activities: [{ name: 'Multiple Servers', type: ActivityType.Watching }]
     });
     
     // Load critical data immediately
@@ -2523,7 +2523,7 @@ client.on('guildMemberAdd', async (member) => {
     if (welcomeChannel) {
         const description = settings.welcome.customMessage 
             ? settings.welcome.customMessage.replace('{user}', member.toString()).replace('{server}', member.guild.name).replace('{memberCount}', member.guild.memberCount.toString())
-            : `Welcome ${member}! We're glad to have you here in the PSHomebrew community!`;
+            : `Welcome ${member}! We're glad to have you here in ${member.guild.name}!`;
         
         const welcomeEmbed = new EmbedBuilder()
             .setTitle('👋 Welcome to the Server!')
@@ -2532,10 +2532,10 @@ client.on('guildMemberAdd', async (member) => {
             .setThumbnail(member.user.displayAvatarURL())
             .addFields(
                 { name: '📖 Getting Started', value: 'Check out our rules and guidelines', inline: false },
-                { name: '🎮 PSHomebrew', value: 'Feel free to ask questions about PlayStation homebrew development', inline: false },
+                { name: '💬 Chat', value: 'Feel free to chat and ask questions', inline: false },
                 { name: '👥 Community', value: `You are member #${member.guild.memberCount}`, inline: false }
             )
-            .setFooter({ text: 'PSHomebrew Community' })
+            .setFooter({ text: member.guild.name })
             .setTimestamp();
         
         welcomeChannel.send({ embeds: [welcomeEmbed] });
@@ -2601,7 +2601,7 @@ client.on('guildMemberRemove', (member) => {
                 { name: '📊 Member Count', value: member.guild.memberCount.toString(), inline: true },
                 { name: '⏰ Time in Server', value: member.joinedAt ? `Joined ${member.joinedAt.toDateString()}` : 'Unknown', inline: true }
             )
-            .setFooter({ text: 'PSHomebrew Community' })
+            .setFooter({ text: member.guild.name })
             .setTimestamp();
         
         leaveChannel.send({ embeds: [leaveEmbed] });
@@ -2787,7 +2787,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 }
             )
-            .setFooter({ text: 'PSHomebrew Community Bot • Use /features for more info' })
+            .setFooter({ text: 'Multi-Purpose Bot • Use /features for more info' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [helpEmbed] });

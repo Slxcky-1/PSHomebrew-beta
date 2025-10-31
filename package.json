@@ -1,7 +1,7 @@
 {
-  "name": "pshomebrew-discord-bot",
+  "name": "multipurpose-discord-bot",
   "version": "1.0.0",
-  "description": "A Discord bot with leveling system, welcome/leave messages, and PSHomebrew keyword functionality",
+  "description": "A multi-purpose Discord bot with AI chat, moderation, tickets, leveling, webhooks, Sellix integration, and more",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js",
@@ -11,8 +11,10 @@
   "keywords": [
     "discord",
     "bot",
-    "leveling",
-    "pshomebrew"
+    "multipurpose",
+    "moderation",
+    "ai",
+    "sellix"
   ],
   "author": "Slxcky-1",
   "license": "UNLICENSED",
