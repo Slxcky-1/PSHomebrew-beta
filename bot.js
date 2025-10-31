@@ -5335,8 +5335,80 @@ client.on('interactionCreate', async (interaction) => {
 
     // Leveling Setup command - Interactive panel
     if (interaction.commandName === 'leveling') {
-        const lvlCommand = require('./commands/leveling.js');
-        await lvlCommand.execute(interaction);
+        if (!requireAdmin(interaction)) return;
+        
+        const guildId = interaction.guild.id;
+        const settings = getGuildSettings(guildId);
+        
+        // Create interactive panel
+        const embed = new EmbedBuilder()
+            .setTitle('📊 Leveling System Control Panel')
+            .setColor(settings.leveling.enabled ? 0x00FF00 : 0xFF0000)
+            .setDescription(
+                `System is currently **${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                `Manage your server's leveling system.\n\n` +
+                `Click the buttons below to configure leveling settings.`
+            )
+            .addFields(
+                { name: '📡 Status', value: settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: '⚡ XP Range', value: `${settings.leveling.minXP}-${settings.leveling.maxXP}`, inline: true },
+                { name: '⏱️ Cooldown', value: `${settings.leveling.cooldown / 1000}s`, inline: true },
+                { name: '🔝 Max Level', value: settings.leveling.maxLevel.toString(), inline: true },
+                { name: '📢 Level Up Channel', value: settings.leveling.levelUpChannelId ? `<#${settings.leveling.levelUpChannelId}>` : 'Current Channel', inline: true },
+                { name: '🎭 Level Roles', value: Object.keys(settings.leveling.levelRoles).length > 0 ? `${Object.keys(settings.leveling.levelRoles).length} roles configured` : 'None', inline: true }
+            )
+            .setFooter({ text: 'Click buttons below to configure leveling system' })
+            .setTimestamp();
+        
+        const row1 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('leveling_toggle')
+                    .setLabel(settings.leveling.enabled ? 'Disable System' : 'Enable System')
+                    .setStyle(settings.leveling.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
+                    .setEmoji(settings.leveling.enabled ? '❌' : '✅'),
+                new ButtonBuilder()
+                    .setCustomId('leveling_xprange')
+                    .setLabel('Set XP Range')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('⚡'),
+                new ButtonBuilder()
+                    .setCustomId('leveling_cooldown')
+                    .setLabel('Set Cooldown')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('⏱️'),
+                new ButtonBuilder()
+                    .setCustomId('leveling_maxlevel')
+                    .setLabel('Set Max Level')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🔝')
+            );
+        
+        const row2 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('leveling_channel')
+                    .setLabel('Level Up Channel')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('📢'),
+                new ButtonBuilder()
+                    .setCustomId('leveling_addrole')
+                    .setLabel('Add Level Role')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji('➕'),
+                new ButtonBuilder()
+                    .setCustomId('leveling_removerole')
+                    .setLabel('Remove Level Role')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('➖'),
+                new ButtonBuilder()
+                    .setCustomId('leveling_viewroles')
+                    .setLabel('View Roles')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('📋')
+            );
+        
+        await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
         return;
     }
 
@@ -6447,6 +6519,162 @@ client.on('interactionCreate', async (interaction) => {
                 } catch (error) {
                     await interaction.editReply({ content: `❌ Error refreshing stats: ${error.message}` });
                 }
+            }
+        }
+        
+        // Leveling system button handlers
+        if (interaction.customId.startsWith('leveling_')) {
+            if (!requireAdmin(interaction)) return;
+            
+            const guildId = interaction.guild.id;
+            const settings = getGuildSettings(guildId);
+            
+            if (interaction.customId === 'leveling_toggle') {
+                settings.leveling.enabled = !settings.leveling.enabled;
+                saveSettings();
+                await interaction.reply({ 
+                    content: `✅ Leveling system ${settings.leveling.enabled ? 'enabled' : 'disabled'}!`, 
+                    ephemeral: true 
+                });
+            }
+            
+            else if (interaction.customId === 'leveling_xprange') {
+                const modal = new ModalBuilder()
+                    .setCustomId('leveling_xprange_modal')
+                    .setTitle('Set XP Range');
+                
+                const minInput = new TextInputBuilder()
+                    .setCustomId('min_xp')
+                    .setLabel('Minimum XP per message')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('e.g., 10')
+                    .setRequired(true);
+                
+                const maxInput = new TextInputBuilder()
+                    .setCustomId('max_xp')
+                    .setLabel('Maximum XP per message')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('e.g., 25')
+                    .setRequired(true);
+                
+                const row1 = new ActionRowBuilder().addComponents(minInput);
+                const row2 = new ActionRowBuilder().addComponents(maxInput);
+                
+                modal.addComponents(row1, row2);
+                await interaction.showModal(modal);
+            }
+            
+            else if (interaction.customId === 'leveling_cooldown') {
+                const modal = new ModalBuilder()
+                    .setCustomId('leveling_cooldown_modal')
+                    .setTitle('Set XP Cooldown');
+                
+                const cooldownInput = new TextInputBuilder()
+                    .setCustomId('cooldown_seconds')
+                    .setLabel('Cooldown in seconds')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('e.g., 60')
+                    .setRequired(true);
+                
+                const row = new ActionRowBuilder().addComponents(cooldownInput);
+                modal.addComponents(row);
+                await interaction.showModal(modal);
+            }
+            
+            else if (interaction.customId === 'leveling_maxlevel') {
+                const modal = new ModalBuilder()
+                    .setCustomId('leveling_maxlevel_modal')
+                    .setTitle('Set Maximum Level');
+                
+                const levelInput = new TextInputBuilder()
+                    .setCustomId('max_level')
+                    .setLabel('Maximum level (1-1000)')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('e.g., 100')
+                    .setRequired(true);
+                
+                const row = new ActionRowBuilder().addComponents(levelInput);
+                modal.addComponents(row);
+                await interaction.showModal(modal);
+            }
+            
+            else if (interaction.customId === 'leveling_channel') {
+                const modal = new ModalBuilder()
+                    .setCustomId('leveling_channel_modal')
+                    .setTitle('Set Level Up Channel');
+                
+                const channelInput = new TextInputBuilder()
+                    .setCustomId('channel_id')
+                    .setLabel('Channel ID or mention (blank for current)')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('e.g., #level-ups or leave blank')
+                    .setRequired(false);
+                
+                const row = new ActionRowBuilder().addComponents(channelInput);
+                modal.addComponents(row);
+                await interaction.showModal(modal);
+            }
+            
+            else if (interaction.customId === 'leveling_addrole') {
+                const modal = new ModalBuilder()
+                    .setCustomId('leveling_addrole_modal')
+                    .setTitle('Add Level Role');
+                
+                const levelInput = new TextInputBuilder()
+                    .setCustomId('role_level')
+                    .setLabel('Level required')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('e.g., 10')
+                    .setRequired(true);
+                
+                const roleInput = new TextInputBuilder()
+                    .setCustomId('role_id')
+                    .setLabel('Role ID or mention')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('e.g., @Role or role ID')
+                    .setRequired(true);
+                
+                const row1 = new ActionRowBuilder().addComponents(levelInput);
+                const row2 = new ActionRowBuilder().addComponents(roleInput);
+                
+                modal.addComponents(row1, row2);
+                await interaction.showModal(modal);
+            }
+            
+            else if (interaction.customId === 'leveling_removerole') {
+                const modal = new ModalBuilder()
+                    .setCustomId('leveling_removerole_modal')
+                    .setTitle('Remove Level Role');
+                
+                const levelInput = new TextInputBuilder()
+                    .setCustomId('role_level')
+                    .setLabel('Level to remove role from')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('e.g., 10')
+                    .setRequired(true);
+                
+                const row = new ActionRowBuilder().addComponents(levelInput);
+                modal.addComponents(row);
+                await interaction.showModal(modal);
+            }
+            
+            else if (interaction.customId === 'leveling_viewroles') {
+                const roles = settings.leveling.levelRoles;
+                
+                if (Object.keys(roles).length === 0) {
+                    await interaction.reply({ 
+                        content: '❌ No level roles configured!', 
+                        ephemeral: true 
+                    });
+                    return;
+                }
+                
+                let rolesList = '**Configured Level Roles:**\n\n';
+                for (const [level, roleId] of Object.entries(roles)) {
+                    rolesList += `Level ${level}: <@&${roleId}>\n`;
+                }
+                
+                await interaction.reply({ content: rolesList, ephemeral: true });
             }
         }
         
@@ -9099,6 +9327,152 @@ client.on('interactionCreate', async (interaction) => {
                 }
                 
                 try {
+                    // Leveling modal handlers
+                    if (interaction.customId === 'leveling_xprange_modal') {
+                        const settings = getGuildSettings(guildId);
+                        const minXP = parseInt(interaction.fields.getTextInputValue('min_xp'));
+                        const maxXP = parseInt(interaction.fields.getTextInputValue('max_xp'));
+                        
+                        if (isNaN(minXP) || isNaN(maxXP)) {
+                            return interaction.reply({ content: '❌ Please enter valid numbers!', ephemeral: true });
+                        }
+                        
+                        if (minXP > maxXP) {
+                            return interaction.reply({ content: '❌ Min XP cannot be greater than Max XP!', ephemeral: true });
+                        }
+                        
+                        settings.leveling.minXP = minXP;
+                        settings.leveling.maxXP = maxXP;
+                        saveSettings();
+                        
+                        await interaction.reply({ 
+                            content: `✅ XP range set to **${minXP}-${maxXP}** per message!`, 
+                            ephemeral: true 
+                        });
+                    }
+                    
+                    else if (interaction.customId === 'leveling_cooldown_modal') {
+                        const settings = getGuildSettings(guildId);
+                        const seconds = parseInt(interaction.fields.getTextInputValue('cooldown_seconds'));
+                        
+                        if (isNaN(seconds) || seconds < 0) {
+                            return interaction.reply({ content: '❌ Please enter a valid number of seconds!', ephemeral: true });
+                        }
+                        
+                        settings.leveling.cooldown = seconds * 1000;
+                        saveSettings();
+                        
+                        await interaction.reply({ 
+                            content: `✅ XP cooldown set to **${seconds} seconds**!`, 
+                            ephemeral: true 
+                        });
+                    }
+                    
+                    else if (interaction.customId === 'leveling_maxlevel_modal') {
+                        const settings = getGuildSettings(guildId);
+                        const level = parseInt(interaction.fields.getTextInputValue('max_level'));
+                        
+                        if (isNaN(level) || level < 1 || level > 1000) {
+                            return interaction.reply({ content: '❌ Max level must be between 1 and 1000!', ephemeral: true });
+                        }
+                        
+                        settings.leveling.maxLevel = level;
+                        saveSettings();
+                        
+                        await interaction.reply({ 
+                            content: `✅ Max level set to **${level}**!`, 
+                            ephemeral: true 
+                        });
+                    }
+                    
+                    else if (interaction.customId === 'leveling_channel_modal') {
+                        const settings = getGuildSettings(guildId);
+                        const channelInput = interaction.fields.getTextInputValue('channel_id').trim();
+                        
+                        if (!channelInput) {
+                            settings.leveling.levelUpChannelId = null;
+                            saveSettings();
+                            await interaction.reply({ 
+                                content: '✅ Level up messages will be sent in the current channel!', 
+                                ephemeral: true 
+                            });
+                            return;
+                        }
+                        
+                        const channelMatch = channelInput.match(/(\d{17,19})/);
+                        
+                        if (!channelMatch) {
+                            return interaction.reply({ content: '❌ Invalid channel ID or mention!', ephemeral: true });
+                        }
+                        
+                        const channelId = channelMatch[1];
+                        const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
+                        
+                        if (!channel) {
+                            return interaction.reply({ content: '❌ Channel not found!', ephemeral: true });
+                        }
+                        
+                        settings.leveling.levelUpChannelId = channelId;
+                        saveSettings();
+                        
+                        await interaction.reply({ 
+                            content: `✅ Level up channel set to ${channel}!`, 
+                            ephemeral: true 
+                        });
+                    }
+                    
+                    else if (interaction.customId === 'leveling_addrole_modal') {
+                        const settings = getGuildSettings(guildId);
+                        const level = parseInt(interaction.fields.getTextInputValue('role_level'));
+                        const roleInput = interaction.fields.getTextInputValue('role_id').trim();
+                        
+                        if (isNaN(level) || level < 1) {
+                            return interaction.reply({ content: '❌ Please enter a valid level!', ephemeral: true });
+                        }
+                        
+                        const roleMatch = roleInput.match(/(\d{17,19})/);
+                        
+                        if (!roleMatch) {
+                            return interaction.reply({ content: '❌ Invalid role ID or mention!', ephemeral: true });
+                        }
+                        
+                        const roleId = roleMatch[1];
+                        const role = await interaction.guild.roles.fetch(roleId).catch(() => null);
+                        
+                        if (!role) {
+                            return interaction.reply({ content: '❌ Role not found!', ephemeral: true });
+                        }
+                        
+                        settings.leveling.levelRoles[level] = roleId;
+                        saveSettings();
+                        
+                        await interaction.reply({ 
+                            content: `✅ Level ${level} role set to ${role}!`, 
+                            ephemeral: true 
+                        });
+                    }
+                    
+                    else if (interaction.customId === 'leveling_removerole_modal') {
+                        const settings = getGuildSettings(guildId);
+                        const level = parseInt(interaction.fields.getTextInputValue('role_level'));
+                        
+                        if (isNaN(level)) {
+                            return interaction.reply({ content: '❌ Please enter a valid level!', ephemeral: true });
+                        }
+                        
+                        if (!settings.leveling.levelRoles[level]) {
+                            return interaction.reply({ content: '❌ No role configured for that level!', ephemeral: true });
+                        }
+                        
+                        delete settings.leveling.levelRoles[level];
+                        saveSettings();
+                        
+                        await interaction.reply({ 
+                            content: `✅ Removed role for level ${level}!`, 
+                            ephemeral: true 
+                        });
+                    }
+                    
                     initializeTicketSystem(guildId);
                     const settings = ticketData[guildId].settings;
                     
