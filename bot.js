@@ -6725,14 +6725,14 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('embed_title')
                     .setLabel('Embed Title')
                     .setStyle(TextInputStyle.Short)
-                    .setPlaceholder('Black Ops III - Multiplayer')
+                    .setPlaceholder('Your Service Name')
                     .setRequired(true);
                 
                 const descInput = new TextInputBuilder()
                     .setCustomId('embed_description')
                     .setLabel('Description')
                     .setStyle(TextInputStyle.Paragraph)
-                    .setPlaceholder('Service information here...')
+                    .setPlaceholder('Service description and details...')
                     .setRequired(true);
                 
                 const colorInput = new TextInputBuilder()
@@ -6814,14 +6814,14 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('embed_title')
                     .setLabel('Embed Title')
                     .setStyle(TextInputStyle.Short)
-                    .setPlaceholder('Black Ops III - Multiplayer')
+                    .setPlaceholder('Your Service Name')
                     .setRequired(true);
                 
                 const descInput = new TextInputBuilder()
                     .setCustomId('embed_description')
                     .setLabel('Description')
                     .setStyle(TextInputStyle.Paragraph)
-                    .setPlaceholder('Service information here...')
+                    .setPlaceholder('Service description and details...')
                     .setRequired(true);
                 
                 const colorInput = new TextInputBuilder()
