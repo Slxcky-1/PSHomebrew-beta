@@ -5504,6 +5504,53 @@ client.on('interactionCreate', async (interaction) => {
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
     }
 
+    // Webhook Setup command - Interactive panel
+    if (interaction.commandName === 'webhooksetup') {
+        if (!requireAdmin(interaction)) return;
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🔗 Webhook Creator Panel')
+            .setColor(0x5865F2)
+            .setDescription(
+                `Create professional webhook embeds with custom content.\n\n` +
+                `**Features:**\n` +
+                `• Custom titles, descriptions, and fields\n` +
+                `• Image and thumbnail support\n` +
+                `• Color customization\n` +
+                `• Footer and timestamp options\n` +
+                `• Save and reuse templates\n\n` +
+                `Click the buttons below to get started.`
+            )
+            .addFields(
+                { name: '📝 Create Webhook', value: 'Set up a new webhook in any channel', inline: true },
+                { name: '🎨 Custom Embed', value: 'Design your embed with interactive forms', inline: true },
+                { name: '📋 Templates', value: 'Save frequently used embed designs', inline: true }
+            )
+            .setFooter({ text: 'Webhook Creator • Admin Only' })
+            .setTimestamp();
+        
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('webhook_create')
+                    .setLabel('Create Webhook')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji('🔗'),
+                new ButtonBuilder()
+                    .setCustomId('webhook_embed')
+                    .setLabel('Design Embed')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🎨'),
+                new ButtonBuilder()
+                    .setCustomId('webhook_list')
+                    .setLabel('List Webhooks')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('📋')
+            );
+        
+        await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+    }
+
     // Moderator command - Interactive panel
     if (interaction.commandName === 'moderator') {
         if (!requireAdmin(interaction)) return;
@@ -6629,6 +6676,201 @@ client.on('interactionCreate', async (interaction) => {
                     );
                 
                 await interaction.update({ embeds: [embed], components: [row1, row2] });
+            }
+        }
+        
+        // Webhook system button handlers
+        if (interaction.customId.startsWith('webhook_')) {
+            if (!requireAdmin(interaction)) return;
+            
+            // Handle webhook send button
+            if (interaction.customId.startsWith('webhook_send_')) {
+                const modal = new ModalBuilder()
+                    .setCustomId('webhook_send_url_modal')
+                    .setTitle('Send Embed to Webhook');
+                
+                const urlInput = new TextInputBuilder()
+                    .setCustomId('webhook_url')
+                    .setLabel('Webhook URL')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setPlaceholder('https://discord.com/api/webhooks/...')
+                    .setRequired(true);
+                
+                modal.addComponents(new ActionRowBuilder().addComponents(urlInput));
+                await interaction.showModal(modal);
+                return;
+            }
+            
+            if (interaction.customId === 'webhook_edit') {
+                await interaction.deferUpdate();
+                
+                const modal = new ModalBuilder()
+                    .setCustomId('webhook_embed_modal')
+                    .setTitle('Design Custom Embed');
+                
+                const titleInput = new TextInputBuilder()
+                    .setCustomId('embed_title')
+                    .setLabel('Embed Title')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('Black Ops III - Multiplayer')
+                    .setRequired(true);
+                
+                const descInput = new TextInputBuilder()
+                    .setCustomId('embed_description')
+                    .setLabel('Description')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setPlaceholder('Service information here...')
+                    .setRequired(true);
+                
+                const colorInput = new TextInputBuilder()
+                    .setCustomId('embed_color')
+                    .setLabel('Embed Color (hex)')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('#5865F2 or 5865F2')
+                    .setValue('#5865F2')
+                    .setRequired(false);
+                
+                const imageInput = new TextInputBuilder()
+                    .setCustomId('embed_image')
+                    .setLabel('Image URL (optional)')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('https://example.com/image.png')
+                    .setRequired(false);
+                
+                const footerInput = new TextInputBuilder()
+                    .setCustomId('embed_footer')
+                    .setLabel('Footer Text (optional)')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('DSC.GG/TER152')
+                    .setRequired(false);
+                
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(titleInput),
+                    new ActionRowBuilder().addComponents(descInput),
+                    new ActionRowBuilder().addComponents(colorInput),
+                    new ActionRowBuilder().addComponents(imageInput),
+                    new ActionRowBuilder().addComponents(footerInput)
+                );
+                
+                await interaction.followUp({ content: 'Opening embed editor...', ephemeral: true });
+                return;
+            }
+            
+            if (interaction.customId === 'webhook_cancel') {
+                await interaction.update({ 
+                    content: '❌ Embed creation cancelled.', 
+                    embeds: [], 
+                    components: [] 
+                });
+                return;
+            }
+            
+            if (interaction.customId === 'webhook_create') {
+                const modal = new ModalBuilder()
+                    .setCustomId('webhook_create_modal')
+                    .setTitle('Create New Webhook');
+                
+                const channelInput = new TextInputBuilder()
+                    .setCustomId('channel_id')
+                    .setLabel('Channel ID or mention')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('#channel or channel ID')
+                    .setRequired(true);
+                
+                const nameInput = new TextInputBuilder()
+                    .setCustomId('webhook_name')
+                    .setLabel('Webhook Name')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('Service Bot')
+                    .setRequired(true);
+                
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(channelInput),
+                    new ActionRowBuilder().addComponents(nameInput)
+                );
+                
+                await interaction.showModal(modal);
+            }
+            
+            else if (interaction.customId === 'webhook_embed') {
+                const modal = new ModalBuilder()
+                    .setCustomId('webhook_embed_modal')
+                    .setTitle('Design Custom Embed');
+                
+                const titleInput = new TextInputBuilder()
+                    .setCustomId('embed_title')
+                    .setLabel('Embed Title')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('Black Ops III - Multiplayer')
+                    .setRequired(true);
+                
+                const descInput = new TextInputBuilder()
+                    .setCustomId('embed_description')
+                    .setLabel('Description')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setPlaceholder('Service information here...')
+                    .setRequired(true);
+                
+                const colorInput = new TextInputBuilder()
+                    .setCustomId('embed_color')
+                    .setLabel('Embed Color (hex)')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('#5865F2 or 5865F2')
+                    .setValue('#5865F2')
+                    .setRequired(false);
+                
+                const imageInput = new TextInputBuilder()
+                    .setCustomId('embed_image')
+                    .setLabel('Image URL (optional)')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('https://example.com/image.png')
+                    .setRequired(false);
+                
+                const footerInput = new TextInputBuilder()
+                    .setCustomId('embed_footer')
+                    .setLabel('Footer Text (optional)')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('DSC.GG/TER152')
+                    .setRequired(false);
+                
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(titleInput),
+                    new ActionRowBuilder().addComponents(descInput),
+                    new ActionRowBuilder().addComponents(colorInput),
+                    new ActionRowBuilder().addComponents(imageInput),
+                    new ActionRowBuilder().addComponents(footerInput)
+                );
+                
+                await interaction.showModal(modal);
+            }
+            
+            else if (interaction.customId === 'webhook_list') {
+                const webhooks = await interaction.guild.fetchWebhooks();
+                
+                if (webhooks.size === 0) {
+                    await interaction.reply({ 
+                        content: '❌ No webhooks found in this server.', 
+                        ephemeral: true 
+                    });
+                    return;
+                }
+                
+                const embed = new EmbedBuilder()
+                    .setTitle('📋 Server Webhooks')
+                    .setColor(0x5865F2)
+                    .setDescription(`Found ${webhooks.size} webhook(s)`)
+                    .setTimestamp();
+                
+                webhooks.forEach(webhook => {
+                    const channel = interaction.guild.channels.cache.get(webhook.channelId);
+                    embed.addFields({
+                        name: `🔗 ${webhook.name}`,
+                        value: `Channel: ${channel ? `<#${channel.id}>` : 'Unknown'}\nID: \`${webhook.id}\``,
+                        inline: true
+                    });
+                });
+                
+                await interaction.reply({ embeds: [embed], ephemeral: true });
             }
         }
         
@@ -9046,6 +9288,169 @@ client.on('interactionCreate', async (interaction) => {
                 } catch (error) {
                     console.error('❌ Ticket modal error:', error);
                     await interaction.reply({ content: '❌ An error occurred!', ephemeral: true }).catch(() => {});
+                }
+                return;
+            }
+            
+            // Webhook system modal handlers
+            if (interaction.customId.startsWith('webhook_')) {
+                if (!interaction.member.permissions.has('Administrator')) {
+                    return interaction.reply({ 
+                        content: '❌ You need Administrator permissions to use this command!', 
+                        ephemeral: true 
+                    });
+                }
+                
+                try {
+                    if (interaction.customId === 'webhook_create_modal') {
+                        const channelInput = interaction.fields.getTextInputValue('channel_id').trim();
+                        const webhookName = interaction.fields.getTextInputValue('webhook_name').trim();
+                        
+                        const channelMatch = channelInput.match(/(\d{17,19})/);
+                        if (!channelMatch) {
+                            return interaction.reply({ content: '❌ Invalid channel ID or mention!', ephemeral: true });
+                        }
+                        
+                        const channelId = channelMatch[1];
+                        const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
+                        
+                        if (!channel || channel.type !== ChannelType.GuildText) {
+                            return interaction.reply({ content: '❌ Channel not found or not a text channel!', ephemeral: true });
+                        }
+                        
+                        const webhook = await channel.createWebhook({
+                            name: webhookName,
+                            avatar: interaction.guild.iconURL()
+                        });
+                        
+                        const embed = new EmbedBuilder()
+                            .setTitle('✅ Webhook Created')
+                            .setDescription(`Webhook **${webhookName}** created successfully!`)
+                            .addFields(
+                                { name: 'Channel', value: `<#${channel.id}>`, inline: true },
+                                { name: 'Webhook ID', value: `\`${webhook.id}\``, inline: true },
+                                { name: 'Webhook URL', value: `||${webhook.url}||`, inline: false }
+                            )
+                            .setColor(0x00FF00)
+                            .setFooter({ text: 'Keep the webhook URL private!' })
+                            .setTimestamp();
+                        
+                        await interaction.reply({ embeds: [embed], ephemeral: true });
+                    }
+                    
+                    else if (interaction.customId === 'webhook_embed_modal') {
+                        const title = interaction.fields.getTextInputValue('embed_title').trim();
+                        const description = interaction.fields.getTextInputValue('embed_description').trim();
+                        const colorInput = interaction.fields.getTextInputValue('embed_color')?.trim() || '#5865F2';
+                        const imageUrl = interaction.fields.getTextInputValue('embed_image')?.trim() || null;
+                        const footerText = interaction.fields.getTextInputValue('embed_footer')?.trim() || null;
+                        
+                        // Parse color
+                        let color = 0x5865F2;
+                        const hexMatch = colorInput.match(/^#?([0-9A-Fa-f]{6})$/);
+                        if (hexMatch) {
+                            color = parseInt(hexMatch[1], 16);
+                        }
+                        
+                        const previewEmbed = new EmbedBuilder()
+                            .setTitle(title)
+                            .setDescription(description)
+                            .setColor(color)
+                            .setTimestamp();
+                        
+                        if (imageUrl) {
+                            try {
+                                previewEmbed.setImage(imageUrl);
+                            } catch (error) {
+                                console.error('Invalid image URL:', error);
+                            }
+                        }
+                        
+                        if (footerText) {
+                            previewEmbed.setFooter({ text: footerText });
+                        }
+                        
+                        const buttons = new ActionRowBuilder()
+                            .addComponents(
+                                new ButtonBuilder()
+                                    .setCustomId(`webhook_send_${Date.now()}`)
+                                    .setLabel('Send to Webhook')
+                                    .setStyle(ButtonStyle.Success)
+                                    .setEmoji('📤'),
+                                new ButtonBuilder()
+                                    .setCustomId('webhook_edit')
+                                    .setLabel('Edit Again')
+                                    .setStyle(ButtonStyle.Primary)
+                                    .setEmoji('✏️'),
+                                new ButtonBuilder()
+                                    .setCustomId('webhook_cancel')
+                                    .setLabel('Cancel')
+                                    .setStyle(ButtonStyle.Danger)
+                                    .setEmoji('❌')
+                            );
+                        
+                        await interaction.reply({ 
+                            content: '**📋 Embed Preview:**\nClick "Send to Webhook" and provide webhook URL to send this embed.',
+                            embeds: [previewEmbed], 
+                            components: [buttons],
+                            ephemeral: true 
+                        });
+                        
+                        // Store embed data temporarily for sending
+                        if (!interaction.client.webhookEmbeds) interaction.client.webhookEmbeds = new Map();
+                        interaction.client.webhookEmbeds.set(interaction.user.id, previewEmbed.toJSON());
+                    }
+                    
+                    else if (interaction.customId === 'webhook_send_url_modal') {
+                        const webhookUrl = interaction.fields.getTextInputValue('webhook_url').trim();
+                        
+                        // Validate webhook URL
+                        if (!webhookUrl.startsWith('https://discord.com/api/webhooks/') && 
+                            !webhookUrl.startsWith('https://discordapp.com/api/webhooks/')) {
+                            return interaction.reply({ 
+                                content: '❌ Invalid webhook URL! Must start with `https://discord.com/api/webhooks/`', 
+                                ephemeral: true 
+                            });
+                        }
+                        
+                        // Get stored embed
+                        const embedData = interaction.client.webhookEmbeds?.get(interaction.user.id);
+                        if (!embedData) {
+                            return interaction.reply({ 
+                                content: '❌ Embed data not found! Please create the embed again.', 
+                                ephemeral: true 
+                            });
+                        }
+                        
+                        try {
+                            const { WebhookClient } = require('discord.js');
+                            const webhook = new WebhookClient({ url: webhookUrl });
+                            
+                            await webhook.send({ embeds: [embedData] });
+                            
+                            await interaction.reply({ 
+                                content: '✅ Embed sent successfully via webhook!', 
+                                ephemeral: true 
+                            });
+                            
+                            // Clean up stored embed
+                            interaction.client.webhookEmbeds.delete(interaction.user.id);
+                            
+                        } catch (error) {
+                            console.error('Webhook send error:', error);
+                            await interaction.reply({ 
+                                content: '❌ Failed to send webhook! Make sure the URL is valid and the webhook exists.', 
+                                ephemeral: true 
+                            });
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Webhook modal error:', error);
+                    await interaction.reply({ 
+                        content: '❌ An error occurred! ' + error.message, 
+                        ephemeral: true 
+                    }).catch(() => {});
                 }
                 return;
             }
