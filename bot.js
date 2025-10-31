@@ -1666,6 +1666,13 @@ client.once('clientReady', async () => {
                     features.push(`✅ PS3 Error Codes: ${Object.keys(ps3ErrorCodes).length} loaded`);
                     features.push(`✅ PS4 Error Codes: ${Object.keys(ps4ErrorCodes).filter(k => !k.startsWith('_')).length} loaded`);
                     
+                    // Additional data file checks
+                    features.push(`${fsSync.existsSync('./ticketData.json') ? '✅' : '❌'} Ticket System: ${fsSync.existsSync('./ticketData.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`${fsSync.existsSync('./moderationData.json') ? '✅' : '❌'} Moderation Data: ${fsSync.existsSync('./moderationData.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`${fsSync.existsSync('./serverSettings.json') ? '✅' : '❌'} Server Settings: ${fsSync.existsSync('./serverSettings.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`${fsSync.existsSync('./analyticsData.json') ? '✅' : '❌'} Analytics Data: ${fsSync.existsSync('./analyticsData.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`${fsSync.existsSync('./cfwKnowledge.json') ? '✅' : '❌'} CFW Knowledge: ${fsSync.existsSync('./cfwKnowledge.json') ? 'Loaded' : 'Missing'}`);
+                    
                     // Count registered commands from feature files
                     let totalCommands = 0;
                     try {
