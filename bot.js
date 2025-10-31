@@ -1696,7 +1696,7 @@ client.once('clientReady', async () => {
                         .setColor(0x00FF00)
                         .addFields(
                             { name: '⏰ Downtime', value: `${downtime}s`, inline: true },
-                            { name: '🤖 Servers', value: `${client.guilds.cache.size}`, inline: true },
+                            { name: '🌐 Servers', value: `${client.guilds.cache.size}`, inline: true },
                             { name: '👥 Users', value: `${client.guilds.cache.reduce((acc, g) => acc + g.memberCount, 0)}`, inline: true }
                         )
                         .setTimestamp();
