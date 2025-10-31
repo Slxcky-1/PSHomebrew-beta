@@ -174,6 +174,10 @@ const moderationDataFile = './moderationData.json';
 let analyticsData = {};
 const analyticsDataFile = './analyticsData.json';
 
+// Pending Sellix purchases (for users not yet in server)
+let pendingPurchases = {};
+const pendingPurchasesFile = './pendingPurchases.json';
+
 // AI conversation history (stored in memory only, not persisted)
 let aiConversations = {}; // { channelId: [ { role: 'user'|'assistant', content: 'message', userId?: string } ] }
 let aiCooldowns = {}; // { userId: timestamp} - Track cooldowns per user
@@ -680,6 +684,21 @@ const saveSettings = createDebouncedSave(settingsFile, () => serverSettings, 500
 const saveTicketData = createDebouncedSave(ticketDataFile, () => ticketData, 3000); // 3s (was 1s)
 const saveModerationData = createDebouncedSave(moderationDataFile, () => moderationData, 3000); // 3s (was 1s)
 const saveAnalyticsData = createDebouncedSave(analyticsDataFile, () => analyticsData, 30000); // 30s - analytics can be saved less frequently
+const savePendingPurchases = createDebouncedSave(pendingPurchasesFile, () => pendingPurchases, 3000); // 3s
+
+// Load pending purchases
+async function loadPendingPurchases() {
+    try {
+        await fs.access(pendingPurchasesFile);
+        const data = await fs.readFile(pendingPurchasesFile, 'utf8');
+        pendingPurchases = JSON.parse(data);
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            console.error('Error loading pending purchases:', error);
+        }
+        pendingPurchases = {};
+    }
+}
 
 // Load server settings
 async function loadSettings() {
@@ -1630,6 +1649,7 @@ client.once('clientReady', async () => {
     loadTicketData();
     loadModerationData();
     loadAnalyticsData();
+    loadPendingPurchases();
     
     // Defer detailed feature counting to after bot is ready (non-blocking)
     setTimeout(() => {
@@ -2440,6 +2460,66 @@ async function checkKeywords(message, settings) {
 // Member join event (Welcome message)
 client.on('guildMemberAdd', async (member) => {
     const settings = getGuildSettings(member.guild.id);
+    
+    // Check for pending Sellix purchases
+    if (pendingPurchases[member.id] && pendingPurchases[member.id].guildId === member.guild.id) {
+        const purchase = pendingPurchases[member.id];
+        console.log(`🎁 Processing pending purchase for ${member.user.tag}`);
+        
+        try {
+            // Assign role
+            const role = member.guild.roles.cache.get(config.sellixRoleId);
+            if (role) {
+                await member.roles.add(role);
+                console.log(`✅ Assigned pending purchase role to ${member.user.tag}`);
+                
+                // Send DM
+                try {
+                    const dmEmbed = new EmbedBuilder()
+                        .setTitle('✅ Purchase Activated!')
+                        .setDescription(`Welcome to the server! Your previous purchase has been activated and you've been given access to **${role.name}**.`)
+                        .setColor(0x00FF00)
+                        .addFields(
+                            { name: '🆔 Order ID', value: purchase.orderId, inline: true },
+                            { name: '💰 Amount Paid', value: `$${purchase.amount}`, inline: true }
+                        )
+                        .setFooter({ text: member.guild.name })
+                        .setTimestamp();
+                    
+                    await member.send({ embeds: [dmEmbed] });
+                } catch (error) {
+                    console.log('Could not DM user:', error.message);
+                }
+                
+                // Log activation
+                const logChannel = member.guild.channels.cache.get(config.sellixLogChannelId);
+                if (logChannel) {
+                    const activationEmbed = new EmbedBuilder()
+                        .setTitle('✅ Pending Purchase Activated')
+                        .setColor(0x00FF00)
+                        .setDescription('User joined server and role was automatically assigned.')
+                        .addFields(
+                            { name: '👤 Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
+                            { name: '🆔 Order ID', value: purchase.orderId, inline: true },
+                            { name: '💰 Amount', value: `$${purchase.amount}`, inline: true },
+                            { name: '📧 Email', value: purchase.email || 'N/A', inline: false },
+                            { name: '🎁 Role Given', value: role.name, inline: false },
+                            { name: '📦 Product', value: purchase.product || 'Unknown', inline: false }
+                        )
+                        .setThumbnail(member.user.displayAvatarURL())
+                        .setTimestamp();
+                    
+                    await logChannel.send({ embeds: [activationEmbed] });
+                }
+            }
+            
+            // Remove from pending
+            delete pendingPurchases[member.id];
+            savePendingPurchases();
+        } catch (error) {
+            console.error('Error processing pending purchase:', error);
+        }
+    }
     
     // Track member join in analytics
     const analytics = initializeAnalyticsData(member.guild.id);
@@ -11337,24 +11417,37 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
             if (!member) {
                 console.log('❌ Member not found:', discordId);
                 
-                // Log failed purchase
+                // Store as pending purchase
+                pendingPurchases[discordId] = {
+                    orderId: orderData.uniqid,
+                    amount: orderData.total,
+                    email: orderData.customer_email,
+                    product: orderData.product_title,
+                    timestamp: Date.now(),
+                    guildId: config.sellixGuildId
+                };
+                savePendingPurchases();
+                console.log(`💾 Stored pending purchase for ${discordId}`);
+                
+                // Log pending purchase
                 const logChannel = guild.channels.cache.get(config.sellixLogChannelId);
                 if (logChannel) {
-                    const failEmbed = new EmbedBuilder()
-                        .setTitle('❌ Purchase Failed - User Not Found')
-                        .setColor(0xFF0000)
+                    const pendingEmbed = new EmbedBuilder()
+                        .setTitle('⏳ Purchase Pending - User Not in Server')
+                        .setColor(0xFFA500)
+                        .setDescription('Role will be assigned automatically when user joins the server.')
                         .addFields(
                             { name: '🆔 Order ID', value: orderData.uniqid, inline: true },
                             { name: '💰 Amount', value: `$${orderData.total}`, inline: true },
                             { name: '📧 Email', value: orderData.customer_email || 'N/A', inline: false },
                             { name: '🎮 Discord ID', value: discordId, inline: false },
-                            { name: '❌ Error', value: 'User not in server', inline: false }
+                            { name: '📦 Product', value: orderData.product_title || 'Unknown', inline: false }
                         )
                         .setTimestamp();
-                    await logChannel.send({ embeds: [failEmbed] });
+                    await logChannel.send({ embeds: [pendingEmbed] });
                 }
                 
-                return res.status(200).send('Member not in server');
+                return res.status(200).send('Purchase stored as pending');
             }
             
             // Assign role
