@@ -4,46 +4,6 @@
             "name": "keyword",
             "description": "Setup keyword/error code detection with interactive controls (Admin only)",
             "options": []
-        },
-        {
-            "name": "addkeyword",
-            "description": "Add a keyword to detect (Admin only)",
-            "options": [
-                {
-                    "name": "keyword",
-                    "description": "Keyword to add",
-                    "type": 3,
-                    "required": true
-                }
-            ]
-        },
-        {
-            "name": "removekeyword",
-            "description": "Remove a keyword (Admin only)",
-            "options": [
-                {
-                    "name": "keyword",
-                    "description": "Keyword to remove",
-                    "type": 3,
-                    "required": true
-                }
-            ]
-        },
-        {
-            "name": "listkeywords",
-            "description": "List all active keywords (Admin only)"
-        },
-        {
-            "name": "setkeywordresponse",
-            "description": "Set custom keyword response (Admin only)",
-            "options": [
-                {
-                    "name": "response",
-                    "description": "Custom response message",
-                    "type": 3,
-                    "required": true
-                }
-            ]
         }
     ]
 }
