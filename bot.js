@@ -478,16 +478,10 @@ function getPersonalityForTone(tone, username) {
 }
 
 // Helper function to load JSON files safely with caching for performance
-const jsonCache = new Map();
-function loadJSON(filePath, defaultValue = {}, useCache = false) {
-    if (useCache && jsonCache.has(filePath)) {
-        return jsonCache.get(filePath);
-    }
+function loadJSON(filePath, defaultValue = {}) {
     try {
         if (fsSync.existsSync(filePath)) {
-            const data = JSON.parse(fsSync.readFileSync(filePath, 'utf8'));
-            if (useCache) jsonCache.set(filePath, data);
-            return data;
+            return JSON.parse(fsSync.readFileSync(filePath, 'utf8'));
         }
     } catch (error) {
         console.error(`⚠️ Error loading ${filePath}:`, error.message);
@@ -545,7 +539,6 @@ function saveJSON(filePath, data) {
         }
         
         fsSync.writeFileSync(filePath, JSON.stringify(data, null, 2));
-        jsonCache.delete(filePath); // Clear cache when saving
         return true;
     } catch (error) {
         console.error(`⚠️ Error saving ${filePath}:`, error.message);
@@ -1218,12 +1211,6 @@ async function generateTranscript(channel) {
 const xpCache = new Map();
 const levelCache = new Map();
 
-// Pre-compiled error code regex cache (optimization)
-const errorCodeRegexCache = new Map();
-
-// Cache error code keys for performance
-const errorCodeKeys = Object.keys(ps3ErrorCodes);
-
 // Pre-compute error code categories for instant lookup (optimization)
 const errorCodeCategories = new Map();
 for (const [code, description] of Object.entries(ps3ErrorCodes)) {
@@ -1238,9 +1225,6 @@ for (const [code, description] of Object.entries(ps3ErrorCodes)) {
         errorCodeCategories.set(code, { name: '🔵 Original PS3 Errors', color: 0x3498DB });
     }
 }
-
-// Channel cache for faster lookups (guildId:channelName -> channel object)
-const channelCache = new Map();
 
 // Raid protection tracking
 const joinTracker = new Map(); // guildId -> array of {userId, timestamp}
@@ -1459,25 +1443,7 @@ function addXP(userId, amount, maxLevel = 100) {
 
 // Helper function to find channel with caching
 function findChannel(guild, channelName) {
-    const cacheKey = `${guild.id}:${channelName}`;
-    
-    // Check cache first
-    if (channelCache.has(cacheKey)) {
-        const cached = channelCache.get(cacheKey);
-        // Verify channel still exists
-        if (guild.channels.cache.has(cached.id)) {
-            return cached;
-        }
-        // Remove stale cache entry
-        channelCache.delete(cacheKey);
-    }
-    
-    // Find channel and cache it
-    const channel = guild.channels.cache.find(ch => ch.name === channelName);
-    if (channel) {
-        channelCache.set(cacheKey, channel);
-    }
-    return channel;
+    return guild.channels.cache.find(ch => ch.name === channelName);
 }
 
 // Server Stats Update Function
@@ -11231,8 +11197,6 @@ setInterval(() => {
     // More aggressive cache clearing for low-end PCs
     if (xpCache.size > 50) xpCache.clear(); // Reduced from 100
     if (levelCache.size > 500) levelCache.clear(); // Reduced from 1000
-    if (channelCache.size > 25) channelCache.clear(); // Reduced from 50
-    if (errorCodeRegexCache.size > 50) errorCodeRegexCache.clear();
     
     // Clean up old join tracker entries (older than 5 minutes)
     const now = Date.now();
