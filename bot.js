@@ -11728,13 +11728,80 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
     }
 });
 
-// Start Sellix webhook server on port 3000
-const SELLIX_PORT = process.env.SELLIX_PORT || 3000;
-sellixApp.listen(SELLIX_PORT, () => {
-    console.log(`🔗 Sellix webhook server running on port ${SELLIX_PORT}`);
-    console.log(`📍 Webhook URL: http://YOUR_SERVER_IP:${SELLIX_PORT}/sellix-webhook`);
+// ===== EBAY WEBHOOK SYSTEM =====
+sellixApp.post('/ebay-webhook', async (req, res) => {
+    try {
+        console.log('📦 eBay webhook received:', JSON.stringify(req.body, null, 2));
+        
+        // eBay sends different notification types - we want ItemSold
+        const notification = req.body;
+        
+        // eBay notification structure varies by API version
+        // This handles both Trading API and Marketing API notifications
+        let itemTitle, buyerUsername, salePrice, transactionId, itemId;
+        
+        // Trading API Platform Notifications format
+        if (notification.NotificationEventName === 'ItemSold' || notification.eventType === 'ITEM_SOLD') {
+            itemTitle = notification.Item?.Title || notification.itemTitle || 'Unknown Item';
+            buyerUsername = notification.Buyer?.UserID || notification.buyerUsername || 'Unknown Buyer';
+            salePrice = notification.Transaction?.TransactionPrice || notification.price || '0';
+            transactionId = notification.Transaction?.TransactionID || notification.transactionId || 'N/A';
+            itemId = notification.Item?.ItemID || notification.itemId || 'N/A';
+        }
+        // Alternative format for REST API
+        else if (notification.eventType === 'marketplace.order.completed') {
+            const order = notification.order || {};
+            itemTitle = order.lineItems?.[0]?.title || 'Unknown Item';
+            buyerUsername = order.buyer?.username || 'Unknown Buyer';
+            salePrice = order.pricingSummary?.total?.value || '0';
+            transactionId = order.orderId || 'N/A';
+            itemId = order.lineItems?.[0]?.legacyItemId || 'N/A';
+        }
+        
+        // Log notification to configured channel
+        const logChannelId = config.ebayNotificationChannel || config.sellixNotificationChannel; // Fallback to Sellix channel
+        
+        if (logChannelId) {
+            const logChannel = await client.channels.fetch(logChannelId).catch(() => null);
+            
+            if (logChannel) {
+                const saleEmbed = new EmbedBuilder()
+                    .setTitle('🛒 eBay Sale Notification')
+                    .setDescription('A new item has been sold on eBay!')
+                    .setColor(0xE53238) // eBay red color
+                    .addFields(
+                        { name: '📦 Item', value: itemTitle, inline: false },
+                        { name: '👤 Buyer', value: buyerUsername, inline: true },
+                        { name: '💰 Price', value: `$${salePrice}`, inline: true },
+                        { name: '🆔 Transaction ID', value: transactionId, inline: false },
+                        { name: '🔢 Item ID', value: itemId, inline: true }
+                    )
+                    .setFooter({ text: 'eBay Platform Notifications' })
+                    .setTimestamp();
+                
+                await logChannel.send({ embeds: [saleEmbed] });
+                console.log(`✅ eBay sale notification sent for item: ${itemTitle}`);
+            } else {
+                console.warn('⚠️ eBay notification channel not found. Set ebayNotificationChannel in config.json');
+            }
+        }
+        
+        res.status(200).send('OK');
+    } catch (error) {
+        console.error('❌ eBay webhook error:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
-// ===== END SELLIX WEBHOOK SYSTEM =====
+// ===== END EBAY WEBHOOK SYSTEM =====
+
+// Start webhook server on port 3000
+const WEBHOOK_PORT = process.env.WEBHOOK_PORT || 3000;
+sellixApp.listen(WEBHOOK_PORT, () => {
+    console.log(`🔗 Webhook server running on port ${WEBHOOK_PORT}`);
+    console.log(`📍 Sellix webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/sellix-webhook`);
+    console.log(`📍 eBay webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/ebay-webhook`);
+});
+// ===== END WEBHOOK SYSTEM =====
 
 // Login to Discord with error handling
 client.login(config.token).catch(error => {
