@@ -60,32 +60,6 @@
             ]
         },
         {
-            "name": "resetmessages",
-            "description": "Reset welcome/leave messages to default (Admin only)",
-            "options": [
-                {
-                    "name": "type",
-                    "description": "Which message to reset",
-                    "type": 3,
-                    "required": true,
-                    "choices": [
-                        {
-                            "name": "Welcome Message",
-                            "value": "welcome"
-                        },
-                        {
-                            "name": "Leave Message",
-                            "value": "leave"
-                        },
-                        {
-                            "name": "Keyword Response",
-                            "value": "keyword"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
             "name": "logs",
             "description": "Open interactive server logging panel (Admin only)"
         },
