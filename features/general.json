@@ -26,40 +26,6 @@
             "description": "View all current server settings (Admin only)"
         },
         {
-            "name": "toggle",
-            "description": "Toggle features on/off (Admin only)",
-            "options": [
-                {
-                    "name": "feature",
-                    "description": "Feature to toggle",
-                    "type": 3,
-                    "required": true,
-                    "choices": [
-                        {
-                            "name": "Leveling System",
-                            "value": "leveling"
-                        },
-                        {
-                            "name": "Level Up Messages",
-                            "value": "levelup_messages"
-                        },
-                        {
-                            "name": "Welcome Messages",
-                            "value": "welcome"
-                        },
-                        {
-                            "name": "Leave Messages",
-                            "value": "leave"
-                        },
-                        {
-                            "name": "Keyword Detection",
-                            "value": "keywords"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
             "name": "logs",
             "description": "Open interactive server logging panel (Admin only)"
         },
