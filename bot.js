@@ -6439,13 +6439,15 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             if (interaction.customId === 'power_shutdown') {
+                await interaction.deferUpdate();
+                
                 const shutdownEmbed = new EmbedBuilder()
                     .setTitle('🔴 Bot Shutting Down')
                     .setDescription('Initiating graceful shutdown sequence...\n\n✅ Sending offline notifications\n⏳ Saving all data\n👋 Goodbye!')
                     .setColor(0xFF0000)
                     .setTimestamp();
                 
-                await interaction.reply({ embeds: [shutdownEmbed] });
+                await interaction.editReply({ embeds: [shutdownEmbed], components: [] });
                 
                 setTimeout(() => {
                     gracefulShutdown('Discord power panel shutdown');
@@ -6453,13 +6455,15 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             else if (interaction.customId === 'power_restart') {
+                await interaction.deferUpdate();
+                
                 const restartEmbed = new EmbedBuilder()
                     .setTitle('🔄 Restarting Bot')
                     .setDescription('Performing manual restart...\n\nThe bot will be back online in a few seconds.')
                     .setColor(0x00BFFF)
                     .setTimestamp();
                 
-                await interaction.reply({ embeds: [restartEmbed] });
+                await interaction.editReply({ embeds: [restartEmbed], components: [] });
                 
                 fsSync.writeFileSync('./update-marker.json', JSON.stringify({
                     channelId: interaction.channel.id,
@@ -6473,7 +6477,7 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             else if (interaction.customId === 'power_update') {
-                await interaction.deferReply({ ephemeral: true });
+                await interaction.deferUpdate();
                 
                 const updateEmbed = new EmbedBuilder()
                     .setTitle('🔄 Updating Bot')
@@ -6481,7 +6485,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setColor(0xFFAA00)
                     .setTimestamp();
                 
-                await interaction.editReply({ embeds: [updateEmbed] });
+                await interaction.editReply({ embeds: [updateEmbed], components: [] });
                 
                 const { exec } = require('child_process');
                 const startTime = Date.now();
