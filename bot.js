@@ -2156,9 +2156,9 @@ client.on('messageCreate', async (message) => {
             return message.reply(`🚫 **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ⚡`);
         }
         
-        // Cooldown check (3 seconds)
-        if (aiCooldowns[userId] && now < aiCooldowns[userId] + 3000) {
-            return message.reply(`⏱️ Wait ${((aiCooldowns[userId] + 3000 - now) / 1000).toFixed(1)}s before asking again.`);
+        // Cooldown check (1 second)
+        if (aiCooldowns[userId] && now < aiCooldowns[userId] + 1000) {
+            return message.reply(`⏱️ Wait ${((aiCooldowns[userId] + 1000 - now) / 1000).toFixed(1)}s before asking again.`);
         }
         
         // AI lockdown check
