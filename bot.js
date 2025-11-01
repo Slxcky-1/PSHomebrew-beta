@@ -1388,21 +1388,24 @@ function getXPProgress(xp) {
     return { currentLevelXP, xpRequiredForCurrentLevel, totalXP: xp, level: currentLevel };
 }
 
-// Initialize user data if not exists
-function initializeUser(userId) {
-    if (!userData[userId]) {
-        userData[userId] = { xp: 0, level: 1, lastMessage: 0 };
+// Initialize user data if not exists (server-specific)
+function initializeUser(guildId, userId) {
+    if (!userData[guildId]) {
+        userData[guildId] = {};
+    }
+    if (!userData[guildId][userId]) {
+        userData[guildId][userId] = { xp: 0, level: 1, lastMessage: 0 };
     }
 }
 
-// Add XP to user and check for level up
-function addXP(userId, amount, maxLevel = 100) {
-    initializeUser(userId);
-    const oldLevel = userData[userId].level;
-    userData[userId].xp += amount;
-    userData[userId].level = Math.min(getLevelFromXP(userData[userId].xp), maxLevel);
+// Add XP to user and check for level up (server-specific)
+function addXP(guildId, userId, amount, maxLevel = 100) {
+    initializeUser(guildId, userId);
+    const oldLevel = userData[guildId][userId].level;
+    userData[guildId][userId].xp += amount;
+    userData[guildId][userId].level = Math.min(getLevelFromXP(userData[guildId][userId].xp), maxLevel);
     saveUserData();
-    return { leveledUp: userData[userId].level > oldLevel, newLevel: userData[userId].level, oldLevel };
+    return { leveledUp: userData[guildId][userId].level > oldLevel, newLevel: userData[guildId][userId].level, oldLevel };
 }
 
 // Helper function to find channel with caching
@@ -1994,15 +1997,15 @@ client.on('messageCreate', async (message) => {
     
     // Leveling system
     if (settings.leveling.enabled) {
-        initializeUser(userId);
+        initializeUser(message.guild.id, userId);
         
         // XP cooldown - but don't return yet, AI should still work
-        if (now - userData[userId].lastMessage >= settings.leveling.cooldown) {
-            userData[userId].lastMessage = now;
+        if (now - userData[message.guild.id][userId].lastMessage >= settings.leveling.cooldown) {
+            userData[message.guild.id][userId].lastMessage = now;
             
             // Add random XP based on settings
             const xpGained = Math.floor(Math.random() * (settings.leveling.maxXP - settings.leveling.minXP + 1)) + settings.leveling.minXP;
-            const result = addXP(userId, xpGained, settings.leveling.maxLevel);
+            const result = addXP(message.guild.id, userId, xpGained, settings.leveling.maxLevel);
         
             // Check for level up
             if (result.leveledUp && settings.leveling.showLevelUpMessages) {
