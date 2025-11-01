@@ -1093,42 +1093,6 @@ function requireAdmin(interaction) {
 }
 
 // Helper function to create standardized error embed with translation support
-function createErrorEmbed(title, description, guildId = null) {
-    // If guildId provided and description is a translation key, translate it
-    if (guildId && typeof description === 'string' && description.includes('.')) {
-        description = translate(guildId, description);
-    }
-    return new EmbedBuilder()
-        .setTitle(title)
-        .setDescription(description)
-        .setColor(0xFF0000)
-        .setTimestamp();
-}
-
-// Helper function to create standardized success embed with translation support
-function createSuccessEmbed(title, description, guildId = null) {
-    if (guildId && typeof description === 'string' && description.includes('.')) {
-        description = translate(guildId, description);
-    }
-    return new EmbedBuilder()
-        .setTitle(title)
-        .setDescription(description)
-        .setColor(0x00FF00)
-        .setTimestamp();
-}
-
-// Helper function to create standardized info embed with translation support
-function createInfoEmbed(title, description, guildId = null) {
-    if (guildId && typeof description === 'string' && description.includes('.')) {
-        description = translate(guildId, description);
-    }
-    return new EmbedBuilder()
-        .setTitle(title)
-        .setDescription(description)
-        .setColor(0x0099FF)
-        .setTimestamp();
-}
-
 // Initialize ticket system for a guild
 function initializeTicketSystem(guildId) {
     if (!ticketData[guildId]) {
