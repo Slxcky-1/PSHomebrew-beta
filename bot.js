@@ -2904,144 +2904,54 @@ client.on('interactionCreate', async (interaction) => {
         await interaction.editReply({ content: '', embeds: [pingEmbed] });
     }
     
-    // Shutdown command (Bot Owner only)
-    if (interaction.commandName === 'shutdown') {
+    // Power Options Panel (Bot Owner only)
+    if (interaction.commandName === 'poweroptions') {
         // Check if user is bot owner
         if (interaction.user.id !== config.botOwnerId) {
             return interaction.reply({ content: '❌ Only the bot owner can use this command!', ephemeral: true });
         }
         
-        const shutdownEmbed = new EmbedBuilder()
-            .setTitle('🔴 Bot Shutting Down')
-            .setDescription('Initiating graceful shutdown sequence...\n\n✅ Sending offline notifications\n⏳ Saving all data\n👋 Goodbye!')
-            .setColor(0xFF0000)
-            .setTimestamp();
+        const uptime = Math.floor(process.uptime());
+        const days = Math.floor(uptime / 86400);
+        const hours = Math.floor((uptime % 86400) / 3600);
+        const minutes = Math.floor((uptime % 3600) / 60);
+        const seconds = uptime % 60;
+        const uptimeStr = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         
-        await interaction.reply({ embeds: [shutdownEmbed] });
+        const memoryUsage = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
         
-        // Give Discord time to send the reply, then initiate shutdown
-        setTimeout(() => {
-            gracefulShutdown('Discord /shutdown command');
-        }, 1000);
-    }
-    
-    // Update command - Pull latest code from GitHub and restart
-    if (interaction.commandName === 'update') {
-        // Check if user is bot owner only
-        if (interaction.user.id !== config.botOwnerId) {
-            return interaction.reply({ content: '❌ Only the bot owner can use this command!', ephemeral: true });
-        }
-        
-        // Defer reply immediately to prevent timeout (gives 15 minutes instead of 3 seconds)
-        await interaction.deferReply({ ephemeral: true });
-        
-        const updateEmbed = new EmbedBuilder()
-            .setTitle('🔄 Updating Bot')
-            .setDescription('Pulling latest code from GitHub...')
-            .setColor(0xFFAA00)
-            .setTimestamp();
-        
-        await interaction.editReply({ embeds: [updateEmbed] });
-        
-        // Execute git pull with force reset to handle conflicts
-        // Backup local config files before update
-        const { exec } = require('child_process');
-        const startTime = Date.now();
-        
-        // Backup critical local files
-        const backupFiles = ['config.json', '.secure-config', 'serverSettings.json', 'userData.json', 'ticketData.json', 'moderationData.json'];
-        backupFiles.forEach(file => {
-            if (fsSync.existsSync(file)) {
-                fsSync.copyFileSync(file, `${file}.backup`);
-            }
-        });
-        
-        exec('git fetch origin && git reset --hard origin/main && npm install --silent --no-audit --no-fund 2>&1', (error, stdout, stderr) => {
-            // Restore backed up files
-            backupFiles.forEach(file => {
-                if (fsSync.existsSync(`${file}.backup`)) {
-                    fsSync.renameSync(`${file}.backup`, file);
-                }
-            });
-            
-            if (error) {
-                console.error(`Update error: ${error}`);
-                return interaction.editReply({ 
-                    embeds: [new EmbedBuilder()
-                        .setTitle('❌ Update Failed')
-                        .setDescription(`\`\`\`${error.message}\`\`\`\n\n**Tip:** Check if there are local file conflicts`)
-                        .setColor(0xFF0000)
-                        .setTimestamp()]
-                });
-            }
-            
-            const timeTaken = ((Date.now() - startTime) / 1000).toFixed(2);
-            
-            // Extract git HEAD info
-            const headMatch = stdout.match(/HEAD is now at ([a-f0-9]+)\s+(.+)/i);
-            const commitHash = headMatch ? headMatch[1] : 'unknown';
-            const commitMsg = headMatch ? headMatch[2] : 'Updated successfully';
-            
-            // Extract npm install info
-            const packagesMatch = stdout.match(/added (\d+)|removed (\d+)|changed (\d+)|audited (\d+)/gi);
-            let packageInfo = 'No changes';
-            if (packagesMatch) {
-                packageInfo = packagesMatch.join(', ');
-            } else if (stdout.includes('up to date')) {
-                packageInfo = 'All packages up to date';
-            }
-            
-            const resultEmbed = new EmbedBuilder()
-                .setTitle('✅ Update Complete - Restarting...')
-                .setDescription(
-                    `**HEAD is now at** \`${commitHash}\`\n` +
-                    `${commitMsg}\n\n` +
-                    `📦 **Packages:** ${packageInfo}\n` +
-                    `⏱️ **Time taken:** ${timeTaken}s\n\n` +
-                    `🔄 Bot is restarting now...`
-                )
-                .setColor(0x00FF00)
-                .setTimestamp();
-            
-            interaction.editReply({ embeds: [resultEmbed] }).then(() => {
-                console.log('🔄 Bot updated via /update command. Restarting...');
-                // Write update marker file so bot knows to send online message
-                fsSync.writeFileSync('./update-marker.json', JSON.stringify({
-                    channelId: interaction.channel.id,
-                    guildId: interaction.guild.id,
-                    timestamp: Date.now(),
-                    gitOutput: stdout.substring(0, 500) // Store git output for final message
-                }));
-                setTimeout(() => process.exit(0), 2000); // systemd will restart the bot
-            });
-        });
-    }
-    
-    // Restart command - Simple manual restart without git update
-    if (interaction.commandName === 'restart') {
-        // Check if user is bot owner only
-        if (interaction.user.id !== config.botOwnerId) {
-            return interaction.reply({ content: '❌ Only the bot owner can use this command!', ephemeral: true });
-        }
-        
-        const restartEmbed = new EmbedBuilder()
-            .setTitle('🔄 Restarting Bot')
-            .setDescription('Performing manual restart...\n\nThe bot will be back online in a few seconds.')
+        const powerEmbed = new EmbedBuilder()
+            .setTitle('⚡ Bot Power Management')
+            .setDescription('Control bot power state and updates')
             .setColor(0x00BFFF)
+            .addFields(
+                { name: '⏱️ Uptime', value: uptimeStr, inline: true },
+                { name: '💾 Memory', value: `${memoryUsage} MB`, inline: true },
+                { name: '📊 Status', value: '🟢 Online', inline: true }
+            )
+            .setFooter({ text: 'Choose an option below' })
             .setTimestamp();
         
-        await interaction.reply({ embeds: [restartEmbed] });
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('power_update')
+                    .setLabel('Update & Restart')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🔄'),
+                new ButtonBuilder()
+                    .setCustomId('power_restart')
+                    .setLabel('Restart')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('♻️'),
+                new ButtonBuilder()
+                    .setCustomId('power_shutdown')
+                    .setLabel('Shutdown')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('🔴')
+            );
         
-        // Write restart marker file so bot knows to send online message
-        fsSync.writeFileSync('./update-marker.json', JSON.stringify({
-            channelId: interaction.channel.id,
-            guildId: interaction.guild.id,
-            timestamp: Date.now(),
-            isManualRestart: true
-        }));
-        
-        console.log('🔄 Manual restart triggered via /restart command');
-        setTimeout(() => process.exit(0), 1000); // systemd/process manager will restart the bot
+        await interaction.reply({ embeds: [powerEmbed], components: [row], ephemeral: true });
     }
     
     // View Settings command
@@ -6519,6 +6429,111 @@ client.on('interactionCreate', async (interaction) => {
                 } catch (error) {
                     await interaction.editReply({ content: `❌ Error refreshing stats: ${error.message}` });
                 }
+            }
+        }
+        
+        // Power Options button handlers
+        if (interaction.customId.startsWith('power_')) {
+            if (interaction.user.id !== config.botOwnerId) {
+                return interaction.reply({ content: '❌ Only the bot owner can use this!', ephemeral: true });
+            }
+            
+            if (interaction.customId === 'power_shutdown') {
+                const shutdownEmbed = new EmbedBuilder()
+                    .setTitle('🔴 Bot Shutting Down')
+                    .setDescription('Initiating graceful shutdown sequence...\n\n✅ Sending offline notifications\n⏳ Saving all data\n👋 Goodbye!')
+                    .setColor(0xFF0000)
+                    .setTimestamp();
+                
+                await interaction.reply({ embeds: [shutdownEmbed] });
+                
+                setTimeout(() => {
+                    gracefulShutdown('Discord power panel shutdown');
+                }, 1000);
+            }
+            
+            else if (interaction.customId === 'power_restart') {
+                const restartEmbed = new EmbedBuilder()
+                    .setTitle('🔄 Restarting Bot')
+                    .setDescription('Performing manual restart...\n\nThe bot will be back online in a few seconds.')
+                    .setColor(0x00BFFF)
+                    .setTimestamp();
+                
+                await interaction.reply({ embeds: [restartEmbed] });
+                
+                fsSync.writeFileSync('./update-marker.json', JSON.stringify({
+                    channelId: interaction.channel.id,
+                    guildId: interaction.guild.id,
+                    timestamp: Date.now(),
+                    isManualRestart: true
+                }));
+                
+                console.log('🔄 Manual restart triggered via power panel');
+                setTimeout(() => process.exit(0), 1000);
+            }
+            
+            else if (interaction.customId === 'power_update') {
+                await interaction.deferReply({ ephemeral: true });
+                
+                const updateEmbed = new EmbedBuilder()
+                    .setTitle('🔄 Updating Bot')
+                    .setDescription('Pulling latest code from GitHub...')
+                    .setColor(0xFFAA00)
+                    .setTimestamp();
+                
+                await interaction.editReply({ embeds: [updateEmbed] });
+                
+                const { exec } = require('child_process');
+                const startTime = Date.now();
+                
+                const backupFiles = ['config.json', '.secure-config', 'serverSettings.json', 'userData.json', 'ticketData.json', 'moderationData.json'];
+                backupFiles.forEach(file => {
+                    if (fsSync.existsSync(file)) {
+                        fsSync.copyFileSync(file, `${file}.backup`);
+                    }
+                });
+                
+                exec('git fetch origin && git reset --hard origin/main && npm install --silent --no-audit --no-fund 2>&1', (error, stdout, stderr) => {
+                    backupFiles.forEach(file => {
+                        if (fsSync.existsSync(`${file}.backup`)) {
+                            fsSync.renameSync(`${file}.backup`, file);
+                        }
+                    });
+                    
+                    if (error) {
+                        console.error(`Update error: ${error}`);
+                        return interaction.editReply({ 
+                            embeds: [new EmbedBuilder()
+                                .setTitle('❌ Update Failed')
+                                .setDescription(`\`\`\`${error.message}\`\`\`\n\n**Tip:** Check if there are local file conflicts`)
+                                .setColor(0xFF0000)
+                                .setTimestamp()]
+                        });
+                    }
+                    
+                    const timeTaken = ((Date.now() - startTime) / 1000).toFixed(2);
+                    const headMatch = stdout.match(/HEAD is now at ([a-f0-9]+)\s+(.+)/i);
+                    const commitHash = headMatch ? headMatch[1] : 'unknown';
+                    const commitMsg = headMatch ? headMatch[2] : 'Updated successfully';
+                    
+                    const npmPackages = (stdout.match(/added \d+ packages?/i) || ['No new packages'])[0];
+                    
+                    const successEmbed = new EmbedBuilder()
+                        .setTitle('✅ Update Complete - Restarting')
+                        .setDescription(`**Commit:** \`${commitHash}\`\n**Message:** ${commitMsg}\n**NPM:** ${npmPackages}\n**Time:** ${timeTaken}s\n\n🔄 Bot restarting...`)
+                        .setColor(0x00FF00)
+                        .setTimestamp();
+                    
+                    interaction.editReply({ embeds: [successEmbed] }).then(() => {
+                        fsSync.writeFileSync('./update-marker.json', JSON.stringify({
+                            channelId: interaction.channel.id,
+                            guildId: interaction.guild.id,
+                            timestamp: Date.now(),
+                            gitOutput: stdout.substring(0, 500)
+                        }));
+                        setTimeout(() => process.exit(0), 2000);
+                    });
+                });
             }
         }
         
