@@ -6403,7 +6403,7 @@ client.on('interactionCreate', async (interaction) => {
                 }));
                 
                 console.log('🔄 Manual restart triggered via power panel');
-                setTimeout(() => process.exit(0), 1000);
+                setTimeout(() => process.exit(0), 500);
             }
             
             else if (interaction.customId === 'power_update') {
@@ -6427,7 +6427,7 @@ client.on('interactionCreate', async (interaction) => {
                     }
                 });
                 
-                exec('git fetch origin && git reset --hard origin/main && npm install --silent --no-audit --no-fund 2>&1', (error, stdout, stderr) => {
+                exec('git fetch origin && git reset --hard origin/main && npm install --prefer-offline --no-audit --no-fund --silent 2>&1', (error, stdout, stderr) => {
                     backupFiles.forEach(file => {
                         if (fsSync.existsSync(`${file}.backup`)) {
                             fsSync.renameSync(`${file}.backup`, file);
@@ -6465,7 +6465,7 @@ client.on('interactionCreate', async (interaction) => {
                             timestamp: Date.now(),
                             gitOutput: stdout.substring(0, 500)
                         }));
-                        setTimeout(() => process.exit(0), 2000);
+                        setTimeout(() => process.exit(0), 500);
                     });
                 });
             }
@@ -11230,9 +11230,8 @@ async function gracefulShutdown(signal) {
     
     console.log(`⚠️ Received ${signal} - Shutting down gracefully...`);
     
-    // Update status channels to show "Offline"
+    // Update status channels to show "Offline" (non-blocking)
     try {
-        const updatePromises = [];
         for (const [guildId, guild] of client.guilds.cache) {
             const settings = getGuildSettings(guildId);
             if (settings.serverStats?.enabled && settings.serverStats.channels.statusChannel) {
@@ -11242,26 +11241,15 @@ async function gracefulShutdown(signal) {
                         .replace('{status}', 'Offline')
                         .replace('🟢', '🔴');
                     
-                    // Only update if name actually changes
+                    // Fire and forget - don't wait for Discord API
                     if (statusChannel.name !== newName) {
-                        console.log(`🔴 Updating status channel in ${guild.name} to offline...`);
-                        updatePromises.push(
-                            statusChannel.setName(newName)
-                                .then(() => console.log(`✅ Status updated to offline in ${guild.name}`))
-                                .catch(err => console.error(`Error updating status in ${guild.name}:`, err.message))
-                        );
+                        statusChannel.setName(newName).catch(() => {});
                     }
                 }
             }
         }
-        
-        // Wait for ALL status updates to complete before continuing shutdown
-        if (updatePromises.length > 0) {
-            await Promise.all(updatePromises);
-            console.log('✅ All status channels updated to offline');
-        }
     } catch (error) {
-        console.error('Error updating status channels:', error);
+        // Ignore errors during shutdown
     }
     
     // Clear timers if they exist (some may have been removed during optimization)
@@ -11270,10 +11258,11 @@ async function gracefulShutdown(signal) {
     if (typeof saveTicketDataTimer !== 'undefined') clearTimeout(saveTicketDataTimer);
     if (typeof saveModerationDataTimer !== 'undefined') clearTimeout(saveModerationDataTimer);
     
+    // Use synchronous writes for faster shutdown
     fsSync.writeFileSync(userDataFile, JSON.stringify(userData, null, 2));
-    await fs.writeFile(settingsFile, JSON.stringify(serverSettings, null, 2));
-    await fs.writeFile(ticketDataFile, JSON.stringify(ticketData, null, 2));
-    await fs.writeFile(moderationDataFile, JSON.stringify(moderationData, null, 2));
+    fsSync.writeFileSync(settingsFile, JSON.stringify(serverSettings, null, 2));
+    fsSync.writeFileSync(ticketDataFile, JSON.stringify(ticketData, null, 2));
+    fsSync.writeFileSync(moderationDataFile, JSON.stringify(moderationData, null, 2));
     console.log('💾 All data saved');
     console.log('👋 Goodbye!');
     process.exit(0);
