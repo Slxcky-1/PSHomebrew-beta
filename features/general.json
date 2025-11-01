@@ -29,11 +29,6 @@
             "name": "logs",
             "description": "Open interactive server logging panel (Admin only)"
         },
-
-        {
-            "name": "cleanps4errors",
-            "description": "Delete local ps4ErrorCodes.json to fix git conflicts (Owner only)"
-        },
         {
             "name": "serverfeatures",
             "description": "View all bot features and capabilities in a beautiful panel"

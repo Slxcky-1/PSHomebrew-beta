@@ -2887,53 +2887,6 @@ client.on('interactionCreate', async (interaction) => {
         await interaction.reply({ embeds: [powerEmbed], components: [row], ephemeral: true });
     }
     
-    // Clean PS4 Errors command (Owner only)
-    if (interaction.commandName === 'cleanps4errors') {
-        // Check if user is bot owner
-        if (interaction.user.id !== config.botOwnerId) {
-            return interaction.reply({ content: '❌ Only the bot owner can use this command!', ephemeral: true });
-        }
-        
-        await interaction.deferReply({ ephemeral: true });
-        
-        try {
-            const ps4ErrorPath = path.join(__dirname, 'features', 'ps4ErrorCodes.json');
-            
-            if (fsSync.existsSync(ps4ErrorPath)) {
-                // Backup the file first
-                const backupPath = path.join(__dirname, 'features', 'ps4ErrorCodes.backup.json');
-                fsSync.copyFileSync(ps4ErrorPath, backupPath);
-                
-                // Delete the file
-                fsSync.unlinkSync(ps4ErrorPath);
-                
-                const successEmbed = new EmbedBuilder()
-                    .setTitle('✅ PS4 Error Codes Cleaned')
-                    .setDescription(
-                        '**File Deleted:** `features/ps4ErrorCodes.json`\n' +
-                        '**Backup Created:** `features/ps4ErrorCodes.backup.json`\n\n' +
-                        '✅ Git conflicts should now be resolved.\n' +
-                        '🔄 The file will be regenerated on next bot restart.'
-                    )
-                    .setColor(0x00FF00)
-                    .setTimestamp();
-                
-                await interaction.editReply({ embeds: [successEmbed] });
-            } else {
-                await interaction.editReply({ 
-                    content: '❌ File `ps4ErrorCodes.json` not found. It may have already been deleted.', 
-                    ephemeral: true 
-                });
-            }
-        } catch (error) {
-            console.error('Error cleaning PS4 errors:', error);
-            await interaction.editReply({ 
-                content: `❌ Error: ${error.message}`, 
-                ephemeral: true 
-            });
-        }
-    }
-    
     // View Settings command
     if (interaction.commandName === 'viewsettings') {
         if (!requireAdmin(interaction)) return;
