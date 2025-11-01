@@ -85,36 +85,6 @@
             ]
         },
         {
-            "name": "mute",
-            "description": "Mute a user (Moderator only)",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "User to mute",
-                    "type": 6,
-                    "required": true
-                },
-                {
-                    "name": "reason",
-                    "description": "Reason for mute",
-                    "type": 3,
-                    "required": false
-                }
-            ]
-        },
-        {
-            "name": "unmute",
-            "description": "Unmute a user (Moderator only)",
-            "options": [
-                {
-                    "name": "user",
-                    "description": "User to unmute",
-                    "type": 6,
-                    "required": true
-                }
-            ]
-        },
-        {
             "name": "kick",
             "description": "Kick a user (Moderator only)",
             "options": [
