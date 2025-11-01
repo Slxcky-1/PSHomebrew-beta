@@ -2602,8 +2602,8 @@ client.on('guildMemberAdd', async (member) => {
     
     if (welcomeChannel) {
         const description = settings.welcome.customMessage 
-            ? settings.welcome.customMessage.replace('{user}', member.user.username).replace('{server}', member.guild.name).replace('{memberCount}', member.guild.memberCount.toString())
-            : `Welcome ${member.user.username}! We're glad to have you here in ${member.guild.name}!`;
+            ? settings.welcome.customMessage.replace('{user}', member.toString()).replace('{server}', member.guild.name).replace('{memberCount}', member.guild.memberCount.toString())
+            : `Welcome ${member.toString()}! We're glad to have you here in ${member.guild.name}!`;
         
         const welcomeEmbed = new EmbedBuilder()
             .setTitle('👋 Welcome to the Server!')
