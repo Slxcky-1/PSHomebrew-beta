@@ -1882,11 +1882,71 @@ async function applyServerCustomization(guild) {
 client.on('guildCreate', async (guild) => {
     console.log(`✅ Joined new server: ${guild.name} (${guild.id})`);
     
-    // Initialize settings for new server
-    if (!serverSettings[guild.id]) {
-        serverSettings[guild.id] = JSON.parse(JSON.stringify(defaultSettings));
+    // Initialize fresh data for new server (no cache from other servers)
+    const guildId = guild.id;
+    
+    // Server settings
+    if (!serverSettings[guildId]) {
+        serverSettings[guildId] = JSON.parse(JSON.stringify(defaultSettings));
         saveSettings();
     }
+    
+    // User data (leveling) - ensure fresh start
+    if (!userData[guildId]) {
+        userData[guildId] = {};
+        saveUserData();
+    }
+    
+    // Ticket system
+    if (!ticketData[guildId]) {
+        ticketData[guildId] = {
+            counter: 0,
+            tickets: {},
+            settings: {
+                enabled: false,
+                categoryName: 'Tickets',
+                staffRoleId: null,
+                ticketMessage: 'Thank you for opening a ticket! A staff member will assist you shortly.',
+                closedMessage: 'This ticket has been closed. Thank you for contacting support!'
+            }
+        };
+        saveTicketData();
+    }
+    
+    // Moderation data
+    if (!moderationData[guildId]) {
+        moderationData[guildId] = {
+            warnings: {},
+            infractions: []
+        };
+        saveModerationData();
+    }
+    
+    // Analytics data
+    if (!analyticsData[guildId]) {
+        analyticsData[guildId] = {
+            startDate: Date.now(),
+            lastReset: Date.now(),
+            messages: {
+                total: 0,
+                byUser: {},
+                byChannel: {},
+                byHour: Array(24).fill(0),
+                byDay: Array(7).fill(0)
+            },
+            members: {
+                joined: 0,
+                left: 0
+            },
+            commands: {
+                total: 0,
+                byCommand: {}
+            }
+        };
+        saveAnalyticsData();
+    }
+    
+    console.log(`🎉 Initialized fresh data for: ${guild.name}`);
     
     // Apply any customization
     await applyServerCustomization(guild);
