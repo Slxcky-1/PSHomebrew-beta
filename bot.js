@@ -3244,6 +3244,26 @@ client.on('interactionCreate', async (interaction) => {
                     name: '📌 Bot Customization',
                     value: `✅ **Per-server branding**\n\nCustom bot nicknames\nProfessional server identity\nPersonalized experience`,
                     inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: '🎉 Giveaway System',
+                    value: `✅ **Automated prize distribution**\n\nAutomatic winner selection\nRole & level requirements\nMultiple winners support\nAuto-DM winners`,
+                    inline: true
+                },
+                {
+                    name: '💰 Economy System',
+                    value: `✅ **Full currency system**\n\nDaily rewards & work jobs\nGambling (coinflip/dice/slots)\nRob users & item shop\nInventory & boosts`,
+                    inline: true
+                },
+                {
+                    name: '📌 SellHub Integration',
+                    value: `✅ **Product delivery system**\n\nAutomatic role assignment\nWebhook purchase tracking\nSecure signature verification`,
+                    inline: true
                 }
             )
             .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for AI token tracking' })
