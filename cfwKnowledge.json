@@ -1,9 +1,9 @@
 {
-  "lastUpdated": "2025-11-02T00:00:00.000Z",
+  "lastUpdated": "2025-11-02T21:27:48.674Z",
   "evilnatCFW": {
-    "latestVersion": "4.92.2",
+    "latestVersion": "4.92",
     "releaseDate": "2025",
-    "source": "PSX-Place (Live)",
+    "source": "PSX-Place scrape",
     "downloadUrl": "https://www.psx-place.com/resources/evilnat-cfw.1146/"
   },
   "ps4Exploits": {

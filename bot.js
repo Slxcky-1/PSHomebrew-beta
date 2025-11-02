@@ -1587,10 +1587,10 @@ client.once('clientReady', async () => {
     console.log('📊 AI Token Quota Status:');
     console.log(`   🤖 DeepSeek:`);
     console.log(`      Daily: ${quotaStatus.deepseek.dailyUsed.toLocaleString()} used | ${quotaStatus.deepseek.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.deepseek.dailyRemaining.toLocaleString() + ' remaining'}`);
-    console.log(`      Monthly: ${quotaStatus.deepseek.monthlyUsed.toLocaleString()} used | ${quotaStatus.deepseek.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ??' : quotaStatus.deepseek.monthlyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`      Monthly: ${quotaStatus.deepseek.monthlyUsed.toLocaleString()} used | ${quotaStatus.deepseek.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.deepseek.monthlyRemaining.toLocaleString() + ' remaining'}`);
     console.log(`   🤖 ChatGPT:`);
-    console.log(`      Daily: ${quotaStatus.chatgpt.dailyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ??' : quotaStatus.chatgpt.dailyRemaining.toLocaleString() + ' remaining'}`);
-    console.log(`      Monthly: ${quotaStatus.chatgpt.monthlyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ??' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`      Daily: ${quotaStatus.chatgpt.dailyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.chatgpt.dailyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`      Monthly: ${quotaStatus.chatgpt.monthlyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString() + ' remaining'}`);
     console.log('='.repeat(60));
     
     // Set bot status to DND and activity
@@ -3781,24 +3781,24 @@ client.on('interactionCreate', async (interaction) => {
                 { name: '\u200B', value: '**?? DeepSeek (Server-Wide)**', inline: false },
                 { 
                     name: '📌 Today', 
-                    value: `Used: **${quotaStatus.deepseek.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ??' : quotaStatus.deepseek.dailyRemaining.toLocaleString()}**`,
+                    value: `Used: **${quotaStatus.deepseek.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.deepseek.dailyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { 
                     name: '📌 This Month', 
-                    value: `Used: **${quotaStatus.deepseek.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ??' : quotaStatus.deepseek.monthlyRemaining.toLocaleString()}**`,
+                    value: `Used: **${quotaStatus.deepseek.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.deepseek.monthlyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { name: '\u200B', value: '\u200B', inline: true }, // Spacer
                 { name: '\u200B', value: '**?? ChatGPT (Server-Wide)**', inline: false },
                 { 
                     name: '📌 Today', 
-                    value: `Used: **${quotaStatus.chatgpt.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ??' : quotaStatus.chatgpt.dailyRemaining.toLocaleString()}**`,
+                    value: `Used: **${quotaStatus.chatgpt.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.chatgpt.dailyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { 
                     name: '📌 This Month', 
-                    value: `Used: **${quotaStatus.chatgpt.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ??' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString()}**`,
+                    value: `Used: **${quotaStatus.chatgpt.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { name: '\u200B', value: '\u200B', inline: true }, // Spacer
