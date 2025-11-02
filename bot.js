@@ -166,10 +166,6 @@ const ticketDataFile = './ticketData.json';
 let moderationData = {};
 const moderationDataFile = './moderationData.json';
 
-// Analytics data
-let analyticsData = {};
-const analyticsDataFile = './analyticsData.json';
-
 // Pending SellHub purchases (for users not yet in server)
 let pendingPurchases = {};
 const pendingPurchasesFile = './pendingPurchases.json';
@@ -699,7 +695,7 @@ const saveUserData = createDebouncedSave(userDataFile, () => userData, 10000); /
 const saveSettings = createDebouncedSave(settingsFile, () => serverSettings, 5000); // 5s (was 3s)
 const saveTicketData = createDebouncedSave(ticketDataFile, () => ticketData, 3000); // 3s (was 1s)
 const saveModerationData = createDebouncedSave(moderationDataFile, () => moderationData, 3000); // 3s (was 1s)
-const saveAnalyticsData = createDebouncedSave(analyticsDataFile, () => analyticsData, 30000); // 30s - analytics can be saved less frequently
+// Analytics system removed (unused feature)
 const savePendingPurchases = createDebouncedSave(pendingPurchasesFile, () => pendingPurchases, 3000); // 3s
 
 // Load pending purchases
@@ -776,52 +772,6 @@ function initializeModerationData(guildId) {
 }
 
 // Load analytics data
-async function loadAnalyticsData() {
-    try {
-        await fs.access(analyticsDataFile);
-        const data = await fs.readFile(analyticsDataFile, 'utf8');
-        analyticsData = JSON.parse(data);
-    } catch (error) {
-        if (error.code !== 'ENOENT') {
-            console.error('Error loading analytics data:', error);
-        }
-        analyticsData = {};
-    }
-}
-
-// Initialize analytics data for a guild
-function initializeAnalyticsData(guildId) {
-    if (!analyticsData[guildId]) {
-        analyticsData[guildId] = {
-            messages: {
-                total: 0,
-                byUser: {}, // { userId: count }
-                byChannel: {}, // { channelId: count }
-                byHour: Array(24).fill(0), // Hourly distribution [0-23]
-                byDay: Array(7).fill(0) // Daily distribution [0-6] (Sunday-Saturday)
-            },
-            members: {
-                joins: [], // [{ userId, timestamp }]
-                leaves: [], // [{ userId, timestamp }]
-                currentCount: 0
-            },
-            voice: {
-                totalMinutes: 0,
-                byUser: {}, // { userId: minutes }
-                sessions: [] // [{ userId, channelId, startTime, endTime }]
-            },
-            commands: {
-                total: 0,
-                byCommand: {} // { commandName: count }
-            },
-            lastReset: Date.now(),
-            startDate: Date.now()
-        };
-        saveAnalyticsData();
-    }
-    return analyticsData[guildId];
-}
-
 // Check if user is a moderator - optimized
 function isModerator(member, settings) {
     if (member.permissions.has(PermissionFlagsBits.Administrator | PermissionFlagsBits.ModerateMembers)) return true;
@@ -1604,7 +1554,6 @@ client.once('clientReady', async () => {
     loadSettings();
     loadTicketData();
     loadModerationData();
-    loadAnalyticsData();
     loadPendingPurchases();
     
     // Defer detailed feature counting to after bot is ready (non-blocking)
@@ -1648,7 +1597,6 @@ client.once('clientReady', async () => {
                     features.push(`${fsSync.existsSync('./ticketData.json') ? '?' : '?'} Ticket System: ${fsSync.existsSync('./ticketData.json') ? 'Loaded' : 'Missing'}`);
                     features.push(`${fsSync.existsSync('./moderationData.json') ? '?' : '?'} Moderation Data: ${fsSync.existsSync('./moderationData.json') ? 'Loaded' : 'Missing'}`);
                     features.push(`${fsSync.existsSync('./serverSettings.json') ? '?' : '?'} Server Settings: ${fsSync.existsSync('./serverSettings.json') ? 'Loaded' : 'Missing'}`);
-                    features.push(`${fsSync.existsSync('./analyticsData.json') ? '?' : '?'} Analytics Data: ${fsSync.existsSync('./analyticsData.json') ? 'Loaded' : 'Missing'}`);
                     features.push(`${fsSync.existsSync('./cfwKnowledge.json') ? '?' : '?'} CFW Knowledge: ${fsSync.existsSync('./cfwKnowledge.json') ? 'Loaded' : 'Missing'}`);
                     
                     // Count registered commands from feature files
@@ -1964,8 +1912,7 @@ client.on('guildCreate', async (guild) => {
                 byCommand: {}
             }
         };
-        saveAnalyticsData();
-    }
+}
     
     console.log(`✨ Initialized fresh data for: ${guild.name}`);
     
@@ -1984,21 +1931,14 @@ client.on('messageCreate', async (message) => {
     const now = Date.now();
     
     // Track message analytics
-    const analytics = initializeAnalyticsData(message.guild.id);
-    analytics.messages.total++;
-    analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1;
-    analytics.messages.byChannel[message.channel.id] = (analytics.messages.byChannel[message.channel.id] || 0) + 1;
-    
-    // Track by hour (0-23) and day (0-6)
+analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1;
+// Track by hour (0-23) and day (0-6)
     const messageDate = new Date(now);
     const hour = messageDate.getHours();
     const day = messageDate.getDay(); // 0 = Sunday, 6 = Saturday
     analytics.messages.byHour[hour]++;
     analytics.messages.byDay[day]++;
-    
-    saveAnalyticsData();
-    
-    // Auto-thread channel (1094846351101132872) - Create thread for images, delete text-only messages
+// Auto-thread channel (1094846351101132872) - Create thread for images, delete text-only messages
     if (message.channel.id === '1094846351101132872') {
         const hasImage = message.attachments.size > 0 && message.attachments.some(att => 
             att.contentType && att.contentType.startsWith('image/')
@@ -2552,16 +2492,12 @@ client.on('guildMemberAdd', async (member) => {
     }
     
     // Track member join in analytics
-    const analytics = initializeAnalyticsData(member.guild.id);
-    analytics.members.joins.push({
+analytics.members.joins.push({
         userId: member.id,
         username: member.user.tag,
         timestamp: Date.now()
     });
-    analytics.members.currentCount = member.guild.memberCount;
-    saveAnalyticsData();
-    
-    // Log member join
+// Log member join
     await logEvent(member.guild, 'memberJoin', {
         user: member.user.tag,
         userId: member.id,
@@ -2658,16 +2594,12 @@ client.on('guildMemberRemove', (member) => {
     const settings = getGuildSettings(member.guild.id);
     
     // Track member leave in analytics
-    const analytics = initializeAnalyticsData(member.guild.id);
-    analytics.members.leaves.push({
+analytics.members.leaves.push({
         userId: member.id,
         username: member.user.tag,
         timestamp: Date.now()
     });
-    analytics.members.currentCount = member.guild.memberCount;
-    saveAnalyticsData();
-    
-    // Log member leave
+// Log member leave
     const roles = member.roles.cache.filter(r => r.id !== member.guild.id).map(r => r.name).join(', ') || 'None';
     logEvent(member.guild, 'memberLeave', {
         user: member.user.tag,
@@ -2841,11 +2773,7 @@ client.on('interactionCreate', async (interaction) => {
         if (interaction.isChatInputCommand()) {
             // Track command usage in analytics
             if (interaction.guild) {
-                const analytics = initializeAnalyticsData(interaction.guild.id);
-                analytics.commands.total++;
-                analytics.commands.byCommand[interaction.commandName] = (analytics.commands.byCommand[interaction.commandName] || 0) + 1;
-                saveAnalyticsData();
-            }
+}
             
             // Verify bot has necessary permissions
             if (interaction.guild && interaction.guild.members.me && !interaction.guild.members.me.permissions.has(PermissionFlagsBits.SendMessages)) {
@@ -3960,9 +3888,7 @@ client.on('interactionCreate', async (interaction) => {
     // Analytics command
     if (interaction.commandName === 'analytics') {
         if (!requireAdmin(interaction)) return;
-        
-        const analytics = initializeAnalyticsData(interaction.guild.id);
-        const now = Date.now();
+const now = Date.now();
         const daysSinceStart = Math.floor((now - analytics.startDate) / (1000 * 60 * 60 * 24));
         const daysSinceReset = Math.floor((now - analytics.lastReset) / (1000 * 60 * 60 * 24));
         
