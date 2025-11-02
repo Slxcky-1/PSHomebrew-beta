@@ -3107,7 +3107,7 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '🎨',
-                    value: `**Bot Customization**\n✅ Available\n\nCustom server nicknames\nUse **/botcustom**\nPer-server branding`,
+                    value: `**Bot Customization**\n✅ Available\n\nCustom server nicknames\nUse **/custombot**\nPer-server branding`,
                     inline: true
                 }
             )
@@ -3773,72 +3773,53 @@ client.on('interactionCreate', async (interaction) => {
     }
     
     // Bot Customization command
-    if (interaction.commandName === 'botcustom') {
+    if (interaction.commandName === 'custombot') {
         if (!requireAdmin(interaction)) return;
         
-        const subcommand = interaction.options.getSubcommand();
         const settings = getGuildSettings(interaction.guild.id);
         
         if (!settings.customization) {
             settings.customization = defaultSettings.customization;
         }
         
-        if (subcommand === 'view') {
-            const embed = new EmbedBuilder()
-                .setTitle('🎨 Bot Customization Settings')
-                .setColor(0x5865F2)
-                .setDescription('Current bot customization for this server')
-                .addFields(
-                    { 
-                        name: '📝 Bot Nickname', 
-                        value: settings.customization.botName || '*Using default name*',
-                        inline: false 
-                    },
-                    {
-                        name: 'ℹ️ Note',
-                        value: 'Bot avatar cannot be changed per-server (Discord limitation).\nOnly the nickname can be customized per server.',
-                        inline: false
-                    }
-                )
-                .setFooter({ text: 'Use /botcustom name to change the bot nickname' })
-                .setTimestamp();
-            
-            return interaction.reply({ embeds: [embed], ephemeral: true });
-        }
+        // Create interactive panel
+        const embed = new EmbedBuilder()
+            .setTitle('🎨 Bot Customization Panel')
+            .setColor(0x5865F2)
+            .setDescription(
+                'Customize how the bot appears in your server.\n\n' +
+                '**Current Settings:**'
+            )
+            .addFields(
+                { 
+                    name: '📝 Bot Nickname', 
+                    value: settings.customization.botName || '*Using default name*',
+                    inline: false 
+                },
+                {
+                    name: 'ℹ️ Note',
+                    value: 'Bot avatar cannot be changed per-server due to Discord limitations.\nOnly the nickname can be customized per server.',
+                    inline: false
+                }
+            )
+            .setFooter({ text: 'Bot Customization • Admin Only' })
+            .setTimestamp();
         
-        if (subcommand === 'name') {
-            const nickname = interaction.options.getString('nickname');
-            
-            if (!nickname) {
-                // Reset to default
-                settings.customization.botName = null;
-                saveSettings();
-                await applyServerCustomization(interaction.guild);
-                
-                return interaction.reply({
-                    content: '✅ Bot nickname reset to default!',
-                    ephemeral: true
-                });
-            }
-            
-            // Validate nickname length
-            if (nickname.length > 32) {
-                return interaction.reply({
-                    content: '❌ Nickname must be 32 characters or less!',
-                    ephemeral: true
-                });
-            }
-            
-            // Set custom nickname
-            settings.customization.botName = nickname;
-            saveSettings();
-            await applyServerCustomization(interaction.guild);
-            
-            return interaction.reply({
-                content: `✅ Bot nickname changed to **${nickname}**!`,
-                ephemeral: true
-            });
-        }
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('custombot_set_name')
+                    .setLabel('Set Nickname')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('✏️'),
+                new ButtonBuilder()
+                    .setCustomId('custombot_reset_name')
+                    .setLabel('Reset to Default')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🔄')
+            );
+        
+        await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
     }
     
     // AI Setup command - Interactive Panel
@@ -6854,6 +6835,52 @@ client.on('interactionCreate', async (interaction) => {
             }
         }
         
+        // Custom Bot button handlers
+        if (interaction.customId.startsWith('custombot_')) {
+            if (!requireAdmin(interaction)) return;
+            
+            const settings = getGuildSettings(interaction.guild.id);
+            
+            if (interaction.customId === 'custombot_set_name') {
+                const modal = new ModalBuilder()
+                    .setCustomId('custombot_name_modal')
+                    .setTitle('Set Bot Nickname');
+                
+                const nicknameInput = new TextInputBuilder()
+                    .setCustomId('bot_nickname')
+                    .setLabel('Bot Nickname (max 32 characters)')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('Enter new bot nickname...')
+                    .setMaxLength(32)
+                    .setRequired(true);
+                
+                if (settings.customization?.botName) {
+                    nicknameInput.setValue(settings.customization.botName);
+                }
+                
+                modal.addComponents(new ActionRowBuilder().addComponents(nicknameInput));
+                await interaction.showModal(modal);
+                return;
+            }
+            
+            if (interaction.customId === 'custombot_reset_name') {
+                if (!settings.customization) {
+                    settings.customization = defaultSettings.customization;
+                }
+                
+                settings.customization.botName = null;
+                saveSettings();
+                await applyServerCustomization(interaction.guild);
+                
+                await interaction.update({
+                    content: '✅ Bot nickname reset to default!',
+                    embeds: [],
+                    components: []
+                });
+                return;
+            }
+        }
+        
         // Webhook system button handlers
         if (interaction.customId.startsWith('webhook_')) {
             if (!requireAdmin(interaction)) return;
@@ -9668,6 +9695,33 @@ client.on('interactionCreate', async (interaction) => {
                             .setTimestamp();
                         
                         await interaction.reply({ embeds: [embed], ephemeral: true });
+                    }
+                    
+                    else if (interaction.customId === 'custombot_name_modal') {
+                        const nickname = interaction.fields.getTextInputValue('bot_nickname').trim();
+                        const settings = getGuildSettings(interaction.guild.id);
+                        
+                        if (!settings.customization) {
+                            settings.customization = defaultSettings.customization;
+                        }
+                        
+                        // Validate nickname length
+                        if (nickname.length > 32) {
+                            return interaction.reply({
+                                content: '❌ Nickname must be 32 characters or less!',
+                                ephemeral: true
+                            });
+                        }
+                        
+                        // Set custom nickname
+                        settings.customization.botName = nickname;
+                        saveSettings();
+                        await applyServerCustomization(interaction.guild);
+                        
+                        await interaction.reply({
+                            content: `✅ Bot nickname changed to **${nickname}**!`,
+                            ephemeral: true
+                        });
                     }
                     
                     else if (interaction.customId === 'webhook_embed_modal') {
