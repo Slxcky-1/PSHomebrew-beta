@@ -1100,7 +1100,7 @@ function initializeTicketSystem(guildId) {
 async function generateTranscript(channel) {
     try {
         let transcript = `+-----------------------------------------------------------+\n`;
-        transcript += `�           TICKET TRANSCRIPT - ${channel.name.toUpperCase()}              �\n`;
+        transcript += `📋           TICKET TRANSCRIPT - ${channel.name.toUpperCase()}              📋\n`;
         transcript += `+-----------------------------------------------------------+\n\n`;
         transcript += `📅 Created: ${channel.createdAt.toLocaleString()}\n`;
         transcript += `#️⃣ Channel: #${channel.name}\n`;
@@ -2298,14 +2298,14 @@ analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1
                 }
 
                 // AGGRESSIVE TRUNCATION: DeepSeek often ignores maxTokens, so enforce word limits
-                // Rough estimate: 1 token � 0.75 words, so maxTokens * 0.75 = word limit
+                // Rough estimate: 1 token ≈ 0.75 words, so maxTokens * 0.75 = word limit
                 let safeText = text;
                 const maxWords = Math.floor(toneConfig.maxTokens * 0.75); // Conservative word limit
                 const words = text.split(/\s+/);
                 
                 if (words.length > maxWords) {
                     safeText = words.slice(0, maxWords).join(' ') + '... *(truncated)*';
-                    console.log(`✅ Response truncated: ${words.length} words ? ${maxWords} words (limit: ${toneConfig.maxTokens} tokens)`);
+                    console.log(`✂️ Response truncated: ${words.length} words → ${maxWords} words (limit: ${toneConfig.maxTokens} tokens)`);
                 }
 
                 // Cache common responses (e.g., "what is jailbreak", FAQs)
@@ -2825,7 +2825,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 }
             )
-            .setFooter({ text: 'Multi-Purpose Bot � Use /features for more info' })
+            .setFooter({ text: 'Multi-Purpose Bot • Use /features for more info' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [helpEmbed] });
@@ -3084,7 +3084,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: true
                 }
             )
-            .setFooter({ text: 'Use /viewsettings to see all server settings � /aistats for token usage' })
+            .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for token usage' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
@@ -3205,7 +3205,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: true
                 }
             )
-            .setFooter({ text: 'Use /viewsettings to see all server settings � /aistats for AI token tracking' })
+            .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for AI token tracking' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
@@ -3778,12 +3778,12 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '📌 Note',
-                    value: '� Nicknames are per-server\n� Avatar changes are global (Discord limitation)',
+                    value: '• Nicknames are per-server\n• Avatar changes are global (Discord limitation)',
                     inline: false
                 }
             )
             .setThumbnail(currentAvatar)
-            .setFooter({ text: 'Bot Customization � Admin Only' })
+            .setFooter({ text: 'Bot Customization • Admin Only' })
             .setTimestamp();
         
         const row1 = new ActionRowBuilder()
@@ -3989,7 +3989,7 @@ const now = Date.now();
                 }
             )
             .setFooter({ 
-                text: `Tracking since ${new Date(analytics.startDate).toLocaleDateString()} � ${daysSinceStart} days of data` 
+                text: `Tracking since ${new Date(analytics.startDate).toLocaleDateString()} • ${daysSinceStart} days of data` 
             })
             .setTimestamp();
         
@@ -4129,7 +4129,7 @@ const now = Date.now();
                     { name: '📌 Memory', value: 'Match pairs', inline: true },
                     { name: '📌 Fast Type', value: 'Typing test', inline: true },
                     { name: '📌 Find Emoji', value: 'Find the emoji', inline: true },
-                    { name: '📌 Guess Pok�mon', value: 'Name that Pok�mon', inline: true },
+                    { name: '📌 Guess Pokémon', value: 'Name that Pokémon', inline: true },
                     { name: '📌 RPS', value: 'Rock Paper Scissors', inline: true },
                     { name: '📌 Hangman', value: 'Guess the word', inline: true },
                     { name: '📌 Trivia', value: 'Answer questions', inline: true },
@@ -4183,7 +4183,7 @@ const now = Date.now();
                                         .setStyle(ButtonStyle.Primary),
                 new ButtonBuilder()
                     .setCustomId('game_guesspokemon')
-                    .setLabel('Guess Pok�mon')
+                    .setLabel('Guess Pokémon')
                                         .setStyle(ButtonStyle.Primary)
             );
         
@@ -5166,10 +5166,10 @@ const now = Date.now();
                 'Click the button below to open a private support ticket. ' +
                 'A new channel will be created where you can discuss your issue with our staff.\n\n' +
                 '**What to expect:**\n' +
-                '� A private channel will be created for you\n' +
-                '� Only you and staff members can see it\n' +
-                '� Our team will respond as soon as possible\n' +
-                '� You can close the ticket when your issue is resolved\n\n' +
+                '• A private channel will be created for you\n' +
+                '• Only you and staff members can see it\n' +
+                '• Our team will respond as soon as possible\n' +
+                '• You can close the ticket when your issue is resolved\n\n' +
                 '🔸━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
                 '**Ready to get help?** Click the button below! ✅'
             )
@@ -5393,11 +5393,11 @@ const now = Date.now();
             .setDescription(
                 `Create professional webhook embeds with custom content.\n\n` +
                 `**Features:**\n` +
-                `� Custom titles, descriptions, and fields\n` +
-                `� Image and thumbnail support\n` +
-                `� Color customization\n` +
-                `� Footer and timestamp options\n` +
-                `� Save and reuse templates\n\n` +
+                `• Custom titles, descriptions, and fields\n` +
+                `• Image and thumbnail support\n` +
+                `• Color customization\n` +
+                `• Footer and timestamp options\n` +
+                `• Save and reuse templates\n\n` +
                 `Click the buttons below to get started.`
             )
             .addFields(
@@ -5405,7 +5405,7 @@ const now = Date.now();
                 { name: '📌 Custom Embed', value: 'Design your embed with interactive forms', inline: true },
                 { name: '📌 Templates', value: 'Save frequently used embed designs', inline: true }
             )
-            .setFooter({ text: 'Webhook Creator � Admin Only' })
+            .setFooter({ text: 'Webhook Creator • Admin Only' })
             .setTimestamp();
         
         const row = new ActionRowBuilder()
@@ -5838,7 +5838,7 @@ const now = Date.now();
                             .addComponents(
                                 new ButtonBuilder()
                                     .setCustomId('log_back')
-                                    .setLabel('� Back to Main Panel')
+                                    .setLabel('⬅️ Back to Main Panel')
                                     .setStyle(ButtonStyle.Secondary)
                             );
                         
@@ -6045,7 +6045,7 @@ const now = Date.now();
                     .addComponents(
                         new ButtonBuilder()
                             .setCustomId('log_back')
-                            .setLabel('� Back to Main Panel')
+                            .setLabel('⬅️ Back to Main Panel')
                             .setStyle(ButtonStyle.Secondary)
                     );
                 
@@ -6947,7 +6947,7 @@ const now = Date.now();
                     .setCustomId('embed_description')
                     .setLabel('Description (use :emojiname: or Unicode)')
                     .setStyle(TextInputStyle.Paragraph)
-                    .setPlaceholder('�2.50 - 250K + 50K Free!\n�5.00 - 500K + 150 Free!')
+                    .setPlaceholder('$2.50 - 250K + 50K Free!\n$5.00 - 500K + 150 Free!')
                     .setRequired(true);
                 
                 const colorInput = new TextInputBuilder()
@@ -7045,7 +7045,7 @@ const now = Date.now();
                     .setCustomId('embed_description')
                     .setLabel('Description (use :emojiname: or Unicode)')
                     .setStyle(TextInputStyle.Paragraph)
-                    .setPlaceholder('�2.50 - 250K + 50K Free!\n�5.00 - 500K + 150 Free!')
+                    .setPlaceholder('$2.50 - 250K + 50K Free!\n$5.00 - 500K + 150 Free!')
                     .setRequired(true);
                 
                 const colorInput = new TextInputBuilder()
@@ -8499,13 +8499,13 @@ const now = Date.now();
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '✅ Guess The Pok�mon',
+                        title: '✅ Guess The Pokémon',
                         color: '#5865F2'
                     },
                     timeoutTime: 60000,
                     winMessage: '✅ You guessed it right! It was **{pokemon}**.',
                     loseMessage: '✅ Better luck next time! It was **{pokemon}**.',
-                    errMessage: '? Unable to fetch Pok�mon data! Please try again.',
+                    errMessage: '❌ Unable to fetch Pokémon data! Please try again.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
@@ -9094,7 +9094,7 @@ const now = Date.now();
                     customMessage
                 )
                 .setColor(0x00FF00)
-                .setFooter({ text: `Ticket System � ${interaction.guild.name}` })
+                .setFooter({ text: `Ticket System • ${interaction.guild.name}` })
                 .setTimestamp();
             
             const row = new ActionRowBuilder()
@@ -9630,13 +9630,13 @@ const now = Date.now();
                             .setDescription(
                                 '**Need help?** Create a support ticket!\n\n' +
                                 '**How it works:**\n' +
-                                '� Click the button below to open a ticket\n' +
-                                '� A private channel will be created for you\n' +
-                                '� Our staff team will assist you shortly\n\n' +
+                                '• Click the button below to open a ticket\n' +
+                                '• A private channel will be created for you\n' +
+                                '• Our staff team will assist you shortly\n\n' +
                                 '**What to include:**\n' +
-                                '� Describe your issue clearly\n' +
-                                '� Include any relevant details\n' +
-                                '� Be patient while we help you\n\n' +
+                                '• Describe your issue clearly\n' +
+                                '• Include any relevant details\n' +
+                                '• Be patient while we help you\n\n' +
                                 '🔸━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
                                 '**Click the button below to get started! 👇**'
                             )

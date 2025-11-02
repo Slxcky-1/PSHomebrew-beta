@@ -2,7 +2,7 @@
 
 Quick setup guide for installing the PSHomebrew Discord Bot on Arch Linux and Ubuntu/Debian.
 
-## �️ Installation Methods
+## ⚙️ Installation Methods
 
 Choose your preferred installation method:
 
