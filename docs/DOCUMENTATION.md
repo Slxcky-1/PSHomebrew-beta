@@ -1,105 +1,147 @@
 # PSHomebrew Discord Bot - Complete Documentation
 
-> A fully customizable and interactive Discord bot for the PSHomebrew community with leveling, moderation, raid protection, games, PS3 error detection, AI chat, and comprehensive settings management.
+> A powerful multi-purpose Discord bot for PlayStation homebrew communities with AI assistance, moderation, leveling, tickets, and more.
 
 **Version:** 2.0  
-**Last Updated:** October 28, 2025
+**Last Updated:** November 2, 2025
 
 ---
 
 ## 📚 Table of Contents
 
 1. [Overview](#overview)
-2. [Quick Start](#quick-start)
-3. [Features](#features)
-4. [Setup Instructions](#setup-instructions)
+2. [Quick Start Installation](#quick-start-installation)
+3. [Complete Features List](#complete-features-list)
+4. [Configuration Guide](#configuration-guide)
 5. [Commands Reference](#commands-reference)
-6. [Interactive Settings Guide](#interactive-settings-guide)
-7. [Moderation System](#moderation-system)
-8. [Raid Protection](#raid-protection)
-9. [Error Logging System](#error-logging-system)
-10. [PS3 Error Codes](#ps3-error-codes)
-11. [Usage Examples](#usage-examples)
-12. [Low-End PC Optimization](#low-end-pc-optimization)
-13. [Troubleshooting](#troubleshooting)
-14. [File Structure](#file-structure)
+6. [AI Chat System](#ai-chat-system)
+7. [Leveling System](#leveling-system)
+8. [Moderation System](#moderation-system)
+9. [Raid Protection](#raid-protection)
+10. [Ticket System](#ticket-system)
+11. [SellHub Integration](#sellhub-integration)
+12. [Error Code Detection](#error-code-detection)
+13. [Games System](#games-system)
+14. [Low-End PC Optimization](#low-end-pc-optimization)
+15. [Environment Variables](#environment-variables)
+16. [Auto-Update System](#auto-update-system)
+17. [Troubleshooting](#troubleshooting)
+18. [File Structure](#file-structure)
 
 ---
 
 ## Overview
 
-A **fully customizable** and **interactive** Discord bot for the PSHomebrew community with leveling system (1-1000), welcome/leave messages, **PS3 error code detection** (347 codes), AI chat assistant, comprehensive moderation, raid protection, 15 interactive games, and complete settings management.
+A **powerful multi-purpose Discord bot** for PlayStation homebrew communities featuring AI chat, advanced moderation, leveling system, ticket support, SellHub integration, and 351+ console error code detection (PS1-PS5, PSP, PS Vita).
 
-### Key Highlights
-- ✅ **347 PS3 error codes** - Automatic detection with instant troubleshooting
-- ✅ **AI Chat Assistant** - Powered by DeepSeek with British personality
-- ✅ **Complete moderation system** - Warnings, timeouts, kicks, bans with auto-actions
-- ✅ **Raid protection** - Automatic detection and prevention
-- ✅ **15 interactive games** - Fun mini-games for your community
-- ✅ **Leveling system** - Fully customizable XP and progression
-- ✅ **Critical error logging** - Discord channel notifications
-- ✅ **No config editing** - Everything controlled via slash commands
-- ✅ **Per-server settings** - Each server has independent configuration
-- ✅ **Real-time changes** - No restart needed
+### 🌟 Key Highlights
+- 🤖 **AI Chat Assistant** - DeepSeek & ChatGPT with web search integration
+- 🎮 **351+ Console Error Codes** - PS1, PS2, PS3, PS4, PS5, PSP, PS Vita automatic detection
+- 🛡️ **Advanced Moderation** - Warnings, infractions, raid protection with auto-actions
+- 📊 **Leveling System** - Server-specific XP progression with role rewards
+- 🎫 **Ticket System** - Professional support channel management
+- 💰 **SellHub Integration** - Automatic role assignment on purchases
+- 🎮 **15 Interactive Games** - Built-in entertainment for your community
+- 🌐 **Multi-Language** - 6 languages supported (EN, ES, FR, DE, PT, JA)
+- 🔄 **Auto-Updates** - GitHub integration with one-click updates
+- ⚡ **Performance Optimized** - Low-end PC mode with memory management
 
 ---
 
-## Quick Start
+## Quick Start Installation
 
 ### Prerequisites
-- Node.js 18.x or higher
-- npm or yarn
-- Discord Bot Token
-- DeepSeek API Key (optional, for AI features)
+- **Node.js** 18+ ([Download](https://nodejs.org/))
+- **Discord Bot Token** ([Developer Portal](https://discord.com/developers/applications))
+- **DeepSeek API Key** (Optional - [Platform](https://platform.deepseek.com/))
+- **ChatGPT API Key** (Optional - [OpenAI](https://platform.openai.com/))
 
 ### Installation Steps
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/discord-bot.git
-cd discord-bot
+# 1. Clone the repository
+git clone https://github.com/Slxcky-1/PSHomebrew-beta.git
+cd PSHomebrew-beta
 
-# Install dependencies
+# 2. Install dependencies
 npm install
 
-# Create configuration file
+# 3. Create configuration file
 cp config.example.json config.json
-# Edit config.json with your tokens
+# Edit config.json with your credentials
 
-# Deploy commands to Discord
+# 4. Deploy slash commands
 node deploy-commands.js
 
-# Start the bot
+# 5. Start the bot
 npm start
+
+# Optional: Low-end PC mode
+npm run start:lowend
 ```
 
-### Get Your Tokens
+### Discord Bot Setup
 
-**Discord Bot Token:**
-1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
-2. Create New Application
-3. Go to "Bot" section
-4. Click "Reset Token" and copy it
-5. Enable these Privileged Gateway Intents:
-   - Presence Intent
-   - Server Members Intent
-   - Message Content Intent
+1. **Create Application**
+   - Go to [Discord Developer Portal](https://discord.com/developers/applications)
+   - Click "New Application"
+   - Give it a name and create
 
-**DeepSeek API Key** (Optional - for AI features):
-1. Sign up at [DeepSeek Platform](https://platform.deepseek.com)
-2. Go to API Keys section
-3. Create new key
-4. Free tier: 50M tokens/day
+2. **Create Bot User**
+   - Go to "Bot" section
+   - Click "Add Bot"
+   - Copy the bot token
 
-### Configuration File (config.json)
+3. **Enable Intents** (Required!)
+   - ✅ Server Members Intent
+   - ✅ Message Content Intent
+   - ✅ Presence Intent
+
+4. **Invite Bot**
+   - Go to OAuth2 → URL Generator
+   - Scopes: `bot`, `applications.commands`
+   - Permissions: `Administrator` (recommended)
+   - Copy and use the generated URL
+
+### API Keys (Optional)
+
+**DeepSeek AI** (Free - 50M tokens/day):
+- Sign up at [platform.deepseek.com](https://platform.deepseek.com)
+- Create API key
+- Add to config.json
+
+**ChatGPT/OpenAI** (Paid):
+- Sign up at [platform.openai.com](https://platform.openai.com)
+- Create API key
+- Add to config.json
+
+---
+
+## Configuration Guide
+
+### Basic Config (`config.json`)
 ```json
 {
-  "token": "your_bot_token_here",
-  "clientId": "your_client_id_here",
-  "deepseekApiKey": "your_deepseek_api_key_here",
-  "botOwnerId": "your_discord_user_id"
+  "token": "YOUR_DISCORD_BOT_TOKEN",
+  "clientId": "YOUR_APPLICATION_CLIENT_ID",
+  "botOwnerId": "YOUR_DISCORD_USER_ID",
+  "deepseekApiKey": "YOUR_DEEPSEEK_API_KEY_OPTIONAL",
+  "openaiApiKey": "YOUR_OPENAI_API_KEY_OPTIONAL"
 }
 ```
+
+### SellHub Integration (Optional)
+Add these to your config.json for automatic purchase handling:
+```json
+{
+  "sellhubGuildId": "YOUR_GUILD_ID",
+  "sellhubRoleId": "ROLE_TO_GIVE_BUYERS",
+  "sellhubLogChannelId": "LOG_CHANNEL_ID",
+  "sellhubWebhookSecret": "YOUR_WEBHOOK_SECRET"
+}
+```
+
+**SellHub Webhook URL:** `http://YOUR_SERVER:3000/sellhub-webhook`
 
 ---
 
@@ -173,10 +215,20 @@ When running `/update`, these files are automatically backed up:
 
 ---
 
-## Features
+## Complete Features List
 
-### 🎮 PS3 Error Code Detection (347 Codes)
-- **347 PS3 error codes** automatically detected (OFW, CFW, SYSCON, PSN, etc.)
+### 🤖 AI Chat Assistant
+- **DeepSeek & ChatGPT Integration** - Dual AI model support
+- **Web Search Integration** - DuckDuckGo search with live link validation
+- **PlayStation Expertise** - Specialized prompts for PS homebrew community
+- **Token Quota System** - 5,000 tokens per user per day
+- **Response Caching** - 30-50% API call reduction
+- **Jailbreak Protection** - Automatic detection and lockdown
+- **Context-Aware Conversations** - Remembers chat history
+- **Tone Analysis** - Adjusts responses based on user intent
+
+### 🎮 Console Error Code Detection (351+ Codes)
+- **351+ error codes** automatically detected across multiple consoles
 - **Instant troubleshooting** - just type an error code in chat
 - **Comprehensive database** covering network, system, disc, firmware, and more
 - **Beautiful embeds** with error descriptions and solutions
