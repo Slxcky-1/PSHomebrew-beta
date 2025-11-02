@@ -1076,7 +1076,7 @@ function initializeTicketSystem(guildId) {
             settings: {
                 enabled: false,
                 staffRoleId: null,
-                ticketMessage: '**Welcome to your support ticket!**\n\n👋 Our support team will be with you shortly. 👋\n\n**Please describe your issue in detail:**\n� What is the problem?\n� When did it start?\n� Have you tried any solutions?\n\n**Available Actions:**\n✋ Click "Claim Ticket" to take ownership (Staff only)\n🔒 Click "Close Ticket" to close this ticket',
+                ticketMessage: '**Welcome to your support ticket!**\n\n👋 Our support team will be with you shortly. 👋\n\n**Please describe your issue in detail:**\n• What is the problem?\n• When did it start?\n• Have you tried any solutions?\n\n**Available Actions:**\n✋ Click "Claim Ticket" to take ownership (Staff only)\n🔒 Click "Close Ticket" to close this ticket',
                 closedMessage: 'Thank you for contacting support! 👍\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
                 categoryName: '🎫 Tickets'
             }
@@ -1088,8 +1088,8 @@ function initializeTicketSystem(guildId) {
         ticketData[guildId].settings = {
             enabled: false,
             staffRoleId: null,
-            ticketMessage: '**Welcome to your support ticket!**\n\n?? Our support team will be with you shortly. 👋\n\n**Please describe your issue in detail:**\n� What is the problem?\n� When did it start?\n� Have you tried any solutions?\n\n**Available Actions:**\n?? Click "Claim Ticket" to take ownership (Staff only)\n?? Click "Close Ticket" to close this ticket',
-            closedMessage: 'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
+            ticketMessage: '**Welcome to your support ticket!**\n\n✋ Our support team will be with you shortly. 👋\n\n**Please describe your issue in detail:**\n• What is the problem?\n• When did it start?\n• Have you tried any solutions?\n\n**Available Actions:**\n👍 Click "Claim Ticket" to take ownership (Staff only)\n🔒 Click "Close Ticket" to close this ticket',
+            closedMessage: 'Thank you for contacting support! 👋\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
             categoryName: '✅ Tickets'
         };
         saveTicketData();
@@ -1982,7 +1982,7 @@ analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1
             try {
                 await message.delete();
                 const reply = await message.channel.send({
-                    content: `${message.author}, please don't type in this channel! ??\n\n**Use the threads** created from image posts to discuss. Post an image to create a new thread, or join an existing thread to chat! ✅`
+                    content: `${message.author}, please don't type in this channel! ⛔\n\n**Use the threads** created from image posts to discuss. Post an image to create a new thread, or join an existing thread to chat! ✅`
                 });
                 
                 // Auto-delete the warning after 10 seconds
@@ -2124,7 +2124,7 @@ analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1
         // Content moderation (compacted)
         const lowercaseMsg = message.content.toLowerCase();
         if (/\b(n[i1]gg[ae]r|f[a4]gg[o0]t|ch[i1]nk|sp[i1]c|k[i1]ke|dyke|trann[yi]|wet\s*back|trump|biden|harris|election|democrat|republican|liberal|conservative|leftist|right\s*wing|left\s*wing|politics|political|ret[a4]rd|mongoloid|cripple|midget|kill\s*(yourself|himself|herself|themselves)|suicide|self\s*harm|terrorist|bomb\s*making)\b/i.test(lowercaseMsg)) {
-            return message.reply('✅ I can\'t respond to that. Keep it respectful and avoid sensitive topics. Cheers! ??✅');
+            return message.reply('✅ I can\'t respond to that. Keep it respectful and avoid sensitive topics. Cheers! 👋✅');
         }
         
         // Rage bait / troll detection - dismiss obvious bait without long responses
@@ -2150,7 +2150,7 @@ analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1
                     .setFooter({ text: 'Mention bot in server to unlock' })
                 ]}).catch(console.error);
             }).catch(console.error);
-            return message.reply('✅ **Manipulation attempt detected.** ??\n\nAI disabled. Owner notified.');
+            return message.reply('✅ **Manipulation attempt detected.** 🚫\n\nAI disabled. Owner notified.');
         }
         
         // Check if message contains PS3/PS4 error code patterns (allow these through)
@@ -2177,7 +2177,7 @@ analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1
         const cachedResponse = getCachedResponse(message.content);
         if (cachedResponse) {
             console.log('💾 Using cached response (API call saved)');
-            return message.reply(`${cachedResponse}\n\n*??*💾 Cached response*`);
+            return message.reply(`${cachedResponse}\n\n*⚡💾 Cached response*`);
         }
         
         // Analyze tone and add message
@@ -2215,11 +2215,11 @@ analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1
                         const liveLinks = searchResults.filter(r => r.isLive);
                         const deadLinks = searchResults.filter(r => !r.isLive);
                         
-                        searchContext = '\n\n?? VERIFIED SOURCES - YOU MUST INCLUDE THESE LINKS IN YOUR RESPONSE:\n';
+                        searchContext = '\n\n🔗 VERIFIED SOURCES - YOU MUST INCLUDE THESE LINKS IN YOUR RESPONSE:\n';
                         
                         if (liveLinks.length > 0) {
                             searchContext += 'LIVE LINKS (? Verified accessible):\n' + liveLinks.map((r, i) => 
-                                `${i + 1}. ${r.title}\n   ${r.description}\n   ?? Link: ${r.url} ${r.status}`
+                                `${i + 1}. ${r.title}\n   ${r.description}\n   🔗 Link: ${r.url} ${r.status}`
                             ).join('\n\n');
                         }
                         
@@ -2229,7 +2229,7 @@ analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1
                             ).join('\n');
                         }
                         
-                        searchContext += '\n\n?? CRITICAL: Always include 2-3 relevant website links in your response. ONLY recommend LIVE LINKS (?). DO NOT include dead/broken links (?). Format links as PLAIN URLs ONLY (just the URL, no markdown brackets). Discord will auto-format them. DO NOT use [text](url) syntax. Example: ? https://wololo.net/category/ps5/ | ? [Wololo](https://wololo.net). Users need direct access to download pages, guides, and tools.';
+                        searchContext += '\n\n⚠️ CRITICAL: Always include 2-3 relevant website links in your response. ONLY recommend LIVE LINKS (✅). DO NOT include dead/broken links (❌). Format links as PLAIN URLs ONLY (just the URL, no markdown brackets). Discord will auto-format them. DO NOT use [text](url) syntax. Example: ✅ https://wololo.net/category/ps5/ | ? [Wololo](https://wololo.net). Users need direct access to download pages, guides, and tools.';
                     }
                 }
                 
@@ -2319,8 +2319,8 @@ analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1
 
                 // Send response with OUTPUT token usage only (not total tokens)
                 const tokenFooter = aiProvider === '✅ ChatGPT' 
-                    ? `\n\n*?? ChatGPT: ${outputTokens} tokens*`
-                    : `\n\n*?? DeepSeek: ${outputTokens} tokens*`;
+                    ? `\n\n*💬 ChatGPT: ${outputTokens} tokens*`
+                    : `\n\n*🤖 DeepSeek: ${outputTokens} tokens*`;
                 if (safeText.length > 1900) {
                     const chunks = safeText.match(/[\s\S]{1,1900}/g) || [];
                     await message.reply(chunks[0]);
@@ -2417,7 +2417,7 @@ async function checkKeywords(message, settings) {
         
         const errorEmbed = new EmbedBuilder()
             .setTitle(`? ${consoleType} Error Code: ${foundErrorCode}`)
-            .setDescription(`\n\n??? **${errorDescription}**\n\n\n**${categoryInfo.name}**`)
+            .setDescription(`\n\n⚠️ **${errorDescription}**\n\n\n**${categoryInfo.name}**`)
             .setColor(categoryInfo.color)
             .setTimestamp();
         
@@ -2810,12 +2810,12 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '??� Admin - Welcome/Leave Settings',
+                    name: '👋 Admin - Welcome/Leave Settings',
                     value: '`/setwelcomechannel` - Set welcome channel\n`/setleavechannel` - Set leave channel\n`/setwelcomemessage` - Set custom welcome message\n`/setleavemessage` - Set custom leave message\n`/resetmessages` - Reset to default messages',
                     inline: false
                 },
                 {
-                    name: '??� Admin - PS3 Error Code Settings',
+                    name: '🎮 Admin - PS3 Error Code Settings',
                     value: '`/addkeyword` - Add an error code\n`/removekeyword` - Remove an error code\n`/listkeywords` - List all error codes\n`/setkeywordresponse` - Set custom response',
                     inline: false
                 },
@@ -2853,7 +2853,7 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '📌 Status',
-                    value: wsLatency < 100 ? '?? Excellent' : wsLatency < 200 ? '?? Good' : '?? High',
+                    value: wsLatency < 100 ? '🟢 Excellent' : wsLatency < 200 ? '🟡 Good' : '🔴 High',
                     inline: true
                 }
             )
@@ -2919,7 +2919,7 @@ client.on('interactionCreate', async (interaction) => {
         const settings = getGuildSettings(interaction.guild.id);
         
         const settingsEmbed = new EmbedBuilder()
-            .setTitle('??� Server Settings')
+            .setTitle('⚙️ Server Settings')
             .setDescription(`Current configuration for **${interaction.guild.name}**`)
             .setColor(0xFFAA00)
             .addFields(
@@ -3156,7 +3156,7 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '📌 Auto Nickname',
-                    value: `??? **Smart member branding**\n\nAutomatic **PS** prefix system\nProfessional server identity`,
+                    value: `⚠️ **Smart member branding**\n\nAutomatic **PS** prefix system\nProfessional server identity`,
                     inline: true
                 },
                 {
@@ -3191,7 +3191,7 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '📌 Multi-Language',
-                    value: `??? **Global language support**\n\n6 languages available\nEN, ES, FR, DE, PT, JA\nServer-wide translation`,
+                    value: `⚠️ **Global language support**\n\n6 languages available\nEN, ES, FR, DE, PT, JA\nServer-wide translation`,
                     inline: true
                 },
                 {
@@ -3388,7 +3388,7 @@ client.on('interactionCreate', async (interaction) => {
             .setDescription('Manage your server statistics tracking system')
             .setColor(settings.serverStats.enabled ? 0x00FF00 : 0xFF0000)
             .addFields(
-                { name: '?? Status', value: settings.serverStats.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: '⚙️ Status', value: settings.serverStats.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: '📌 Update Interval', value: `${settings.serverStats.updateInterval / 60000} minute(s)`, inline: true },
                 { name: '\u200B', value: '\u200B', inline: false },
                 { name: '👥 Member Count Channel', value: settings.serverStats.channels.memberCount ? `<#${settings.serverStats.channels.memberCount}>` : '❌ Not set', inline: false },
@@ -3405,7 +3405,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('stats_toggle')
                     .setLabel(settings.serverStats.enabled ? 'Disable Stats' : 'Enable Stats')
                     .setStyle(settings.serverStats.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(settings.serverStats.enabled ? '??' : '?'),
+                    .setEmoji(settings.serverStats.enabled ? '✅' : '❌'),
                 new ButtonBuilder()
                     .setCustomId('stats_setup')
                     .setLabel('Setup Channels')
@@ -3475,7 +3475,7 @@ client.on('interactionCreate', async (interaction) => {
         const cachedResponse = getCachedResponse(userMessage);
         if (cachedResponse) {
             console.log('✅ Using cached response (API call saved)');
-            return interaction.reply(`${cachedResponse}\n\n*??*💾 Cached response*`);
+            return interaction.reply(`${cachedResponse}\n\n*⚡💾 Cached response*`);
         }
         
         // Jailbreak detection
@@ -3505,7 +3505,7 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             return interaction.reply({ 
-                content: '✅ **That message appears to be an attempt to manipulate my system.** ??\n\nFor security reasons, AI chat has been disabled on this server. The bot owner has been notified.',
+                content: '✅ **That message appears to be an attempt to manipulate my system.** 🚫\n\nFor security reasons, AI chat has been disabled on this server. The bot owner has been notified.',
                 ephemeral: true 
             });
         }
@@ -3694,7 +3694,7 @@ client.on('interactionCreate', async (interaction) => {
             .setColor(0x00D9FF)
             .setDescription('Current token consumption for DeepSeek and ChatGPT')
             .addFields(
-                { name: '\u200B', value: '**?? Your Personal Usage**', inline: false },
+                { name: '\u200B', value: '**👤 Your Personal Usage**', inline: false },
                 { 
                     name: '📌 Today', 
                     value: `Used: **${userUsed.toLocaleString()}** / **5,000** tokens\nRemaining: **${userRemaining.toLocaleString()}** tokens\n${userRemaining < 1000 ? '⚠️ Running low!' : '✅ Plenty left!'}`,
@@ -3706,7 +3706,7 @@ client.on('interactionCreate', async (interaction) => {
         if (isAdmin) {
             embed.addFields(
                 { name: '\u200B', value: '\u200B', inline: false }, // Spacer
-                { name: '\u200B', value: '**?? DeepSeek (Server-Wide)**', inline: false },
+                { name: '\u200B', value: '**🤖 DeepSeek (Server-Wide)**', inline: false },
                 { 
                     name: '📌 Today', 
                     value: `Used: **${quotaStatus.deepseek.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.deepseek.dailyRemaining.toLocaleString()}**`,
@@ -3718,7 +3718,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: true 
                 },
                 { name: '\u200B', value: '\u200B', inline: true }, // Spacer
-                { name: '\u200B', value: '**?? ChatGPT (Server-Wide)**', inline: false },
+                { name: '\u200B', value: '**💬 ChatGPT (Server-Wide)**', inline: false },
                 { 
                     name: '📌 Today', 
                     value: `Used: **${quotaStatus.chatgpt.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.chatgpt.dailyRemaining.toLocaleString()}**`,
@@ -3833,7 +3833,7 @@ client.on('interactionCreate', async (interaction) => {
                 `Click the buttons below to configure AI settings.`
             )
             .addFields(
-                { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: '📌 Channel', value: `#${config.channelName}`, inline: true },
                 { name: '📌 Model', value: config.model, inline: true },
                 { name: '📌 Max History', value: `${config.maxHistory} exchanges`, inline: true },
@@ -3849,7 +3849,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('ai_toggle')
                     .setLabel(config.enabled ? 'Disable AI' : 'Enable AI')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '??' : '??'),
+                    .setEmoji(config.enabled ? '✅' : '❌'),
                 new ButtonBuilder()
                     .setCustomId('ai_set_channel')
                     .setLabel('Set Channel')
@@ -3906,7 +3906,7 @@ const now = Date.now();
         for (let i = 0; i < topUsers.length; i++) {
             const [userId, count] = topUsers[i];
             const user = users[i];
-            const medal = i === 0 ? '??' : i === 1 ? '??' : i === 2 ? '??' : `${i + 1}.`;
+            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
             const username = user ? user.tag : 'Unknown User';
             topUsersText += `${medal} **${username}** - ${count.toLocaleString()} messages\n`;
         }
@@ -4016,7 +4016,7 @@ const now = Date.now();
                 `Click the buttons below to configure settings.`
             )
             .addFields(
-                { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: '📌 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
                 { name: '💬 Custom Message', value: config.customMessage ? '✅ Set' : '📝 Using default', inline: true },
                 { name: '✅ Message Preview', value: messagePreview, inline: false },
@@ -4031,7 +4031,7 @@ const now = Date.now();
                     .setCustomId('welcome_toggle')
                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '??' : '??'),
+                    .setEmoji(config.enabled ? '✅' : '❌'),
                 new ButtonBuilder()
                     .setCustomId('welcome_set_channel')
                     .setLabel('Set Channel')
@@ -4076,7 +4076,7 @@ const now = Date.now();
                 `Click the buttons below to configure settings.`
             )
             .addFields(
-                { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: '📌 Prefix', value: config.prefix || 'None', inline: true },
                 { name: '📌 Suffix', value: config.suffix || 'None', inline: true },
                 { name: '📌 Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
@@ -4091,7 +4091,7 @@ const now = Date.now();
                     .setCustomId('autonick_toggle')
                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '??' : '??'),
+                    .setEmoji(config.enabled ? '✅' : '❌'),
                 new ButtonBuilder()
                     .setCustomId('autonick_set_prefix')
                     .setLabel('Set Prefix')
@@ -4298,7 +4298,7 @@ const now = Date.now();
                     .setCustomId('log_toggle')
                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '??' : '??'),
+                    .setEmoji(config.enabled ? '✅' : '❌'),
                 new ButtonBuilder()
                     .setCustomId('log_set_critical')
                     .setLabel('Critical')
@@ -4374,7 +4374,7 @@ const now = Date.now();
             ? config.whitelist.map(id => `<@${id}>`).join(', ')
             : 'None';
         const notifChannel = config.notificationChannel ? `<#${config.notificationChannel}>` : 'Not set';
-        const lockdownStatus = lockedServers.has(interaction.guild.id) ? '?? Active' : '?? None';
+        const lockdownStatus = lockedServers.has(interaction.guild.id) ? '🔒 Active' : '🔓 None';
         const actionText = config.action === 'none' ? 'Monitor Only' : config.action === 'kick' ? 'Kick' : 'Ban';
         
         const embed = new EmbedBuilder()
@@ -4386,7 +4386,7 @@ const now = Date.now();
                 `Click the buttons below to configure settings.`
             )
             .addFields(
-                { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: '📌 Join Threshold', value: `${config.joinThreshold} members`, inline: true },
                 { name: '📌 Time Window', value: `${config.timeWindow} seconds`, inline: true },
                 { name: '? Action', value: actionText, inline: true },
@@ -4404,7 +4404,7 @@ const now = Date.now();
                     .setCustomId('raid_toggle')
                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '??' : '??'),
+                    .setEmoji(config.enabled ? '✅' : '❌'),
                 new ButtonBuilder()
                     .setCustomId('raid_set_threshold')
                     .setLabel('Set Threshold')
@@ -5170,7 +5170,7 @@ const now = Date.now();
                 '� Only you and staff members can see it\n' +
                 '� Our team will respond as soon as possible\n' +
                 '� You can close the ticket when your issue is resolved\n\n' +
-                '🔸???????????????????????????\n\n' +
+                '🔸━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
                 '**Ready to get help?** Click the button below! ✅'
             )
             .setColor(0x5865F2)
@@ -5217,12 +5217,12 @@ const now = Date.now();
                 `Click the buttons below to configure leveling settings.`
             )
             .addFields(
-                { name: '?? Status', value: settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: '⚙️ Status', value: settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: '? XP Range', value: `${settings.leveling.minXP}-${settings.leveling.maxXP}`, inline: true },
                 { name: '📌 Cooldown', value: `${settings.leveling.cooldown / 1000}s`, inline: true },
                 { name: '📌 Max Level', value: settings.leveling.maxLevel.toString(), inline: true },
-                { name: '?? Level Up Channel', value: settings.leveling.levelUpChannelId ? `<#${settings.leveling.levelUpChannelId}>` : 'Current Channel', inline: true },
-                { name: '?? Level Roles', value: Object.keys(settings.leveling.levelRoles).length > 0 ? `${Object.keys(settings.leveling.levelRoles).length} roles configured` : 'None', inline: true }
+                { name: '📢 Level Up Channel', value: settings.leveling.levelUpChannelId ? `<#${settings.leveling.levelUpChannelId}>` : 'Current Channel', inline: true },
+                { name: '🎖️ Level Roles', value: Object.keys(settings.leveling.levelRoles).length > 0 ? `${Object.keys(settings.leveling.levelRoles).length} roles configured` : 'None', inline: true }
             )
             .setFooter({ text: 'Click buttons below to configure leveling system' })
             .setTimestamp();
@@ -5327,7 +5327,7 @@ const now = Date.now();
                 `Click the buttons below to configure ticket settings.`
             )
             .addFields(
-                { name: '?? Status', value: settings.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: '⚙️ Status', value: settings.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: '📌 Staff Role', value: staffRole, inline: true },
                 { name: '📌 Category', value: settings.categoryName, inline: true },
                 { name: '📌 Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
@@ -5667,7 +5667,7 @@ const now = Date.now();
                                     .setCustomId('log_toggle')
                                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                                    .setEmoji(config.enabled ? '??' : '??'),
+                                    .setEmoji(config.enabled ? '✅' : '❌'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_critical')
                                     .setLabel('Critical')
@@ -5884,7 +5884,7 @@ const now = Date.now();
                                     .setCustomId('log_toggle')
                                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                                    .setEmoji(config.enabled ? '??' : '??'),
+                                    .setEmoji(config.enabled ? '✅' : '❌'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_critical')
                                     .setLabel('Critical')
@@ -6166,7 +6166,7 @@ const now = Date.now();
                                 `Click the buttons below to configure AI settings.`
                             )
                             .addFields(
-                                { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                                { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                                 { name: '📌 Channel', value: `#${config.channelName}`, inline: true },
                                 { name: '📌 Model', value: config.model, inline: true },
                                 { name: '📌 Max History', value: `${config.maxHistory} exchanges`, inline: true },
@@ -6182,7 +6182,7 @@ const now = Date.now();
                                     .setCustomId('ai_toggle')
                                     .setLabel(config.enabled ? 'Disable AI' : 'Enable AI')
                                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                                    .setEmoji(config.enabled ? '??' : '??'),
+                                    .setEmoji(config.enabled ? '✅' : '❌'),
                                 new ButtonBuilder()
                                     .setCustomId('ai_set_channel')
                                     .setLabel('Set Channel')
@@ -6400,7 +6400,7 @@ const now = Date.now();
                 
                 const shutdownEmbed = new EmbedBuilder()
                     .setTitle('⚙️ Bot Shutting Down')
-                    .setDescription('Initiating graceful shutdown sequence...\n\n? Sending offline notifications\n? Saving all data\n?? Goodbye!')
+                    .setDescription('Initiating graceful shutdown sequence...\n\n📤 Sending offline notifications\n💾 Saving all data\n👋 Goodbye!')
                     .setColor(0xFF0000)
                     .setTimestamp();
                 
@@ -6481,7 +6481,7 @@ const now = Date.now();
                     
                     const successEmbed = new EmbedBuilder()
                         .setTitle('✅ Update Complete - Restarting')
-                        .setDescription(`**Commit:** \`${commitHash}\`\n**Message:** ${commitMsg}\n**NPM:** ${npmPackages}\n**Time:** ${timeTaken}s\n\n?? Bot restarting...`)
+                        .setDescription(`**Commit:** \`${commitHash}\`\n**Message:** ${commitMsg}\n**NPM:** ${npmPackages}\n**Time:** ${timeTaken}s\n\n🔄 Bot restarting...`)
                         .setColor(0x00FF00)
                         .setTimestamp();
                     
@@ -6766,7 +6766,7 @@ const now = Date.now();
                         `Click the buttons below to configure ticket settings.`
                     )
                     .addFields(
-                        { name: '?? Status', value: settings.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                        { name: '⚙️ Status', value: settings.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                         { name: '📌 Staff Role', value: staffRole, inline: true },
                         { name: '📌 Category', value: settings.categoryName, inline: true },
                         { name: '📌 Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
@@ -6945,7 +6945,7 @@ const now = Date.now();
                 
                 const descInput = new TextInputBuilder()
                     .setCustomId('embed_description')
-                    .setLabel('Description (use :emojiname: or ??)')
+                    .setLabel('Description (use :emojiname: or Unicode)')
                     .setStyle(TextInputStyle.Paragraph)
                     .setPlaceholder('�2.50 - 250K + 50K Free!\n�5.00 - 500K + 150 Free!')
                     .setRequired(true);
@@ -7043,7 +7043,7 @@ const now = Date.now();
                 
                 const descInput = new TextInputBuilder()
                     .setCustomId('embed_description')
-                    .setLabel('Description (use :emojiname: or ??)')
+                    .setLabel('Description (use :emojiname: or Unicode)')
                     .setStyle(TextInputStyle.Paragraph)
                     .setPlaceholder('�2.50 - 250K + 50K Free!\n�5.00 - 500K + 150 Free!')
                     .setRequired(true);
@@ -7418,7 +7418,7 @@ const now = Date.now();
             settings.moderation.dmOnAction = !settings.moderation.dmOnAction;
             saveSettings();
             await interaction.reply({ 
-                content: `?? DM notifications ${settings.moderation.dmOnAction ? 'enabled' : 'disabled'}!`, 
+                content: `📬 DM notifications ${settings.moderation.dmOnAction ? 'enabled' : 'disabled'}!`, 
                 ephemeral: true 
             });
         }
@@ -7671,7 +7671,7 @@ const now = Date.now();
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                    { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                     { name: '📌 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
                     { name: '💬 Custom Message', value: config.customMessage ? '✅ Set' : '📝 Using default', inline: true },
                     { name: '✅ Message Preview', value: messagePreview, inline: false },
@@ -7686,7 +7686,7 @@ const now = Date.now();
                         .setCustomId('welcome_toggle')
                         .setLabel(config.enabled ? 'Disable' : 'Enable')
                         .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                        .setEmoji(config.enabled ? '??' : '??'),
+                        .setEmoji(config.enabled ? '✅' : '❌'),
                     new ButtonBuilder()
                         .setCustomId('welcome_set_channel')
                         .setLabel('Set Channel')
@@ -7767,7 +7767,7 @@ const now = Date.now();
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                    { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                     { name: '📌 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
                     { name: '💬 Custom Message', value: config.customMessage ? '✅ Set' : '📝 Using default', inline: true },
                     { name: '✅ Message Preview', value: messagePreview, inline: false },
@@ -7782,7 +7782,7 @@ const now = Date.now();
                         .setCustomId('leave_toggle')
                         .setLabel(config.enabled ? 'Disable' : 'Enable')
                         .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                        .setEmoji(config.enabled ? '??' : '??'),
+                        .setEmoji(config.enabled ? '✅' : '❌'),
                     new ButtonBuilder()
                         .setCustomId('leave_set_channel')
                         .setLabel('Set Channel')
@@ -7865,7 +7865,7 @@ const now = Date.now();
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                    { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                     { name: '📌 Prefix', value: config.prefix || 'None', inline: true },
                     { name: '📌 Suffix', value: config.suffix || 'None', inline: true },
                     { name: '📌 Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
@@ -7880,7 +7880,7 @@ const now = Date.now();
                         .setCustomId('autonick_toggle')
                         .setLabel(config.enabled ? 'Disable' : 'Enable')
                         .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                        .setEmoji(config.enabled ? '??' : '??'),
+                        .setEmoji(config.enabled ? '✅' : '❌'),
                     new ButtonBuilder()
                         .setCustomId('autonick_set_prefix')
                         .setLabel('Set Prefix')
@@ -8086,7 +8086,7 @@ const now = Date.now();
                 ? config.whitelist.map(id => `<@${id}>`).join(', ')
                 : 'None';
             const notifChannel = config.notificationChannel ? `<#${config.notificationChannel}>` : 'Not set';
-            const lockdownStatus = lockedServers.has(interaction.guild.id) ? '?? Active' : '?? None';
+            const lockdownStatus = lockedServers.has(interaction.guild.id) ? '🔒 Active' : '🔓 None';
             const actionText = config.action === 'none' ? 'Monitor Only' : config.action === 'kick' ? 'Kick' : 'Ban';
             
             const embed = new EmbedBuilder()
@@ -8098,7 +8098,7 @@ const now = Date.now();
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                    { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                     { name: '📌 Join Threshold', value: `${config.joinThreshold} members`, inline: true },
                     { name: '📌 Time Window', value: `${config.timeWindow} seconds`, inline: true },
                     { name: '? Action', value: actionText, inline: true },
@@ -8116,7 +8116,7 @@ const now = Date.now();
                         .setCustomId('raid_toggle')
                         .setLabel(config.enabled ? 'Disable' : 'Enable')
                         .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                        .setEmoji(config.enabled ? '??' : '??'),
+                        .setEmoji(config.enabled ? '✅' : '❌'),
                     new ButtonBuilder()
                         .setCustomId('raid_set_threshold')
                         .setLabel('Set Threshold')
@@ -8563,7 +8563,7 @@ const now = Date.now();
                         title: '✅ Hangman',
                         color: '#5865F2'
                     },
-                    hangman: { hat: '✅', head: '✅', shirt: '✅', pants: '✅', boots: '??✅' },
+                    hangman: { hat: '✅', head: '✅', shirt: '✅', pants: '✅', boots: '👢✅' },
                     customWord: null,
                     timeoutTime: 60000,
                     theme: 'nature',
@@ -8743,10 +8743,10 @@ const now = Date.now();
                 const logsEmbed = new EmbedBuilder()
                     .setTitle(`⚙️ Ticket #${ticketInfo.number} Transcript`)
                     .setDescription(
-                        `**?? Creator:** ${creator.tag}\n` +
-                        `**?? Created:** <t:${Math.floor(ticketInfo.createdAt / 1000)}:F>\n` +
-                        `**?? Reason:** ${ticketInfo.reason}\n` +
-                        `**?? Status:** ${ticketInfo.status === 'open' ? '?? Open' : '?? Closed'}\n` +
+                        `**👤 Creator:** ${creator.tag}\n` +
+                        `**📅 Created:** <t:${Math.floor(ticketInfo.createdAt / 1000)}:F>\n` +
+                        `**❓ Reason:** ${ticketInfo.reason}\n` +
+                        `**ℹ️ Status:** ${ticketInfo.status === 'open' ? '🟢 Open' : '🔴 Closed'}\n` +
                         `**? Claimed:** ${ticketInfo.claimed ? `Yes, by <@${ticketInfo.claimedBy}>` : 'No'}\n\n` +
                         `Transcript file attached below.`
                     )
@@ -8865,7 +8865,7 @@ const now = Date.now();
             .setTitle('⚙️ Ticket Closed')
             .setDescription(
                 `**Closed by:** ${interaction.user}\n` +
-                `**Status:** ?? Transcript saved\n\n` +
+                `**Status:** ✅ Transcript saved\n\n` +
                 `✅ Channel will be deleted in 5 seconds...`
             )
             .setColor(0xFF0000)
@@ -8880,16 +8880,16 @@ const now = Date.now();
             const closedBy = await client.users.fetch(ticketInfo.closedBy);
             
             const closedMessage = ticketData[guildId].settings?.closedMessage || 
-                'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!';
+                'Thank you for contacting support! 👋\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!';
             
             const dmEmbed = new EmbedBuilder()
                 .setTitle('⚙️ Ticket Closed')
                 .setDescription(
                     `Your ticket **#${ticketInfo.number}** in **${interaction.guild.name}** has been closed.\n\n` +
-                    `**?? Original Reason:** ${ticketInfo.reason}\n` +
-                    `**?? Closed by:** ${closedBy.tag}\n` +
-                    `**?? Closed at:** <t:${Math.floor(ticketInfo.closedAt / 1000)}:F>\n\n` +
-                    `??????????????????????????????\n\n` +
+                    `**❓ Original Reason:** ${ticketInfo.reason}\n` +
+                    `**👤 Closed by:** ${closedBy.tag}\n` +
+                    `**📅 Closed at:** <t:${Math.floor(ticketInfo.closedAt / 1000)}:F>\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
                     closedMessage
                 )
                 .setColor(0x3498DB)
@@ -8949,7 +8949,7 @@ const now = Date.now();
             .setTitle('⚙️ Ticket Closed')
             .setDescription(
                 `**Closed by:** ${interaction.user}\n` +
-                `**Status:** ??? No transcript saved\n\n` +
+                `**Status:** ✅? No transcript saved\n\n` +
                 `✅ Channel will be deleted in 5 seconds...`
             )
             .setColor(0xFF0000)
@@ -8964,16 +8964,16 @@ const now = Date.now();
             const closedBy = await client.users.fetch(ticketInfo.closedBy);
             
             const closedMessage = ticketData[guildId].settings?.closedMessage || 
-                'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!';
+                'Thank you for contacting support! 👋\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!';
             
             const dmEmbed = new EmbedBuilder()
                 .setTitle('⚙️ Ticket Closed')
                 .setDescription(
                     `Your ticket **#${ticketInfo.number}** in **${interaction.guild.name}** has been closed.\n\n` +
-                    `**?? Original Reason:** ${ticketInfo.reason}\n` +
-                    `**?? Closed by:** ${closedBy.tag}\n` +
-                    `**?? Closed at:** <t:${Math.floor(ticketInfo.closedAt / 1000)}:F>\n\n` +
-                    `??????????????????????????????\n\n` +
+                    `**❓ Original Reason:** ${ticketInfo.reason}\n` +
+                    `**👤 Closed by:** ${closedBy.tag}\n` +
+                    `**📅 Closed at:** <t:${Math.floor(ticketInfo.closedAt / 1000)}:F>\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
                     closedMessage
                 )
                 .setColor(0x3498DB)
@@ -9082,15 +9082,15 @@ const now = Date.now();
             
             // Create interactive ticket embed with custom message
             const customMessage = ticketData[guildId].settings.ticketMessage || 
-                '**Welcome to your support ticket!**\n\n?? Our support team will be with you shortly. 👋\n\n**Please describe your issue in detail.**';
+                '**Welcome to your support ticket!**\n\n✋ Our support team will be with you shortly. 👋\n\n**Please describe your issue in detail.**';
             
             const ticketEmbed = new EmbedBuilder()
                 .setTitle(`⚙️ Support Ticket #${ticketNumber}`)
                 .setDescription(
-                    `**?? Created by:** ${interaction.user}\n` +
-                    `**?? Created at:** <t:${Math.floor(Date.now() / 1000)}:F>\n` +
-                    `**?? Status:** ?? Open\n\n` +
-                    `??????????????????????????????\n\n` +
+                    `**👤 Created by:** ${interaction.user}\n` +
+                    `**📅 Created at:** <t:${Math.floor(Date.now() / 1000)}:F>\n` +
+                    `**ℹ️ Status:** 🟢 Open\n\n` +
+                    `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
                     customMessage
                 )
                 .setColor(0x00FF00)
@@ -9637,8 +9637,8 @@ const now = Date.now();
                                 '� Describe your issue clearly\n' +
                                 '� Include any relevant details\n' +
                                 '� Be patient while we help you\n\n' +
-                                '🔸???????????????????????????\n\n' +
-                                '**Click the button below to get started! ??**'
+                                '🔸━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+                                '**Click the button below to get started! 👇**'
                             )
                             .setColor(0x5865F2)
                             .setFooter({ text: `${interaction.guild.name} Support` })
@@ -9881,7 +9881,7 @@ const now = Date.now();
                             );
                         
                         await interaction.reply({ 
-                            content: '**?? Embed Preview:**\nCustom emojis will render properly when sent via webhook.',
+                            content: '**👀 Embed Preview:**\nCustom emojis will render properly when sent via webhook.',
                             embeds: [previewEmbed], 
                             components: [buttons],
                             ephemeral: true 
@@ -10516,7 +10516,7 @@ const now = Date.now();
                         }
                         
                         const embed = new EmbedBuilder()
-                            .setTitle(`?? Infractions for ${user ? user.tag : userId}`)
+                            .setTitle(`📋 Infractions for ${user ? user.tag : userId}`)
                             .setColor(0xFF0000)
                             .setThumbnail(user?.displayAvatarURL())
                             .setDescription(`Total infractions: **${infractions.length}**`);
