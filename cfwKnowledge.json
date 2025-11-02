@@ -71,7 +71,12 @@
     "ps4homebrew": "https://reddit.com/r/ps4homebrew",
     "ps4homebrewGuide": "https://www.reddit.com/r/ps4homebrew/comments/1ldyvst/basic_jailbreak_guide_for_5051202_1202_is_the/",
     "ps5homebrew": "https://reddit.com/r/ps5homebrew",
-    "note": "Always verify with Google search for latest firmware compatibility"
+    "note": "Always verify with Google search for latest firmware compatibility. Bot validates links in real-time."
+  },
+  "knownDeadLinks": {
+    "ps4hacksguide": "https://ps4.hacks.guide/ (404 - DEAD)",
+    "sleirsgoevyPS5": "https://sleirsgoevy.github.io/ps5-9.00-webkit-rce/ (404 - DEAD)",
+    "note": "DO NOT recommend these links. Use PSX-Place and Wololo instead."
   },
   "otherCFWs": {
     "rebug": {

@@ -370,6 +370,22 @@ function detectJailbreak(message) {
 }
 
 // DuckDuckGo search function with NSFW filtering
+// Live link validation - checks if URLs are accessible
+async function validateLink(url) {
+    try {
+        const fetch = require('node-fetch');
+        const response = await fetch(url, {
+            method: 'HEAD',
+            timeout: 5000,
+            headers: { 'User-Agent': 'Mozilla/5.0' }
+        });
+        return response.ok; // Returns true if status 200-299
+    } catch (error) {
+        console.log(`⚠️ Dead link detected: ${url} (${error.message})`);
+        return false;
+    }
+}
+
 async function searchWeb(query) {
     try {
         const searchResults = await search(query, {
@@ -381,14 +397,25 @@ async function searchWeb(query) {
             return null;
         }
         
-        // Get top 3 results
-        const topResults = searchResults.results.slice(0, 3).map(result => ({
-            title: result.title,
-            description: result.description,
-            url: result.url
-        }));
+        // Get top 5 results and validate links
+        const topResults = searchResults.results.slice(0, 5);
+        const validatedResults = [];
         
-        return topResults;
+        for (const result of topResults) {
+            const isLive = await validateLink(result.url);
+            validatedResults.push({
+                title: result.title,
+                description: result.description,
+                url: result.url,
+                isLive: isLive,
+                status: isLive ? '✅ LIVE' : '❌ DEAD'
+            });
+        }
+        
+        // Return only live links, or all if none are live
+        const liveLinks = validatedResults.filter(r => r.isLive);
+        return liveLinks.length > 0 ? liveLinks : validatedResults;
+        
     } catch (error) {
         console.error('DuckDuckGo search error:', error);
         return null;
@@ -2249,11 +2276,26 @@ client.on('messageCreate', async (message) => {
                 if (shouldSearch) {
                     const results = await searchWeb(message.content);
                     if (results?.length) {
-                        searchResults = results.slice(0, 5); // Increased to top 5 for more options
-                        // Provide full context to AI including URLs
-                        searchContext = '\n\n🔗 VERIFIED SOURCES - YOU MUST INCLUDE THESE LINKS IN YOUR RESPONSE:\n' + searchResults.map((r, i) => 
-                            `${i + 1}. ${r.title}\n   ${r.description}\n   🌐 Link: ${r.url}`
-                        ).join('\n\n') + '\n\n⚠️ CRITICAL: Always include 2-3 relevant website links in your response. Format links as PLAIN URLs ONLY (just the URL, no markdown brackets). Discord will auto-format them. DO NOT use [text](url) syntax. Example: ✅ https://wololo.net/category/ps5/ | ❌ [Wololo](https://wololo.net). Users need direct access to download pages, guides, and tools. If discussing tools/games/exploits, include the direct source link from the search results above.';
+                        searchResults = results; // Already validated by searchWeb
+                        // Provide full context to AI including URLs with live status
+                        const liveLinks = searchResults.filter(r => r.isLive);
+                        const deadLinks = searchResults.filter(r => !r.isLive);
+                        
+                        searchContext = '\n\n🔗 VERIFIED SOURCES - YOU MUST INCLUDE THESE LINKS IN YOUR RESPONSE:\n';
+                        
+                        if (liveLinks.length > 0) {
+                            searchContext += 'LIVE LINKS (✅ Verified accessible):\n' + liveLinks.map((r, i) => 
+                                `${i + 1}. ${r.title}\n   ${r.description}\n   🌐 Link: ${r.url} ${r.status}`
+                            ).join('\n\n');
+                        }
+                        
+                        if (deadLinks.length > 0) {
+                            searchContext += '\n\n❌ DEAD LINKS (DO NOT RECOMMEND THESE):\n' + deadLinks.map((r, i) => 
+                                `${i + 1}. ${r.title} - ${r.url} (NOT ACCESSIBLE)`
+                            ).join('\n');
+                        }
+                        
+                        searchContext += '\n\n⚠️ CRITICAL: Always include 2-3 relevant website links in your response. ONLY recommend LIVE LINKS (✅). DO NOT include dead/broken links (❌). Format links as PLAIN URLs ONLY (just the URL, no markdown brackets). Discord will auto-format them. DO NOT use [text](url) syntax. Example: ✅ https://wololo.net/category/ps5/ | ❌ [Wololo](https://wololo.net). Users need direct access to download pages, guides, and tools.';
                     }
                 }
                 
