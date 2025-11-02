@@ -6877,8 +6877,7 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             if (interaction.customId === 'webhook_edit') {
-                await interaction.deferUpdate();
-                
+                // Don't defer - we need to show a modal immediately
                 const modal = new ModalBuilder()
                     .setCustomId('webhook_embed_modal')
                     .setTitle('Design Custom Embed');
@@ -6927,7 +6926,7 @@ client.on('interactionCreate', async (interaction) => {
                     new ActionRowBuilder().addComponents(footerInput)
                 );
                 
-                await interaction.followUp({ content: 'Opening embed editor...', ephemeral: true });
+                await interaction.showModal(modal);
                 return;
             }
             
