@@ -9671,13 +9671,13 @@ client.on('interactionCreate', async (interaction) => {
                     }
                     
                     else if (interaction.customId === 'webhook_embed_modal') {
-                        let title = interaction.fields.getTextInputValue('embed_title').trim();
-                        let description = interaction.fields.getTextInputValue('embed_description').trim();
+                        const originalTitle = interaction.fields.getTextInputValue('embed_title').trim();
+                        const originalDescription = interaction.fields.getTextInputValue('embed_description').trim();
                         const colorInput = interaction.fields.getTextInputValue('embed_color')?.trim() || '#5865F2';
                         const imageUrl = interaction.fields.getTextInputValue('embed_image')?.trim() || null;
                         const footerText = interaction.fields.getTextInputValue('embed_footer')?.trim() || null;
                         
-                        // Convert :emojiname: to <:emojiname:id> format for custom emojis
+                        // Function to convert :emojiname: to <:emojiname:id> format for custom emojis
                         const emojiRegex = /:(\w+):/g;
                         const replaceEmojis = (text) => {
                             return text.replace(emojiRegex, (match, emojiName) => {
@@ -9686,8 +9686,9 @@ client.on('interactionCreate', async (interaction) => {
                             });
                         };
                         
-                        title = replaceEmojis(title);
-                        description = replaceEmojis(description);
+                        // Convert emojis for the actual embed that will be sent
+                        const convertedTitle = replaceEmojis(originalTitle);
+                        const convertedDescription = replaceEmojis(originalDescription);
                         
                         // Parse color
                         let color = 0x5865F2;
@@ -9697,8 +9698,8 @@ client.on('interactionCreate', async (interaction) => {
                         }
                         
                         const previewEmbed = new EmbedBuilder()
-                            .setTitle(title)
-                            .setDescription(description)
+                            .setTitle(convertedTitle)
+                            .setDescription(convertedDescription)
                             .setColor(color)
                             .setTimestamp();
                         
@@ -9734,7 +9735,7 @@ client.on('interactionCreate', async (interaction) => {
                             );
                         
                         await interaction.reply({ 
-                            content: '**📋 Embed Preview:**\nClick "Send to Webhook" and provide webhook URL to send this embed.',
+                            content: '**📋 Embed Preview:**\nCustom emojis will render properly when sent via webhook.',
                             embeds: [previewEmbed], 
                             components: [buttons],
                             ephemeral: true 
@@ -9744,9 +9745,10 @@ client.on('interactionCreate', async (interaction) => {
                         if (!interaction.client.webhookEmbeds) interaction.client.webhookEmbeds = new Map();
                         if (!interaction.client.webhookEmbedFields) interaction.client.webhookEmbedFields = new Map();
                         interaction.client.webhookEmbeds.set(interaction.user.id, previewEmbed.toJSON());
+                        // Store ORIGINAL values with :emojiname: format for editing
                         interaction.client.webhookEmbedFields.set(interaction.user.id, {
-                            title: title,
-                            description: description,
+                            title: originalTitle,
+                            description: originalDescription,
                             color: colorInput,
                             image: imageUrl || '',
                             footer: footerText || ''
