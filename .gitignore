@@ -11,6 +11,11 @@ serverSettings.json
 userData.json
 ticketData.json
 moderationData.json
+pendingPurchases.json
+
+# Environment variables
+.env
+.env.local
 
 # Obfuscated code directory (don't commit - manually push separately)
 obfuscated/
