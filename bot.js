@@ -9671,11 +9671,23 @@ client.on('interactionCreate', async (interaction) => {
                     }
                     
                     else if (interaction.customId === 'webhook_embed_modal') {
-                        const title = interaction.fields.getTextInputValue('embed_title').trim();
-                        const description = interaction.fields.getTextInputValue('embed_description').trim();
+                        let title = interaction.fields.getTextInputValue('embed_title').trim();
+                        let description = interaction.fields.getTextInputValue('embed_description').trim();
                         const colorInput = interaction.fields.getTextInputValue('embed_color')?.trim() || '#5865F2';
                         const imageUrl = interaction.fields.getTextInputValue('embed_image')?.trim() || null;
                         const footerText = interaction.fields.getTextInputValue('embed_footer')?.trim() || null;
+                        
+                        // Convert :emojiname: to <:emojiname:id> format for custom emojis
+                        const emojiRegex = /:(\w+):/g;
+                        const replaceEmojis = (text) => {
+                            return text.replace(emojiRegex, (match, emojiName) => {
+                                const emoji = interaction.guild.emojis.cache.find(e => e.name.toLowerCase() === emojiName.toLowerCase());
+                                return emoji ? `<${emoji.animated ? 'a' : ''}:${emoji.name}:${emoji.id}>` : match;
+                            });
+                        };
+                        
+                        title = replaceEmojis(title);
+                        description = replaceEmojis(description);
                         
                         // Parse color
                         let color = 0x5865F2;
