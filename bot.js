@@ -5193,13 +5193,6 @@ const now = Date.now();
         });
     }
 
-    // YouTube Notifications command - Interactive panel
-    if (interaction.commandName === 'youtubenotifications') {
-        const ytCommand = require('./commands/youtubenotifications.js');
-        await ytCommand.execute(interaction);
-        return;
-    }
-
     // Leveling Setup command - Interactive panel
     if (interaction.commandName === 'leveling') {
         if (!requireAdmin(interaction)) return;
@@ -5297,13 +5290,6 @@ const now = Date.now();
     if (interaction.commandName === 'pcommands') {
         const pcommandsCommand = require('./commands/pcommands.js');
         await pcommandsCommand.execute(interaction);
-        return;
-    }
-
-    // AI Setup command - Interactive panel
-    if (interaction.commandName === 'ai') {
-        const aiCommand = require('./commands/ai.js');
-        await aiCommand.execute(interaction);
         return;
     }
 
@@ -5516,34 +5502,7 @@ const now = Date.now();
         // Handle button interactions
         else if (interaction.isButton()) {
             const guildId = interaction.guild.id;
-            
-            // YouTube notifications button handlers - FIRST PRIORITY
-            if (interaction.customId.startsWith('yt_')) {
-                try {
-                    delete require.cache[require.resolve('./commands/youtubenotifications.js')];
-                    const ytCommand = require('./commands/youtubenotifications.js');
-                    await ytCommand.handleButton(interaction);
-                    return;
-                } catch (error) {
-                    console.error('❌ YouTube button error:', error);
-                    console.error('Stack trace:', error.stack);
-                    try {
-                        if (!interaction.replied && !interaction.deferred) {
-                            await interaction.reply({ 
-                                content: '? An error occurred while processing YouTube notifications. Please try again or contact an admin.', 
-                                ephemeral: true 
-                            });
-                        } else if (interaction.deferred) {
-                            await interaction.editReply({ 
-                                content: '? An error occurred while processing YouTube notifications. Please try again or contact an admin.' 
-                            });
-                        }
-                    } catch (replyError) {
-                        console.error('Failed to send YouTube error message:', replyError);
-                    }
-                    return;
-                }
-            }
+
 
             // Leveling setup button handlers
             if (interaction.customId.startsWith('lvl_')) {
@@ -9139,20 +9098,6 @@ const now = Date.now();
     
         // Handle modal submissions
         else if (interaction.isModalSubmit()) {
-            // YouTube modal handlers
-            if (interaction.customId.includes('yt_')) {
-                try {
-                    delete require.cache[require.resolve('./commands/youtubenotifications.js')];
-                    const ytCommand = require('./commands/youtubenotifications.js');
-                    await ytCommand.handleModal(interaction);
-                    return;
-                } catch (error) {
-                    console.error('❌ YouTube modal error:', error);
-                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
-                    return;
-                }
-            }
-
             // Leveling setup modal handlers
             if (interaction.customId.includes('lvl_modal_')) {
                 try {
