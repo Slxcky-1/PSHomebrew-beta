@@ -58,10 +58,13 @@
     }
   },
   "primaryResources": {
-    "ps4Guide": "https://ps4.hacks.guide/",
+    "ps4GuideOfficial": "https://www.psx-place.com/threads/hacking-the-ps4.10717/",
     "psxPlace": "https://www.psx-place.com/",
+    "psxPlaceBDJB": "https://www.psx-place.com/threads/bd-jb-1250-new-exploit-bluray-for-playstation-4-supporting-upto-12-50-firmware-from-gezine.48161/",
     "wololo": "https://wololo.net/",
+    "wololoLapse": "https://wololo.net/2025/05/10/ps5-ps4-lapse-kernel-exploit-released-compatible-up-to-ps4-12-02-and-ps5-10-01-but/",
     "ps4homebrew": "https://reddit.com/r/ps4homebrew",
+    "ps4homebrewGuide": "https://www.reddit.com/r/ps4homebrew/comments/1ldyvst/basic_jailbreak_guide_for_5051202_1202_is_the/",
     "ps5homebrew": "https://reddit.com/r/ps5homebrew"
   },
   "otherCFWs": {
