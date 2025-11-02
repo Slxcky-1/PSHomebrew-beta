@@ -1,7 +1,7 @@
 {
   "name": "multipurpose-discord-bot",
   "version": "1.0.0",
-  "description": "A multi-purpose Discord bot with AI chat, moderation, tickets, leveling, webhooks, Sellix integration, and more",
+  "description": "A multi-purpose Discord bot with AI chat, moderation, tickets, leveling, webhooks, SellHub integration, and more",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js",
@@ -14,7 +14,8 @@
     "multipurpose",
     "moderation",
     "ai",
-    "sellix"
+    "webhooks",
+    "sellhub"
   ],
   "author": "Slxcky-1",
   "license": "UNLICENSED",

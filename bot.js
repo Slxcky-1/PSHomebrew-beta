@@ -16,7 +16,7 @@ const { search } = require('duck-duck-scrape');
 const Parser = require('rss-parser');
 const rssParser = new Parser();
 const express = require('express');
-const sellixApp = express();
+const sellhubApp = express();
 
 // --- Language System ---
 const languages = {};
@@ -170,7 +170,7 @@ const moderationDataFile = './moderationData.json';
 let analyticsData = {};
 const analyticsDataFile = './analyticsData.json';
 
-// Pending Sellix purchases (for users not yet in server)
+// Pending SellHub purchases (for users not yet in server)
 let pendingPurchases = {};
 const pendingPurchasesFile = './pendingPurchases.json';
 
@@ -2491,14 +2491,14 @@ async function checkKeywords(message, settings) {
 client.on('guildMemberAdd', async (member) => {
     const settings = getGuildSettings(member.guild.id);
     
-    // Check for pending Sellix purchases
+    // Check for pending SellHub purchases
     if (pendingPurchases[member.id] && pendingPurchases[member.id].guildId === member.guild.id) {
         const purchase = pendingPurchases[member.id];
         console.log(`✅ Processing pending purchase for ${member.user.tag}`);
         
         try {
             // Assign role
-            const role = member.guild.roles.cache.get(config.sellixRoleId);
+            const role = member.guild.roles.cache.get(config.sellhubRoleId);
             if (role) {
                 await member.roles.add(role);
                 console.log(`? Assigned pending purchase role to ${member.user.tag}`);
@@ -2522,7 +2522,7 @@ client.on('guildMemberAdd', async (member) => {
                 }
                 
                 // Log activation
-                const logChannel = member.guild.channels.cache.get(config.sellixLogChannelId);
+                const logChannel = member.guild.channels.cache.get(config.sellhubLogChannelId);
                 if (logChannel) {
                     const activationEmbed = new EmbedBuilder()
                         .setTitle('✅ Pending Purchase Activated')
@@ -11711,20 +11711,20 @@ function startAutomatedMessages() {
     console.log('? Daily 7 PM reminder started for channel ' + CHANNEL_ID);
 }
 
-// ===== SELLIX WEBHOOK SYSTEM =====
-sellixApp.use(express.json());
+// ===== SELLHUB WEBHOOK SYSTEM =====
+sellhubApp.use(express.json());
 
-sellixApp.post('/sellix-webhook', async (req, res) => {
+sellhubApp.post('/sellhub-webhook', async (req, res) => {
     try {
         const event = req.body;
         
-        console.log('✅ Sellix webhook received:', event.event);
+        console.log('✅ SellHub webhook received:', event.event);
         
         // Verify webhook secret if configured
-        if (config.sellixWebhookSecret && config.sellixWebhookSecret !== 'YOUR_WEBHOOK_SECRET') {
-            const receivedSecret = req.headers['x-sellix-signature'];
-            if (receivedSecret !== config.sellixWebhookSecret) {
-                console.log('? Invalid Sellix webhook signature');
+        if (config.sellhubWebhookSecret && config.sellhubWebhookSecret !== 'YOUR_WEBHOOK_SECRET') {
+            const receivedSecret = req.headers['x-sellhub-signature'];
+            if (receivedSecret !== config.sellhubWebhookSecret) {
+                console.log('? Invalid SellHub webhook signature');
                 return res.status(401).send('Unauthorized');
             }
         }
@@ -11752,9 +11752,9 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
             }
             
             // Get guild and member
-            const guild = client.guilds.cache.get(config.sellixGuildId);
+            const guild = client.guilds.cache.get(config.sellhubGuildId);
             if (!guild) {
-                console.log('? Guild not found:', config.sellixGuildId);
+                console.log('? Guild not found:', config.sellhubGuildId);
                 return res.status(200).send('Guild not found');
             }
             
@@ -11769,13 +11769,13 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
                     email: orderData.customer_email,
                     product: orderData.product_title,
                     timestamp: Date.now(),
-                    guildId: config.sellixGuildId
+                    guildId: config.sellhubGuildId
                 };
                 savePendingPurchases();
                 console.log(`✅ Stored pending purchase for ${discordId}`);
                 
                 // Log pending purchase
-                const logChannel = guild.channels.cache.get(config.sellixLogChannelId);
+                const logChannel = guild.channels.cache.get(config.sellhubLogChannelId);
                 if (logChannel) {
                     const pendingEmbed = new EmbedBuilder()
                         .setTitle('? Purchase Pending - User Not in Server')
@@ -11796,9 +11796,9 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
             }
             
             // Assign role
-            const role = guild.roles.cache.get(config.sellixRoleId);
+            const role = guild.roles.cache.get(config.sellhubRoleId);
             if (!role) {
-                console.log('❌ Role not found:', config.sellixRoleId);
+                console.log('❌ Role not found:', config.sellhubRoleId);
                 return res.status(200).send('Role not found');
             }
             
@@ -11824,7 +11824,7 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
             }
             
             // Log purchase in channel
-            const logChannel = guild.channels.cache.get(config.sellixLogChannelId);
+            const logChannel = guild.channels.cache.get(config.sellhubLogChannelId);
             if (logChannel) {
                 const logEmbed = new EmbedBuilder()
                     .setTitle('💰 New Purchase')
@@ -11846,16 +11846,16 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
         
         res.status(200).send('OK');
     } catch (error) {
-        console.error('❌ Sellix webhook error:', error);
+        console.error('❌ SellHub webhook error:', error);
         res.status(500).send('Internal Server Error');
     }
 });
 
 // Start webhook server on port 3000
 const WEBHOOK_PORT = process.env.WEBHOOK_PORT || 3000;
-sellixApp.listen(WEBHOOK_PORT, () => {
+sellhubApp.listen(WEBHOOK_PORT, () => {
     console.log(`✅ Webhook server running on port ${WEBHOOK_PORT}`);
-    console.log(`✅ Sellix webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/sellix-webhook`);
+    console.log(`✅ SellHub webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/sellix-webhook`);
 });
 // ===== END WEBHOOK SYSTEM =====
 
