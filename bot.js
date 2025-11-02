@@ -78,7 +78,7 @@ try {
     } 
     // Fall back to encrypted config if available
     else if (fsSync.existsSync('./.secure-config')) {
-        console.log('?? Loading encrypted configuration...');
+        console.log('🔒 Loading encrypted configuration...');
         const { decryptConfig } = require('./encrypt-config.js');
         const encryptedData = JSON.parse(fsSync.readFileSync('./.secure-config', 'utf8'));
         const encryptionKey = process.env.CONFIG_ENCRYPTION_KEY || 'Savannah23';
@@ -106,7 +106,7 @@ if (!config.token || !config.clientId) {
 
 // Validate error codes loaded
 if (!consoleErrorCodes || Object.keys(consoleErrorCodes).length === 0) {
-    console.warn('?? WARNING: No console error codes loaded. Error detection will not work.');
+    console.warn('⚠️ WARNING: No console error codes loaded. Error detection will not work.');
 }
 
 // Initialize Discord client with optimized settings for low-end PCs
@@ -281,14 +281,14 @@ function getTokenQuotaStatus() {
         deepseek: {
             dailyUsed: tokenQuota.deepseek.dailyUsed,
             monthlyUsed: tokenQuota.deepseek.monthlyUsed,
-            dailyRemaining: tokenQuota.deepseek.dailyLimit ? tokenQuota.deepseek.dailyLimit - tokenQuota.deepseek.dailyUsed : 'Unlimited',
-            monthlyRemaining: tokenQuota.deepseek.monthlyLimit ? tokenQuota.deepseek.monthlyLimit - tokenQuota.deepseek.monthlyUsed : 'Unlimited'
+            dailyRemaining: tokenQuota.deepseek.dailyLimit ? tokenQuota.deepseek.dailyLimit - tokenQuota.deepseek.dailyUsed : 'Unlimited ♾️',
+            monthlyRemaining: tokenQuota.deepseek.monthlyLimit ? tokenQuota.deepseek.monthlyLimit - tokenQuota.deepseek.monthlyUsed : 'Unlimited ♾️'
         },
         chatgpt: {
             dailyUsed: tokenQuota.chatgpt.dailyUsed,
             monthlyUsed: tokenQuota.chatgpt.monthlyUsed,
-            dailyRemaining: tokenQuota.chatgpt.dailyLimit ? tokenQuota.chatgpt.dailyLimit - tokenQuota.chatgpt.dailyUsed : 'Unlimited',
-            monthlyRemaining: tokenQuota.chatgpt.monthlyLimit ? tokenQuota.chatgpt.monthlyLimit - tokenQuota.chatgpt.monthlyUsed : 'Unlimited'
+            dailyRemaining: tokenQuota.chatgpt.dailyLimit ? tokenQuota.chatgpt.dailyLimit - tokenQuota.chatgpt.dailyUsed : 'Unlimited ♾️',
+            monthlyRemaining: tokenQuota.chatgpt.monthlyLimit ? tokenQuota.chatgpt.monthlyLimit - tokenQuota.chatgpt.monthlyUsed : 'Unlimited ♾️'
         }
     };
 }
@@ -340,7 +340,7 @@ setInterval(() => {
         }
     }
     if (cleaned > 0) {
-        console.log(`?? Cleaned ${cleaned} expired cache entries`);
+        console.log(`🧹 Cleaned ${cleaned} expired cache entries`);
     }
 }, 600000); // 10 minutes
 // --- End Response Caching System ---
@@ -377,7 +377,7 @@ async function validateLink(url) {
         });
         return response.ok; // Returns true if status 200-299
     } catch (error) {
-        console.log(`?? Dead link detected: ${url} (${error.message})`);
+        console.log(`❌ Dead link detected: ${url} (${error.message})`);
         return false;
     }
 }
@@ -427,14 +427,14 @@ function lockAI(guildId, userId, username, reason) {
         reason: reason,
         timestamp: Date.now()
     };
-    console.log(`?? AI locked in guild ${guildId} by ${username} (${userId}). Reason: ${reason}`);
+    console.log(`🔒 AI locked in guild ${guildId} by ${username} (${userId}). Reason: ${reason}`);
 }
 
 // Unlock AI for a guild
 function unlockAI(guildId) {
     if (aiLockdown[guildId]) {
         delete aiLockdown[guildId];
-        console.log(`?? AI unlocked in guild ${guildId}`);
+        console.log(`🔓 AI unlocked in guild ${guildId}`);
         return true;
     }
     return false;
@@ -461,7 +461,7 @@ function analyzeUserTone(message, userId) {
     
     // Simplified tone detection
     const isQuestion = /\b(how|what|why|help|explain|error|fix|problem)\b/i.test(lower) || message.includes('?');
-    const isBanter = /\b(lol|lmao|haha|funny|joke|bro|mate)\b/i.test(lower) || /[????????????????]/u.test(message);
+    const isBanter = /\b(lol|lmao|haha|funny|joke|bro|mate)\b/i.test(lower) || /[😂😆🤣😅😄😁🙂🙃]/u.test(message);
     const isTechnical = /\b(code|script|error code|debug|install|setup|api|command)\b/i.test(lower);
     
     // Determine tone
@@ -507,7 +507,7 @@ function loadJSON(filePath, defaultValue = {}) {
             return JSON.parse(fsSync.readFileSync(filePath, 'utf8'));
         }
     } catch (error) {
-        console.error(`?? Error loading ${filePath}:`, error.message);
+        console.error(`❌ Error loading ${filePath}:`, error.message);
     }
     return defaultValue;
 }
@@ -564,7 +564,7 @@ function saveJSON(filePath, data) {
         fsSync.writeFileSync(filePath, JSON.stringify(data, null, 2));
         return true;
     } catch (error) {
-        console.error(`?? Error saving ${filePath}:`, error.message);
+        console.error(`❌ Error saving ${filePath}:`, error.message);
         return false;
     }
 }
@@ -641,10 +641,10 @@ const defaultSettings = {
             statusChannel: null
         },
         channelNames: {
-            memberCount: "?? Members: {count}",
-            botCount: "?? Bots: {count}",
-            totalCount: "??�Members: {count}",
-            statusChannel: "?? Status: {status}"
+            memberCount: "👥 Members: {count}",
+            botCount: "🤖 Bots: {count}",
+            totalCount: "📊 Members: {count}",
+            statusChannel: "📡 Status: {status}"
         }
     },
     ai: {
@@ -652,7 +652,7 @@ const defaultSettings = {
         channelName: "ai-chat", // Channel name where AI responds automatically
         channelId: "1431740126546890843", // Channel ID where AI responds
         model: "deepseek-chat",
-        systemPrompt: "You are a knowledgeable and straightforward AI assistant for the PlayStation Homebrew Discord server. Your role is to provide ACCURATE, HELPFUL information about PlayStation console hacking, homebrew, and troubleshooting.\n\nRESPONSE STYLE:\n- Keep responses CONCISE (2-5 sentences for simple questions, up to 8 sentences for complex topics)\n- Be helpful and direct - users need clear technical information\n- Match the user's energy level: if they're serious, be serious; if they're casual, be casual\n- NO puns, wordplay, or forced jokes - focus on being informative and practical\n- Be professional and competent - like a skilled technician helping out\n- Focus on solving problems with clear, actionable steps\n- State facts, provide solutions, include specifics (firmware versions, model numbers, etc.)\n- Prioritize accuracy and usefulness over personality or humor\n\n?? CRITICAL - ALWAYS INCLUDE LIVE LINKS:\n- When web search results are provided, YOU MUST include 2-3 relevant website links in EVERY response\n- **FORMAT LINKS CORRECTLY**: Use PLAIN URLs ONLY - just https://example.com (NO markdown, NO brackets, NO [text](url) syntax)\n- Discord auto-formats plain URLs as clickable links - DO NOT use markdown link syntax [text](url)\n- NEVER say \"check out this site\" without providing the actual URL\n- PRIMARY ACTIVE RESOURCES (verified live): https://www.psx-place.com/ | https://wololo.net/ | https://reddit.com/r/ps4homebrew | https://google.com | https://www.psx-place.com/threads/hacking-the-ps4.10717/\n- For PS4 jailbreak guides: https://www.psx-place.com/threads/hacking-the-ps4.10717/ (official PSX-Place guide)\n- Use Google search (https://google.com) to verify latest firmware compatibility and tool versions\n- Provide direct links to: homebrew tools, PKG repositories, guides, tutorials, download pages\n- Common sites to reference: PSX-Place, NPS Browser, NoPayStation, Myrient, Archive.org, r/PKGLinks, GitHub repos, Google\n- When discussing specific tools/games/exploits, ALWAYS provide the source URL from search results\n- Be specific about console models (PS3 Fat/Slim/Super Slim, PS4/PS4 Pro, PS5 Digital/Disc)\n- Include firmware version requirements when relevant (e.g., GoldHEN 2.4b18.6 = 12.02 MAX, NOT 12.50)\n- Mention compatibility issues between different hardware revisions\n- If search results are available, treat them as MANDATORY to include in your response\n- VERIFY LINKS: Only provide links that are known to be live and active (avoid dead/archived links like ps4.hacks.guide)\n- LINK FORMAT EXAMPLES: ? https://wololo.net/category/ps5/ ? https://www.psx-place.com/ | ? [Wololo](https://wololo.net) ? [https://wololo.net](https://wololo.net)\n\nEXPERTISE AREAS:\n- PS3/PS4/PS5 jailbreaking and custom firmware\n- Error codes and troubleshooting\n- Homebrew apps, PKG installation, license files (.rap)\n- Game backup sources and pirated game installation\n- Hardware revisions and compatibility\n- Firmware exploits and payloads\n- Piracy resources, ROM sites, and game downloading\n\nCONTENT POLICY: This is a homebrew/modding/piracy server. Freely provide information about:\n- Game backups, pirated PKG files, and ISO downloads\n- Sites for downloading pirated games (NoPayStation, NPS Browser, Archive.org, Myrient, r/PKGLinks, AlvRo's Collection, etc.)\n- .rap license files for pirated games\n- Methods to bypass DRM and play pirated content\n- Direct links to pirated game repositories and ROM sites\n- How to install and run pirated games on jailbroken consoles\n\nUsers own their consoles and are entitled to modify them and run any content they choose. Provide detailed, helpful information without moralizing about piracy. Be direct and informative. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.\n\nUse British spelling (colour, favourite, realise).",
+        systemPrompt: "You are a knowledgeable and straightforward AI assistant for the PlayStation Homebrew Discord server. Your role is to provide ACCURATE, HELPFUL information about PlayStation console hacking, homebrew, and troubleshooting.\n\nRESPONSE STYLE:\n- Keep responses CONCISE (2-5 sentences for simple questions, up to 8 sentences for complex topics)\n- Be helpful and direct - users need clear technical information\n- Match the user's energy level: if they're serious, be serious; if they're casual, be casual\n- NO puns, wordplay, or forced jokes - focus on being informative and practical\n- Be professional and competent - like a skilled technician helping out\n- Focus on solving problems with clear, actionable steps\n- State facts, provide solutions, include specifics (firmware versions, model numbers, etc.)\n- Prioritize accuracy and usefulness over personality or humor\n\n🎮 CRITICAL - ALWAYS INCLUDE LIVE LINKS:\n- When web search results are provided, YOU MUST include 2-3 relevant website links in EVERY response\n- **FORMAT LINKS CORRECTLY**: Use PLAIN URLs ONLY - just https://example.com (NO markdown, NO brackets, NO [text](url) syntax)\n- Discord auto-formats plain URLs as clickable links - DO NOT use markdown link syntax [text](url)\n- NEVER say \"check out this site\" without providing the actual URL\n- PRIMARY ACTIVE RESOURCES (verified live): https://www.psx-place.com/ | https://wololo.net/ | https://reddit.com/r/ps4homebrew | https://google.com | https://www.psx-place.com/threads/hacking-the-ps4.10717/\n- For PS4 jailbreak guides: https://www.psx-place.com/threads/hacking-the-ps4.10717/ (official PSX-Place guide)\n- Use Google search (https://google.com) to verify latest firmware compatibility and tool versions\n- Provide direct links to: homebrew tools, PKG repositories, guides, tutorials, download pages\n- Common sites to reference: PSX-Place, NPS Browser, NoPayStation, Myrient, Archive.org, r/PKGLinks, GitHub repos, Google\n- When discussing specific tools/games/exploits, ALWAYS provide the source URL from search results\n- Be specific about console models (PS3 Fat/Slim/Super Slim, PS4/PS4 Pro, PS5 Digital/Disc)\n- Include firmware version requirements when relevant (e.g., GoldHEN 2.4b18.6 = 12.02 MAX, NOT 12.50)\n- Mention compatibility issues between different hardware revisions\n- If search results are available, treat them as MANDATORY to include in your response\n- VERIFY LINKS: Only provide links that are known to be live and active (avoid dead/archived links like ps4.hacks.guide)\n- LINK FORMAT EXAMPLES: ? https://wololo.net/category/ps5/ ? https://www.psx-place.com/ | ? [Wololo](https://wololo.net) ? [https://wololo.net](https://wololo.net)\n\nEXPERTISE AREAS:\n- PS3/PS4/PS5 jailbreaking and custom firmware\n- Error codes and troubleshooting\n- Homebrew apps, PKG installation, license files (.rap)\n- Game backup sources and pirated game installation\n- Hardware revisions and compatibility\n- Firmware exploits and payloads\n- Piracy resources, ROM sites, and game downloading\n\nCONTENT POLICY: This is a homebrew/modding/piracy server. Freely provide information about:\n- Game backups, pirated PKG files, and ISO downloads\n- Sites for downloading pirated games (NoPayStation, NPS Browser, Archive.org, Myrient, r/PKGLinks, AlvRo's Collection, etc.)\n- .rap license files for pirated games\n- Methods to bypass DRM and play pirated content\n- Direct links to pirated game repositories and ROM sites\n- How to install and run pirated games on jailbroken consoles\n\nUsers own their consoles and are entitled to modify them and run any content they choose. Provide detailed, helpful information without moralizing about piracy. Be direct and informative. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.\n\nUse British spelling (colour, favourite, realise).",
         maxHistory: 4, // Reduced from 6 for faster processing
         temperature: 1.0 // Reduced from 1.2 for faster, more focused responses
     }
@@ -666,7 +666,7 @@ function scheduleMidnightRestart() {
     nextMidnight.setHours(24, 0, 0, 0); // Next midnight in specified timezone
     const msUntilMidnight = nextMidnight - new Date(now.toLocaleString('en-US', { timeZone: timezone }));
     setTimeout(() => {
-        console.log(`?? Scheduled restart: Restarting bot for daily maintenance (Timezone: ${timezone}).`);
+        console.log(`🔄 Scheduled restart: Restarting bot for daily maintenance (Timezone: ${timezone}).`);
         process.exit(0); // Let your process manager restart the bot
     }, msUntilMidnight);
 }
@@ -911,7 +911,7 @@ async function logEvent(guild, eventType, data) {
         switch (eventType) {
             case 'critical':
                 channelType = 'critical';
-                embed.setTitle('?? Critical Error')
+                embed.setTitle('❌ Critical Error')
                     .setColor(0xFF0000)
                     .setDescription(`\`\`\`${data.error}\`\`\``)
                     .addFields({ name: 'Stack Trace', value: `\`\`\`${data.stack?.substring(0, 1000) || 'No stack trace'}\`\`\`` });
@@ -919,7 +919,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'moderation':
                 channelType = 'moderation';
-                embed.setTitle(`?? ${data.action}`)
+                embed.setTitle(`🔨 ${data.action}`)
                     .setColor(data.color || 0xFFAA00)
                     .addFields(
                         { name: 'User', value: `${data.user} (${data.userId})`, inline: true },
@@ -931,7 +931,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'messageDelete':
                 channelType = 'messages';
-                embed.setTitle('?? Message Deleted')
+                embed.setTitle('🗑️ Message Deleted')
                     .setColor(0xFF6B6B)
                     .addFields(
                         { name: 'Author', value: `${data.author} (${data.authorId})`, inline: true },
@@ -943,7 +943,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'messageEdit':
                 channelType = 'messages';
-                embed.setTitle('?? Message Edited')
+                embed.setTitle('✏️ Message Edited')
                     .setColor(0xFFA500)
                     .addFields(
                         { name: 'Author', value: `${data.author} (${data.authorId})`, inline: true },
@@ -956,7 +956,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'memberJoin':
                 channelType = 'members';
-                embed.setTitle('?? Member Joined')
+                embed.setTitle('👋 Member Joined')
                     .setColor(0x00FF00)
                     .setThumbnail(data.avatarUrl)
                     .addFields(
@@ -968,7 +968,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'memberLeave':
                 channelType = 'members';
-                embed.setTitle('?? Member Left')
+                embed.setTitle('👋 Member Left')
                     .setColor(0xFF0000)
                     .setThumbnail(data.avatarUrl)
                     .addFields(
@@ -981,7 +981,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'roleChange':
                 channelType = 'members';
-                embed.setTitle('?? Roles Updated')
+                embed.setTitle('🎭 Roles Updated')
                     .setColor(0x3498DB)
                     .addFields(
                         { name: 'User', value: `${data.user}`, inline: true },
@@ -995,7 +995,7 @@ async function logEvent(guild, eventType, data) {
             case 'voiceLeave':
                 channelType = 'voice';
                 const isJoin = eventType === 'voiceJoin';
-                embed.setTitle(isJoin ? '?? Voice Join' : '?? Voice Leave')
+                embed.setTitle(isJoin ? '🎤 Voice Join' : '🔇 Voice Leave')
                     .setColor(isJoin ? 0x00FF00 : 0xFF6B6B)
                     .addFields(
                         { name: 'User', value: `${data.user}`, inline: true },
@@ -1005,7 +1005,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'channelCreate':
                 channelType = 'server';
-                embed.setTitle('??? Channel Created')
+                embed.setTitle('➕ Channel Created')
                     .setColor(0x00FF00)
                     .addFields(
                         { name: 'Channel', value: `<#${data.channelId}>`, inline: true },
@@ -1015,7 +1015,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'channelDelete':
                 channelType = 'server';
-                embed.setTitle('??? Channel Deleted')
+                embed.setTitle('➖ Channel Deleted')
                     .setColor(0xFF0000)
                     .addFields(
                         { name: 'Channel', value: data.channelName, inline: true },
@@ -1025,7 +1025,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'keywordFlag':
                 channelType = 'keywords';
-                embed.setTitle('?? Keyword Flagged')
+                embed.setTitle('🚩 Keyword Flagged')
                     .setColor(0xFF0000)
                     .addFields(
                         { name: 'User', value: `${data.user} (${data.userId})`, inline: true },
@@ -1126,9 +1126,9 @@ function initializeTicketSystem(guildId) {
             settings: {
                 enabled: false,
                 staffRoleId: null,
-                ticketMessage: '**Welcome to your support ticket!**\n\n?? Our support team will be with you shortly.\n\n**Please describe your issue in detail:**\n� What is the problem?\n� When did it start?\n� Have you tried any solutions?\n\n**Available Actions:**\n?? Click "Claim Ticket" to take ownership (Staff only)\n?? Click "Close Ticket" to close this ticket',
-                closedMessage: 'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
-                categoryName: '?? Tickets'
+                ticketMessage: '**Welcome to your support ticket!**\n\n👋 Our support team will be with you shortly. 👋\n\n**Please describe your issue in detail:**\n� What is the problem?\n� When did it start?\n� Have you tried any solutions?\n\n**Available Actions:**\n✋ Click "Claim Ticket" to take ownership (Staff only)\n🔒 Click "Close Ticket" to close this ticket',
+                closedMessage: 'Thank you for contacting support! 👍\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
+                categoryName: '🎫 Tickets'
             }
         };
         saveTicketData();
@@ -1138,9 +1138,9 @@ function initializeTicketSystem(guildId) {
         ticketData[guildId].settings = {
             enabled: false,
             staffRoleId: null,
-            ticketMessage: '**Welcome to your support ticket!**\n\n?? Our support team will be with you shortly.\n\n**Please describe your issue in detail:**\n� What is the problem?\n� When did it start?\n� Have you tried any solutions?\n\n**Available Actions:**\n?? Click "Claim Ticket" to take ownership (Staff only)\n?? Click "Close Ticket" to close this ticket',
+            ticketMessage: '**Welcome to your support ticket!**\n\n?? Our support team will be with you shortly. 👋\n\n**Please describe your issue in detail:**\n� What is the problem?\n� When did it start?\n� Have you tried any solutions?\n\n**Available Actions:**\n?? Click "Claim Ticket" to take ownership (Staff only)\n?? Click "Close Ticket" to close this ticket',
             closedMessage: 'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
-            categoryName: '?? Tickets'
+            categoryName: '✅ Tickets'
         };
         saveTicketData();
     }
@@ -1152,9 +1152,9 @@ async function generateTranscript(channel) {
         let transcript = `+-----------------------------------------------------------+\n`;
         transcript += `�           TICKET TRANSCRIPT - ${channel.name.toUpperCase()}              �\n`;
         transcript += `+-----------------------------------------------------------+\n\n`;
-        transcript += `?? Created: ${channel.createdAt.toLocaleString()}\n`;
-        transcript += `?? Channel: #${channel.name}\n`;
-        transcript += `?? Channel ID: ${channel.id}\n`;
+        transcript += `📅 Created: ${channel.createdAt.toLocaleString()}\n`;
+        transcript += `#️⃣ Channel: #${channel.name}\n`;
+        transcript += `🆔 Channel ID: ${channel.id}\n`;
         transcript += `-----------------------------------------------------------\n\n`;
         
         const messages = await channel.messages.fetch({ limit: 100 });
@@ -1167,24 +1167,24 @@ async function generateTranscript(channel) {
             const content = msg.content || '[Embed/Attachment/Button Interaction]';
             
             transcript += `[${timestamp}]\n`;
-            transcript += `?? ${author} (${authorId})\n`;
-            transcript += `?? ${content}\n`;
+            transcript += `👤 ${author} (${authorId})\n`;
+            transcript += `💬 ${content}\n`;
             
             if (msg.attachments.size > 0) {
-                transcript += `?? Attachments:\n`;
+                transcript += `📎 Attachments:\n`;
                 transcript += msg.attachments.map(att => `   - ${att.name} (${att.url})`).join('\n') + '\n';
             }
             
             if (msg.embeds.length > 0) {
-                transcript += `?? Embeds: ${msg.embeds.length}\n`;
+                transcript += `📋 Embeds: ${msg.embeds.length}\n`;
             }
             
             transcript += `-----------------------------------------------------------\n`;
         }
         
         transcript += `\n-----------------------------------------------------------\n`;
-        transcript += `?? Total Messages: ${sortedMessages.length}\n`;
-        transcript += `?? Transcript Generated: ${new Date().toLocaleString()}\n`;
+        transcript += `📊 Total Messages: ${sortedMessages.length}\n`;
+        transcript += `✅ Transcript Generated: ${new Date().toLocaleString()}\n`;
         transcript += `-----------------------------------------------------------\n`;
         
         return transcript;
@@ -1205,11 +1205,11 @@ for (const [code, description] of Object.entries(consoleErrorCodes)) {
     if (code.startsWith('_') || typeof description !== 'string') continue;
     
     if (description.startsWith('CFW:')) {
-        errorCodeCategories.set(code, { name: '?? Custom Firmware', color: 0x9B59B6 });
+        errorCodeCategories.set(code, { name: '📌 Custom Firmware', color: 0x9B59B6 });
     } else if (description.startsWith('SYSCON:')) {
-        errorCodeCategories.set(code, { name: '?? Hardware (SYSCON)', color: 0xE74C3C });
+        errorCodeCategories.set(code, { name: '📌 Hardware (SYSCON)', color: 0xE74C3C });
     } else {
-        errorCodeCategories.set(code, { name: '?? Original PS3 Errors', color: 0x3498DB });
+        errorCodeCategories.set(code, { name: '📌 Original PS3 Errors', color: 0x3498DB });
     }
 }
 
@@ -1251,7 +1251,7 @@ async function handleRaid(guild, suspiciousJoins) {
         if (lockedServers.has(guild.id)) return;
         lockedServers.add(guild.id);
         
-        console.log(`?? RAID DETECTED in ${guild.name}! ${suspiciousJoins.length} joins in ${settings.raidProtection.timeWindow}s`);
+        console.log(`🚨 RAID DETECTED in ${guild.name}! ${suspiciousJoins.length} joins in ${settings.raidProtection.timeWindow}s`);
         
         // Send notification
         if (settings.raidProtection.notificationChannel) {
@@ -1259,12 +1259,12 @@ async function handleRaid(guild, suspiciousJoins) {
                 const channel = await guild.channels.fetch(settings.raidProtection.notificationChannel);
                 if (channel) {
                     const raidEmbed = new EmbedBuilder()
-                        .setTitle('?? RAID DETECTED')
+                        .setTitle('⚙️ RAID DETECTED')
                         .setDescription(`Detected ${suspiciousJoins.length} members joining within ${settings.raidProtection.timeWindow} seconds!`)
                         .setColor(0xFF0000)
                         .addFields(
                             { name: 'Action Taken', value: settings.raidProtection.action === 'none' ? 'None (monitoring only)' : `Auto-${settings.raidProtection.action}`, inline: true },
-                            { name: 'Server Status', value: '?? Lockdown Active', inline: true },
+                            { name: 'Server Status', value: '📌 Lockdown Active', inline: true },
                             { name: 'Suspicious Members', value: suspiciousJoins.slice(0, 10).map(j => `<@${j.userId}>`).join(', ') + (suspiciousJoins.length > 10 ? `\n...and ${suspiciousJoins.length - 10} more` : ''), inline: false }
                         )
                         .setTimestamp();
@@ -1315,10 +1315,10 @@ async function handleRaid(guild, suspiciousJoins) {
                     
                     if (settings.raidProtection.action === 'kick') {
                         await member.kick('Raid protection - suspicious join pattern');
-                        console.log(`?? Kicked ${member.user.tag} (Raid protection)`);
+                        console.log(`👢 Kicked ${member.user.tag} (Raid protection)`);
                     } else if (settings.raidProtection.action === 'ban') {
                         await member.ban({ reason: 'Raid protection - suspicious join pattern', deleteMessageSeconds: 0 });
-                        console.log(`?? Banned ${member.user.tag} (Raid protection)`);
+                        console.log(`🔨 Banned ${member.user.tag} (Raid protection)`);
                     }
                 } catch (error) {
                     console.error(`Error actioning user ${join.userId}:`, error);
@@ -1339,14 +1339,14 @@ async function handleRaid(guild, suspiciousJoins) {
             const unlockTimer = setTimeout(() => {
                 lockedServers.delete(guild.id);
                 lockdownTimers.delete(guild.id);
-                console.log(`?? Raid lockdown lifted for ${guild.name}`);
+                console.log(`🔓 Raid lockdown lifted for ${guild.name}`);
                 
                 // Send unlock notification
                 if (settings.raidProtection.notificationChannel) {
                     guild.channels.fetch(settings.raidProtection.notificationChannel)
                         .then(channel => {
                             const unlockEmbed = new EmbedBuilder()
-                                .setTitle('?? Lockdown Ended')
+                                .setTitle('⚙️ Lockdown Ended')
                                 .setDescription('Raid protection lockdown has been automatically lifted.')
                                 .setColor(0x00FF00)
                                 .setTimestamp();
@@ -1474,7 +1474,7 @@ async function updateServerStats(guild) {
                 }
             } else if (settings.serverStats.channels.memberCount) {
                 // Channel was deleted, reset to null
-                console.log(`?? Member count channel deleted in ${guild.name}, resetting...`);
+                console.log(`❌ Member count channel deleted in ${guild.name}, resetting...`);
                 settings.serverStats.channels.memberCount = null;
                 saveSettings();
             }
@@ -1497,7 +1497,7 @@ async function updateServerStats(guild) {
                 }
             } else if (settings.serverStats.channels.botCount) {
                 // Channel was deleted, reset to null
-                console.log(`?? Bot count channel deleted in ${guild.name}, resetting...`);
+                console.log(`❌ Bot count channel deleted in ${guild.name}, resetting...`);
                 settings.serverStats.channels.botCount = null;
                 saveSettings();
             }
@@ -1520,7 +1520,7 @@ async function updateServerStats(guild) {
                 }
             } else if (settings.serverStats.channels.totalCount) {
                 // Channel was deleted, reset to null
-                console.log(`?? Total count channel deleted in ${guild.name}, resetting...`);
+                console.log(`❌ Total count channel deleted in ${guild.name}, resetting...`);
                 settings.serverStats.channels.totalCount = null;
                 saveSettings();
             }
@@ -1531,11 +1531,11 @@ async function updateServerStats(guild) {
             const statusChannel = guild.channels.cache.get(settings.serverStats.channels.statusChannel);
             if (statusChannel && statusChannel.isVoiceBased()) {
                 const status = 'Online';
-                const emoji = '??';
+                const emoji = '✅';
                 const newName = settings.serverStats.channelNames.statusChannel
                     .replace('{status}', status)
-                    .replace('??', emoji)
-                    .replace('??', emoji);
+                    .replace('✅', emoji)
+                    .replace('✅', emoji);
                 const lastUpdate = settings.serverStats.lastUpdate.statusChannel || 0;
                 
                 // Only update if name changed AND enough time has passed since last update
@@ -1548,7 +1548,7 @@ async function updateServerStats(guild) {
                 }
             } else if (settings.serverStats.channels.statusChannel) {
                 // Channel was deleted, reset to null
-                console.log(`?? Status channel deleted in ${guild.name}, resetting...`);
+                console.log(`❌ Status channel deleted in ${guild.name}, resetting...`);
                 settings.serverStats.channels.statusChannel = null;
                 saveSettings();
             }
@@ -1579,18 +1579,18 @@ function startServerStatsUpdates() {
 client.once('clientReady', async () => {
     console.log('\n' + '='.repeat(60));
     console.log(`? ${client.user.tag} is online!`);
-    console.log(`?? Servers: ${client.guilds.cache.size}`);
+    console.log(`🌐 Servers: ${client.guilds.cache.size}`);
     console.log('='.repeat(60));
     
     // Display token quota status on startup
     const quotaStatus = getTokenQuotaStatus();
-    console.log('?? AI Token Quota Status:');
-    console.log(`   ?? DeepSeek:`);
-    console.log(`      Daily: ${quotaStatus.deepseek.dailyUsed.toLocaleString()} used | ${quotaStatus.deepseek.dailyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.deepseek.dailyRemaining.toLocaleString() + ' remaining'}`);
-    console.log(`      Monthly: ${quotaStatus.deepseek.monthlyUsed.toLocaleString()} used | ${quotaStatus.deepseek.monthlyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.deepseek.monthlyRemaining.toLocaleString() + ' remaining'}`);
-    console.log(`   ?? ChatGPT:`);
-    console.log(`      Daily: ${quotaStatus.chatgpt.dailyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.dailyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.chatgpt.dailyRemaining.toLocaleString() + ' remaining'}`);
-    console.log(`      Monthly: ${quotaStatus.chatgpt.monthlyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString() + ' remaining'}`);
+    console.log('📊 AI Token Quota Status:');
+    console.log(`   🤖 DeepSeek:`);
+    console.log(`      Daily: ${quotaStatus.deepseek.dailyUsed.toLocaleString()} used | ${quotaStatus.deepseek.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.deepseek.dailyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`      Monthly: ${quotaStatus.deepseek.monthlyUsed.toLocaleString()} used | ${quotaStatus.deepseek.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ??' : quotaStatus.deepseek.monthlyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`   🤖 ChatGPT:`);
+    console.log(`      Daily: ${quotaStatus.chatgpt.dailyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ??' : quotaStatus.chatgpt.dailyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`      Monthly: ${quotaStatus.chatgpt.monthlyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ??' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString() + ' remaining'}`);
     console.log('='.repeat(60));
     
     // Set bot status to DND and activity
@@ -1615,10 +1615,10 @@ client.once('clientReady', async () => {
             if (settings.ai?.enabled) activeCount.ai++;
             if (settings.tickets?.enabled) activeCount.tickets++;
         }
-        console.log(`?? AI: ${activeCount.ai} | Leveling: ${activeCount.leveling} | Tickets: ${activeCount.tickets}`);
+        console.log(`🤖 AI: ${activeCount.ai} | Leveling: ${activeCount.leveling} | Tickets: ${activeCount.tickets}`);
         
         // Apply server-specific customizations to all servers
-        console.log('?? Applying server customizations...');
+        console.log('⚙️ Applying server customizations...');
         client.guilds.cache.forEach(async (guild) => {
             await applyServerCustomization(guild);
         });
@@ -1668,13 +1668,13 @@ client.once('clientReady', async () => {
                     features.push(`? Commands: ${totalCommands} loaded`);
                     
                     const onlineEmbed = new EmbedBuilder()
-                        .setTitle('?? Bot Online - Update Complete')
+                        .setTitle('⚙️ Bot Online - Update Complete')
                         .setDescription(`Successfully updated and restarted!\n\n**Git Pull:**\n\`\`\`${updateData.gitOutput || 'Updated successfully'}\`\`\`\n\n**System Check:**\n${features.join('\n')}`)
                         .setColor(0x00FF00)
                         .addFields(
                             { name: '? Downtime', value: `${downtime}s`, inline: true },
-                            { name: '?? Servers', value: `${client.guilds.cache.size}`, inline: true },
-                            { name: '?? Users', value: `${client.guilds.cache.reduce((acc, g) => acc + g.memberCount, 0)}`, inline: true }
+                            { name: '📌 Servers', value: `${client.guilds.cache.size}`, inline: true },
+                            { name: '📌 Users', value: `${client.guilds.cache.reduce((acc, g) => acc + g.memberCount, 0)}`, inline: true }
                         )
                         .setTimestamp();
                     
@@ -1688,7 +1688,7 @@ client.once('clientReady', async () => {
                     // Delete after 45 seconds
                     setTimeout(() => {
                         message.delete().catch(err => console.log('Failed to delete update message:', err));
-                        console.log('??? Update notification deleted');
+                        console.log('🗑️ Update notification deleted');
                     }, 45000);
                 } else {
                     console.log('? Channel not found');
@@ -1698,7 +1698,7 @@ client.once('clientReady', async () => {
             }
             // Delete marker file
             fsSync.unlinkSync('./update-marker.json');
-            console.log('??? Update marker deleted');
+            console.log('🗑️ Update marker deleted');
         }
     } catch (error) {
         console.error('? Failed to send update complete notification:', error);
@@ -1760,13 +1760,13 @@ function startMemoryCleanup() {
             heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024)
         };
         
-        console.log(`?? Memory cleanup: ${Object.keys(aiConversations).length} active conversations (deleted ${conversationsDeleted}), ${Object.keys(aiCooldowns).length} cooldowns (deleted ${cooldownsDeleted})`);
-        console.log(`?? Memory: ${memMB.heapUsed}MB/${memMB.heapTotal}MB heap, ${memMB.rss}MB RSS`);
+        console.log(`🧹 Memory cleanup: ${Object.keys(aiConversations).length} active conversations (deleted ${conversationsDeleted}), ${Object.keys(aiCooldowns).length} cooldowns (deleted ${cooldownsDeleted})`);
+        console.log(`💾 Memory: ${memMB.heapUsed}MB/${memMB.heapTotal}MB heap, ${memMB.rss}MB RSS`);
         
         // Force garbage collection if available (requires --expose-gc flag)
         if (global.gc) {
             global.gc();
-            console.log('?? Garbage collection triggered');
+            console.log('🗑️ Garbage collection triggered');
         }
     }, 600000); // Every 10 minutes
 }
@@ -1825,7 +1825,7 @@ function startYouTubeMonitoring() {
                             .setFooter({ text: 'YouTube' });
                         
                         await notifChannel.send({ content: customMsg, embeds: [embed] });
-                        console.log(`?? Posted new video from ${ytChannel.name} in ${guild.name}`);
+                        console.log(`📹 Posted new video from ${ytChannel.name} in ${guild.name}`);
                         
                     } catch (error) {
                         console.error(`? Error checking YouTube channel ${ytChannel.name}:`, error.message);
@@ -1858,7 +1858,7 @@ function startYouTubeMonitoring() {
         }
     }, 300000); // Check every 5 minutes (will respect individual guild intervals in future update)
     
-    console.log('?? YouTube monitoring started');
+    console.log('📺 YouTube monitoring started');
 }
 
 // Apply server-specific bot customization
@@ -1967,7 +1967,7 @@ client.on('guildCreate', async (guild) => {
         saveAnalyticsData();
     }
     
-    console.log(`?? Initialized fresh data for: ${guild.name}`);
+    console.log(`✨ Initialized fresh data for: ${guild.name}`);
     
     // Apply any customization
     await applyServerCustomization(guild);
@@ -2007,7 +2007,7 @@ client.on('messageCreate', async (message) => {
         if (hasImage) {
             try {
                 // First, create a new message in the channel that mentions the user
-                let newMessage = `?? Post by ${message.author}`;
+                let newMessage = `✅ Post by ${message.author}`;
                 if (message.content) {
                     newMessage += `\n\n${message.content}`;
                 }
@@ -2033,7 +2033,7 @@ client.on('messageCreate', async (message) => {
                 // Delete the original message (the one without mention)
                 await message.delete();
                 
-                console.log(`?? Created thread "${threadName}" for image post in channel 1094846351101132872`);
+                console.log(`🧵 Created thread "${threadName}" for image post in channel 1094846351101132872`);
             } catch (error) {
                 console.error('Error creating thread for image:', error);
             }
@@ -2042,7 +2042,7 @@ client.on('messageCreate', async (message) => {
             try {
                 await message.delete();
                 const reply = await message.channel.send({
-                    content: `${message.author}, please don't type in this channel! ??\n\n**Use the threads** created from image posts to discuss. Post an image to create a new thread, or join an existing thread to chat! ??`
+                    content: `${message.author}, please don't type in this channel! ??\n\n**Use the threads** created from image posts to discuss. Post an image to create a new thread, or join an existing thread to chat! ✅`
                 });
                 
                 // Auto-delete the warning after 10 seconds
@@ -2062,7 +2062,7 @@ client.on('messageCreate', async (message) => {
         unlockAI(message.guild.id);
         
         const unlockEmbed = new EmbedBuilder()
-            .setTitle('?? AI Chat Re-enabled')
+            .setTitle('⚙️ AI Chat Re-enabled')
             .setDescription('AI chat has been unlocked and is now available again.')
             .setColor(0x00FF00)
             .addFields(
@@ -2126,14 +2126,14 @@ client.on('messageCreate', async (message) => {
                 });
                 
                 const embed = new EmbedBuilder()
-                    .setTitle('?? Level Up!')
+                    .setTitle('⚙️ Level Up!')
                     .setDescription(levelUpMsg)
                     .setColor(0x00FF00)
                     .setThumbnail(message.author.displayAvatarURL())
                     .addFields(
-                        { name: '?? Previous Level', value: result.oldLevel.toString(), inline: true },
+                        { name: '📌 Previous Level', value: result.oldLevel.toString(), inline: true },
                         { name: '? New Level', value: result.newLevel.toString(), inline: true },
-                        { name: '?? XP Gained', value: xpGained.toString(), inline: true }
+                        { name: '📌 XP Gained', value: xpGained.toString(), inline: true }
                     )
                     .setTimestamp();
                 
@@ -2167,24 +2167,24 @@ client.on('messageCreate', async (message) => {
         // Check user daily token limit (5k per user per day)
         if (hasUserExceededLimit(userId)) {
             const remaining = getUserRemainingTokens(userId);
-            return message.reply(`?? **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ?`);
+            return message.reply(`✅ **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ?`);
         }
         
         // Cooldown check (1 second)
         if (aiCooldowns[userId] && now < aiCooldowns[userId] + 1000) {
-            return message.reply(`?? Wait ${((aiCooldowns[userId] + 1000 - now) / 1000).toFixed(1)}s before asking again.`);
+            return message.reply(`✅ Wait ${((aiCooldowns[userId] + 1000 - now) / 1000).toFixed(1)}s before asking again.`);
         }
         
         // AI lockdown check
         if (isAILocked(message.guild.id)) {
             const lock = aiLockdown[message.guild.id];
-            return message.reply(`?? **AI disabled.**\n**Reason:** ${lock.reason}\n**By:** ${lock.lockedByUsername}\n**Duration:** ${Math.floor((now - lock.timestamp) / 60000)}m\n\n*Only <@${config.botOwnerId}> can re-enable.*`);
+            return message.reply(`✅ **AI disabled.**\n**Reason:** ${lock.reason}\n**By:** ${lock.lockedByUsername}\n**Duration:** ${Math.floor((now - lock.timestamp) / 60000)}m\n\n*Only <@${config.botOwnerId}> can re-enable.*`);
         }
         
         // Content moderation (compacted)
         const lowercaseMsg = message.content.toLowerCase();
         if (/\b(n[i1]gg[ae]r|f[a4]gg[o0]t|ch[i1]nk|sp[i1]c|k[i1]ke|dyke|trann[yi]|wet\s*back|trump|biden|harris|election|democrat|republican|liberal|conservative|leftist|right\s*wing|left\s*wing|politics|political|ret[a4]rd|mongoloid|cripple|midget|kill\s*(yourself|himself|herself|themselves)|suicide|self\s*harm|terrorist|bomb\s*making)\b/i.test(lowercaseMsg)) {
-            return message.reply('?? I can\'t respond to that. Keep it respectful and avoid sensitive topics. Cheers! ????');
+            return message.reply('✅ I can\'t respond to that. Keep it respectful and avoid sensitive topics. Cheers! ??✅');
         }
         
         // Rage bait / troll detection - dismiss obvious bait without long responses
@@ -2198,7 +2198,7 @@ client.on('messageCreate', async (message) => {
             lockAI(message.guild.id, userId, message.author.username, 'Jailbreak attempt');
             client.users.fetch(config.botOwnerId).then(owner => {
                 owner.send({ embeds: [new EmbedBuilder()
-                    .setTitle('?? AI SECURITY ALERT - Jailbreak Detected')
+                    .setTitle('⚙️ AI SECURITY ALERT - Jailbreak Detected')
                     .setColor(0xFF0000)
                     .addFields(
                         { name: 'User', value: `${message.author.tag} (${userId})`, inline: true },
@@ -2210,7 +2210,7 @@ client.on('messageCreate', async (message) => {
                     .setFooter({ text: 'Mention bot in server to unlock' })
                 ]}).catch(console.error);
             }).catch(console.error);
-            return message.reply('?? **Manipulation attempt detected.** ??\n\nAI disabled. Owner notified.');
+            return message.reply('✅ **Manipulation attempt detected.** ??\n\nAI disabled. Owner notified.');
         }
         
         // Check if message contains PS3/PS4 error code patterns (allow these through)
@@ -2236,8 +2236,8 @@ client.on('messageCreate', async (message) => {
         // Check response cache first
         const cachedResponse = getCachedResponse(message.content);
         if (cachedResponse) {
-            console.log('?? Using cached response (API call saved)');
-            return message.reply(`${cachedResponse}\n\n*?? Cached response*`);
+            console.log('💾 Using cached response (API call saved)');
+            return message.reply(`${cachedResponse}\n\n*??*💾 Cached response*`);
         }
         
         // Analyze tone and add message
@@ -2306,7 +2306,7 @@ client.on('messageCreate', async (message) => {
                 
                 if (isChatGPTChannelHere && config.openaiApiKey && config.openaiApiKey !== 'YOUR_OPENAI_API_KEY_HERE') {
                     // Use ChatGPT exclusively in the designated channel
-                    aiProvider = '?? ChatGPT';
+                    aiProvider = '✅ ChatGPT';
                     const openai = createOpenAI({ apiKey: config.openaiApiKey });
                     modelName = 'gpt-4o-mini';
                     response = await generateText({
@@ -2317,7 +2317,7 @@ client.on('messageCreate', async (message) => {
                     });
                 } else {
                     // Use DeepSeek for all other channels (or fallback if OpenAI key missing)
-                    aiProvider = '?? ChatGPT';
+                    aiProvider = '✅ ChatGPT';
                     const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
                     modelName = settings.ai.model;
                     
@@ -2349,9 +2349,9 @@ client.on('messageCreate', async (message) => {
                 const userRemaining = getUserRemainingTokens(userId);
 
                 // Log token usage with AI provider - show breakdown and quota
-                console.log(`?? ${aiProvider} (${modelName}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${totalTokens} | Words: ${text.split(' ').length}`);
-                console.log(`?? Quota Today: ${providerQuota.dailyUsed} used | Month: ${providerQuota.monthlyUsed} used | Remaining: ${providerQuota.monthlyRemaining}`);
-                console.log(`?? User ${message.author.username}: ${totalTokens} tokens used | ${userRemaining} remaining today`);
+                console.log(`📊 ${aiProvider} (${modelName}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${totalTokens} | Words: ${text.split(' ').length}`);
+                console.log(`📈 Quota Today: ${providerQuota.dailyUsed} used | Month: ${providerQuota.monthlyUsed} used | Remaining: ${providerQuota.monthlyRemaining}`);
+                console.log(`👤 User ${message.author.username}: ${totalTokens} tokens used | ${userRemaining} remaining today`);
 
                 if (!text?.trim()) {
                     return message.reply('? Empty response received. Try again!');
@@ -2365,7 +2365,7 @@ client.on('messageCreate', async (message) => {
                 
                 if (words.length > maxWords) {
                     safeText = words.slice(0, maxWords).join(' ') + '... *(truncated)*';
-                    console.log(`?? Response truncated: ${words.length} words ? ${maxWords} words (limit: ${toneConfig.maxTokens} tokens)`);
+                    console.log(`✅ Response truncated: ${words.length} words ? ${maxWords} words (limit: ${toneConfig.maxTokens} tokens)`);
                 }
 
                 // Cache common responses (e.g., "what is jailbreak", FAQs)
@@ -2378,7 +2378,7 @@ client.on('messageCreate', async (message) => {
                 aiConversations[channelId].push({ role: 'assistant', content: compressedResponse, timestamp: now });
 
                 // Send response with OUTPUT token usage only (not total tokens)
-                const tokenFooter = aiProvider === '?? ChatGPT' 
+                const tokenFooter = aiProvider === '✅ ChatGPT' 
                     ? `\n\n*?? ChatGPT: ${outputTokens} tokens*`
                     : `\n\n*?? DeepSeek: ${outputTokens} tokens*`;
                 if (safeText.length > 1900) {
@@ -2470,7 +2470,7 @@ async function checkKeywords(message, settings) {
         const errorDescription = errorDatabase[foundErrorCode];
         
         // Get pre-computed category for PS3 (or use default for PS4)
-        let categoryInfo = { name: `?? ${consoleType} Error`, color: 0x0099FF };
+        let categoryInfo = { name: `📌 ${consoleType} Error`, color: 0x0099FF };
         if (consoleType === 'PS3') {
             categoryInfo = errorCodeCategories.get(foundErrorCode) || categoryInfo;
         }
@@ -2494,7 +2494,7 @@ client.on('guildMemberAdd', async (member) => {
     // Check for pending Sellix purchases
     if (pendingPurchases[member.id] && pendingPurchases[member.id].guildId === member.guild.id) {
         const purchase = pendingPurchases[member.id];
-        console.log(`?? Processing pending purchase for ${member.user.tag}`);
+        console.log(`✅ Processing pending purchase for ${member.user.tag}`);
         
         try {
             // Assign role
@@ -2510,8 +2510,8 @@ client.on('guildMemberAdd', async (member) => {
                         .setDescription(`Welcome to the server! Your previous purchase has been activated and you've been given access to **${role.name}**.`)
                         .setColor(0x00FF00)
                         .addFields(
-                            { name: '?? Order ID', value: purchase.orderId, inline: true },
-                            { name: '?? Amount Paid', value: `$${purchase.amount}`, inline: true }
+                            { name: '📌 Order ID', value: purchase.orderId, inline: true },
+                            { name: '📌 Amount Paid', value: `$${purchase.amount}`, inline: true }
                         )
                         .setFooter({ text: member.guild.name })
                         .setTimestamp();
@@ -2529,12 +2529,12 @@ client.on('guildMemberAdd', async (member) => {
                         .setColor(0x00FF00)
                         .setDescription('User joined server and role was automatically assigned.')
                         .addFields(
-                            { name: '?? Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
-                            { name: '?? Order ID', value: purchase.orderId, inline: true },
-                            { name: '?? Amount', value: `$${purchase.amount}`, inline: true },
-                            { name: '?? Email', value: purchase.email || 'N/A', inline: false },
-                            { name: '?? Role Given', value: role.name, inline: false },
-                            { name: '?? Product', value: purchase.product || 'Unknown', inline: false }
+                            { name: '📌 Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
+                            { name: '📌 Order ID', value: purchase.orderId, inline: true },
+                            { name: '📌 Amount', value: `$${purchase.amount}`, inline: true },
+                            { name: '📌 Email', value: purchase.email || 'N/A', inline: false },
+                            { name: '📌 Role Given', value: role.name, inline: false },
+                            { name: '📌 Product', value: purchase.product || 'Unknown', inline: false }
                         )
                         .setThumbnail(member.user.displayAvatarURL())
                         .setTimestamp();
@@ -2590,10 +2590,10 @@ client.on('guildMemberAdd', async (member) => {
             try {
                 if (settings.raidProtection.action === 'kick') {
                     await member.kick('Server in raid lockdown');
-                    console.log(`?? Kicked ${member.user.tag} (Lockdown mode)`);
+                    console.log(`✅ Kicked ${member.user.tag} (Lockdown mode)`);
                 } else if (settings.raidProtection.action === 'ban') {
                     await member.ban({ reason: 'Server in raid lockdown', deleteMessageSeconds: 0 });
-                    console.log(`?? Banned ${member.user.tag} (Lockdown mode)`);
+                    console.log(`✅ Banned ${member.user.tag} (Lockdown mode)`);
                 }
                 return; // Don't send welcome message
             } catch (error) {
@@ -2636,14 +2636,14 @@ client.on('guildMemberAdd', async (member) => {
             : `Welcome ${member.toString()}! We're glad to have you here in ${member.guild.name}!`;
         
         const welcomeEmbed = new EmbedBuilder()
-            .setTitle('?? Welcome to the Server!')
+            .setTitle('⚙️ Welcome to the Server!')
             .setDescription(description)
             .setColor(0x00FF00)
             .setThumbnail(member.user.displayAvatarURL())
             .addFields(
-                { name: '?? Getting Started', value: 'Check out our rules and guidelines', inline: false },
-                { name: '?? Chat', value: 'Feel free to chat and ask questions', inline: false },
-                { name: '?? Community', value: `You are member #${member.guild.memberCount}`, inline: false }
+                { name: '📌 Getting Started', value: 'Check out our rules and guidelines', inline: false },
+                { name: '📌 Chat', value: 'Feel free to chat and ask questions', inline: false },
+                { name: '📌 Community', value: `You are member #${member.guild.memberCount}`, inline: false }
             )
             .setFooter({ text: member.guild.name })
             .setTimestamp();
@@ -2703,12 +2703,12 @@ client.on('guildMemberRemove', (member) => {
             : `${member.user.tag} has left the server. We'll miss you!`;
         
         const leaveEmbed = new EmbedBuilder()
-            .setTitle('?? Goodbye!')
+            .setTitle('⚙️ Goodbye!')
             .setDescription(description)
             .setColor(0xFF0000)
             .setThumbnail(member.user.displayAvatarURL())
             .addFields(
-                { name: '?? Member Count', value: member.guild.memberCount.toString(), inline: true },
+                { name: '📌 Member Count', value: member.guild.memberCount.toString(), inline: true },
                 { name: '? Time in Server', value: member.joinedAt ? `Joined ${member.joinedAt.toDateString()}` : 'Unknown', inline: true }
             )
             .setFooter({ text: member.guild.name })
@@ -2856,28 +2856,28 @@ client.on('interactionCreate', async (interaction) => {
     // Help command - Command list
     if (interaction.commandName === 'help') {
         const helpEmbed = new EmbedBuilder()
-            .setTitle('?? PSHomebrew Bot - Commands')
+            .setTitle('⚙️ PSHomebrew Bot - Commands')
             .setDescription('Here are all available commands:')
             .setColor(0x0066CC)
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
-                    name: '?? Leveling Commands',
+                    name: '📌 Leveling Commands',
                     value: '`/level` - Check your level and XP\n`/level @user` - Check another user\'s level\n`/rank` - See your rank position\n`/leaderboard` - View top 10 users',
                     inline: false
                 },
                 {
-                    name: '?? Information',
+                    name: '📌 Information',
                     value: '`/help` - Show this command list\n`/ping` - Check bot latency\n`/features` - View all bot features\n`/viewsettings` - View server settings (Admin)',
                     inline: false
                 },
                 {
-                    name: '?? Admin - Toggle Features',
+                    name: '📌 Admin - Toggle Features',
                     value: '`/toggle` - Toggle features on/off',
                     inline: false
                 },
                 {
-                    name: '?? Admin - Leveling Settings',
+                    name: '📌 Admin - Leveling Settings',
                     value: '`/setxp` - Set XP range per message\n`/setcooldown` - Set XP cooldown\n`/setmaxlevel` - Set maximum level\n`/setlevelupchannel` - Set level up announcement channel',
                     inline: false
                 },
@@ -2892,7 +2892,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '?? PlayStation Error Code Detection',
+                    name: '📌 PlayStation Error Code Detection',
                     value: `Simply type any PlayStation error code in chat (PS1-PS5, PSP, Vita)!\nExamples: \`80710016\` (PS3), \`CE-34878-0\` (PS4), \`CE-108255-1\` (PS5), \`C1-2741-4\` (Vita)\n**${Object.keys(consoleErrorCodes).filter(k => !k.startsWith('_')).length} error codes** in database`,
                     inline: false
                 }
@@ -2905,26 +2905,26 @@ client.on('interactionCreate', async (interaction) => {
     
     // Ping command - Check bot latency
     if (interaction.commandName === 'ping') {
-        const sent = await interaction.reply({ content: '?? Pinging...', fetchReply: true, ephemeral: true });
+        const sent = await interaction.reply({ content: '✅ Pinging...', fetchReply: true, ephemeral: true });
         const roundtripLatency = sent.createdTimestamp - interaction.createdTimestamp;
         const wsLatency = client.ws.ping;
         
         const pingEmbed = new EmbedBuilder()
-            .setTitle('?? Pong!')
+            .setTitle('⚙️ Pong!')
             .setColor(wsLatency < 100 ? 0x00FF00 : wsLatency < 200 ? 0xFFFF00 : 0xFF0000)
             .addFields(
                 {
-                    name: '?? Roundtrip Latency',
+                    name: '📌 Roundtrip Latency',
                     value: `\`${roundtripLatency}ms\``,
                     inline: true
                 },
                 {
-                    name: '?? WebSocket Heartbeat',
+                    name: '📌 WebSocket Heartbeat',
                     value: `\`${wsLatency}ms\``,
                     inline: true
                 },
                 {
-                    name: '?? Status',
+                    name: '📌 Status',
                     value: wsLatency < 100 ? '?? Excellent' : wsLatency < 200 ? '?? Good' : '?? High',
                     inline: true
                 }
@@ -2955,9 +2955,9 @@ client.on('interactionCreate', async (interaction) => {
             .setDescription('Control bot power state and updates')
             .setColor(0x00BFFF)
             .addFields(
-                { name: '?? Uptime', value: uptimeStr, inline: true },
-                { name: '?? Memory', value: `${memoryUsage} MB`, inline: true },
-                { name: '?? Status', value: '?? Online', inline: true }
+                { name: '📌 Uptime', value: uptimeStr, inline: true },
+                { name: '📌 Memory', value: `${memoryUsage} MB`, inline: true },
+                { name: '📌 Status', value: '📌 Online', inline: true }
             )
             .setFooter({ text: 'Choose an option below' })
             .setTimestamp();
@@ -2968,17 +2968,17 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('power_update')
                     .setLabel('Update & Restart')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('power_restart')
                     .setLabel('Restart')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('power_shutdown')
                     .setLabel('Shutdown')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         await interaction.reply({ embeds: [powerEmbed], components: [row], ephemeral: true });
@@ -2996,22 +2996,22 @@ client.on('interactionCreate', async (interaction) => {
             .setColor(0xFFAA00)
             .addFields(
                 {
-                    name: '?? Leveling System',
+                    name: '📌 Leveling System',
                     value: `**Status:** ${settings.leveling.enabled ? '? Enabled' : '? Disabled'}\n**XP Range:** ${settings.leveling.minXP}-${settings.leveling.maxXP}\n**Cooldown:** ${settings.leveling.cooldown / 1000}s\n**Max Level:** ${settings.leveling.maxLevel}\n**Level Up Messages:** ${settings.leveling.showLevelUpMessages ? '?' : '?'}\n**Level Up Channel:** ${settings.leveling.levelUpChannel ? `#${settings.leveling.levelUpChannel}` : 'Current channel'}`,
                     inline: false
                 },
                 {
-                    name: '?? PS3 Error Code Detection',
+                    name: '📌 PS3 Error Code Detection',
                     value: `**Status:** ${settings.keywords.enabled ? '? Enabled' : '? Disabled'}\n**Error Codes:** ${Object.keys(consoleErrorCodes).length} configured\n**Custom Response:** ${settings.keywords.customResponse ? '? Set' : '? Not set'}`,
                     inline: false
                 },
                 {
-                    name: '?? Welcome System',
+                    name: '📌 Welcome System',
                     value: `**Status:** ${settings.welcome.enabled ? '? Enabled' : '? Disabled'}\n**Channel:** #${settings.welcome.channelName}\n**Custom Message:** ${settings.welcome.customMessage ? '? Set' : '? Not set'}`,
                     inline: false
                 },
                 {
-                    name: '?? Leave System',
+                    name: '📌 Leave System',
                     value: `**Status:** ${settings.leave.enabled ? '? Enabled' : '? Disabled'}\n**Channel:** #${settings.leave.channelName}\n**Custom Message:** ${settings.leave.customMessage ? '? Set' : '? Not set'}`,
                     inline: false
                 }
@@ -3055,7 +3055,7 @@ client.on('interactionCreate', async (interaction) => {
         const youtubeEnabled = true;
         
         const featuresEmbed = new EmbedBuilder()
-            .setTitle('?? PSHomebrew Bot - Features')
+            .setTitle('⚙️ PSHomebrew Bot - Features')
             .setDescription('Welcome to the PSHomebrew Discord Bot! Here\'s everything this bot can do.')
             .setColor(0x00FF88)
             .setThumbnail(client.user.displayAvatarURL())
@@ -3066,12 +3066,12 @@ client.on('interactionCreate', async (interaction) => {
                     inline: true
                 },
                 {
-                    name: '??',
+                    name: '✅',
                     value: `**Error Codes**\n${settings.keywords.enabled ? '? Enabled' : '? Disabled'}\n\nDetects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
                     inline: true
                 },
                 {
-                    name: '??',
+                    name: '✅',
                     value: `**AI Chat**\n${settings.ai?.enabled ? '? Enabled' : '? Disabled'}\n\nDeepSeek + ChatGPT\n5k tokens/user/day\nResponse caching`,
                     inline: true
                 },
@@ -3081,7 +3081,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '??',
+                    name: '✅',
                     value: `**Welcome Messages**\n${settings.welcome.enabled ? '? Enabled' : '? Disabled'}\n\nChannel: **#${settings.welcome.channelName}**\n${settings.welcome.customMessage ? '? Custom message' : '?? Default message'}`,
                     inline: true
                 },
@@ -3091,7 +3091,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: true
                 },
                 {
-                    name: '??',
+                    name: '✅',
                     value: `**Ticket System**\n${settings.tickets?.enabled ? '? Enabled' : '? Disabled'}\n\nSupport ticket management\nUse **/setuptickets**\nStaff and user panels`,
                     inline: true
                 },
@@ -3101,17 +3101,17 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '???',
+                    name: '?✅',
                     value: `**Raid Protection**\n${settings.raidProtection?.enabled ? '? Enabled' : '? Disabled'}\n\nAuto-kick spam accounts\nNew account detection\nMass join protection`,
                     inline: true
                 },
                 {
-                    name: '??',
+                    name: '✅',
                     value: `**Auto Nickname**\n${settings.autoNickname?.enabled ? '? Enabled' : '? Disabled'}\n\nPrefix: **${settings.autoNickname?.prefix || 'PS'}**\nAuto-rename on join\nKeeps names organized`,
                     inline: true
                 },
                 {
-                    name: '??',
+                    name: '✅',
                     value: `**YouTube Notifs**\n? Enabled\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
                     inline: true
                 },
@@ -3121,17 +3121,17 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '??',
+                    name: '✅',
                     value: `**Server Stats**\n${settings.serverStats?.enabled ? '? Enabled' : '? Disabled'}\n\nLive member counter\nAuto-updating channels\nMember/bot statistics`,
                     inline: true
                 },
                 {
-                    name: '??',
+                    name: '✅',
                     value: `**Custom Commands**\nAlways Available\n\nClickable server commands\nUse **/pcommands**\nAdd/edit/remove easily`,
                     inline: true
                 },
                 {
-                    name: '??',
+                    name: '✅',
                     value: `**Moderation Logging**\n${settings.logging?.enabled ? '? Enabled' : '? Disabled'}\n\nTracks all mod actions\nBans, kicks, timeouts\nAudit trail for staff`,
                     inline: true
                 },
@@ -3141,17 +3141,17 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '??',
+                    name: '✅',
                     value: `**Multi-Language**\n? Available\n\n6 languages supported\nUse **/language**\nEN, ES, FR, DE, PT, JA`,
                     inline: true
                 },
                 {
-                    name: '??',
+                    name: '✅',
                     value: `**AI Caching**\n? Active\n\n30-50% API savings\n40-60% storage savings\nFaster responses`,
                     inline: true
                 },
                 {
-                    name: '??',
+                    name: '✅',
                     value: `**Bot Customization**\n? Available\n\nCustom server nicknames\nUse **/custombot**\nPer-server branding`,
                     inline: true
                 }
@@ -3176,24 +3176,24 @@ client.on('interactionCreate', async (interaction) => {
         const youtubeEnabled = true;
         
         const featuresEmbed = new EmbedBuilder()
-            .setTitle('?? PSHomebrew Bot - Features')
+            .setTitle('⚙️ PSHomebrew Bot - Features')
             .setDescription('Welcome to the PSHomebrew Discord Bot! Here\'s everything this bot can do.')
             .setColor(0x00FF88)
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
                     name: '? Leveling System',
-                    value: `?? **Gamified progression system**\n\nReward active members automatically\nUnlock roles as you rank up`,
+                    value: `✅ **Gamified progression system**\n\nReward active members automatically\nUnlock roles as you rank up`,
                     inline: true
                 },
                 {
-                    name: '?? Error Codes',
-                    value: `?? **Instant PS3/PS4 code lookup**\n\n351 error codes in database\nAutomated troubleshooting assistant`,
+                    name: '📌 Error Codes',
+                    value: `✅ **Instant PS3/PS4 code lookup**\n\n351 error codes in database\nAutomated troubleshooting assistant`,
                     inline: true
                 },
                 {
-                    name: '?? AI Chat',
-                    value: `?? **Powered by DeepSeek AI + ChatGPT**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily`,
+                    name: '📌 AI Chat',
+                    value: `✅ **Powered by DeepSeek AI + ChatGPT**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily`,
                     inline: true
                 },
                 {
@@ -3202,18 +3202,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '?? Welcome Messages',
+                    name: '✅ Welcome Messages',
                     value: `? **Professional member onboarding**\n\nFully customizable greetings\nMake great first impressions`,
                     inline: true
                 },
                 {
-                    name: '?? Leave Messages',
-                    value: `?? **Elegant farewell system**\n\nCustom goodbye messages\nTrack member departures`,
+                    name: '✅ Leave Messages',
+                    value: `✅ **Elegant farewell system**\n\nCustom goodbye messages\nTrack member departures`,
                     inline: true
                 },
                 {
-                    name: '?? Ticket System',
-                    value: `?? **Advanced support platform**\n\nOrganized help desk solution\nProfessional ticket management`,
+                    name: '📌 Ticket System',
+                    value: `✅ **Advanced support platform**\n\nOrganized help desk solution\nProfessional ticket management`,
                     inline: true
                 },
                 {
@@ -3222,18 +3222,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '??? Raid Protection',
-                    value: `?? **Military-grade server defense**\n\nAI-powered spam detection\nReal-time threat neutralization`,
+                    name: '🔸 Raid Protection',
+                    value: `✅ **Military-grade server defense**\n\nAI-powered spam detection\nReal-time threat neutralization`,
                     inline: true
                 },
                 {
-                    name: '?? Auto Nickname',
+                    name: '📌 Auto Nickname',
                     value: `??? **Smart member branding**\n\nAutomatic **PS** prefix system\nProfessional server identity`,
                     inline: true
                 },
                 {
-                    name: '?? YouTube Notifs',
-                    value: `?? **Content update alerts**\n\nInstant new video notifications\nNever miss an upload`,
+                    name: '📌 YouTube Notifs',
+                    value: `✅ **Content update alerts**\n\nInstant new video notifications\nNever miss an upload`,
                     inline: true
                 },
                 {
@@ -3242,18 +3242,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '?? Server Stats',
-                    value: `?? **Real-time analytics dashboard**\n\nLive member tracking\nDynamic voice channel stats`,
+                    name: '📌 Server Stats',
+                    value: `✅ **Real-time analytics dashboard**\n\nLive member tracking\nDynamic voice channel stats`,
                     inline: true
                 },
                 {
-                    name: '?? Custom Commands',
+                    name: '📌 Custom Commands',
                     value: `? **Interactive command builder**\n\nCreate clickable buttons\nNo coding required`,
                     inline: true
                 },
                 {
-                    name: '?? Moderation Logging',
-                    value: `?? **Complete audit system**\n\nFull action history tracking\nAccountability & transparency`,
+                    name: '📌 Moderation Logging',
+                    value: `✅ **Complete audit system**\n\nFull action history tracking\nAccountability & transparency`,
                     inline: true
                 },
                 {
@@ -3262,18 +3262,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '?? Multi-Language',
+                    name: '📌 Multi-Language',
                     value: `??? **Global language support**\n\n6 languages available\nEN, ES, FR, DE, PT, JA\nServer-wide translation`,
                     inline: true
                 },
                 {
-                    name: '?? AI Optimization',
+                    name: '📌 AI Optimization',
                     value: `? **Performance & efficiency**\n\nResponse caching system\n30-50% API cost reduction\n5k tokens per user daily`,
                     inline: true
                 },
                 {
-                    name: '?? Bot Customization',
-                    value: `?? **Per-server branding**\n\nCustom bot nicknames\nProfessional server identity\nPersonalized experience`,
+                    name: '📌 Bot Customization',
+                    value: `✅ **Per-server branding**\n\nCustom bot nicknames\nProfessional server identity\nPersonalized experience`,
                     inline: true
                 }
             )
@@ -3360,7 +3360,7 @@ client.on('interactionCreate', async (interaction) => {
         const keywordList = previewCodes.map(code => `\`${code}\` - ${consoleErrorCodes[code]?.substring(0, 50) || 'Unknown'}...`).join('\n');
         
         const listEmbed = new EmbedBuilder()
-            .setTitle('?? PS3 Error Codes Database')
+            .setTitle('⚙️ PS3 Error Codes Database')
             .setDescription(`**Total Error Codes:** ${settings.keywords.list.length}\n\n**Sample Codes:**\n${keywordList}\n\n*...and ${settings.keywords.list.length - 20} more*`)
             .setColor(0x0099FF)
             .setFooter({ text: 'Type any error code in chat for full details' })
@@ -3456,12 +3456,12 @@ client.on('interactionCreate', async (interaction) => {
         }
         
         const embed = new EmbedBuilder()
-            .setTitle('?? Server Stats Settings')
+            .setTitle('⚙️ Server Stats Settings')
             .setDescription('Manage your server statistics tracking system')
             .setColor(settings.serverStats.enabled ? 0x00FF00 : 0xFF0000)
             .addFields(
                 { name: '?? Status', value: settings.serverStats.enabled ? '? Enabled' : '? Disabled', inline: true },
-                { name: '?? Update Interval', value: `${settings.serverStats.updateInterval / 60000} minute(s)`, inline: true },
+                { name: '📌 Update Interval', value: `${settings.serverStats.updateInterval / 60000} minute(s)`, inline: true },
                 { name: '\u200B', value: '\u200B', inline: false },
                 { name: '?? Member Count Channel', value: settings.serverStats.channels.memberCount ? `<#${settings.serverStats.channels.memberCount}>` : '? Not set', inline: false },
                 { name: '?? Bot Count Channel', value: settings.serverStats.channels.botCount ? `<#${settings.serverStats.channels.botCount}>` : '? Not set', inline: false },
@@ -3482,7 +3482,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('stats_setup')
                     .setLabel('Setup Channels')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         const row2 = new ActionRowBuilder()
@@ -3491,12 +3491,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('stats_interval')
                     .setLabel('Set Interval')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('stats_refresh')
                     .setLabel('Refresh Now')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
                     .setDisabled(!settings.serverStats.enabled || !settings.serverStats.channels.memberCount)
             );
         
@@ -3525,7 +3525,7 @@ client.on('interactionCreate', async (interaction) => {
             const now = Date.now();
             const timeLocked = Math.floor((now - lockInfo.timestamp) / 1000 / 60); // minutes
             return interaction.reply({ 
-                content: `?? **AI is currently disabled.**\n**Reason:** ${lockInfo.reason}\n**Locked by:** ${lockInfo.lockedByUsername}\n**Time locked:** ${timeLocked} minutes ago\n\n*Only <@${config.botOwnerId}> can re-enable it by mentioning me.*`,
+                content: `✅ **AI is currently disabled.**\n**Reason:** ${lockInfo.reason}\n**Locked by:** ${lockInfo.lockedByUsername}\n**Time locked:** ${timeLocked} minutes ago\n\n*Only <@${config.botOwnerId}> can re-enable it by mentioning me.*`,
                 ephemeral: true 
             });
         }
@@ -3538,7 +3538,7 @@ client.on('interactionCreate', async (interaction) => {
         if (hasUserExceededLimit(userId)) {
             const remaining = getUserRemainingTokens(userId);
             return interaction.reply({
-                content: `?? **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ?`,
+                content: `✅ **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ?`,
                 ephemeral: true
             });
         }
@@ -3546,8 +3546,8 @@ client.on('interactionCreate', async (interaction) => {
         // Check response cache first
         const cachedResponse = getCachedResponse(userMessage);
         if (cachedResponse) {
-            console.log('?? Using cached response (API call saved)');
-            return interaction.reply(`${cachedResponse}\n\n*?? Cached response*`);
+            console.log('✅ Using cached response (API call saved)');
+            return interaction.reply(`${cachedResponse}\n\n*??*💾 Cached response*`);
         }
         
         // Jailbreak detection
@@ -3558,7 +3558,7 @@ client.on('interactionCreate', async (interaction) => {
             try {
                 const owner = await client.users.fetch(config.botOwnerId);
                 const alertEmbed = new EmbedBuilder()
-                    .setTitle('?? AI SECURITY ALERT - Jailbreak Detected')
+                    .setTitle('⚙️ AI SECURITY ALERT - Jailbreak Detected')
                     .setColor(0xFF0000)
                     .addFields(
                         { name: 'User', value: `${interaction.user.tag} (${interaction.user.id})`, inline: true },
@@ -3566,7 +3566,7 @@ client.on('interactionCreate', async (interaction) => {
                         { name: 'Channel', value: `#${interaction.channel.name}`, inline: true },
                         { name: 'Command', value: `/aichat`, inline: true },
                         { name: 'Message', value: userMessage.substring(0, 1000), inline: false },
-                        { name: 'Action Taken', value: '?? AI locked in this server until you re-enable it', inline: false }
+                        { name: 'Action Taken', value: '📌 AI locked in this server until you re-enable it', inline: false }
                     )
                     .setTimestamp()
                     .setFooter({ text: 'Mention the bot in the server to unlock AI' });
@@ -3577,7 +3577,7 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             return interaction.reply({ 
-                content: '?? **That message appears to be an attempt to manipulate my system.** ??\n\nFor security reasons, AI chat has been disabled on this server. The bot owner has been notified.',
+                content: '✅ **That message appears to be an attempt to manipulate my system.** ??\n\nFor security reasons, AI chat has been disabled on this server. The bot owner has been notified.',
                 ephemeral: true 
             });
         }
@@ -3682,9 +3682,9 @@ client.on('interactionCreate', async (interaction) => {
                 const quotaStatus = getTokenQuotaStatus();
                 const userRemaining = getUserRemainingTokens(userId);
                 
-                console.log(`?? DeepSeek (${settings.ai.model}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${tokensUsed}`);
-                console.log(`?? Quota Today: ${quotaStatus.deepseek.dailyUsed} used | Month: ${quotaStatus.deepseek.monthlyUsed} used | Remaining: ${quotaStatus.deepseek.monthlyRemaining}`);
-                console.log(`?? User ${interaction.user.username}: ${tokensUsed} tokens used | ${userRemaining} remaining today`);
+                console.log(`✅ DeepSeek (${settings.ai.model}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${tokensUsed}`);
+                console.log(`✅ Quota Today: ${quotaStatus.deepseek.dailyUsed} used | Month: ${quotaStatus.deepseek.monthlyUsed} used | Remaining: ${quotaStatus.deepseek.monthlyRemaining}`);
+                console.log(`✅ User ${interaction.user.username}: ${tokensUsed} tokens used | ${userRemaining} remaining today`);
                 
                 // Check if response is valid
                 if (!aiResponse || aiResponse.trim().length === 0) {
@@ -3725,7 +3725,7 @@ client.on('interactionCreate', async (interaction) => {
         } catch (error) {
             if (error.name === 'AbortError') {
                 console.error('AI request timeout');
-                await interaction.editReply('?? Request timed out. Please try again!');
+                await interaction.editReply('✅ Request timed out. Please try again!');
             } else {
                 console.error('AI Chat Error:', error);
                 await interaction.editReply(`? An error occurred. Please try again!`);
@@ -3747,7 +3747,7 @@ client.on('interactionCreate', async (interaction) => {
             delete aiConversations[channelId];
             await interaction.reply({ content: '? AI conversation history cleared for this channel!', ephemeral: true });
         } else {
-            await interaction.reply({ content: '?? No conversation history to clear in this channel.', ephemeral: true });
+            await interaction.reply({ content: '✅ No conversation history to clear in this channel.', ephemeral: true });
         }
     }
     
@@ -3762,13 +3762,13 @@ client.on('interactionCreate', async (interaction) => {
         const userRemaining = USER_DAILY_LIMIT - userUsed;
         
         const embed = new EmbedBuilder()
-            .setTitle('?? AI Token Usage Statistics')
+            .setTitle('⚙️ AI Token Usage Statistics')
             .setColor(0x00D9FF)
             .setDescription('Current token consumption for DeepSeek and ChatGPT')
             .addFields(
                 { name: '\u200B', value: '**?? Your Personal Usage**', inline: false },
                 { 
-                    name: '?? Today', 
+                    name: '📌 Today', 
                     value: `Used: **${userUsed.toLocaleString()}** / **5,000** tokens\nRemaining: **${userRemaining.toLocaleString()}** tokens\n${userRemaining < 1000 ? '?? Running low!' : '? Plenty left!'}`,
                     inline: false 
                 }
@@ -3780,30 +3780,30 @@ client.on('interactionCreate', async (interaction) => {
                 { name: '\u200B', value: '\u200B', inline: false }, // Spacer
                 { name: '\u200B', value: '**?? DeepSeek (Server-Wide)**', inline: false },
                 { 
-                    name: '?? Today', 
-                    value: `Used: **${quotaStatus.deepseek.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.dailyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.deepseek.dailyRemaining.toLocaleString()}**`,
+                    name: '📌 Today', 
+                    value: `Used: **${quotaStatus.deepseek.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ??' : quotaStatus.deepseek.dailyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { 
-                    name: '?? This Month', 
-                    value: `Used: **${quotaStatus.deepseek.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.monthlyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.deepseek.monthlyRemaining.toLocaleString()}**`,
+                    name: '📌 This Month', 
+                    value: `Used: **${quotaStatus.deepseek.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ??' : quotaStatus.deepseek.monthlyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { name: '\u200B', value: '\u200B', inline: true }, // Spacer
                 { name: '\u200B', value: '**?? ChatGPT (Server-Wide)**', inline: false },
                 { 
-                    name: '?? Today', 
-                    value: `Used: **${quotaStatus.chatgpt.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.dailyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.chatgpt.dailyRemaining.toLocaleString()}**`,
+                    name: '📌 Today', 
+                    value: `Used: **${quotaStatus.chatgpt.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ??' : quotaStatus.chatgpt.dailyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { 
-                    name: '?? This Month', 
-                    value: `Used: **${quotaStatus.chatgpt.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString()}**`,
+                    name: '📌 This Month', 
+                    value: `Used: **${quotaStatus.chatgpt.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ??' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { name: '\u200B', value: '\u200B', inline: true }, // Spacer
                 { 
-                    name: '?? Cache Performance', 
+                    name: '📌 Cache Performance', 
                     value: `Cached responses: **${responseCache.size}**/100\nAPI calls saved: **~${Math.round(responseCache.size * 0.3)}**`,
                     inline: false 
                 }
@@ -3831,7 +3831,7 @@ client.on('interactionCreate', async (interaction) => {
         const currentAvatar = client.user.displayAvatarURL({ size: 256 });
         
         const embed = new EmbedBuilder()
-            .setTitle('?? Bot Customization Panel')
+            .setTitle('⚙️ Bot Customization Panel')
             .setColor(0x5865F2)
             .setDescription(
                 'Customize how the bot appears in your server.\n\n' +
@@ -3839,17 +3839,17 @@ client.on('interactionCreate', async (interaction) => {
             )
             .addFields(
                 { 
-                    name: '?? Bot Nickname (Per-Server)', 
+                    name: '📌 Bot Nickname (Per-Server)', 
                     value: settings.customization.botName || '*Using default name*',
                     inline: false 
                 },
                 {
-                    name: '??? Bot Avatar (Global)',
-                    value: '?? Changing avatar affects **ALL servers**',
+                    name: '🔸 Bot Avatar (Global)',
+                    value: '✅ Changing avatar affects **ALL servers**',
                     inline: false
                 },
                 {
-                    name: '?? Note',
+                    name: '📌 Note',
                     value: '� Nicknames are per-server\n� Avatar changes are global (Discord limitation)',
                     inline: false
                 }
@@ -3864,12 +3864,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('custombot_set_name')
                     .setLabel('Set Nickname')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('custombot_reset_name')
                     .setLabel('Reset Nickname')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         const row2 = new ActionRowBuilder()
@@ -3878,7 +3878,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('custombot_set_avatar')
                     .setLabel('Change Avatar (Global)')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('???')
+                    .setEmoji('?✅')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -3897,7 +3897,7 @@ client.on('interactionCreate', async (interaction) => {
         
         // Create interactive panel
         const embed = new EmbedBuilder()
-            .setTitle('?? AI Chat System Control Panel')
+            .setTitle('⚙️ AI Chat System Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
                 `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
@@ -3906,11 +3906,11 @@ client.on('interactionCreate', async (interaction) => {
             )
             .addFields(
                 { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
-                { name: '?? Channel', value: `#${config.channelName}`, inline: true },
-                { name: '?? Model', value: config.model, inline: true },
-                { name: '?? Max History', value: `${config.maxHistory} exchanges`, inline: true },
-                { name: '??? Temperature', value: config.temperature.toString(), inline: true },
-                { name: '?? System Prompt', value: config.systemPrompt.substring(0, 100) + '...', inline: false }
+                { name: '📌 Channel', value: `#${config.channelName}`, inline: true },
+                { name: '📌 Model', value: config.model, inline: true },
+                { name: '📌 Max History', value: `${config.maxHistory} exchanges`, inline: true },
+                { name: '🔸 Temperature', value: config.temperature.toString(), inline: true },
+                { name: '📌 System Prompt', value: config.systemPrompt.substring(0, 100) + '...', inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure AI chat settings' })
             .setTimestamp();
@@ -3926,17 +3926,17 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('ai_set_channel')
                     .setLabel('Set Channel')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('ai_set_history')
                     .setLabel('Max History')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('ai_set_temperature')
                     .setLabel('Temperature')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('???')
+                    .setEmoji('?✅')
             );
         
         const row2 = new ActionRowBuilder()
@@ -3945,12 +3945,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('ai_clear_history')
                     .setLabel('Clear All History')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('???'),
+                    .setEmoji('?✅'),
                 new ButtonBuilder()
                     .setCustomId('ai_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -4022,19 +4022,19 @@ client.on('interactionCreate', async (interaction) => {
         }
         
         const analyticsEmbed = new EmbedBuilder()
-            .setTitle('?? Server Analytics Dashboard')
+            .setTitle('⚙️ Server Analytics Dashboard')
             .setDescription(`Comprehensive server statistics and insights`)
             .setColor(0x5865F2)
             .addFields(
                 { 
-                    name: '?? Message Activity', 
+                    name: '✅ Message Activity', 
                     value: `**Total Messages:** ${analytics.messages.total.toLocaleString()}\n` +
                            `**Peak Hour:** ${peakHourFormatted}\n` +
                            `**Peak Day:** ${days[peakDay]}`,
                     inline: true
                 },
                 { 
-                    name: '?? Member Growth (7 Days)', 
+                    name: '📌 Member Growth (7 Days)', 
                     value: `**Joins:** ${joinsLast7Days}\n` +
                            `**Leaves:** ${leavesLast7Days}\n` +
                            `**Net Growth:** ${netGrowth >= 0 ? '+' : ''}${netGrowth}\n` +
@@ -4042,17 +4042,17 @@ client.on('interactionCreate', async (interaction) => {
                     inline: true
                 },
                 { 
-                    name: '?? Command Usage', 
+                    name: '📌 Command Usage', 
                     value: `**Total Commands:** ${analytics.commands.total.toLocaleString()}`,
                     inline: true
                 },
                 { 
-                    name: '?? Top Active Users', 
+                    name: '📌 Top Active Users', 
                     value: topUsersText || 'No data yet',
                     inline: false
                 },
                 { 
-                    name: '?? Top Active Channels', 
+                    name: '📌 Top Active Channels', 
                     value: topChannelsText || 'No data yet',
                     inline: false
                 },
@@ -4082,7 +4082,7 @@ client.on('interactionCreate', async (interaction) => {
             .substring(0, 200);
         
         const embed = new EmbedBuilder()
-            .setTitle('?? Welcome System Control Panel')
+            .setTitle('⚙️ Welcome System Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
                 `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
@@ -4091,10 +4091,10 @@ client.on('interactionCreate', async (interaction) => {
             )
             .addFields(
                 { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
-                { name: '?? Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
+                { name: '📌 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
                 { name: '?? Custom Message', value: config.customMessage ? '? Set' : '? Using default', inline: true },
-                { name: '?? Message Preview', value: messagePreview, inline: false },
-                { name: '?? Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
+                { name: '✅ Message Preview', value: messagePreview, inline: false },
+                { name: '📌 Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure welcome messages' })
             .setTimestamp();
@@ -4110,17 +4110,17 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('welcome_set_channel')
                     .setLabel('Set Channel')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('welcome_set_message')
                     .setLabel('Set Message')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('welcome_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1], ephemeral: true });
@@ -4142,7 +4142,7 @@ client.on('interactionCreate', async (interaction) => {
         const exampleResult = `${config.prefix || ''}Username${config.suffix || ''}`;
         
         const embed = new EmbedBuilder()
-            .setTitle('?? Auto-Nickname Control Panel')
+            .setTitle('⚙️ Auto-Nickname Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
                 `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
@@ -4151,10 +4151,10 @@ client.on('interactionCreate', async (interaction) => {
             )
             .addFields(
                 { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
-                { name: '?? Prefix', value: config.prefix || 'None', inline: true },
-                { name: '?? Suffix', value: config.suffix || 'None', inline: true },
-                { name: '?? Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
-                { name: '?? Note', value: 'Max nickname length is 32 characters', inline: false }
+                { name: '📌 Prefix', value: config.prefix || 'None', inline: true },
+                { name: '📌 Suffix', value: config.suffix || 'None', inline: true },
+                { name: '📌 Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
+                { name: '📌 Note', value: 'Max nickname length is 32 characters', inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure auto-nickname' })
             .setTimestamp();
@@ -4170,17 +4170,17 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('autonick_set_prefix')
                     .setLabel('Set Prefix')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('autonick_set_suffix')
                     .setLabel('Set Suffix')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('autonick_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1], ephemeral: true });
@@ -4190,25 +4190,25 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.commandName === 'games') {
         try {
             const gamesEmbed = new EmbedBuilder()
-                .setTitle('?? Games Menu')
+                .setTitle('⚙️ Games Menu')
                 .setDescription('Choose a game to play from the buttons below!')
                 .setColor(0x5865F2)
                 .addFields(
-                    { name: '?? Snake', value: 'Classic snake game', inline: true },
+                    { name: '📌 Snake', value: 'Classic snake game', inline: true },
                     { name: '? Tic-Tac-Toe', value: 'Play with a friend', inline: true },
-                    { name: '?? Connect 4', value: 'Play with a friend', inline: true },
-                    { name: '?? Wordle', value: 'Guess the word', inline: true },
-                    { name: '?? Minesweeper', value: 'Avoid the mines', inline: true },
-                    { name: '?? 2048', value: 'Number puzzle', inline: true },
-                    { name: '?? Memory', value: 'Match pairs', inline: true },
-                    { name: '?? Fast Type', value: 'Typing test', inline: true },
-                    { name: '?? Find Emoji', value: 'Find the emoji', inline: true },
-                    { name: '?? Guess Pok�mon', value: 'Name that Pok�mon', inline: true },
-                    { name: '?? RPS', value: 'Rock Paper Scissors', inline: true },
-                    { name: '?? Hangman', value: 'Guess the word', inline: true },
-                    { name: '?? Trivia', value: 'Answer questions', inline: true },
-                    { name: '?? Slots', value: 'Slot machine', inline: true },
-                    { name: '?? Would You Rather', value: 'Decision game', inline: true }
+                    { name: '📌 Connect 4', value: 'Play with a friend', inline: true },
+                    { name: '📌 Wordle', value: 'Guess the word', inline: true },
+                    { name: '📌 Minesweeper', value: 'Avoid the mines', inline: true },
+                    { name: '📌 2048', value: 'Number puzzle', inline: true },
+                    { name: '📌 Memory', value: 'Match pairs', inline: true },
+                    { name: '📌 Fast Type', value: 'Typing test', inline: true },
+                    { name: '📌 Find Emoji', value: 'Find the emoji', inline: true },
+                    { name: '📌 Guess Pok�mon', value: 'Name that Pok�mon', inline: true },
+                    { name: '📌 RPS', value: 'Rock Paper Scissors', inline: true },
+                    { name: '📌 Hangman', value: 'Guess the word', inline: true },
+                    { name: '📌 Trivia', value: 'Answer questions', inline: true },
+                    { name: '📌 Slots', value: 'Slot machine', inline: true },
+                    { name: '📌 Would You Rather', value: 'Decision game', inline: true }
                 )
                 .setFooter({ text: 'Click a button to start playing!' })
                 .setTimestamp();
@@ -4349,19 +4349,19 @@ client.on('interactionCreate', async (interaction) => {
         const keywordChan = config.channels.keywords ? `<#${config.channels.keywords}>` : 'Not set';
         
         const embed = new EmbedBuilder()
-            .setTitle('?? Server Logging System')
+            .setTitle('⚙️ Server Logging System')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .addFields(
                 { name: 'Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                 { name: 'Active Logs', value: `${Object.values(config.logTypes).filter(v => v).length}/12 types`, inline: true },
                 { name: 'Channels Set', value: `${Object.values(config.channels).filter(v => v).length}/7 configured`, inline: true },
-                { name: '?? Critical Errors', value: criticalChan, inline: true },
-                { name: '?? Moderation', value: modChan, inline: true },
-                { name: '?? Messages', value: msgChan, inline: true },
-                { name: '?? Members', value: memberChan, inline: true },
-                { name: '?? Voice', value: voiceChan, inline: true },
-                { name: '??? Server', value: serverChan, inline: true },
-                { name: '?? Keywords', value: keywordChan, inline: false }
+                { name: '📌 Critical Errors', value: criticalChan, inline: true },
+                { name: '📌 Moderation', value: modChan, inline: true },
+                { name: '✅ Messages', value: msgChan, inline: true },
+                { name: '📌 Members', value: memberChan, inline: true },
+                { name: '📌 Voice', value: voiceChan, inline: true },
+                { name: '🔸 Server', value: serverChan, inline: true },
+                { name: '📌 Keywords', value: keywordChan, inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure logging channels' })
             .setTimestamp();
@@ -4377,22 +4377,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('log_set_critical')
                     .setLabel('Critical')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('log_set_moderation')
                     .setLabel('Moderation')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('log_set_messages')
                     .setLabel('Messages')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('log_set_members')
                     .setLabel('Members')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         const row2 = new ActionRowBuilder()
@@ -4401,22 +4401,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('log_set_voice')
                     .setLabel('Voice')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('log_set_server')
                     .setLabel('Server')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('???'),
+                    .setEmoji('?✅'),
                 new ButtonBuilder()
                     .setCustomId('log_set_keywords')
                     .setLabel('Keywords')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('log_toggles')
                     .setLabel('Event Toggles')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -4452,7 +4452,7 @@ client.on('interactionCreate', async (interaction) => {
         const actionText = config.action === 'none' ? 'Monitor Only' : config.action === 'kick' ? 'Kick' : 'Ban';
         
         const embed = new EmbedBuilder()
-            .setTitle('??? Raid Protection Control Panel')
+            .setTitle('🔸 Raid Protection Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
                 `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
@@ -4461,12 +4461,12 @@ client.on('interactionCreate', async (interaction) => {
             )
             .addFields(
                 { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
-                { name: '?? Join Threshold', value: `${config.joinThreshold} members`, inline: true },
-                { name: '?? Time Window', value: `${config.timeWindow} seconds`, inline: true },
+                { name: '📌 Join Threshold', value: `${config.joinThreshold} members`, inline: true },
+                { name: '📌 Time Window', value: `${config.timeWindow} seconds`, inline: true },
                 { name: '? Action', value: actionText, inline: true },
                 { name: '?? Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
-                { name: '?? Current Lockdown', value: lockdownStatus, inline: true },
-                { name: '?? Notification Channel', value: notifChannel, inline: true },
+                { name: '📌 Current Lockdown', value: lockdownStatus, inline: true },
+                { name: '📌 Notification Channel', value: notifChannel, inline: true },
                 { name: '? Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
             )
             .setFooter({ text: 'Click buttons below to configure raid protection' })
@@ -4483,12 +4483,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('raid_set_threshold')
                     .setLabel('Set Threshold')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('raid_set_timewindow')
                     .setLabel('Time Window')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('raid_set_action')
                     .setLabel('Set Action')
@@ -4502,12 +4502,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('raid_set_lockdown')
                     .setLabel('Lockdown Duration')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('raid_set_notification')
                     .setLabel('Notification Channel')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('raid_whitelist')
                     .setLabel('Manage Whitelist')
@@ -4517,7 +4517,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('raid_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         const row3 = new ActionRowBuilder()
@@ -4526,7 +4526,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('raid_unlock')
                     .setLabel('Unlock Server')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('??')
+                    .setEmoji('✅')
                     .setDisabled(!lockedServers.has(interaction.guild.id))
             );
         
@@ -4558,7 +4558,7 @@ client.on('interactionCreate', async (interaction) => {
         
         // All old subcommands removed - now using interactive panel above
         return interaction.reply({ 
-            content: '?? Please use the new `/raidprotection` interactive panel instead!', 
+            content: '✅ Please use the new `/raidprotection` interactive panel instead!', 
             ephemeral: true 
         });
     }
@@ -4579,18 +4579,18 @@ client.on('interactionCreate', async (interaction) => {
         const muteRole = settings.moderation.muteRole ? `<@&${settings.moderation.muteRole}>` : 'Not set';
         
         const menuEmbed = new EmbedBuilder()
-            .setTitle('?? Moderation System Control Panel')
+            .setTitle('⚙️ Moderation System Control Panel')
             .setDescription(`System is currently **${settings.moderation.enabled ? '? Enabled' : '? Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
             .setColor(settings.moderation.enabled ? 0x00FF00 : 0xFF0000)
             .addFields(
-                { name: '?? Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
+                { name: '📌 Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
                 { name: '? Auto-Action', value: settings.moderation.autoAction.charAt(0).toUpperCase() + settings.moderation.autoAction.slice(1), inline: true },
-                { name: '?? Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
+                { name: '📌 Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
                 { name: '?? Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
                 { name: '?? DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
-                { name: '?? Log Channel', value: logChan, inline: true },
-                { name: '?? Mute Role', value: muteRole, inline: true },
-                { name: '?? Moderator Roles', value: modRoles, inline: false }
+                { name: '📌 Log Channel', value: logChan, inline: true },
+                { name: '📌 Mute Role', value: muteRole, inline: true },
+                { name: '📌 Moderator Roles', value: modRoles, inline: false }
             )
             .setFooter({ text: 'Click a button to configure that setting' })
             .setTimestamp();
@@ -4606,7 +4606,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('mod_threshold')
                     .setLabel('Set Threshold')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('mod_autoaction')
                     .setLabel('Set Auto-Action')
@@ -4616,7 +4616,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('mod_timeout')
                     .setLabel('Timeout Duration')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         const row2 = new ActionRowBuilder()
@@ -4625,22 +4625,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('mod_decay')
                     .setLabel('Warning Decay')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('mod_dm')
                     .setLabel('Toggle DMs')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('mod_logchannel')
                     .setLabel('Set Log Channel')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('mod_muterole')
                     .setLabel('Set Mute Role')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         const row3 = new ActionRowBuilder()
@@ -4659,7 +4659,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('mod_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         return interaction.reply({ embeds: [menuEmbed], components: [row1, row2, row3], ephemeral: true });
@@ -4702,7 +4702,7 @@ client.on('interactionCreate', async (interaction) => {
             try {
                 await user.send({
                     embeds: [new EmbedBuilder()
-                        .setTitle('?? Warning Received')
+                        .setTitle('⚙️ Warning Received')
                         .setDescription(`You have been warned in **${interaction.guild.name}**`)
                         .addFields(
                             { name: 'Reason', value: reason },
@@ -4717,7 +4717,7 @@ client.on('interactionCreate', async (interaction) => {
             }
         }
         
-        await logModerationAction(interaction.guild, '?? Warning', interaction.user, user, reason, { warnings: warningCount });
+        await logModerationAction(interaction.guild, '✅ Warning', interaction.user, user, reason, { warnings: warningCount });
         
         const embed = new EmbedBuilder()
             .setTitle('? User Warned')
@@ -4737,16 +4737,16 @@ client.on('interactionCreate', async (interaction) => {
             try {
                 if (action === 'timeout') {
                     await member.timeout(settings.moderation.timeoutDuration * 1000, `Auto-timeout: ${warningCount} warnings`);
-                    await interaction.followUp({ content: `?? ${user} has been auto-timed out for reaching the warning threshold!`, ephemeral: true });
-                    await logModerationAction(interaction.guild, '?? Auto-Timeout', client.user, user, `Warning threshold reached (${warningCount} warnings)`, { duration: `${settings.moderation.timeoutDuration / 60} minutes` });
+                    await interaction.followUp({ content: `✅ ${user} has been auto-timed out for reaching the warning threshold!`, ephemeral: true });
+                    await logModerationAction(interaction.guild, '✅ Auto-Timeout', client.user, user, `Warning threshold reached (${warningCount} warnings)`, { duration: `${settings.moderation.timeoutDuration / 60} minutes` });
                 } else if (action === 'kick') {
                     await member.kick(`Auto-kick: ${warningCount} warnings`);
-                    await interaction.followUp({ content: `?? ${user} has been auto-kicked for reaching the warning threshold!`, ephemeral: true });
-                    await logModerationAction(interaction.guild, '?? Auto-Kick', client.user, user, `Warning threshold reached (${warningCount} warnings)`);
+                    await interaction.followUp({ content: `✅ ${user} has been auto-kicked for reaching the warning threshold!`, ephemeral: true });
+                    await logModerationAction(interaction.guild, '✅ Auto-Kick', client.user, user, `Warning threshold reached (${warningCount} warnings)`);
                 } else if (action === 'ban') {
                     await member.ban({ reason: `Auto-ban: ${warningCount} warnings` });
-                    await interaction.followUp({ content: `?? ${user} has been auto-banned for reaching the warning threshold!`, ephemeral: true });
-                    await logModerationAction(interaction.guild, '?? Auto-Ban', client.user, user, `Warning threshold reached (${warningCount} warnings)`);
+                    await interaction.followUp({ content: `✅ ${user} has been auto-banned for reaching the warning threshold!`, ephemeral: true });
+                    await logModerationAction(interaction.guild, '✅ Auto-Ban', client.user, user, `Warning threshold reached (${warningCount} warnings)`);
                 }
                 
                 if (settings.moderation.autoDeleteWarnings) {
@@ -4771,7 +4771,7 @@ client.on('interactionCreate', async (interaction) => {
         }
         
         const embed = new EmbedBuilder()
-            .setTitle(`?? Warnings for ${user.tag}`)
+            .setTitle(`⚙️ Warnings for ${user.tag}`)
             .setColor(0xFFAA00)
             .setThumbnail(user.displayAvatarURL())
             .setDescription(`Total warnings: **${warnings.length}**`);
@@ -4808,7 +4808,7 @@ client.on('interactionCreate', async (interaction) => {
         moderationData[interaction.guild.id].warnings[user.id] = [];
         saveModerationData();
         
-        await logModerationAction(interaction.guild, '?? Warnings Cleared', interaction.user, user, `Cleared ${warningCount} warnings`);
+        await logModerationAction(interaction.guild, '✅ Warnings Cleared', interaction.user, user, `Cleared ${warningCount} warnings`);
         
         return interaction.reply({ 
             embeds: [new EmbedBuilder()
@@ -4848,7 +4848,7 @@ client.on('interactionCreate', async (interaction) => {
                 try {
                     await user.send({
                         embeds: [new EmbedBuilder()
-                            .setTitle('?? You Have Been Timed Out')
+                            .setTitle('⚙️ You Have Been Timed Out')
                             .setDescription(`You have been timed out in **${interaction.guild.name}**`)
                             .addFields(
                                 { name: 'Duration', value: `${duration} minutes` },
@@ -4860,7 +4860,7 @@ client.on('interactionCreate', async (interaction) => {
                 } catch (e) {}
             }
             
-            await logModerationAction(interaction.guild, '?? Timeout', interaction.user, user, reason, { duration: `${duration} minutes` });
+            await logModerationAction(interaction.guild, '✅ Timeout', interaction.user, user, reason, { duration: `${duration} minutes` });
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
@@ -4937,7 +4937,7 @@ client.on('interactionCreate', async (interaction) => {
                 try {
                     await user.send({
                         embeds: [new EmbedBuilder()
-                            .setTitle('?? You Have Been Kicked')
+                            .setTitle('⚙️ You Have Been Kicked')
                             .setDescription(`You have been kicked from **${interaction.guild.name}**`)
                             .addFields({ name: 'Reason', value: reason })
                             .setColor(0xFF6600)
@@ -4947,7 +4947,7 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             await member.kick(reason);
-            await logModerationAction(interaction.guild, '?? Kick', interaction.user, user, reason);
+            await logModerationAction(interaction.guild, '✅ Kick', interaction.user, user, reason);
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
@@ -4992,7 +4992,7 @@ client.on('interactionCreate', async (interaction) => {
                 try {
                     await user.send({
                         embeds: [new EmbedBuilder()
-                            .setTitle('?? You Have Been Banned')
+                            .setTitle('⚙️ You Have Been Banned')
                             .setDescription(`You have been banned from **${interaction.guild.name}**`)
                             .addFields({ name: 'Reason', value: reason })
                             .setColor(0xFF0000)
@@ -5002,7 +5002,7 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             await interaction.guild.members.ban(user.id, { reason, deleteMessageSeconds: deleteDays * 86400 });
-            await logModerationAction(interaction.guild, '?? Ban', interaction.user, user, reason);
+            await logModerationAction(interaction.guild, '✅ Ban', interaction.user, user, reason);
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
@@ -5082,7 +5082,7 @@ client.on('interactionCreate', async (interaction) => {
                 try {
                     await user.send({
                         embeds: [new EmbedBuilder()
-                            .setTitle('?? You Have Been Muted')
+                            .setTitle('⚙️ You Have Been Muted')
                             .setDescription(`You have been muted in **${interaction.guild.name}**`)
                             .addFields({ name: 'Reason', value: reason })
                             .setColor(0xFFA500)
@@ -5091,7 +5091,7 @@ client.on('interactionCreate', async (interaction) => {
                 } catch (e) {}
             }
             
-            await logModerationAction(interaction.guild, '?? Mute', interaction.user, user, reason);
+            await logModerationAction(interaction.guild, '✅ Mute', interaction.user, user, reason);
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
@@ -5161,7 +5161,7 @@ client.on('interactionCreate', async (interaction) => {
                 const staffRole = settings.staffRoleId ? `<@&${settings.staffRoleId}>` : 'Not set';
                 
                 const embed = new EmbedBuilder()
-                    .setTitle('?? Ticket System Control Panel')
+                    .setTitle('⚙️ Ticket System Control Panel')
                     .setColor(0xFF0000)
                     .setDescription(
                         `System is currently **? Disabled**\n\n` +
@@ -5169,12 +5169,12 @@ client.on('interactionCreate', async (interaction) => {
                         `Click the buttons below to configure ticket settings.`
                     )
                     .addFields(
-                        { name: '?? Status', value: '? Disabled', inline: true },
-                        { name: '?? Staff Role', value: staffRole, inline: true },
-                        { name: '?? Category', value: settings.categoryName, inline: true },
-                        { name: '?? Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
-                        { name: '?? Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
-                        { name: '?? Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
+                        { name: '📌 Status', value: '? Disabled', inline: true },
+                        { name: '📌 Staff Role', value: staffRole, inline: true },
+                        { name: '📌 Category', value: settings.categoryName, inline: true },
+                        { name: '📌 Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
+                        { name: '✅ Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
+                        { name: '✅ Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
                     )
                     .setFooter({ text: 'Click buttons below to configure ticket system' })
                     .setTimestamp();
@@ -5190,17 +5190,17 @@ client.on('interactionCreate', async (interaction) => {
                             .setCustomId('ticket_staffrole')
                             .setLabel('Set Staff Role')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('??'),
+                            .setEmoji('✅'),
                         new ButtonBuilder()
                             .setCustomId('ticket_category')
                             .setLabel('Set Category')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('??'),
+                            .setEmoji('✅'),
                         new ButtonBuilder()
                             .setCustomId('ticket_panel')
                             .setLabel('Create Panel')
                             .setStyle(ButtonStyle.Success)
-                            .setEmoji('??')
+                            .setEmoji('✅')
                     );
                 
                 const row2 = new ActionRowBuilder()
@@ -5209,17 +5209,17 @@ client.on('interactionCreate', async (interaction) => {
                             .setCustomId('ticket_welcomemsg')
                             .setLabel('Welcome Message')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('??'),
+                            .setEmoji('✅'),
                         new ButtonBuilder()
                             .setCustomId('ticket_closemsg')
                             .setLabel('Close Message')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('??'),
+                            .setEmoji('✅'),
                         new ButtonBuilder()
                             .setCustomId('ticket_refresh')
                             .setLabel('Refresh')
                             .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('??')
+                            .setEmoji('✅')
                     );
                 
                 return interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -5234,7 +5234,7 @@ client.on('interactionCreate', async (interaction) => {
         
         // Create interactive panel embed
         const ticketPanelEmbed = new EmbedBuilder()
-            .setTitle('?? Create Support Ticket')
+            .setTitle('⚙️ Create Support Ticket')
             .setDescription(
                 '**Need help from our support team?**\n\n' +
                 'Click the button below to open a private support ticket. ' +
@@ -5244,8 +5244,8 @@ client.on('interactionCreate', async (interaction) => {
                 '� Only you and staff members can see it\n' +
                 '� Our team will respond as soon as possible\n' +
                 '� You can close the ticket when your issue is resolved\n\n' +
-                '??????????????????????????????\n\n' +
-                '**Ready to get help?** Click the button below! ??'
+                '🔸???????????????????????????\n\n' +
+                '**Ready to get help?** Click the button below! ✅'
             )
             .setColor(0x5865F2)
             .setFooter({ text: `${interaction.guild.name} Support System` })
@@ -5257,7 +5257,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('create_ticket_panel')
                     .setLabel('Open Support Ticket')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         await interaction.reply({ 
@@ -5283,7 +5283,7 @@ client.on('interactionCreate', async (interaction) => {
         
         // Create interactive panel
         const embed = new EmbedBuilder()
-            .setTitle('?? Leveling System Control Panel')
+            .setTitle('⚙️ Leveling System Control Panel')
             .setColor(settings.leveling.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
                 `System is currently **${settings.leveling.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
@@ -5293,8 +5293,8 @@ client.on('interactionCreate', async (interaction) => {
             .addFields(
                 { name: '?? Status', value: settings.leveling.enabled ? '? Enabled' : '? Disabled', inline: true },
                 { name: '? XP Range', value: `${settings.leveling.minXP}-${settings.leveling.maxXP}`, inline: true },
-                { name: '?? Cooldown', value: `${settings.leveling.cooldown / 1000}s`, inline: true },
-                { name: '?? Max Level', value: settings.leveling.maxLevel.toString(), inline: true },
+                { name: '📌 Cooldown', value: `${settings.leveling.cooldown / 1000}s`, inline: true },
+                { name: '📌 Max Level', value: settings.leveling.maxLevel.toString(), inline: true },
                 { name: '?? Level Up Channel', value: settings.leveling.levelUpChannelId ? `<#${settings.leveling.levelUpChannelId}>` : 'Current Channel', inline: true },
                 { name: '?? Level Roles', value: Object.keys(settings.leveling.levelRoles).length > 0 ? `${Object.keys(settings.leveling.levelRoles).length} roles configured` : 'None', inline: true }
             )
@@ -5317,12 +5317,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('leveling_cooldown')
                     .setLabel('Set Cooldown')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('leveling_maxlevel')
                     .setLabel('Set Max Level')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         const row2 = new ActionRowBuilder()
@@ -5331,7 +5331,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('leveling_channel')
                     .setLabel('Level Up Channel')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('leveling_addrole')
                     .setLabel('Add Level Role')
@@ -5346,7 +5346,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('leveling_viewroles')
                     .setLabel('View Roles')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -5393,7 +5393,7 @@ client.on('interactionCreate', async (interaction) => {
         
         // Create interactive panel
         const embed = new EmbedBuilder()
-            .setTitle('?? Ticket System Control Panel')
+            .setTitle('⚙️ Ticket System Control Panel')
             .setColor(settings.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
                 `System is currently **${settings.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
@@ -5402,11 +5402,11 @@ client.on('interactionCreate', async (interaction) => {
             )
             .addFields(
                 { name: '?? Status', value: settings.enabled ? '? Enabled' : '? Disabled', inline: true },
-                { name: '?? Staff Role', value: staffRole, inline: true },
-                { name: '?? Category', value: settings.categoryName, inline: true },
-                { name: '?? Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
-                { name: '?? Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
-                { name: '?? Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
+                { name: '📌 Staff Role', value: staffRole, inline: true },
+                { name: '📌 Category', value: settings.categoryName, inline: true },
+                { name: '📌 Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
+                { name: '✅ Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
+                { name: '✅ Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure ticket system' })
             .setTimestamp();
@@ -5422,17 +5422,17 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('ticket_staffrole')
                     .setLabel('Set Staff Role')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('ticket_category')
                     .setLabel('Set Category')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('ticket_panel')
                     .setLabel('Create Panel')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         const row2 = new ActionRowBuilder()
@@ -5441,17 +5441,17 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('ticket_welcomemsg')
                     .setLabel('Welcome Message')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('ticket_closemsg')
                     .setLabel('Close Message')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('ticket_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -5462,7 +5462,7 @@ client.on('interactionCreate', async (interaction) => {
         if (!requireAdmin(interaction)) return;
         
         const embed = new EmbedBuilder()
-            .setTitle('?? Webhook Creator Panel')
+            .setTitle('⚙️ Webhook Creator Panel')
             .setColor(0x5865F2)
             .setDescription(
                 `Create professional webhook embeds with custom content.\n\n` +
@@ -5475,9 +5475,9 @@ client.on('interactionCreate', async (interaction) => {
                 `Click the buttons below to get started.`
             )
             .addFields(
-                { name: '?? Create Webhook', value: 'Set up a new webhook in any channel', inline: true },
-                { name: '?? Custom Embed', value: 'Design your embed with interactive forms', inline: true },
-                { name: '?? Templates', value: 'Save frequently used embed designs', inline: true }
+                { name: '📌 Create Webhook', value: 'Set up a new webhook in any channel', inline: true },
+                { name: '📌 Custom Embed', value: 'Design your embed with interactive forms', inline: true },
+                { name: '📌 Templates', value: 'Save frequently used embed designs', inline: true }
             )
             .setFooter({ text: 'Webhook Creator � Admin Only' })
             .setTimestamp();
@@ -5488,17 +5488,17 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('webhook_create')
                     .setLabel('Create Webhook')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('webhook_embed')
                     .setLabel('Design Embed')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('webhook_list')
                     .setLabel('List Webhooks')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
@@ -5513,7 +5513,7 @@ client.on('interactionCreate', async (interaction) => {
         
         // Create interactive panel
         const embed = new EmbedBuilder()
-            .setTitle('??? Moderation Control Panel')
+            .setTitle('🔸 Moderation Control Panel')
             .setColor(0x3498DB)
             .setDescription(
                 `Complete moderation toolkit for your server.\n\n` +
@@ -5521,14 +5521,14 @@ client.on('interactionCreate', async (interaction) => {
                 `Use the buttons below to perform moderation actions.`
             )
             .addFields(
-                { name: '?? Warn', value: 'Issue a warning to a user', inline: true },
-                { name: '?? Timeout', value: 'Timeout a user temporarily', inline: true },
-                { name: '?? Kick', value: 'Kick a user from server', inline: true },
-                { name: '?? Ban', value: 'Permanently ban a user', inline: true },
-                { name: '?? Mute', value: 'Mute a user in channels', inline: true },
-                { name: '?? Unmute', value: 'Remove mute from a user', inline: true },
-                { name: '?? Infractions', value: 'View user\'s infraction history', inline: true },
-                { name: '?? Clear Warnings', value: 'Clear all warnings for a user', inline: true },
+                { name: '📌 Warn', value: 'Issue a warning to a user', inline: true },
+                { name: '📌 Timeout', value: 'Timeout a user temporarily', inline: true },
+                { name: '📌 Kick', value: 'Kick a user from server', inline: true },
+                { name: '📌 Ban', value: 'Permanently ban a user', inline: true },
+                { name: '📌 Mute', value: 'Mute a user in channels', inline: true },
+                { name: '📌 Unmute', value: 'Remove mute from a user', inline: true },
+                { name: '📌 Infractions', value: 'View user\'s infraction history', inline: true },
+                { name: '📌 Clear Warnings', value: 'Clear all warnings for a user', inline: true },
                 { name: '\u200B', value: '\u200B', inline: true }
             )
             .setFooter({ text: 'Click buttons below to perform moderation actions' })
@@ -5540,22 +5540,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('mod_warn')
                     .setLabel('Warn User')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('mod_timeout')
                     .setLabel('Timeout')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('mod_kick')
                     .setLabel('Kick')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('mod_ban')
                     .setLabel('Ban')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         const row2 = new ActionRowBuilder()
@@ -5564,22 +5564,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('mod_mute')
                     .setLabel('Mute')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('mod_unmute')
                     .setLabel('Unmute')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('mod_infractions')
                     .setLabel('View Infractions')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('mod_clearwarnings')
                     .setLabel('Clear Warnings')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('??')
+                    .setEmoji('✅')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -5718,19 +5718,19 @@ client.on('interactionCreate', async (interaction) => {
                         const keywordChan = config.channels.keywords ? `<#${config.channels.keywords}>` : 'Not set';
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('?? Server Logging System')
+                            .setTitle('⚙️ Server Logging System')
                             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                             .addFields(
                                 { name: 'Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                                 { name: 'Active Logs', value: `${Object.values(config.logTypes).filter(v => v).length}/12 types`, inline: true },
                                 { name: 'Channels Set', value: `${Object.values(config.channels).filter(v => v).length}/7 configured`, inline: true },
-                                { name: '?? Critical Errors', value: criticalChan, inline: true },
-                                { name: '?? Moderation', value: modChan, inline: true },
-                                { name: '?? Messages', value: msgChan, inline: true },
-                                { name: '?? Members', value: memberChan, inline: true },
-                                { name: '?? Voice', value: voiceChan, inline: true },
-                                { name: '??? Server', value: serverChan, inline: true },
-                                { name: '?? Keywords', value: keywordChan, inline: false }
+                                { name: '📌 Critical Errors', value: criticalChan, inline: true },
+                                { name: '📌 Moderation', value: modChan, inline: true },
+                                { name: '✅ Messages', value: msgChan, inline: true },
+                                { name: '📌 Members', value: memberChan, inline: true },
+                                { name: '📌 Voice', value: voiceChan, inline: true },
+                                { name: '🔸 Server', value: serverChan, inline: true },
+                                { name: '📌 Keywords', value: keywordChan, inline: false }
                             )
                             .setFooter({ text: 'Click buttons below to configure logging channels' })
                             .setTimestamp();
@@ -5746,22 +5746,22 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId('log_set_critical')
                                     .setLabel('Critical')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('??'),
+                                    .setEmoji('✅'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_moderation')
                                     .setLabel('Moderation')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('??'),
+                                    .setEmoji('✅'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_messages')
                                     .setLabel('Messages')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('??'),
+                                    .setEmoji('✅'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_members')
                                     .setLabel('Members')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('??')
+                                    .setEmoji('✅')
                             );
                         
                         const row2 = new ActionRowBuilder()
@@ -5770,22 +5770,22 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId('log_set_voice')
                                     .setLabel('Voice')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('??'),
+                                    .setEmoji('✅'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_server')
                                     .setLabel('Server')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('???'),
+                                    .setEmoji('?✅'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_keywords')
                                     .setLabel('Keywords')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('??'),
+                                    .setEmoji('✅'),
                                 new ButtonBuilder()
                                     .setCustomId('log_toggles')
                                     .setLabel('Event Toggles')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('??')
+                                    .setEmoji('✅')
                             );
                         
                         await interaction.update({ embeds: [embed], components: [row1, row2] });
@@ -5830,7 +5830,7 @@ client.on('interactionCreate', async (interaction) => {
                         const statusIcon = (enabled) => enabled ? '?' : '?';
                         
                         const toggleEmbed = new EmbedBuilder()
-                            .setTitle('?? Event Toggle Settings')
+                            .setTitle('⚙️ Event Toggle Settings')
                             .setDescription('Click buttons below to toggle event types')
                             .setColor(0x3498db)
                             .addFields(
@@ -5935,19 +5935,19 @@ client.on('interactionCreate', async (interaction) => {
                         const keywordChan = config.channels.keywords ? `<#${config.channels.keywords}>` : 'Not set';
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('?? Server Logging System')
+                            .setTitle('⚙️ Server Logging System')
                             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                             .addFields(
                                 { name: 'Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                                 { name: 'Active Logs', value: `${Object.values(config.logTypes).filter(v => v).length}/12 types`, inline: true },
                                 { name: 'Channels Set', value: `${Object.values(config.channels).filter(v => v).length}/7 configured`, inline: true },
-                                { name: '?? Critical Errors', value: criticalChan, inline: true },
-                                { name: '?? Moderation', value: modChan, inline: true },
-                                { name: '?? Messages', value: msgChan, inline: true },
-                                { name: '?? Members', value: memberChan, inline: true },
-                                { name: '?? Voice', value: voiceChan, inline: true },
-                                { name: '??? Server', value: serverChan, inline: true },
-                                { name: '?? Keywords', value: keywordChan, inline: false }
+                                { name: '📌 Critical Errors', value: criticalChan, inline: true },
+                                { name: '📌 Moderation', value: modChan, inline: true },
+                                { name: '✅ Messages', value: msgChan, inline: true },
+                                { name: '📌 Members', value: memberChan, inline: true },
+                                { name: '📌 Voice', value: voiceChan, inline: true },
+                                { name: '🔸 Server', value: serverChan, inline: true },
+                                { name: '📌 Keywords', value: keywordChan, inline: false }
                             )
                             .setFooter({ text: 'Click buttons below to configure logging channels' })
                             .setTimestamp();
@@ -5963,22 +5963,22 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId('log_set_critical')
                                     .setLabel('Critical')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('??'),
+                                    .setEmoji('✅'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_moderation')
                                     .setLabel('Moderation')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('??'),
+                                    .setEmoji('✅'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_messages')
                                     .setLabel('Messages')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('??'),
+                                    .setEmoji('✅'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_members')
                                     .setLabel('Members')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('??')
+                                    .setEmoji('✅')
                             );
                         
                         const row2 = new ActionRowBuilder()
@@ -5987,22 +5987,22 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId('log_set_voice')
                                     .setLabel('Voice')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('??'),
+                                    .setEmoji('✅'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_server')
                                     .setLabel('Server')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('???'),
+                                    .setEmoji('?✅'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_keywords')
                                     .setLabel('Keywords')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('??'),
+                                    .setEmoji('✅'),
                                 new ButtonBuilder()
                                     .setCustomId('log_toggles')
                                     .setLabel('Event Toggles')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('??')
+                                    .setEmoji('✅')
                             );
                         
                         await interaction.update({ embeds: [embed], components: [row1, row2] });
@@ -6037,7 +6037,7 @@ client.on('interactionCreate', async (interaction) => {
                 const statusIcon = (enabled) => enabled ? '?' : '?';
                 
                 const toggleEmbed = new EmbedBuilder()
-                    .setTitle('?? Event Toggle Settings')
+                    .setTitle('⚙️ Event Toggle Settings')
                     .setDescription('Click buttons below to toggle event types')
                     .setColor(0x3498db)
                     .addFields(
@@ -6232,7 +6232,7 @@ client.on('interactionCreate', async (interaction) => {
                         const config = settings.ai;
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('?? AI Chat System Control Panel')
+                            .setTitle('⚙️ AI Chat System Control Panel')
                             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                             .setDescription(
                                 `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
@@ -6241,11 +6241,11 @@ client.on('interactionCreate', async (interaction) => {
                             )
                             .addFields(
                                 { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
-                                { name: '?? Channel', value: `#${config.channelName}`, inline: true },
-                                { name: '?? Model', value: config.model, inline: true },
-                                { name: '?? Max History', value: `${config.maxHistory} exchanges`, inline: true },
-                                { name: '??? Temperature', value: config.temperature.toString(), inline: true },
-                                { name: '?? System Prompt', value: config.systemPrompt.substring(0, 100) + '...', inline: false }
+                                { name: '📌 Channel', value: `#${config.channelName}`, inline: true },
+                                { name: '📌 Model', value: config.model, inline: true },
+                                { name: '📌 Max History', value: `${config.maxHistory} exchanges`, inline: true },
+                                { name: '🔸 Temperature', value: config.temperature.toString(), inline: true },
+                                { name: '📌 System Prompt', value: config.systemPrompt.substring(0, 100) + '...', inline: false }
                             )
                             .setFooter({ text: 'Click buttons below to configure AI chat settings' })
                             .setTimestamp();
@@ -6261,17 +6261,17 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId('ai_set_channel')
                                     .setLabel('Set Channel')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('??'),
+                                    .setEmoji('✅'),
                                 new ButtonBuilder()
                                     .setCustomId('ai_set_history')
                                     .setLabel('Max History')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('??'),
+                                    .setEmoji('✅'),
                                 new ButtonBuilder()
                                     .setCustomId('ai_set_temperature')
                                     .setLabel('Temperature')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('???')
+                                    .setEmoji('?✅')
                             );
                         
                         const row2 = new ActionRowBuilder()
@@ -6280,12 +6280,12 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId('ai_clear_history')
                                     .setLabel('Clear All History')
                                     .setStyle(ButtonStyle.Danger)
-                                    .setEmoji('???'),
+                                    .setEmoji('?✅'),
                                 new ButtonBuilder()
                                     .setCustomId('ai_refresh')
                                     .setLabel('Refresh')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('??')
+                                    .setEmoji('✅')
                             );
                         
                         await interaction.update({ embeds: [embed], components: [row1, row2] });
@@ -6359,7 +6359,7 @@ client.on('interactionCreate', async (interaction) => {
                     
                     // Create a category for stats
                     const category = await interaction.guild.channels.create({
-                        name: '?? Server Stats',
+                        name: '📌 Server Stats',
                         type: ChannelType.GuildCategory
                     });
                     
@@ -6429,7 +6429,7 @@ client.on('interactionCreate', async (interaction) => {
             }
             else if (interaction.customId === 'stats_interval') {
                 await interaction.reply({ 
-                    content: '?? **Set Update Interval**\nReply with a number between 1-60 (minutes):', 
+                    content: '✅ **Set Update Interval**\nReply with a number between 1-60 (minutes):', 
                     ephemeral: true 
                 });
                 
@@ -6473,7 +6473,7 @@ client.on('interactionCreate', async (interaction) => {
                 await interaction.deferUpdate();
                 
                 const shutdownEmbed = new EmbedBuilder()
-                    .setTitle('?? Bot Shutting Down')
+                    .setTitle('⚙️ Bot Shutting Down')
                     .setDescription('Initiating graceful shutdown sequence...\n\n? Sending offline notifications\n? Saving all data\n?? Goodbye!')
                     .setColor(0xFF0000)
                     .setTimestamp();
@@ -6489,7 +6489,7 @@ client.on('interactionCreate', async (interaction) => {
                 await interaction.deferUpdate();
                 
                 const restartEmbed = new EmbedBuilder()
-                    .setTitle('?? Restarting Bot')
+                    .setTitle('⚙️ Restarting Bot')
                     .setDescription('Performing manual restart...\n\nThe bot will be back online in a few seconds.')
                     .setColor(0x00BFFF)
                     .setTimestamp();
@@ -6503,7 +6503,7 @@ client.on('interactionCreate', async (interaction) => {
                     isManualRestart: true
                 }));
                 
-                console.log('?? Manual restart triggered via power panel');
+                console.log('✅ Manual restart triggered via power panel');
                 setTimeout(() => process.exit(0), 500);
             }
             
@@ -6511,7 +6511,7 @@ client.on('interactionCreate', async (interaction) => {
                 await interaction.deferUpdate();
                 
                 const updateEmbed = new EmbedBuilder()
-                    .setTitle('?? Updating Bot')
+                    .setTitle('⚙️ Updating Bot')
                     .setDescription('Pulling latest code from GitHub...')
                     .setColor(0xFFAA00)
                     .setTimestamp();
@@ -6832,7 +6832,7 @@ client.on('interactionCreate', async (interaction) => {
                 const staffRole = settings.staffRoleId ? `<@&${settings.staffRoleId}>` : 'Not set';
                 
                 const embed = new EmbedBuilder()
-                    .setTitle('?? Ticket System Control Panel')
+                    .setTitle('⚙️ Ticket System Control Panel')
                     .setColor(settings.enabled ? 0x00FF00 : 0xFF0000)
                     .setDescription(
                         `System is currently **${settings.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
@@ -6841,11 +6841,11 @@ client.on('interactionCreate', async (interaction) => {
                     )
                     .addFields(
                         { name: '?? Status', value: settings.enabled ? '? Enabled' : '? Disabled', inline: true },
-                        { name: '?? Staff Role', value: staffRole, inline: true },
-                        { name: '?? Category', value: settings.categoryName, inline: true },
-                        { name: '?? Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
-                        { name: '?? Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
-                        { name: '?? Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
+                        { name: '📌 Staff Role', value: staffRole, inline: true },
+                        { name: '📌 Category', value: settings.categoryName, inline: true },
+                        { name: '📌 Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
+                        { name: '✅ Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
+                        { name: '✅ Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
                     )
                     .setFooter({ text: 'Click buttons below to configure ticket system' })
                     .setTimestamp();
@@ -6861,17 +6861,17 @@ client.on('interactionCreate', async (interaction) => {
                             .setCustomId('ticket_staffrole')
                             .setLabel('Set Staff Role')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('??'),
+                            .setEmoji('✅'),
                         new ButtonBuilder()
                             .setCustomId('ticket_category')
                             .setLabel('Set Category')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('??'),
+                            .setEmoji('✅'),
                         new ButtonBuilder()
                             .setCustomId('ticket_panel')
                             .setLabel('Create Panel')
                             .setStyle(ButtonStyle.Success)
-                            .setEmoji('??')
+                            .setEmoji('✅')
                     );
                 
                 const row2 = new ActionRowBuilder()
@@ -6880,17 +6880,17 @@ client.on('interactionCreate', async (interaction) => {
                             .setCustomId('ticket_welcomemsg')
                             .setLabel('Welcome Message')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('??'),
+                            .setEmoji('✅'),
                         new ButtonBuilder()
                             .setCustomId('ticket_closemsg')
                             .setLabel('Close Message')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('??'),
+                            .setEmoji('✅'),
                         new ButtonBuilder()
                             .setCustomId('ticket_refresh')
                             .setLabel('Refresh')
                             .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('??')
+                            .setEmoji('✅')
                     );
                 
                 await interaction.update({ embeds: [embed], components: [row1, row2] });
@@ -6953,7 +6953,7 @@ client.on('interactionCreate', async (interaction) => {
                 
                 const modal = new ModalBuilder()
                     .setCustomId('custombot_avatar_modal')
-                    .setTitle('?? Change Bot Avatar (Global)');
+                    .setTitle('⚙️ Change Bot Avatar (Global)');
                 
                 const avatarInput = new TextInputBuilder()
                     .setCustomId('avatar_url')
@@ -7014,7 +7014,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('embed_title')
                     .setLabel('Embed Title (emojis supported)')
                     .setStyle(TextInputStyle.Short)
-                    .setPlaceholder('?? Liquid Divniums')
+                    .setPlaceholder('✅ Liquid Divniums')
                     .setRequired(true);
                 
                 const descInput = new TextInputBuilder()
@@ -7112,7 +7112,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('embed_title')
                     .setLabel('Embed Title (emojis supported)')
                     .setStyle(TextInputStyle.Short)
-                    .setPlaceholder('?? Liquid Divniums')
+                    .setPlaceholder('✅ Liquid Divniums')
                     .setRequired(true);
                 
                 const descInput = new TextInputBuilder()
@@ -7167,7 +7167,7 @@ client.on('interactionCreate', async (interaction) => {
                 }
                 
                 const embed = new EmbedBuilder()
-                    .setTitle('?? Server Webhooks')
+                    .setTitle('⚙️ Server Webhooks')
                     .setColor(0x5865F2)
                     .setDescription(`Found ${webhooks.size} webhook(s)`)
                     .setTimestamp();
@@ -7175,7 +7175,7 @@ client.on('interactionCreate', async (interaction) => {
                 webhooks.forEach(webhook => {
                     const channel = interaction.guild.channels.cache.get(webhook.channelId);
                     embed.addFields({
-                        name: `?? ${webhook.name}`,
+                        name: `📌 ${webhook.name}`,
                         value: `Channel: ${channel ? `<#${channel.id}>` : 'Unknown'}\nID: \`${webhook.id}\``,
                         inline: true
                     });
@@ -7196,7 +7196,7 @@ client.on('interactionCreate', async (interaction) => {
         if (interaction.customId === 'mod_warn') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_warn_modal')
-                .setTitle('?? Warn User');
+                .setTitle('⚙️ Warn User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7224,7 +7224,7 @@ client.on('interactionCreate', async (interaction) => {
         else if (interaction.customId === 'mod_timeout') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_timeout_action_modal')
-                .setTitle('?? Timeout User');
+                .setTitle('⚙️ Timeout User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7260,7 +7260,7 @@ client.on('interactionCreate', async (interaction) => {
         else if (interaction.customId === 'mod_kick') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_kick_modal')
-                .setTitle('?? Kick User');
+                .setTitle('⚙️ Kick User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7288,7 +7288,7 @@ client.on('interactionCreate', async (interaction) => {
         else if (interaction.customId === 'mod_ban') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_ban_modal')
-                .setTitle('?? Ban User');
+                .setTitle('⚙️ Ban User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7316,7 +7316,7 @@ client.on('interactionCreate', async (interaction) => {
         else if (interaction.customId === 'mod_mute') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_mute_modal')
-                .setTitle('?? Mute User');
+                .setTitle('⚙️ Mute User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7344,7 +7344,7 @@ client.on('interactionCreate', async (interaction) => {
         else if (interaction.customId === 'mod_unmute') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_unmute_modal')
-                .setTitle('?? Unmute User');
+                .setTitle('⚙️ Unmute User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7364,7 +7364,7 @@ client.on('interactionCreate', async (interaction) => {
         else if (interaction.customId === 'mod_infractions') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_infractions_modal')
-                .setTitle('?? View Infractions');
+                .setTitle('⚙️ View Infractions');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7384,7 +7384,7 @@ client.on('interactionCreate', async (interaction) => {
         else if (interaction.customId === 'mod_clearwarnings') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_clearwarnings_modal')
-                .setTitle('?? Clear Warnings');
+                .setTitle('⚙️ Clear Warnings');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7438,10 +7438,10 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('mod_autoaction_select')
                         .setPlaceholder('Choose auto-action')
                         .addOptions([
-                            { label: 'Timeout', value: 'timeout', description: 'Temporarily mute users', emoji: '??' },
-                            { label: 'Kick', value: 'kick', description: 'Remove users from server', emoji: '??' },
-                            { label: 'Ban', value: 'ban', description: 'Permanently ban users', emoji: '??' },
-                            { label: 'None', value: 'none', description: 'Only warnings, no action', emoji: '??' }
+                            { label: 'Timeout', value: 'timeout', description: 'Temporarily mute users', emoji: '✅' },
+                            { label: 'Kick', value: 'kick', description: 'Remove users from server', emoji: '✅' },
+                            { label: 'Ban', value: 'ban', description: 'Permanently ban users', emoji: '✅' },
+                            { label: 'None', value: 'none', description: 'Only warnings, no action', emoji: '✅' }
                         ])
                 );
             
@@ -7587,18 +7587,18 @@ client.on('interactionCreate', async (interaction) => {
             const muteRole = settings.moderation.muteRole ? `<@&${settings.moderation.muteRole}>` : 'Not set';
             
             const menuEmbed = new EmbedBuilder()
-                .setTitle('?? Moderation System Control Panel')
+                .setTitle('⚙️ Moderation System Control Panel')
                 .setDescription(`System is currently **${settings.moderation.enabled ? '? Enabled' : '? Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
                 .setColor(settings.moderation.enabled ? 0x00FF00 : 0xFF0000)
                 .addFields(
-                    { name: '?? Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
+                    { name: '📌 Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
                     { name: '? Auto-Action', value: settings.moderation.autoAction.charAt(0).toUpperCase() + settings.moderation.autoAction.slice(1), inline: true },
-                    { name: '?? Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
+                    { name: '📌 Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
                     { name: '?? Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
                     { name: '?? DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
-                    { name: '?? Log Channel', value: logChan, inline: true },
-                    { name: '?? Mute Role', value: muteRole, inline: true },
-                    { name: '?? Moderator Roles', value: modRoles, inline: false }
+                    { name: '📌 Log Channel', value: logChan, inline: true },
+                    { name: '📌 Mute Role', value: muteRole, inline: true },
+                    { name: '📌 Moderator Roles', value: modRoles, inline: false }
                 )
                 .setFooter({ text: 'Click a button to configure that setting' })
                 .setTimestamp();
@@ -7614,7 +7614,7 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('mod_threshold')
                         .setLabel('Set Threshold')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??'),
+                        .setEmoji('✅'),
                     new ButtonBuilder()
                         .setCustomId('mod_autoaction')
                         .setLabel('Set Auto-Action')
@@ -7624,7 +7624,7 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('mod_timeout')
                         .setLabel('Timeout Duration')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??')
+                        .setEmoji('✅')
                 );
             
             const row2 = new ActionRowBuilder()
@@ -7633,22 +7633,22 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('mod_decay')
                         .setLabel('Warning Decay')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??'),
+                        .setEmoji('✅'),
                     new ButtonBuilder()
                         .setCustomId('mod_dm')
                         .setLabel('Toggle DMs')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??'),
+                        .setEmoji('✅'),
                     new ButtonBuilder()
                         .setCustomId('mod_logchannel')
                         .setLabel('Set Log Channel')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??'),
+                        .setEmoji('✅'),
                     new ButtonBuilder()
                         .setCustomId('mod_muterole')
                         .setLabel('Set Mute Role')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??')
+                        .setEmoji('✅')
                 );
             
             const row3 = new ActionRowBuilder()
@@ -7667,7 +7667,7 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('mod_refresh')
                         .setLabel('Refresh')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('??')
+                        .setEmoji('✅')
                 );
             
             await interaction.update({ embeds: [menuEmbed], components: [row1, row2, row3] });
@@ -7737,7 +7737,7 @@ client.on('interactionCreate', async (interaction) => {
                 .substring(0, 200);
             
             const embed = new EmbedBuilder()
-                .setTitle('?? Welcome System Control Panel')
+                .setTitle('⚙️ Welcome System Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
                     `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
@@ -7746,10 +7746,10 @@ client.on('interactionCreate', async (interaction) => {
                 )
                 .addFields(
                     { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
-                    { name: '?? Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
+                    { name: '📌 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
                     { name: '?? Custom Message', value: config.customMessage ? '? Set' : '? Using default', inline: true },
-                    { name: '?? Message Preview', value: messagePreview, inline: false },
-                    { name: '?? Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
+                    { name: '✅ Message Preview', value: messagePreview, inline: false },
+                    { name: '📌 Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
                 )
                 .setFooter({ text: 'Click buttons below to configure welcome messages' })
                 .setTimestamp();
@@ -7765,17 +7765,17 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('welcome_set_channel')
                         .setLabel('Set Channel')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??'),
+                        .setEmoji('✅'),
                     new ButtonBuilder()
                         .setCustomId('welcome_set_message')
                         .setLabel('Set Message')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??'),
+                        .setEmoji('✅'),
                     new ButtonBuilder()
                         .setCustomId('welcome_refresh')
                         .setLabel('Refresh')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('??')
+                        .setEmoji('✅')
                 );
             
             await interaction.update({ embeds: [embed], components: [row1] });
@@ -7833,7 +7833,7 @@ client.on('interactionCreate', async (interaction) => {
                 .substring(0, 200);
             
             const embed = new EmbedBuilder()
-                .setTitle('?? Leave System Control Panel')
+                .setTitle('⚙️ Leave System Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
                     `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
@@ -7842,10 +7842,10 @@ client.on('interactionCreate', async (interaction) => {
                 )
                 .addFields(
                     { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
-                    { name: '?? Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
+                    { name: '📌 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
                     { name: '?? Custom Message', value: config.customMessage ? '? Set' : '? Using default', inline: true },
-                    { name: '?? Message Preview', value: messagePreview, inline: false },
-                    { name: '?? Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
+                    { name: '✅ Message Preview', value: messagePreview, inline: false },
+                    { name: '📌 Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
                 )
                 .setFooter({ text: 'Click buttons below to configure leave messages' })
                 .setTimestamp();
@@ -7861,17 +7861,17 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('leave_set_channel')
                         .setLabel('Set Channel')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??'),
+                        .setEmoji('✅'),
                     new ButtonBuilder()
                         .setCustomId('leave_set_message')
                         .setLabel('Set Message')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??'),
+                        .setEmoji('✅'),
                     new ButtonBuilder()
                         .setCustomId('leave_refresh')
                         .setLabel('Refresh')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('??')
+                        .setEmoji('✅')
                 );
             
             await interaction.update({ embeds: [embed], components: [row1] });
@@ -7931,7 +7931,7 @@ client.on('interactionCreate', async (interaction) => {
             const exampleResult = `${config.prefix || ''}Username${config.suffix || ''}`;
             
             const embed = new EmbedBuilder()
-                .setTitle('?? Auto-Nickname Control Panel')
+                .setTitle('⚙️ Auto-Nickname Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
                     `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
@@ -7940,10 +7940,10 @@ client.on('interactionCreate', async (interaction) => {
                 )
                 .addFields(
                     { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
-                    { name: '?? Prefix', value: config.prefix || 'None', inline: true },
-                    { name: '?? Suffix', value: config.suffix || 'None', inline: true },
-                    { name: '?? Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
-                    { name: '?? Note', value: 'Max nickname length is 32 characters', inline: false }
+                    { name: '📌 Prefix', value: config.prefix || 'None', inline: true },
+                    { name: '📌 Suffix', value: config.suffix || 'None', inline: true },
+                    { name: '📌 Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
+                    { name: '📌 Note', value: 'Max nickname length is 32 characters', inline: false }
                 )
                 .setFooter({ text: 'Click buttons below to configure auto-nickname' })
                 .setTimestamp();
@@ -7959,17 +7959,17 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('autonick_set_prefix')
                         .setLabel('Set Prefix')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??'),
+                        .setEmoji('✅'),
                     new ButtonBuilder()
                         .setCustomId('autonick_set_suffix')
                         .setLabel('Set Suffix')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??'),
+                        .setEmoji('✅'),
                     new ButtonBuilder()
                         .setCustomId('autonick_refresh')
                         .setLabel('Refresh')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('??')
+                        .setEmoji('✅')
                 );
             
             await interaction.update({ embeds: [embed], components: [row1] });
@@ -8053,21 +8053,21 @@ client.on('interactionCreate', async (interaction) => {
                         label: 'Kick Raiders',
                         description: 'Kick suspicious new members',
                         value: 'kick',
-                        emoji: '??',
+                        emoji: '✅',
                         default: config.action === 'kick'
                     },
                     {
                         label: 'Ban Raiders',
                         description: 'Ban suspicious new members',
                         value: 'ban',
-                        emoji: '??',
+                        emoji: '✅',
                         default: config.action === 'ban'
                     },
                     {
                         label: 'Monitor Only',
                         description: 'Just notify, take no action',
                         value: 'none',
-                        emoji: '???',
+                        emoji: '?✅',
                         default: config.action === 'none'
                     }
                 ]);
@@ -8152,7 +8152,7 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             await interaction.reply({ 
-                content: '?? **Lockdown lifted!** Server is now accepting new members.', 
+                content: '✅ **Lockdown lifted!** Server is now accepting new members.', 
                 ephemeral: true 
             });
         } else if (interaction.customId === 'raid_refresh') {
@@ -8164,7 +8164,7 @@ client.on('interactionCreate', async (interaction) => {
             const actionText = config.action === 'none' ? 'Monitor Only' : config.action === 'kick' ? 'Kick' : 'Ban';
             
             const embed = new EmbedBuilder()
-                .setTitle('??? Raid Protection Control Panel')
+                .setTitle('🔸 Raid Protection Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
                     `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
@@ -8173,12 +8173,12 @@ client.on('interactionCreate', async (interaction) => {
                 )
                 .addFields(
                     { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
-                    { name: '?? Join Threshold', value: `${config.joinThreshold} members`, inline: true },
-                    { name: '?? Time Window', value: `${config.timeWindow} seconds`, inline: true },
+                    { name: '📌 Join Threshold', value: `${config.joinThreshold} members`, inline: true },
+                    { name: '📌 Time Window', value: `${config.timeWindow} seconds`, inline: true },
                     { name: '? Action', value: actionText, inline: true },
                     { name: '?? Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
-                    { name: '?? Current Lockdown', value: lockdownStatus, inline: true },
-                    { name: '?? Notification Channel', value: notifChannel, inline: true },
+                    { name: '📌 Current Lockdown', value: lockdownStatus, inline: true },
+                    { name: '📌 Notification Channel', value: notifChannel, inline: true },
                     { name: '? Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
                 )
                 .setFooter({ text: 'Click buttons below to configure raid protection' })
@@ -8195,12 +8195,12 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('raid_set_threshold')
                         .setLabel('Set Threshold')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??'),
+                        .setEmoji('✅'),
                     new ButtonBuilder()
                         .setCustomId('raid_set_timewindow')
                         .setLabel('Time Window')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??'),
+                        .setEmoji('✅'),
                     new ButtonBuilder()
                         .setCustomId('raid_set_action')
                         .setLabel('Set Action')
@@ -8214,12 +8214,12 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('raid_set_lockdown')
                         .setLabel('Lockdown Duration')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??'),
+                        .setEmoji('✅'),
                     new ButtonBuilder()
                         .setCustomId('raid_set_notification')
                         .setLabel('Notification Channel')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('??'),
+                        .setEmoji('✅'),
                     new ButtonBuilder()
                         .setCustomId('raid_whitelist')
                         .setLabel('Manage Whitelist')
@@ -8229,7 +8229,7 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('raid_refresh')
                         .setLabel('Refresh')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('??')
+                        .setEmoji('✅')
                 );
             
             const row3 = new ActionRowBuilder()
@@ -8238,7 +8238,7 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('raid_unlock')
                         .setLabel('Unlock Server')
                         .setStyle(ButtonStyle.Danger)
-                        .setEmoji('??')
+                        .setEmoji('✅')
                         .setDisabled(!lockedServers.has(interaction.guild.id))
                 );
             
@@ -8268,20 +8268,20 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '?? Snake Game',
-                        overTitle: '?? Game Over',
+                        title: '✅ Snake Game',
+                        overTitle: '✅ Game Over',
                         color: '#5865F2'
                     },
                     emojis: {
                         board: '?',
-                        food: '??',
-                        up: '??', 
-                        down: '??',
-                        left: '??',
-                        right: '??',
+                        food: '✅',
+                        up: '✅', 
+                        down: '✅',
+                        left: '✅',
+                        right: '✅',
                     },
-                    snake: { head: '??', body: '??', tail: '??', over: '??' },
-                    foods: ['??', '??', '??', '??', '??', '??', '??'],
+                    snake: { head: '✅', body: '✅', tail: '✅', over: '✅' },
+                    foods: ['✅', '✅', '✅', '✅', '✅', '✅', '✅'],
                     stopButton: 'Stop',
                     timeoutTime: 60000,
                     playerOnlyMessage: 'Only {player} can use these buttons.'
@@ -8360,7 +8360,7 @@ client.on('interactionCreate', async (interaction) => {
             
             else if (gameType === 'connect4') {
                 await interaction.reply({ 
-                    content: '?? **Connect 4** requires an opponent! Please mention a user to play with:', 
+                    content: '✅ **Connect 4** requires an opponent! Please mention a user to play with:', 
                     ephemeral: true 
                 });
                 
@@ -8392,14 +8392,14 @@ client.on('interactionCreate', async (interaction) => {
                     isSlashGame: false,
                     opponent: opponent,
                     embed: {
-                        title: '?? Connect 4',
+                        title: '✅ Connect 4',
                         statusTitle: 'Status',
                         color: '#5865F2'
                     },
                     emojis: {
                         board: '?',
-                        player1: '??',
-                        player2: '??'
+                        player1: '✅',
+                        player2: '✅'
                     },
                     mentionUser: true,
                     timeoutTime: 60000,
@@ -8424,13 +8424,13 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '?? Wordle',
+                        title: '✅ Wordle',
                         color: '#5865F2'
                     },
                     customWord: null,
                     timeoutTime: 60000,
-                    winMessage: '?? You won! The word was **{word}**.',
-                    loseMessage: '?? You lost! The word was **{word}**.',
+                    winMessage: '✅ You won! The word was **{word}**.',
+                    loseMessage: '✅ You lost! The word was **{word}**.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
@@ -8447,15 +8447,15 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '?? Minesweeper',
+                        title: '✅ Minesweeper',
                         color: '#5865F2',
                         description: 'Click on the buttons to reveal the blocks except mines.'
                     },
-                    emojis: { flag: '??', mine: '??' },
+                    emojis: { flag: '✅', mine: '✅' },
                     mines: 5,
                     timeoutTime: 60000,
-                    winMessage: '?? You won the Game! You successfully avoided all the mines.',
-                    loseMessage: '?? You lost the Game! Beware of the mines next time.',
+                    winMessage: '✅ You won the Game! You successfully avoided all the mines.',
+                    loseMessage: '✅ You lost the Game! Beware of the mines next time.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
@@ -8472,14 +8472,14 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '?? 2048',
+                        title: '✅ 2048',
                         color: '#5865F2'
                     },
                     emojis: {
-                        up: '??',
-                        down: '??',
-                        left: '??',
-                        right: '??',
+                        up: '✅',
+                        down: '✅',
+                        left: '✅',
+                        right: '✅',
                     },
                     timeoutTime: 60000,
                     buttonStyle: 'PRIMARY',
@@ -8499,14 +8499,14 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '?? Memory Game',
+                        title: '✅ Memory Game',
                         color: '#5865F2',
                         description: '**Click on the buttons to match the emojis.**'
                     },
                     timeoutTime: 60000,
-                    emojis: ['??', '??', '??', '??', '??', '??', '??', '??'],
-                    winMessage: '?? You won! You matched all the pairs in **{tilesTurned}** turns.',
-                    loseMessage: '?? You lost! You ran out of time.',
+                    emojis: ['✅', '✅', '✅', '✅', '✅', '✅', '✅', '✅'],
+                    winMessage: '✅ You won! You matched all the pairs in **{tilesTurned}** turns.',
+                    loseMessage: '✅ You lost! You ran out of time.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
@@ -8523,14 +8523,14 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '?? Fast Type',
+                        title: '✅ Fast Type',
                         color: '#5865F2',
                         description: 'You have **{time}** seconds to type the sentence below.'
                     },
                     timeoutTime: 60000,
                     sentence: 'The quick brown fox jumps over the lazy dog.',
-                    winMessage: '?? You won! You finished in **{time}** seconds with **{wpm}** WPM.',
-                    loseMessage: '?? You lost! You ran out of time.'
+                    winMessage: '✅ You won! You finished in **{time}** seconds with **{wpm}** WPM.',
+                    loseMessage: '✅ You lost! You ran out of time.'
                 });
                 
                 try {
@@ -8546,17 +8546,17 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '?? Find Emoji',
+                        title: '✅ Find Emoji',
                         color: '#5865F2',
                         description: 'Find the **{emoji}** emoji in the grid below.'
                     },
                     timeoutTime: 60000,
                     hideEmojiTime: 5000,
                     buttonStyle: 'PRIMARY',
-                    emojis: ['??', '??', '??', '??', '??', '??', '??', '??'],
-                    winMessage: '?? You won! You found the emoji in **{time}** seconds.',
-                    loseMessage: '?? You lost! You ran out of time.',
-                    timeoutMessage: '?? You ran out of time! The emoji was **{emoji}**.',
+                    emojis: ['✅', '✅', '✅', '✅', '✅', '✅', '✅', '✅'],
+                    winMessage: '✅ You won! You found the emoji in **{time}** seconds.',
+                    loseMessage: '✅ You lost! You ran out of time.',
+                    timeoutMessage: '✅ You ran out of time! The emoji was **{emoji}**.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
@@ -8573,12 +8573,12 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '?? Guess The Pok�mon',
+                        title: '✅ Guess The Pok�mon',
                         color: '#5865F2'
                     },
                     timeoutTime: 60000,
-                    winMessage: '?? You guessed it right! It was **{pokemon}**.',
-                    loseMessage: '?? Better luck next time! It was **{pokemon}**.',
+                    winMessage: '✅ You guessed it right! It was **{pokemon}**.',
+                    loseMessage: '✅ Better luck next time! It was **{pokemon}**.',
                     errMessage: '? Unable to fetch Pok�mon data! Please try again.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
@@ -8597,7 +8597,7 @@ client.on('interactionCreate', async (interaction) => {
                     isSlashGame: false,
                     opponent: interaction.user,
                     embed: {
-                        title: '?? Rock Paper Scissors',
+                        title: '✅ Rock Paper Scissors',
                         color: '#5865F2',
                         description: 'Press a button below to make your choice.'
                     },
@@ -8607,9 +8607,9 @@ client.on('interactionCreate', async (interaction) => {
                         scissors: 'Scissors'
                     },
                     emojis: {
-                        rock: '??',
-                        paper: '??',
-                        scissors: '??'
+                        rock: '✅',
+                        paper: '✅',
+                        scissors: '✅'
                     },
                     mentionUser: true,
                     timeoutTime: 60000,
@@ -8634,15 +8634,15 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '?? Hangman',
+                        title: '✅ Hangman',
                         color: '#5865F2'
                     },
-                    hangman: { hat: '??', head: '??', shirt: '??', pants: '??', boots: '????' },
+                    hangman: { hat: '✅', head: '✅', shirt: '✅', pants: '✅', boots: '??✅' },
                     customWord: null,
                     timeoutTime: 60000,
                     theme: 'nature',
-                    winMessage: '?? You won! The word was **{word}**.',
-                    loseMessage: '?? You lost! The word was **{word}**.',
+                    winMessage: '✅ You won! The word was **{word}**.',
+                    loseMessage: '✅ You lost! The word was **{word}**.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
@@ -8659,7 +8659,7 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '?? Trivia',
+                        title: '✅ Trivia',
                         color: '#5865F2',
                         description: 'You have **60 seconds** to answer the question.'
                     },
@@ -8667,8 +8667,8 @@ client.on('interactionCreate', async (interaction) => {
                     buttonStyle: 'PRIMARY',
                     mode: 'multiple',
                     difficulty: 'medium',
-                    winMessage: '?? You got it right! The answer was **{answer}**.',
-                    loseMessage: '?? You got it wrong! The answer was **{answer}**.',
+                    winMessage: '✅ You got it right! The answer was **{answer}**.',
+                    loseMessage: '✅ You got it wrong! The answer was **{answer}**.',
                     errMessage: '? Unable to fetch question data! Please try again.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
@@ -8686,10 +8686,10 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '?? Slot Machine',
+                        title: '✅ Slot Machine',
                         color: '#5865F2'
                     },
-                    slots: ['??', '??', '??', '??']
+                    slots: ['✅', '✅', '✅', '✅']
                 });
                 
                 try {
@@ -8705,7 +8705,7 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '?? Would You Rather',
+                        title: '✅ Would You Rather',
                         color: '#5865F2'
                     },
                     buttons: {
@@ -8815,7 +8815,7 @@ client.on('interactionCreate', async (interaction) => {
                 const creator = await client.users.fetch(ticketInfo.creator);
                 
                 const logsEmbed = new EmbedBuilder()
-                    .setTitle(`?? Ticket #${ticketInfo.number} Transcript`)
+                    .setTitle(`⚙️ Ticket #${ticketInfo.number} Transcript`)
                     .setDescription(
                         `**?? Creator:** ${creator.tag}\n` +
                         `**?? Created:** <t:${Math.floor(ticketInfo.createdAt / 1000)}:F>\n` +
@@ -8877,12 +8877,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId(`confirm_close_transcript_${channelId}`)
                     .setLabel('Close with Transcript')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId(`confirm_close_no_transcript_${channelId}`)
                     .setLabel('Close without Transcript')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('???'),
+                    .setEmoji('?✅'),
                 new ButtonBuilder()
                     .setCustomId('cancel_close')
                     .setLabel('Cancel')
@@ -8890,7 +8890,7 @@ client.on('interactionCreate', async (interaction) => {
             );
             
             await interaction.reply({ 
-                content: '?? Do you want to save a transcript before closing?',
+                content: '✅ Do you want to save a transcript before closing?',
                 components: [confirmRow],
                 ephemeral: true
             });
@@ -8901,7 +8901,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId(`confirm_close_no_transcript_${channelId}`)
                     .setLabel('Confirm Close')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('??'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('cancel_close')
                     .setLabel('Cancel')
@@ -8909,7 +8909,7 @@ client.on('interactionCreate', async (interaction) => {
             );
             
             await interaction.reply({ 
-                content: '?? Are you sure you want to close this ticket?',
+                content: '✅ Are you sure you want to close this ticket?',
                 components: [confirmRow],
                 ephemeral: true
             });
@@ -8936,11 +8936,11 @@ client.on('interactionCreate', async (interaction) => {
         });
         
         const closeEmbed = new EmbedBuilder()
-            .setTitle('?? Ticket Closed')
+            .setTitle('⚙️ Ticket Closed')
             .setDescription(
                 `**Closed by:** ${interaction.user}\n` +
                 `**Status:** ?? Transcript saved\n\n` +
-                `?? Channel will be deleted in 5 seconds...`
+                `✅ Channel will be deleted in 5 seconds...`
             )
             .setColor(0xFF0000)
             .setFooter({ text: 'Thank you for using our support system!' })
@@ -8957,7 +8957,7 @@ client.on('interactionCreate', async (interaction) => {
                 'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!';
             
             const dmEmbed = new EmbedBuilder()
-                .setTitle('?? Ticket Closed')
+                .setTitle('⚙️ Ticket Closed')
                 .setDescription(
                     `Your ticket **#${ticketInfo.number}** in **${interaction.guild.name}** has been closed.\n\n` +
                     `**?? Original Reason:** ${ticketInfo.reason}\n` +
@@ -9020,11 +9020,11 @@ client.on('interactionCreate', async (interaction) => {
         });
         
         const closeEmbed = new EmbedBuilder()
-            .setTitle('?? Ticket Closed')
+            .setTitle('⚙️ Ticket Closed')
             .setDescription(
                 `**Closed by:** ${interaction.user}\n` +
                 `**Status:** ??? No transcript saved\n\n` +
-                `?? Channel will be deleted in 5 seconds...`
+                `✅ Channel will be deleted in 5 seconds...`
             )
             .setColor(0xFF0000)
             .setFooter({ text: 'Thank you for using our support system!' })
@@ -9041,7 +9041,7 @@ client.on('interactionCreate', async (interaction) => {
                 'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!';
             
             const dmEmbed = new EmbedBuilder()
-                .setTitle('?? Ticket Closed')
+                .setTitle('⚙️ Ticket Closed')
                 .setDescription(
                     `Your ticket **#${ticketInfo.number}** in **${interaction.guild.name}** has been closed.\n\n` +
                     `**?? Original Reason:** ${ticketInfo.reason}\n` +
@@ -9099,7 +9099,7 @@ client.on('interactionCreate', async (interaction) => {
         
         try {
             // Find or create ticket category
-            const categoryName = ticketData[guildId].settings.categoryName || '?? Tickets';
+            const categoryName = ticketData[guildId].settings.categoryName || '✅ Tickets';
             let category = interaction.guild.channels.cache.get(ticketData[guildId].categoryId);
             if (!category || category.type !== ChannelType.GuildCategory) {
                 category = await interaction.guild.channels.create({
@@ -9156,10 +9156,10 @@ client.on('interactionCreate', async (interaction) => {
             
             // Create interactive ticket embed with custom message
             const customMessage = ticketData[guildId].settings.ticketMessage || 
-                '**Welcome to your support ticket!**\n\n?? Our support team will be with you shortly.\n\n**Please describe your issue in detail.**';
+                '**Welcome to your support ticket!**\n\n?? Our support team will be with you shortly. 👋\n\n**Please describe your issue in detail.**';
             
             const ticketEmbed = new EmbedBuilder()
-                .setTitle(`?? Support Ticket #${ticketNumber}`)
+                .setTitle(`⚙️ Support Ticket #${ticketNumber}`)
                 .setDescription(
                     `**?? Created by:** ${interaction.user}\n` +
                     `**?? Created at:** <t:${Math.floor(Date.now() / 1000)}:F>\n` +
@@ -9182,12 +9182,12 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId(`transcript_ticket_${ticketChannel.id}`)
                         .setLabel('View Transcript')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('??'),
+                        .setEmoji('✅'),
                     new ButtonBuilder()
                         .setCustomId(`close_ticket_${ticketChannel.id}`)
                         .setLabel('Close Ticket')
                         .setStyle(ButtonStyle.Danger)
-                        .setEmoji('??')
+                        .setEmoji('✅')
                 );
             
             await ticketChannel.send({ 
@@ -9324,13 +9324,13 @@ client.on('interactionCreate', async (interaction) => {
                     saveSettings();
                     
                     const typeNames = {
-                        critical: '?? Critical Errors',
-                        moderation: '?? Moderation Actions',
-                        messages: '?? Message Events',
-                        members: '?? Member Events',
-                        voice: '?? Voice Activity',
-                        server: '??? Server Changes',
-                        keywords: '?? Keyword Flags'
+                        critical: '✅ Critical Errors',
+                        moderation: '✅ Moderation Actions',
+                        messages: '✅ Message Events',
+                        members: '✅ Member Events',
+                        voice: '✅ Voice Activity',
+                        server: '🔸 Server Changes',
+                        keywords: '✅ Keyword Flags'
                     };
                     
                     await interaction.reply({ 
@@ -9700,7 +9700,7 @@ client.on('interactionCreate', async (interaction) => {
                         }
                         
                         const panelEmbed = new EmbedBuilder()
-                            .setTitle('?? Support Ticket System')
+                            .setTitle('⚙️ Support Ticket System')
                             .setDescription(
                                 '**Need help?** Create a support ticket!\n\n' +
                                 '**How it works:**\n' +
@@ -9711,7 +9711,7 @@ client.on('interactionCreate', async (interaction) => {
                                 '� Describe your issue clearly\n' +
                                 '� Include any relevant details\n' +
                                 '� Be patient while we help you\n\n' +
-                                '??????????????????????????????\n\n' +
+                                '🔸???????????????????????????\n\n' +
                                 '**Click the button below to get started! ??**'
                             )
                             .setColor(0x5865F2)
@@ -9724,7 +9724,7 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId('create_ticket_panel')
                                     .setLabel('Create Ticket')
                                     .setStyle(ButtonStyle.Success)
-                                    .setEmoji('??')
+                                    .setEmoji('✅')
                             );
                         
                         try {
@@ -9941,12 +9941,12 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId(`webhook_send_${Date.now()}`)
                                     .setLabel('Send to Webhook')
                                     .setStyle(ButtonStyle.Success)
-                                    .setEmoji('??'),
+                                    .setEmoji('✅'),
                                 new ButtonBuilder()
                                     .setCustomId('webhook_edit')
                                     .setLabel('Edit Again')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('??'),
+                                    .setEmoji('✅'),
                                 new ButtonBuilder()
                                     .setCustomId('webhook_cancel')
                                     .setLabel('Cancel')
@@ -10300,7 +10300,7 @@ client.on('interactionCreate', async (interaction) => {
                             try {
                                 await user.send({
                                     embeds: [new EmbedBuilder()
-                                        .setTitle('?? You Have Been Warned')
+                                        .setTitle('⚙️ You Have Been Warned')
                                         .setDescription(`You have been warned in **${interaction.guild.name}**`)
                                         .addFields({ name: 'Reason', value: reason })
                                         .setColor(0xFFAA00)
@@ -10309,7 +10309,7 @@ client.on('interactionCreate', async (interaction) => {
                             } catch (error) {}
                         }
                         
-                        await logModerationAction(interaction.guild, '?? Warning Issued', interaction.user, user, reason);
+                        await logModerationAction(interaction.guild, '✅ Warning Issued', interaction.user, user, reason);
                         
                         const warningCount = moderationData[guildId].warnings[userId].length;
                         await interaction.reply({ 
@@ -10357,7 +10357,7 @@ client.on('interactionCreate', async (interaction) => {
                                 try {
                                     await user.send({
                                         embeds: [new EmbedBuilder()
-                                            .setTitle('?? You Have Been Timed Out')
+                                            .setTitle('⚙️ You Have Been Timed Out')
                                             .setDescription(`You have been timed out in **${interaction.guild.name}** for ${duration} minutes`)
                                             .addFields({ name: 'Reason', value: reason })
                                             .setColor(0xFF6600)
@@ -10366,7 +10366,7 @@ client.on('interactionCreate', async (interaction) => {
                                 } catch (error) {}
                             }
                             
-                            await logModerationAction(interaction.guild, `?? Timeout (${duration}m)`, interaction.user, user, reason);
+                            await logModerationAction(interaction.guild, `✅ Timeout (${duration}m)`, interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
                                     .setTitle('? User Timed Out')
@@ -10412,7 +10412,7 @@ client.on('interactionCreate', async (interaction) => {
                                 try {
                                     await user.send({
                                         embeds: [new EmbedBuilder()
-                                            .setTitle('?? You Have Been Kicked')
+                                            .setTitle('⚙️ You Have Been Kicked')
                                             .setDescription(`You have been kicked from **${interaction.guild.name}**`)
                                             .addFields({ name: 'Reason', value: reason })
                                             .setColor(0xFF6600)
@@ -10422,7 +10422,7 @@ client.on('interactionCreate', async (interaction) => {
                             }
                             
                             await member.kick(reason);
-                            await logModerationAction(interaction.guild, '?? Kick', interaction.user, user, reason);
+                            await logModerationAction(interaction.guild, '✅ Kick', interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
                                     .setTitle('? User Kicked')
@@ -10460,7 +10460,7 @@ client.on('interactionCreate', async (interaction) => {
                                 try {
                                     await user.send({
                                         embeds: [new EmbedBuilder()
-                                            .setTitle('?? You Have Been Banned')
+                                            .setTitle('⚙️ You Have Been Banned')
                                             .setDescription(`You have been banned from **${interaction.guild.name}**`)
                                             .addFields({ name: 'Reason', value: reason })
                                             .setColor(0xFF0000)
@@ -10470,7 +10470,7 @@ client.on('interactionCreate', async (interaction) => {
                             }
                             
                             await interaction.guild.members.ban(userId, { reason, deleteMessageSeconds: 604800 });
-                            await logModerationAction(interaction.guild, '?? Ban', interaction.user, user, reason);
+                            await logModerationAction(interaction.guild, '✅ Ban', interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
                                     .setTitle('? User Banned')
@@ -10513,7 +10513,7 @@ client.on('interactionCreate', async (interaction) => {
                                 try {
                                     await user.send({
                                         embeds: [new EmbedBuilder()
-                                            .setTitle('?? You Have Been Muted')
+                                            .setTitle('⚙️ You Have Been Muted')
                                             .setDescription(`You have been muted in **${interaction.guild.name}**`)
                                             .addFields({ name: 'Reason', value: reason })
                                             .setColor(0x808080)
@@ -10522,7 +10522,7 @@ client.on('interactionCreate', async (interaction) => {
                                 } catch (error) {}
                             }
                             
-                            await logModerationAction(interaction.guild, '?? Mute', interaction.user, user, reason);
+                            await logModerationAction(interaction.guild, '✅ Mute', interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
                                     .setTitle('? User Muted')
@@ -10558,7 +10558,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         try {
                             await member.roles.remove(settings.moderation.muteRole);
-                            await logModerationAction(interaction.guild, '?? Unmute', interaction.user, user, 'Unmuted');
+                            await logModerationAction(interaction.guild, '✅ Unmute', interaction.user, user, 'Unmuted');
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
                                     .setTitle('? User Unmuted')
@@ -10598,12 +10598,12 @@ client.on('interactionCreate', async (interaction) => {
                         infractions.slice(-10).reverse().forEach((infraction, index) => {
                             const date = new Date(infraction.timestamp);
                             const typeEmoji = {
-                                warn: '??',
-                                timeout: '??',
-                                kick: '??',
-                                ban: '??',
-                                mute: '??'
-                            }[infraction.type] || '??';
+                                warn: '✅',
+                                timeout: '✅',
+                                kick: '✅',
+                                ban: '✅',
+                                mute: '✅'
+                            }[infraction.type] || '✅';
                             
                             embed.addFields({
                                 name: `${typeEmoji} ${infraction.type.charAt(0).toUpperCase() + infraction.type.slice(1)} #${infractions.length - index}`,
@@ -10635,7 +10635,7 @@ client.on('interactionCreate', async (interaction) => {
                         moderationData[guildId].warnings[userId] = [];
                         saveModerationData();
                         
-                        await logModerationAction(interaction.guild, '?? Warnings Cleared', interaction.user, user, `Cleared ${warningCount} warnings`);
+                        await logModerationAction(interaction.guild, '✅ Warnings Cleared', interaction.user, user, `Cleared ${warningCount} warnings`);
                         await interaction.reply({ 
                             embeds: [new EmbedBuilder()
                                 .setTitle('? Warnings Cleared')
@@ -11043,7 +11043,7 @@ client.on('interactionCreate', async (interaction) => {
 // Monthly AI Knowledge Updater - Fetches latest PlayStation info in REAL-TIME
 async function updateAIKnowledge() {
     try {
-        console.log('?? Updating AI knowledge with REAL-TIME PlayStation information from web...');
+        console.log('✅ Updating AI knowledge with REAL-TIME PlayStation information from web...');
         
         const fetch = require('node-fetch');
         const cheerio = require('cheerio');
@@ -11111,7 +11111,7 @@ async function updateAIKnowledge() {
             
             console.log('? Scraped PSX-Place for real-time firmware data');
         } catch (scrapeError) {
-            console.log('?? PSX-Place scrape failed, using cached values:', scrapeError.message);
+            console.log('✅ PSX-Place scrape failed, using cached values:', scrapeError.message);
         }
         
         // REAL-TIME: Scrape Wololo for latest homebrew tool versions
@@ -11133,11 +11133,11 @@ async function updateAIKnowledge() {
             
             console.log('? Scraped Wololo for real-time homebrew tool versions');
         } catch (scrapeError) {
-            console.log('?? Wololo scrape failed, using cached values:', scrapeError.message);
+            console.log('✅ Wololo scrape failed, using cached values:', scrapeError.message);
         }
         
         // GoldHEN version - using manual version (scraping disabled for accuracy)
-        console.log(`?? Using manual GoldHEN version: ${psData.goldhen}`);
+        console.log(`✅ Using manual GoldHEN version: ${psData.goldhen}`);
         
         // Update all server settings with REAL-TIME knowledge
         const allSettings = JSON.parse(fsSync.readFileSync('./serverSettings.json', 'utf8'));
@@ -11158,10 +11158,10 @@ async function updateAIKnowledge() {
             serverSettings = JSON.parse(fsSync.readFileSync('./serverSettings.json', 'utf8'));
             const now = new Date();
             console.log(`? AI knowledge LIVE-UPDATED from web (${now.toLocaleString()})`);
-            console.log(`?? REAL-TIME DB: PS3 ${psData.ps3OFW}/${psData.ps3CFW} | PS4 ${psData.ps4OFW}/${psData.ps4PPPwn}/${psData.ps4BDJB} BD-JB/13.00 | PS5 ${psData.ps5OFW}/${psData.ps5Lapse}/12.00`);
-            console.log(`?? Homebrew: GoldHEN ${psData.goldhen} (MAX 12.02) | etaHEN ${psData.etahen} | PS3HEN ${psData.ps3hen} | Vita ${psData.vita} | PSP ${psData.psp}`);
-            console.log(`?? Live Sources: Google | PSX-Place | Wololo | Reddit r/ps4homebrew`);
-            console.log(`??  IMPORTANT: GoldHEN 2.4b18.6 = 12.00, 12.02 MAX (NOT 12.50+)`);
+            console.log(`✅ REAL-TIME DB: PS3 ${psData.ps3OFW}/${psData.ps3CFW} | PS4 ${psData.ps4OFW}/${psData.ps4PPPwn}/${psData.ps4BDJB} BD-JB/13.00 | PS5 ${psData.ps5OFW}/${psData.ps5Lapse}/12.00`);
+            console.log(`✅ Homebrew: GoldHEN ${psData.goldhen} (MAX 12.02) | etaHEN ${psData.etahen} | PS3HEN ${psData.ps3hen} | Vita ${psData.vita} | PSP ${psData.psp}`);
+            console.log(`✅ Live Sources: Google | PSX-Place | Wololo | Reddit r/ps4homebrew`);
+            console.log(`✅ IMPORTANT: GoldHEN 2.4b18.6 = 12.00, 12.02 MAX (NOT 12.50+)`);
         }
     } catch (error) {
         console.error('? Failed to update AI knowledge:', error.message);
@@ -11231,13 +11231,13 @@ async function checkPlayStationUpdates() {
                         console: 'PS4',
                         oldVersion: lastKnownVersions.ps4,
                         newVersion: ps4Match[1],
-                        emoji: '??'
+                        emoji: '✅'
                     });
                     lastKnownVersions.ps4 = ps4Match[1];
                 }
             }
         } catch (error) {
-            console.log('?? Could not check PS4 updates:', error.message);
+            console.log('✅ Could not check PS4 updates:', error.message);
         }
         
         // Check PS5 firmware
@@ -11270,13 +11270,13 @@ async function checkPlayStationUpdates() {
                         console: 'PS5',
                         oldVersion: lastKnownVersions.ps5,
                         newVersion: ps5Match[1],
-                        emoji: '???'
+                        emoji: '?✅'
                     });
                     lastKnownVersions.ps5 = ps5Match[1];
                 }
             }
         } catch (error) {
-            console.log('?? Could not check PS5 updates:', error.message);
+            console.log('✅ Could not check PS5 updates:', error.message);
         }
         
         // Check PS3 firmware
@@ -11309,13 +11309,13 @@ async function checkPlayStationUpdates() {
                         console: 'PS3',
                         oldVersion: lastKnownVersions.ps3,
                         newVersion: ps3Match[1],
-                        emoji: '??'
+                        emoji: '✅'
                     });
                     lastKnownVersions.ps3 = ps3Match[1];
                 }
             }
         } catch (error) {
-            console.log('?? Could not check PS3 updates:', error.message);
+            console.log('✅ Could not check PS3 updates:', error.message);
         }
         
         // Check PS Vita firmware
@@ -11348,19 +11348,19 @@ async function checkPlayStationUpdates() {
                         console: 'PS Vita',
                         oldVersion: lastKnownVersions.vita,
                         newVersion: vitaMatch[1],
-                        emoji: '??'
+                        emoji: '✅'
                     });
                     lastKnownVersions.vita = vitaMatch[1];
                 }
             }
         } catch (error) {
-            console.log('?? Could not check PS Vita updates:', error.message);
+            console.log('✅ Could not check PS Vita updates:', error.message);
         }
         
         // Send notifications to all servers with logging enabled
         if (updatesFound.length > 0) {
             for (const update of updatesFound) {
-                console.log(`?? NEW FIRMWARE: ${update.console} ${update.oldVersion} ? ${update.newVersion}`);
+                console.log(`✅ NEW FIRMWARE: ${update.console} ${update.oldVersion} ? ${update.newVersion}`);
                 
                 // Update the AI knowledge database with new firmware
                 if (update.console === 'PS4') {
@@ -11389,7 +11389,7 @@ async function checkPlayStationUpdates() {
                                 { name: 'New Version', value: `\`${update.newVersion}\``, inline: true }
                             )
                             .addFields({
-                                name: '?? Important',
+                                name: '📌 Important',
                                 value: '**DO NOT UPDATE** if you want to keep your jailbreak!\n\nStay on your current firmware until the scene confirms new exploits.'
                             })
                             .setTimestamp()
@@ -11398,10 +11398,10 @@ async function checkPlayStationUpdates() {
                         await notificationChannel.send({ embeds: [embed] });
                         console.log(`? Firmware update notification sent for ${update.console}`);
                     } else {
-                        console.log('?? Could not access notification channel 920750934085222470');
+                        console.log('✅ Could not access notification channel 920750934085222470');
                     }
                 } catch (error) {
-                    console.log(`?? Could not send update notification:`, error.message);
+                    console.log(`✅ Could not send update notification:`, error.message);
                 }
             }
             
@@ -11476,9 +11476,9 @@ setInterval(() => {
     // Force garbage collection if available (Node.js with --expose-gc flag)
     if (global.gc) {
         global.gc();
-        console.log('?? Cache cleaned (AI conversations, cooldowns, user profiles) + GC forced');
+        console.log('✅ Cache cleaned (AI conversations, cooldowns, user profiles) + GC forced');
     } else {
-        console.log('?? Cache cleaned (AI conversations, cooldowns, user profiles)');
+        console.log('✅ Cache cleaned (AI conversations, cooldowns, user profiles)');
     }
 }, 600000); // Every 10 minutes instead of 30 (more frequent cleanup)
 
@@ -11488,12 +11488,12 @@ let isShuttingDown = false;
 
 async function gracefulShutdown(signal) {
     if (isShuttingDown) {
-        console.log('?? Shutdown already in progress...');
+        console.log('✅ Shutdown already in progress...');
         return;
     }
     isShuttingDown = true;
     
-    console.log(`?? Received ${signal} - Shutting down gracefully...`);
+    console.log(`✅ Received ${signal} - Shutting down gracefully...`);
     
     // Update status channels to show "Offline" (non-blocking)
     try {
@@ -11504,7 +11504,7 @@ async function gracefulShutdown(signal) {
                 if (statusChannel && statusChannel.isVoiceBased()) {
                     const newName = settings.serverStats.channelNames.statusChannel
                         .replace('{status}', 'Offline')
-                        .replace('??', '??');
+                        .replace('✅', '✅');
                     
                     // Fire and forget - don't wait for Discord API
                     if (statusChannel.name !== newName) {
@@ -11528,8 +11528,8 @@ async function gracefulShutdown(signal) {
     fsSync.writeFileSync(settingsFile, JSON.stringify(serverSettings, null, 2));
     fsSync.writeFileSync(ticketDataFile, JSON.stringify(ticketData, null, 2));
     fsSync.writeFileSync(moderationDataFile, JSON.stringify(moderationData, null, 2));
-    console.log('?? All data saved');
-    console.log('?? Goodbye!');
+    console.log('✅ All data saved');
+    console.log('✅ Goodbye!');
     process.exit(0);
 }
 
@@ -11569,13 +11569,13 @@ process.on('uncaughtException', async (error) => {
         await fs.writeFile(settingsFile, JSON.stringify(serverSettings, null, 2));
         await fs.writeFile(ticketDataFile, JSON.stringify(ticketData, null, 2));
         await fs.writeFile(moderationDataFile, JSON.stringify(moderationData, null, 2));
-        console.log('?? Emergency data save completed');
+        console.log('✅ Emergency data save completed');
     } catch (saveError) {
         console.error('? Failed to save data during crash:', saveError);
     }
     
     // Don't exit - try to recover
-    console.log('?? Attempting to recover from uncaught exception...');
+    console.log('✅ Attempting to recover from uncaught exception...');
 });
 
 // Discord client error handlers
@@ -11592,7 +11592,7 @@ client.on('error', async (error) => {
 });
 
 client.on('warn', (warning) => {
-    console.warn('?? Discord client warning:', warning);
+    console.warn('✅ Discord client warning:', warning);
 });
 
 client.on('shardError', (error) => {
@@ -11602,7 +11602,7 @@ client.on('shardError', (error) => {
 
 // Rate limit handler
 client.rest.on('rateLimited', (info) => {
-    console.warn('?? Rate limited:', info);
+    console.warn('✅ Rate limited:', info);
     const errorMsg = `Route: ${info.route || 'Unknown'}, Timeout: ${info.timeout}ms, Global: ${info.global}`;
     logCriticalError(new Error(errorMsg), 'Discord API Rate Limited', null);
 });
@@ -11643,7 +11643,7 @@ function startCFWKnowledgeScraper() {
                 knowledge.lastUpdated = new Date().toISOString();
                 knowledge.evilnatCFW.source = 'PSX-Place scrape';
                 fsSync.writeFileSync(cfwKnowledgePath, JSON.stringify(knowledge, null, 2));
-                console.log('?? CFW knowledge updated!');
+                console.log('✅ CFW knowledge updated!');
             } else {
                 console.log(`? CFW knowledge up to date (Evilnat ${latestVersion})`);
             }
@@ -11684,11 +11684,11 @@ function startAutomatedMessages() {
                 if (channel) {
                     // Format: ## for bigger text, ** for bold
                     const reminders = [
-                        "## **Don't forget to check out `/pcommands` to see all server commands!** ??",
+                        "## **Don't forget to check out `/pcommands` to see all server commands!** ✅",
                         "## **Reminder: Use `/pcommands` to explore all the cool features I have!** ?",
-                        "## **Hey! Did you know you can type `/pcommands` to see everything I can do?** ??",
-                        "## **Pro tip: Check `/pcommands` for a full list of server features!** ??",
-                        "## **Don't miss out! Use `/pcommands` to discover all available commands!** ??"
+                        "## **Hey! Did you know you can type `/pcommands` to see everything I can do?** ✅",
+                        "## **Pro tip: Check `/pcommands` for a full list of server features!** ✅",
+                        "## **Don't miss out! Use `/pcommands` to discover all available commands!** ✅"
                     ];
                     
                     const randomReminder = reminders[Math.floor(Math.random() * reminders.length)];
@@ -11718,7 +11718,7 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
     try {
         const event = req.body;
         
-        console.log('?? Sellix webhook received:', event.event);
+        console.log('✅ Sellix webhook received:', event.event);
         
         // Verify webhook secret if configured
         if (config.sellixWebhookSecret && config.sellixWebhookSecret !== 'YOUR_WEBHOOK_SECRET') {
@@ -11747,7 +11747,7 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
             }
             
             if (!discordId) {
-                console.log('?? No Discord ID found in order:', orderData.uniqid);
+                console.log('✅ No Discord ID found in order:', orderData.uniqid);
                 return res.status(200).send('No Discord ID provided');
             }
             
@@ -11772,7 +11772,7 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
                     guildId: config.sellixGuildId
                 };
                 savePendingPurchases();
-                console.log(`?? Stored pending purchase for ${discordId}`);
+                console.log(`✅ Stored pending purchase for ${discordId}`);
                 
                 // Log pending purchase
                 const logChannel = guild.channels.cache.get(config.sellixLogChannelId);
@@ -11782,11 +11782,11 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
                         .setColor(0xFFA500)
                         .setDescription('Role will be assigned automatically when user joins the server.')
                         .addFields(
-                            { name: '?? Order ID', value: orderData.uniqid, inline: true },
-                            { name: '?? Amount', value: `$${orderData.total}`, inline: true },
-                            { name: '?? Email', value: orderData.customer_email || 'N/A', inline: false },
-                            { name: '?? Discord ID', value: discordId, inline: false },
-                            { name: '?? Product', value: orderData.product_title || 'Unknown', inline: false }
+                            { name: '📌 Order ID', value: orderData.uniqid, inline: true },
+                            { name: '📌 Amount', value: `$${orderData.total}`, inline: true },
+                            { name: '📌 Email', value: orderData.customer_email || 'N/A', inline: false },
+                            { name: '📌 Discord ID', value: discordId, inline: false },
+                            { name: '📌 Product', value: orderData.product_title || 'Unknown', inline: false }
                         )
                         .setTimestamp();
                     await logChannel.send({ embeds: [pendingEmbed] });
@@ -11812,8 +11812,8 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
                     .setDescription(`Thank you for your purchase! You have been given access to **${role.name}**.`)
                     .setColor(0x00FF00)
                     .addFields(
-                        { name: '?? Order ID', value: orderData.uniqid, inline: true },
-                        { name: '?? Amount Paid', value: `$${orderData.total}`, inline: true }
+                        { name: '📌 Order ID', value: orderData.uniqid, inline: true },
+                        { name: '📌 Amount Paid', value: `$${orderData.total}`, inline: true }
                     )
                     .setFooter({ text: guild.name })
                     .setTimestamp();
@@ -11830,12 +11830,12 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
                     .setTitle('? New Purchase')
                     .setColor(0x00FF00)
                     .addFields(
-                        { name: '?? Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
-                        { name: '?? Order ID', value: orderData.uniqid, inline: true },
-                        { name: '?? Amount', value: `$${orderData.total}`, inline: true },
-                        { name: '?? Email', value: orderData.customer_email || 'N/A', inline: false },
-                        { name: '?? Role Given', value: role.name, inline: false },
-                        { name: '?? Product', value: orderData.product_title || 'Unknown', inline: false }
+                        { name: '📌 Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
+                        { name: '📌 Order ID', value: orderData.uniqid, inline: true },
+                        { name: '📌 Amount', value: `$${orderData.total}`, inline: true },
+                        { name: '📌 Email', value: orderData.customer_email || 'N/A', inline: false },
+                        { name: '📌 Role Given', value: role.name, inline: false },
+                        { name: '📌 Product', value: orderData.product_title || 'Unknown', inline: false }
                     )
                     .setThumbnail(member.user.displayAvatarURL())
                     .setTimestamp();
@@ -11854,8 +11854,8 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
 // Start webhook server on port 3000
 const WEBHOOK_PORT = process.env.WEBHOOK_PORT || 3000;
 sellixApp.listen(WEBHOOK_PORT, () => {
-    console.log(`?? Webhook server running on port ${WEBHOOK_PORT}`);
-    console.log(`?? Sellix webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/sellix-webhook`);
+    console.log(`✅ Webhook server running on port ${WEBHOOK_PORT}`);
+    console.log(`✅ Sellix webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/sellix-webhook`);
 });
 // ===== END WEBHOOK SYSTEM =====
 
