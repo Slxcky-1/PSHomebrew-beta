@@ -9678,11 +9678,19 @@ client.on('interactionCreate', async (interaction) => {
                         const footerText = interaction.fields.getTextInputValue('embed_footer')?.trim() || null;
                         
                         // Function to convert :emojiname: to <:emojiname:id> format for custom emojis
-                        const emojiRegex = /:(\w+):/g;
+                        // Regex supports emoji names with letters, numbers, hyphens, and underscores
+                        const emojiRegex = /:([a-zA-Z0-9_-]+):/g;
                         const replaceEmojis = (text) => {
                             return text.replace(emojiRegex, (match, emojiName) => {
+                                // Try to find emoji by name (case-insensitive)
                                 const emoji = interaction.guild.emojis.cache.find(e => e.name.toLowerCase() === emojiName.toLowerCase());
-                                return emoji ? `<${emoji.animated ? 'a' : ''}:${emoji.name}:${emoji.id}>` : match;
+                                if (emoji) {
+                                    console.log(`✅ Found emoji: :${emojiName}: -> <${emoji.animated ? 'a' : ''}:${emoji.name}:${emoji.id}>`);
+                                    return `<${emoji.animated ? 'a' : ''}:${emoji.name}:${emoji.id}>`;
+                                } else {
+                                    console.log(`❌ Emoji not found: :${emojiName}: (Available: ${interaction.guild.emojis.cache.map(e => e.name).join(', ')})`);
+                                    return match; // Keep original if not found
+                                }
                             });
                         };
                         
