@@ -13,6 +13,7 @@ ticketData.json
 moderationData.json
 pendingPurchases.json
 giveawayData.json
+economyData.json
 
 # Environment variables
 .env

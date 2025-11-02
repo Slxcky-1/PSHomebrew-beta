@@ -1,0 +1,50 @@
+{
+  "enabled": true,
+  "economy": {},
+  "commands": [
+    {
+      "name": "balance",
+      "description": "Check your or someone's balance"
+    },
+    {
+      "name": "daily",
+      "description": "Claim your daily reward"
+    },
+    {
+      "name": "work",
+      "description": "Work to earn money"
+    },
+    {
+      "name": "rob",
+      "description": "Attempt to rob another user"
+    },
+    {
+      "name": "pay",
+      "description": "Transfer money to another user"
+    },
+    {
+      "name": "leaderboard",
+      "description": "View the richest users"
+    },
+    {
+      "name": "gamble",
+      "description": "Gamble your money"
+    },
+    {
+      "name": "shop",
+      "description": "View the item shop"
+    },
+    {
+      "name": "buy",
+      "description": "Buy an item from the shop"
+    },
+    {
+      "name": "inventory",
+      "description": "View your inventory"
+    },
+    {
+      "name": "use",
+      "description": "Use an item from your inventory"
+    }
+  ]
+}

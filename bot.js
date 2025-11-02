@@ -174,6 +174,10 @@ const pendingPurchasesFile = './pendingPurchases.json';
 let giveawayData = {};
 const giveawayDataFile = './giveawayData.json';
 
+// Economy data
+let economyData = {};
+const economyDataFile = './economyData.json';
+
 // AI conversation history (stored in memory only, not persisted)
 let aiConversations = {}; // { channelId: [ { role: 'user'|'assistant', content: 'message', userId?: string } ] }
 let aiCooldowns = {}; // { userId: timestamp} - Track cooldowns per user
@@ -702,6 +706,7 @@ const saveModerationData = createDebouncedSave(moderationDataFile, () => moderat
 // Analytics system removed (unused feature)
 const savePendingPurchases = createDebouncedSave(pendingPurchasesFile, () => pendingPurchases, 3000); // 3s
 const saveGiveawayData = createDebouncedSave(giveawayDataFile, () => giveawayData, 3000); // 3s
+const saveEconomyData = createDebouncedSave(economyDataFile, () => economyData, 3000); // 3s
 
 // Load pending purchases
 async function loadPendingPurchases() {
@@ -728,6 +733,20 @@ async function loadGiveawayData() {
             console.error('Error loading giveaway data:', error);
         }
         giveawayData = {};
+    }
+}
+
+// Load economy data
+async function loadEconomyData() {
+    try {
+        await fs.access(economyDataFile);
+        const data = await fs.readFile(economyDataFile, 'utf8');
+        economyData = JSON.parse(data);
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            console.error('Error loading economy data:', error);
+        }
+        economyData = {};
     }
 }
 
@@ -1575,6 +1594,7 @@ client.once('clientReady', async () => {
     loadModerationData();
     loadPendingPurchases();
     loadGiveawayData();
+    loadEconomyData();
     
     // Defer detailed feature counting to after bot is ready (non-blocking)
     setTimeout(() => {
@@ -5347,6 +5367,478 @@ const now = Date.now();
             );
         
         await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+        return;
+    }
+
+    // ===== ECONOMY COMMANDS =====
+    
+    // Balance command
+    if (interaction.commandName === 'balance') {
+        const targetUser = interaction.options.getUser('user') || interaction.user;
+        const profile = getEconomyProfile(targetUser.id, interaction.guild.id);
+        const totalMoney = profile.wallet + profile.bank;
+        
+        const embed = new EmbedBuilder()
+            .setTitle(`💰 ${targetUser.username}'s Balance`)
+            .setColor(0xFFD700)
+            .setThumbnail(targetUser.displayAvatarURL())
+            .addFields(
+                { name: '💵 Wallet', value: `$${profile.wallet.toLocaleString()}`, inline: true },
+                { name: '🏦 Bank', value: `$${profile.bank.toLocaleString()}`, inline: true },
+                { name: '💎 Total', value: `$${totalMoney.toLocaleString()}`, inline: true }
+            )
+            .setFooter({ text: `ID: ${targetUser.id}` })
+            .setTimestamp();
+        
+        await interaction.reply({ embeds: [embed] });
+        return;
+    }
+    
+    // Daily command
+    if (interaction.commandName === 'daily') {
+        const profile = getEconomyProfile(interaction.user.id, interaction.guild.id);
+        const now = Date.now();
+        const cooldown = 24 * 60 * 60 * 1000; // 24 hours
+        
+        if (profile.lastDaily && (now - profile.lastDaily) < cooldown) {
+            const timeLeft = cooldown - (now - profile.lastDaily);
+            const hours = Math.floor(timeLeft / (60 * 60 * 1000));
+            const minutes = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+            
+            const embed = new EmbedBuilder()
+                .setTitle('⏰ Daily Reward Cooldown')
+                .setDescription(`You already claimed your daily reward!\n\nCome back in **${hours}h ${minutes}m**`)
+                .setColor(0xFF0000);
+            
+            await interaction.reply({ embeds: [embed], ephemeral: true });
+            return;
+        }
+        
+        const dailyAmount = Math.floor(Math.random() * 500) + 500; // 500-1000
+        const bonusStreak = Math.floor((profile.dailyStreak || 0) / 7) * 100; // +100 per week
+        const totalAmount = dailyAmount + bonusStreak;
+        
+        profile.lastDaily = now;
+        profile.dailyStreak = (profile.dailyStreak || 0) + 1;
+        addMoney(interaction.user.id, interaction.guild.id, totalAmount, 'wallet');
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🎁 Daily Reward Claimed!')
+            .setColor(0x00FF00)
+            .setDescription(`You received **$${totalAmount.toLocaleString()}**!`)
+            .addFields(
+                { name: '💵 Base Amount', value: `$${dailyAmount.toLocaleString()}`, inline: true },
+                { name: '🔥 Streak Bonus', value: `$${bonusStreak.toLocaleString()}`, inline: true },
+                { name: '📈 Current Streak', value: `${profile.dailyStreak} days`, inline: true }
+            )
+            .setFooter({ text: 'Come back tomorrow for another reward!' });
+        
+        await interaction.reply({ embeds: [embed] });
+        return;
+    }
+    
+    // Work command
+    if (interaction.commandName === 'work') {
+        const profile = getEconomyProfile(interaction.user.id, interaction.guild.id);
+        const now = Date.now();
+        const cooldown = 60 * 60 * 1000; // 1 hour
+        
+        if (profile.lastWork && (now - profile.lastWork) < cooldown) {
+            const timeLeft = cooldown - (now - profile.lastWork);
+            const minutes = Math.floor(timeLeft / (60 * 1000));
+            
+            const embed = new EmbedBuilder()
+                .setTitle('⏰ Work Cooldown')
+                .setDescription(`You're tired! Rest for **${minutes} minutes**`)
+                .setColor(0xFF0000);
+            
+            await interaction.reply({ embeds: [embed], ephemeral: true });
+            return;
+        }
+        
+        const job = WORK_JOBS[Math.floor(Math.random() * WORK_JOBS.length)];
+        const earnings = Math.floor(Math.random() * (job.max - job.min + 1)) + job.min;
+        
+        // XP boost multiplier
+        let multiplier = 1;
+        if (hasActiveEffect(interaction.user.id, interaction.guild.id, 'xp_boost')) {
+            multiplier = 1.5;
+        }
+        
+        const totalEarnings = Math.floor(earnings * multiplier);
+        
+        profile.lastWork = now;
+        addMoney(interaction.user.id, interaction.guild.id, totalEarnings, 'wallet');
+        
+        const embed = new EmbedBuilder()
+            .setTitle(`${job.emoji} Work Completed!`)
+            .setColor(0x00FF00)
+            .setDescription(`You worked as a **${job.name}** and earned **$${totalEarnings.toLocaleString()}**!`)
+            .setFooter({ text: 'You can work again in 1 hour' });
+        
+        if (multiplier > 1) {
+            embed.addFields({ name: '⚡ XP Boost Active', value: '1.5x earnings!' });
+        }
+        
+        await interaction.reply({ embeds: [embed] });
+        return;
+    }
+    
+    // Rob command
+    if (interaction.commandName === 'rob') {
+        const target = interaction.options.getUser('user');
+        
+        if (target.id === interaction.user.id) {
+            return interaction.reply({ content: '❌ You cannot rob yourself!', ephemeral: true });
+        }
+        
+        if (target.bot) {
+            return interaction.reply({ content: '❌ You cannot rob bots!', ephemeral: true });
+        }
+        
+        const robberProfile = getEconomyProfile(interaction.user.id, interaction.guild.id);
+        const victimProfile = getEconomyProfile(target.id, interaction.guild.id);
+        const now = Date.now();
+        const cooldown = 2 * 60 * 60 * 1000; // 2 hours
+        
+        if (robberProfile.lastRob && (now - robberProfile.lastRob) < cooldown) {
+            const timeLeft = cooldown - (now - robberProfile.lastRob);
+            const hours = Math.floor(timeLeft / (60 * 60 * 1000));
+            const minutes = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+            
+            return interaction.reply({ 
+                content: `⏰ You're too tired to rob! Wait **${hours}h ${minutes}m**`, 
+                ephemeral: true 
+            });
+        }
+        
+        if (hasActiveEffect(target.id, interaction.guild.id, 'rob_protection')) {
+            return interaction.reply({ 
+                content: `🛡️ ${target.username} has rob protection active!`, 
+                ephemeral: true 
+            });
+        }
+        
+        if (victimProfile.wallet < 100) {
+            return interaction.reply({ 
+                content: `❌ ${target.username} doesn't have enough money to rob! (minimum $100)`, 
+                ephemeral: true 
+            });
+        }
+        
+        robberProfile.lastRob = now;
+        
+        // 45% success rate, +10% with lucky charm
+        let successRate = 0.45;
+        if (hasActiveEffect(interaction.user.id, interaction.guild.id, 'lucky_charm')) {
+            successRate = 0.55;
+        }
+        
+        const success = Math.random() < successRate;
+        
+        if (success) {
+            const stolenAmount = Math.floor(victimProfile.wallet * (Math.random() * 0.3 + 0.2)); // 20-50%
+            removeMoney(target.id, interaction.guild.id, stolenAmount, 'wallet');
+            addMoney(interaction.user.id, interaction.guild.id, stolenAmount, 'wallet');
+            
+            const embed = new EmbedBuilder()
+                .setTitle('💰 Robbery Successful!')
+                .setColor(0x00FF00)
+                .setDescription(`You successfully robbed **${target.username}** and stole **$${stolenAmount.toLocaleString()}**!`)
+                .setFooter({ text: 'Spend it wisely!' });
+            
+            await interaction.reply({ embeds: [embed] });
+        } else {
+            const fine = Math.floor(robberProfile.wallet * 0.3); // 30% fine
+            removeMoney(interaction.user.id, interaction.guild.id, fine, 'wallet');
+            
+            const embed = new EmbedBuilder()
+                .setTitle('🚨 Robbery Failed!')
+                .setColor(0xFF0000)
+                .setDescription(`You got caught trying to rob **${target.username}**!\n\nYou paid a fine of **$${fine.toLocaleString()}**!`)
+                .setFooter({ text: 'Better luck next time!' });
+            
+            await interaction.reply({ embeds: [embed] });
+        }
+        
+        saveEconomyData();
+        return;
+    }
+    
+    // Pay command
+    if (interaction.commandName === 'pay') {
+        const target = interaction.options.getUser('user');
+        const amount = interaction.options.getInteger('amount');
+        
+        if (target.id === interaction.user.id) {
+            return interaction.reply({ content: '❌ You cannot pay yourself!', ephemeral: true });
+        }
+        
+        if (target.bot) {
+            return interaction.reply({ content: '❌ You cannot pay bots!', ephemeral: true });
+        }
+        
+        const senderProfile = getEconomyProfile(interaction.user.id, interaction.guild.id);
+        
+        if (senderProfile.wallet < amount) {
+            return interaction.reply({ 
+                content: `❌ You don't have enough money! You only have **$${senderProfile.wallet.toLocaleString()}**`, 
+                ephemeral: true 
+            });
+        }
+        
+        removeMoney(interaction.user.id, interaction.guild.id, amount, 'wallet');
+        addMoney(target.id, interaction.guild.id, amount, 'wallet');
+        
+        const embed = new EmbedBuilder()
+            .setTitle('💸 Payment Sent!')
+            .setColor(0x00FF00)
+            .setDescription(`You sent **$${amount.toLocaleString()}** to **${target.username}**!`)
+            .setFooter({ text: 'Transaction completed' });
+        
+        await interaction.reply({ embeds: [embed] });
+        return;
+    }
+    
+    // Leaderboard command
+    if (interaction.commandName === 'leaderboard') {
+        const guildData = economyData[interaction.guild.id] || {};
+        const users = Object.entries(guildData)
+            .map(([userId, data]) => ({
+                userId,
+                total: data.wallet + data.bank
+            }))
+            .sort((a, b) => b.total - a.total)
+            .slice(0, 10);
+        
+        if (users.length === 0) {
+            return interaction.reply({ content: '❌ No economy data found for this server!', ephemeral: true });
+        }
+        
+        let description = '';
+        for (let i = 0; i < users.length; i++) {
+            const user = await client.users.fetch(users[i].userId).catch(() => null);
+            const username = user ? user.username : 'Unknown User';
+            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+            description += `${medal} **${username}** - $${users[i].total.toLocaleString()}\n`;
+        }
+        
+        const embed = new EmbedBuilder()
+            .setTitle('💰 Server Leaderboard')
+            .setColor(0xFFD700)
+            .setDescription(description)
+            .setFooter({ text: `Total users: ${Object.keys(guildData).length}` })
+            .setTimestamp();
+        
+        await interaction.reply({ embeds: [embed] });
+        return;
+    }
+    
+    // Gamble command
+    if (interaction.commandName === 'gamble') {
+        const game = interaction.options.getString('game');
+        const amount = interaction.options.getInteger('amount');
+        const profile = getEconomyProfile(interaction.user.id, interaction.guild.id);
+        
+        if (profile.wallet < amount) {
+            return interaction.reply({ 
+                content: `❌ You don't have enough money! You only have **$${profile.wallet.toLocaleString()}**`, 
+                ephemeral: true 
+            });
+        }
+        
+        let won = false;
+        let multiplier = 0;
+        let gameResult = '';
+        
+        // Lucky charm boost
+        let luckBoost = hasActiveEffect(interaction.user.id, interaction.guild.id, 'lucky_charm') ? 0.1 : 0;
+        
+        if (game === 'coinflip') {
+            const userChoice = Math.random() < 0.5 ? 'Heads' : 'Tails';
+            const result = Math.random() < (0.5 + luckBoost) ? userChoice : (userChoice === 'Heads' ? 'Tails' : 'Heads');
+            won = result === userChoice;
+            multiplier = 2;
+            gameResult = `🪙 Coin landed on: **${result}**\nYou chose: **${userChoice}**`;
+        } else if (game === 'dice') {
+            const userRoll = Math.floor(Math.random() * 6) + 1;
+            const botRoll = Math.floor(Math.random() * 6) + 1;
+            won = userRoll > botRoll || (luckBoost > 0 && userRoll === botRoll);
+            multiplier = 2.5;
+            gameResult = `🎲 Your roll: **${userRoll}**\nBot roll: **${botRoll}**`;
+        } else if (game === 'slots') {
+            const emojis = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣'];
+            const slot1 = emojis[Math.floor(Math.random() * emojis.length)];
+            const slot2 = emojis[Math.floor(Math.random() * emojis.length)];
+            const slot3 = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            if (slot1 === slot2 && slot2 === slot3) {
+                won = true;
+                multiplier = slot1 === '💎' ? 10 : slot1 === '7️⃣' ? 7 : 5;
+            } else if (slot1 === slot2 || slot2 === slot3 || slot1 === slot3) {
+                won = true;
+                multiplier = 2;
+            }
+            
+            gameResult = `🎰 **[ ${slot1} | ${slot2} | ${slot3} ]**`;
+        }
+        
+        if (won) {
+            const winnings = Math.floor(amount * multiplier);
+            addMoney(interaction.user.id, interaction.guild.id, winnings, 'wallet');
+            
+            const embed = new EmbedBuilder()
+                .setTitle('🎉 You Won!')
+                .setColor(0x00FF00)
+                .setDescription(gameResult)
+                .addFields(
+                    { name: '💵 Bet', value: `$${amount.toLocaleString()}`, inline: true },
+                    { name: '💰 Winnings', value: `$${winnings.toLocaleString()}`, inline: true },
+                    { name: '📊 Multiplier', value: `${multiplier}x`, inline: true }
+                );
+            
+            if (luckBoost > 0) {
+                embed.setFooter({ text: '🍀 Lucky Charm active!' });
+            }
+            
+            await interaction.reply({ embeds: [embed] });
+        } else {
+            removeMoney(interaction.user.id, interaction.guild.id, amount, 'wallet');
+            
+            const embed = new EmbedBuilder()
+                .setTitle('💔 You Lost!')
+                .setColor(0xFF0000)
+                .setDescription(gameResult)
+                .addFields(
+                    { name: '💸 Lost', value: `$${amount.toLocaleString()}`, inline: true }
+                )
+                .setFooter({ text: 'Better luck next time!' });
+            
+            await interaction.reply({ embeds: [embed] });
+        }
+        
+        return;
+    }
+    
+    // Shop command
+    if (interaction.commandName === 'shop') {
+        let description = '';
+        for (const [itemId, item] of Object.entries(SHOP_ITEMS)) {
+            description += `**${item.name}** - $${item.price.toLocaleString()}\n${item.description}\nID: \`${itemId}\`\n\n`;
+        }
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🏪 Item Shop')
+            .setColor(0x00BFFF)
+            .setDescription(description)
+            .setFooter({ text: 'Use /buy <item_id> to purchase an item' });
+        
+        await interaction.reply({ embeds: [embed] });
+        return;
+    }
+    
+    // Buy command
+    if (interaction.commandName === 'buy') {
+        const itemId = interaction.options.getString('item');
+        const quantity = interaction.options.getInteger('quantity') || 1;
+        const item = SHOP_ITEMS[itemId];
+        
+        if (!item) {
+            return interaction.reply({ content: '❌ Invalid item ID! Use `/shop` to see available items.', ephemeral: true });
+        }
+        
+        const profile = getEconomyProfile(interaction.user.id, interaction.guild.id);
+        const totalCost = item.price * quantity;
+        
+        if (profile.wallet < totalCost) {
+            return interaction.reply({ 
+                content: `❌ You don't have enough money! You need **$${totalCost.toLocaleString()}** but only have **$${profile.wallet.toLocaleString()}**`, 
+                ephemeral: true 
+            });
+        }
+        
+        removeMoney(interaction.user.id, interaction.guild.id, totalCost, 'wallet');
+        addToInventory(interaction.user.id, interaction.guild.id, itemId, quantity);
+        
+        const embed = new EmbedBuilder()
+            .setTitle('✅ Purchase Successful!')
+            .setColor(0x00FF00)
+            .setDescription(`You bought **${quantity}x ${item.name}** for **$${totalCost.toLocaleString()}**!`)
+            .setFooter({ text: 'Use /inventory to see your items' });
+        
+        await interaction.reply({ embeds: [embed] });
+        return;
+    }
+    
+    // Inventory command
+    if (interaction.commandName === 'inventory') {
+        const targetUser = interaction.options.getUser('user') || interaction.user;
+        const profile = getEconomyProfile(targetUser.id, interaction.guild.id);
+        
+        if (!profile.inventory || Object.keys(profile.inventory).length === 0) {
+            return interaction.reply({ content: `❌ ${targetUser.username}'s inventory is empty!`, ephemeral: true });
+        }
+        
+        let description = '';
+        for (const [itemId, quantity] of Object.entries(profile.inventory)) {
+            if (quantity > 0) {
+                const item = SHOP_ITEMS[itemId];
+                if (item) {
+                    description += `${item.name} x${quantity}\n`;
+                }
+            }
+        }
+        
+        if (!description) {
+            return interaction.reply({ content: `❌ ${targetUser.username}'s inventory is empty!`, ephemeral: true });
+        }
+        
+        const embed = new EmbedBuilder()
+            .setTitle(`🎒 ${targetUser.username}'s Inventory`)
+            .setColor(0x00BFFF)
+            .setDescription(description)
+            .setThumbnail(targetUser.displayAvatarURL())
+            .setFooter({ text: 'Use /use <item_id> to use an item' });
+        
+        await interaction.reply({ embeds: [embed] });
+        return;
+    }
+    
+    // Use command
+    if (interaction.commandName === 'use') {
+        const itemId = interaction.options.getString('item');
+        const item = SHOP_ITEMS[itemId];
+        
+        if (!item) {
+            return interaction.reply({ content: '❌ Invalid item ID!', ephemeral: true });
+        }
+        
+        const profile = getEconomyProfile(interaction.user.id, interaction.guild.id);
+        
+        if (!profile.inventory[itemId] || profile.inventory[itemId] <= 0) {
+            return interaction.reply({ content: `❌ You don't have this item!`, ephemeral: true });
+        }
+        
+        // Use item based on type
+        if (item.type === 'consumable') {
+            profile.inventory[itemId]--;
+            
+            if (itemId === 'xp_boost') {
+                profile.activeEffects.xp_boost = Date.now() + (60 * 60 * 1000); // 1 hour
+                await interaction.reply({ content: `⚡ **XP Boost activated!** 2x XP for 1 hour!` });
+            } else if (itemId === 'rob_protection') {
+                profile.activeEffects.rob_protection = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
+                await interaction.reply({ content: `🛡️ **Rob Protection activated!** You're safe for 24 hours!` });
+            } else if (itemId === 'lucky_charm') {
+                profile.activeEffects.lucky_charm = Date.now() + (6 * 60 * 60 * 1000); // 6 hours
+                await interaction.reply({ content: `🍀 **Lucky Charm activated!** +10% gambling win rate for 6 hours!` });
+            }
+            
+            saveEconomyData();
+        } else {
+            return interaction.reply({ content: `❌ This item cannot be used directly!`, ephemeral: true });
+        }
+        
         return;
     }
 
@@ -12093,6 +12585,124 @@ async function endGiveaway(messageId, giveaway) {
         console.error('Error in endGiveaway:', error);
     }
 }
+
+// ===== ECONOMY SYSTEM =====
+const SHOP_ITEMS = {
+    'role_color': { 
+        name: '🎨 Custom Role Color', 
+        price: 5000, 
+        description: 'Change your role color',
+        type: 'utility'
+    },
+    'xp_boost': { 
+        name: '⚡ XP Boost (1h)', 
+        price: 1000, 
+        description: '2x XP for 1 hour',
+        type: 'consumable'
+    },
+    'nickname': { 
+        name: '✏️ Custom Nickname', 
+        price: 2500, 
+        description: 'Change your nickname',
+        type: 'utility'
+    },
+    'rob_protection': { 
+        name: '🛡️ Rob Protection (24h)', 
+        price: 3000, 
+        description: 'Cannot be robbed for 24 hours',
+        type: 'consumable'
+    },
+    'lucky_charm': { 
+        name: '🍀 Lucky Charm', 
+        price: 7500, 
+        description: 'Increases gambling win rate by 10% for 6 hours',
+        type: 'consumable'
+    },
+    'vip_badge': { 
+        name: '⭐ VIP Badge', 
+        price: 15000, 
+        description: 'Permanent VIP badge on profile',
+        type: 'permanent'
+    }
+};
+
+// Get user economy profile
+function getEconomyProfile(userId, guildId) {
+    if (!economyData[guildId]) economyData[guildId] = {};
+    if (!economyData[guildId][userId]) {
+        economyData[guildId][userId] = {
+            wallet: 0,
+            bank: 0,
+            lastDaily: 0,
+            lastWork: 0,
+            lastRob: 0,
+            inventory: {},
+            activeEffects: {},
+            transactions: []
+        };
+    }
+    return economyData[guildId][userId];
+}
+
+// Add money to user
+function addMoney(userId, guildId, amount, location = 'wallet') {
+    const profile = getEconomyProfile(userId, guildId);
+    if (location === 'wallet') {
+        profile.wallet += amount;
+    } else if (location === 'bank') {
+        profile.bank += amount;
+    }
+    profile.wallet = Math.max(0, profile.wallet);
+    profile.bank = Math.max(0, profile.bank);
+    saveEconomyData();
+    return profile;
+}
+
+// Remove money from user
+function removeMoney(userId, guildId, amount, location = 'wallet') {
+    const profile = getEconomyProfile(userId, guildId);
+    if (location === 'wallet') {
+        if (profile.wallet < amount) return false;
+        profile.wallet -= amount;
+    } else if (location === 'bank') {
+        if (profile.bank < amount) return false;
+        profile.bank -= amount;
+    }
+    saveEconomyData();
+    return true;
+}
+
+// Check if user has active effect
+function hasActiveEffect(userId, guildId, effectName) {
+    const profile = getEconomyProfile(userId, guildId);
+    if (!profile.activeEffects[effectName]) return false;
+    if (Date.now() > profile.activeEffects[effectName]) {
+        delete profile.activeEffects[effectName];
+        saveEconomyData();
+        return false;
+    }
+    return true;
+}
+
+// Add item to inventory
+function addToInventory(userId, guildId, itemId, quantity = 1) {
+    const profile = getEconomyProfile(userId, guildId);
+    if (!profile.inventory[itemId]) profile.inventory[itemId] = 0;
+    profile.inventory[itemId] += quantity;
+    saveEconomyData();
+}
+
+// Work job list
+const WORK_JOBS = [
+    { name: 'Streamer', min: 100, max: 300, emoji: '🎮' },
+    { name: 'Hacker', min: 150, max: 400, emoji: '💻' },
+    { name: 'Gamer', min: 80, max: 250, emoji: '🕹️' },
+    { name: 'YouTuber', min: 120, max: 350, emoji: '📹' },
+    { name: 'Developer', min: 200, max: 500, emoji: '👨‍💻' },
+    { name: 'Moderator', min: 90, max: 200, emoji: '🛡️' },
+    { name: 'Designer', min: 110, max: 280, emoji: '🎨' },
+    { name: 'Bug Tester', min: 70, max: 180, emoji: '🐛' }
+];
 
 function startAutomatedMessages() {
     const CHANNEL_ID = '920750934085222470';
