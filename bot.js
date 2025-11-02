@@ -6887,16 +6887,16 @@ client.on('interactionCreate', async (interaction) => {
                 
                 const titleInput = new TextInputBuilder()
                     .setCustomId('embed_title')
-                    .setLabel('Embed Title')
+                    .setLabel('Embed Title (emojis supported)')
                     .setStyle(TextInputStyle.Short)
-                    .setPlaceholder('Your Service Name')
+                    .setPlaceholder('💎 Liquid Divniums')
                     .setRequired(true);
                 
                 const descInput = new TextInputBuilder()
                     .setCustomId('embed_description')
-                    .setLabel('Description')
+                    .setLabel('Description (use :emojiname: or 💎)')
                     .setStyle(TextInputStyle.Paragraph)
-                    .setPlaceholder('Service description and details...')
+                    .setPlaceholder('£2.50 - 250K + 50K Free!\n£5.00 - 500K + 150 Free!')
                     .setRequired(true);
                 
                 const colorInput = new TextInputBuilder()
@@ -6985,16 +6985,16 @@ client.on('interactionCreate', async (interaction) => {
                 
                 const titleInput = new TextInputBuilder()
                     .setCustomId('embed_title')
-                    .setLabel('Embed Title')
+                    .setLabel('Embed Title (emojis supported)')
                     .setStyle(TextInputStyle.Short)
-                    .setPlaceholder('Your Service Name')
+                    .setPlaceholder('💎 Liquid Divniums')
                     .setRequired(true);
                 
                 const descInput = new TextInputBuilder()
                     .setCustomId('embed_description')
-                    .setLabel('Description')
+                    .setLabel('Description (use :emojiname: or 💎)')
                     .setStyle(TextInputStyle.Paragraph)
-                    .setPlaceholder('Service description and details...')
+                    .setPlaceholder('£2.50 - 250K + 50K Free!\n£5.00 - 500K + 150 Free!')
                     .setRequired(true);
                 
                 const colorInput = new TextInputBuilder()
