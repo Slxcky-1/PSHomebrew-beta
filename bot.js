@@ -3783,6 +3783,8 @@ client.on('interactionCreate', async (interaction) => {
         }
         
         // Create interactive panel
+        const currentAvatar = client.user.displayAvatarURL({ size: 256 });
+        
         const embed = new EmbedBuilder()
             .setTitle('🎨 Bot Customization Panel')
             .setColor(0x5865F2)
@@ -3792,20 +3794,26 @@ client.on('interactionCreate', async (interaction) => {
             )
             .addFields(
                 { 
-                    name: '📝 Bot Nickname', 
+                    name: '📝 Bot Nickname (Per-Server)', 
                     value: settings.customization.botName || '*Using default name*',
                     inline: false 
                 },
                 {
+                    name: '🖼️ Bot Avatar (Global)',
+                    value: '⚠️ Changing avatar affects **ALL servers**',
+                    inline: false
+                },
+                {
                     name: 'ℹ️ Note',
-                    value: 'Bot avatar cannot be changed per-server due to Discord limitations.\nOnly the nickname can be customized per server.',
+                    value: '• Nicknames are per-server\n• Avatar changes are global (Discord limitation)',
                     inline: false
                 }
             )
+            .setThumbnail(currentAvatar)
             .setFooter({ text: 'Bot Customization • Admin Only' })
             .setTimestamp();
         
-        const row = new ActionRowBuilder()
+        const row1 = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId('custombot_set_name')
@@ -3814,12 +3822,21 @@ client.on('interactionCreate', async (interaction) => {
                     .setEmoji('✏️'),
                 new ButtonBuilder()
                     .setCustomId('custombot_reset_name')
-                    .setLabel('Reset to Default')
+                    .setLabel('Reset Nickname')
                     .setStyle(ButtonStyle.Secondary)
                     .setEmoji('🔄')
             );
         
-        await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+        const row2 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('custombot_set_avatar')
+                    .setLabel('Change Avatar (Global)')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('🖼️')
+            );
+        
+        await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
     }
     
     // AI Setup command - Interactive Panel
@@ -6879,6 +6896,42 @@ client.on('interactionCreate', async (interaction) => {
                 });
                 return;
             }
+            
+            if (interaction.customId === 'custombot_set_avatar') {
+                // Only allow bot owner to change avatar globally
+                if (interaction.user.id !== config.botOwnerId) {
+                    return interaction.reply({
+                        content: '❌ Only the bot owner can change the global avatar!',
+                        ephemeral: true
+                    });
+                }
+                
+                const modal = new ModalBuilder()
+                    .setCustomId('custombot_avatar_modal')
+                    .setTitle('⚠️ Change Bot Avatar (Global)');
+                
+                const avatarInput = new TextInputBuilder()
+                    .setCustomId('avatar_url')
+                    .setLabel('Avatar Image URL')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('https://example.com/avatar.png or .jpg')
+                    .setRequired(true);
+                
+                const confirmInput = new TextInputBuilder()
+                    .setCustomId('confirm_text')
+                    .setLabel('Type CONFIRM to change avatar globally')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('CONFIRM')
+                    .setRequired(true);
+                
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(avatarInput),
+                    new ActionRowBuilder().addComponents(confirmInput)
+                );
+                
+                await interaction.showModal(modal);
+                return;
+            }
         }
         
         // Webhook system button handlers
@@ -9722,6 +9775,66 @@ client.on('interactionCreate', async (interaction) => {
                             content: `✅ Bot nickname changed to **${nickname}**!`,
                             ephemeral: true
                         });
+                    }
+                    
+                    else if (interaction.customId === 'custombot_avatar_modal') {
+                        const avatarUrl = interaction.fields.getTextInputValue('avatar_url').trim();
+                        const confirmText = interaction.fields.getTextInputValue('confirm_text').trim();
+                        
+                        // Check if user is bot owner
+                        if (interaction.user.id !== config.botOwnerId) {
+                            return interaction.reply({
+                                content: '❌ Only the bot owner can change the global avatar!',
+                                ephemeral: true
+                            });
+                        }
+                        
+                        // Verify confirmation
+                        if (confirmText !== 'CONFIRM') {
+                            return interaction.reply({
+                                content: '❌ You must type CONFIRM to change the avatar!',
+                                ephemeral: true
+                            });
+                        }
+                        
+                        // Validate URL
+                        if (!avatarUrl.startsWith('http://') && !avatarUrl.startsWith('https://')) {
+                            return interaction.reply({
+                                content: '❌ Invalid URL! Must start with http:// or https://',
+                                ephemeral: true
+                            });
+                        }
+                        
+                        // Validate image format
+                        if (!avatarUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+                            return interaction.reply({
+                                content: '❌ URL must point to an image file (.jpg, .png, .gif, or .webp)',
+                                ephemeral: true
+                            });
+                        }
+                        
+                        try {
+                            await interaction.deferReply({ ephemeral: true });
+                            
+                            // Change bot avatar
+                            await client.user.setAvatar(avatarUrl);
+                            
+                            const successEmbed = new EmbedBuilder()
+                                .setTitle('✅ Avatar Changed Successfully')
+                                .setDescription('The bot avatar has been updated globally across all servers.')
+                                .setImage(avatarUrl)
+                                .setColor(0x00FF00)
+                                .setFooter({ text: 'Changes may take a few minutes to appear everywhere' })
+                                .setTimestamp();
+                            
+                            await interaction.editReply({ embeds: [successEmbed] });
+                            
+                        } catch (error) {
+                            console.error('Avatar change error:', error);
+                            await interaction.editReply({
+                                content: `❌ Failed to change avatar: ${error.message}\n\nMake sure the URL is accessible and points to a valid image.`
+                            });
+                        }
                     }
                     
                     else if (interaction.customId === 'webhook_embed_modal') {
