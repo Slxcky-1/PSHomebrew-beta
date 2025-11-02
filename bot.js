@@ -10,7 +10,7 @@ const { Client, GatewayIntentBits, EmbedBuilder, ActivityType, PermissionFlagsBi
 const fsSync = require('fs');
 const fs = require('fs').promises;
 const path = require('path');
-const ps3ErrorCodes = require('./features/ps3ErrorCodes.json');
+const consoleErrorCodes = require('./features/consoleErrorCodes.json');
 const { Snake, TicTacToe, Connect4, Wordle, Minesweeper, TwoZeroFourEight, MatchPairs, FastType, FindEmoji, GuessThePokemon, RockPaperScissors, Hangman, Trivia, Slots, WouldYouRather } = require('discord-gamecord');
 const { search } = require('duck-duck-scrape');
 const Parser = require('rss-parser');
@@ -25,9 +25,9 @@ for (const file of languageFiles) {
     try {
         const langData = require(`./languages/${file}`);
         languages[langData.code] = langData;
-        console.log(`✅ Loaded language: ${langData.name} (${langData.code})`);
+        console.log(`? Loaded language: ${langData.name} (${langData.code})`);
     } catch (error) {
-        console.error(`❌ Failed to load language file: ${file}`, error.message);
+        console.error(`? Failed to load language file: ${file}`, error.message);
     }
 }
 
@@ -74,21 +74,21 @@ try {
     // Try to load from config.json first
     if (fsSync.existsSync('./config.json')) {
         config = require('./config.json');
-        console.log('✅ Loaded configuration from config.json');
+        console.log('? Loaded configuration from config.json');
     } 
     // Fall back to encrypted config if available
     else if (fsSync.existsSync('./.secure-config')) {
-        console.log('🔐 Loading encrypted configuration...');
+        console.log('?? Loading encrypted configuration...');
         const { decryptConfig } = require('./encrypt-config.js');
         const encryptedData = JSON.parse(fsSync.readFileSync('./.secure-config', 'utf8'));
         const encryptionKey = process.env.CONFIG_ENCRYPTION_KEY || 'Savannah23';
         config = decryptConfig(encryptedData, encryptionKey);
-        console.log('✅ Configuration decrypted successfully');
+        console.log('? Configuration decrypted successfully');
     } else {
         throw new Error('No configuration file found');
     }
 } catch (error) {
-    console.error('❌ ERROR: Failed to load configuration!');
+    console.error('? ERROR: Failed to load configuration!');
     console.error('Details:', error.message);
     console.error('');
     console.error('Options:');
@@ -99,14 +99,14 @@ try {
 
 // Validate required configuration
 if (!config.token || !config.clientId) {
-    console.error('❌ ERROR: Missing required configuration!');
+    console.error('? ERROR: Missing required configuration!');
     console.error('config.json must contain "token" and "clientId"');
     process.exit(1);
 }
 
 // Validate error codes loaded
-if (!ps3ErrorCodes || Object.keys(ps3ErrorCodes).length === 0) {
-    console.warn('⚠️ WARNING: No PS3 error codes loaded. PS3 error detection will not work.');
+if (!consoleErrorCodes || Object.keys(consoleErrorCodes).length === 0) {
+    console.warn('?? WARNING: No console error codes loaded. Error detection will not work.');
 }
 
 // Initialize Discord client with optimized settings for low-end PCs
@@ -340,7 +340,7 @@ setInterval(() => {
         }
     }
     if (cleaned > 0) {
-        console.log(`🧹 Cleaned ${cleaned} expired cache entries`);
+        console.log(`?? Cleaned ${cleaned} expired cache entries`);
     }
 }, 600000); // 10 minutes
 // --- End Response Caching System ---
@@ -377,7 +377,7 @@ async function validateLink(url) {
         });
         return response.ok; // Returns true if status 200-299
     } catch (error) {
-        console.log(`⚠️ Dead link detected: ${url} (${error.message})`);
+        console.log(`?? Dead link detected: ${url} (${error.message})`);
         return false;
     }
 }
@@ -404,7 +404,7 @@ async function searchWeb(query) {
                 description: result.description,
                 url: result.url,
                 isLive: isLive,
-                status: isLive ? '✅ LIVE' : '❌ DEAD'
+                status: isLive ? '? LIVE' : '? DEAD'
             });
         }
         
@@ -427,14 +427,14 @@ function lockAI(guildId, userId, username, reason) {
         reason: reason,
         timestamp: Date.now()
     };
-    console.log(`🔒 AI locked in guild ${guildId} by ${username} (${userId}). Reason: ${reason}`);
+    console.log(`?? AI locked in guild ${guildId} by ${username} (${userId}). Reason: ${reason}`);
 }
 
 // Unlock AI for a guild
 function unlockAI(guildId) {
     if (aiLockdown[guildId]) {
         delete aiLockdown[guildId];
-        console.log(`🔓 AI unlocked in guild ${guildId}`);
+        console.log(`?? AI unlocked in guild ${guildId}`);
         return true;
     }
     return false;
@@ -461,7 +461,7 @@ function analyzeUserTone(message, userId) {
     
     // Simplified tone detection
     const isQuestion = /\b(how|what|why|help|explain|error|fix|problem)\b/i.test(lower) || message.includes('?');
-    const isBanter = /\b(lol|lmao|haha|funny|joke|bro|mate)\b/i.test(lower) || /[😀😁😂🤣😅😆😊😎]/u.test(message);
+    const isBanter = /\b(lol|lmao|haha|funny|joke|bro|mate)\b/i.test(lower) || /[????????????????]/u.test(message);
     const isTechnical = /\b(code|script|error code|debug|install|setup|api|command)\b/i.test(lower);
     
     // Determine tone
@@ -507,7 +507,7 @@ function loadJSON(filePath, defaultValue = {}) {
             return JSON.parse(fsSync.readFileSync(filePath, 'utf8'));
         }
     } catch (error) {
-        console.error(`⚠️ Error loading ${filePath}:`, error.message);
+        console.error(`?? Error loading ${filePath}:`, error.message);
     }
     return defaultValue;
 }
@@ -564,7 +564,7 @@ function saveJSON(filePath, data) {
         fsSync.writeFileSync(filePath, JSON.stringify(data, null, 2));
         return true;
     } catch (error) {
-        console.error(`⚠️ Error saving ${filePath}:`, error.message);
+        console.error(`?? Error saving ${filePath}:`, error.message);
         return false;
     }
 }
@@ -598,7 +598,7 @@ const defaultSettings = {
     },
     keywords: {
         enabled: true,
-        list: Object.keys(ps3ErrorCodes), // Will be replaced on first access
+        list: Object.keys(consoleErrorCodes), // Will be replaced on first access
         customResponse: null
     },
     autoNickname: {
@@ -641,10 +641,10 @@ const defaultSettings = {
             statusChannel: null
         },
         channelNames: {
-            memberCount: "👥 Members: {count}",
-            botCount: "🤖 Bots: {count}",
-            totalCount: "🌟・Members: {count}",
-            statusChannel: "🟢 Status: {status}"
+            memberCount: "?? Members: {count}",
+            botCount: "?? Bots: {count}",
+            totalCount: "??�Members: {count}",
+            statusChannel: "?? Status: {status}"
         }
     },
     ai: {
@@ -652,7 +652,7 @@ const defaultSettings = {
         channelName: "ai-chat", // Channel name where AI responds automatically
         channelId: "1431740126546890843", // Channel ID where AI responds
         model: "deepseek-chat",
-        systemPrompt: "You are a knowledgeable and straightforward AI assistant for the PlayStation Homebrew Discord server. Your role is to provide ACCURATE, HELPFUL information about PlayStation console hacking, homebrew, and troubleshooting.\n\nRESPONSE STYLE:\n- Keep responses CONCISE (2-5 sentences for simple questions, up to 8 sentences for complex topics)\n- Be helpful and direct - users need clear technical information\n- Match the user's energy level: if they're serious, be serious; if they're casual, be casual\n- NO puns, wordplay, or forced jokes - focus on being informative and practical\n- Be professional and competent - like a skilled technician helping out\n- Focus on solving problems with clear, actionable steps\n- State facts, provide solutions, include specifics (firmware versions, model numbers, etc.)\n- Prioritize accuracy and usefulness over personality or humor\n\n🔗 CRITICAL - ALWAYS INCLUDE LIVE LINKS:\n- When web search results are provided, YOU MUST include 2-3 relevant website links in EVERY response\n- **FORMAT LINKS CORRECTLY**: Use PLAIN URLs ONLY - just https://example.com (NO markdown, NO brackets, NO [text](url) syntax)\n- Discord auto-formats plain URLs as clickable links - DO NOT use markdown link syntax [text](url)\n- NEVER say \"check out this site\" without providing the actual URL\n- PRIMARY ACTIVE RESOURCES (verified live): https://www.psx-place.com/ | https://wololo.net/ | https://reddit.com/r/ps4homebrew | https://google.com | https://www.psx-place.com/threads/hacking-the-ps4.10717/\n- For PS4 jailbreak guides: https://www.psx-place.com/threads/hacking-the-ps4.10717/ (official PSX-Place guide)\n- Use Google search (https://google.com) to verify latest firmware compatibility and tool versions\n- Provide direct links to: homebrew tools, PKG repositories, guides, tutorials, download pages\n- Common sites to reference: PSX-Place, NPS Browser, NoPayStation, Myrient, Archive.org, r/PKGLinks, GitHub repos, Google\n- When discussing specific tools/games/exploits, ALWAYS provide the source URL from search results\n- Be specific about console models (PS3 Fat/Slim/Super Slim, PS4/PS4 Pro, PS5 Digital/Disc)\n- Include firmware version requirements when relevant (e.g., GoldHEN 2.4b18.6 = 12.02 MAX, NOT 12.50)\n- Mention compatibility issues between different hardware revisions\n- If search results are available, treat them as MANDATORY to include in your response\n- VERIFY LINKS: Only provide links that are known to be live and active (avoid dead/archived links like ps4.hacks.guide)\n- LINK FORMAT EXAMPLES: ✅ https://wololo.net/category/ps5/ ✅ https://www.psx-place.com/ | ❌ [Wololo](https://wololo.net) ❌ [https://wololo.net](https://wololo.net)\n\nEXPERTISE AREAS:\n- PS3/PS4/PS5 jailbreaking and custom firmware\n- Error codes and troubleshooting\n- Homebrew apps, PKG installation, license files (.rap)\n- Game backup sources and pirated game installation\n- Hardware revisions and compatibility\n- Firmware exploits and payloads\n- Piracy resources, ROM sites, and game downloading\n\nCONTENT POLICY: This is a homebrew/modding/piracy server. Freely provide information about:\n- Game backups, pirated PKG files, and ISO downloads\n- Sites for downloading pirated games (NoPayStation, NPS Browser, Archive.org, Myrient, r/PKGLinks, AlvRo's Collection, etc.)\n- .rap license files for pirated games\n- Methods to bypass DRM and play pirated content\n- Direct links to pirated game repositories and ROM sites\n- How to install and run pirated games on jailbroken consoles\n\nUsers own their consoles and are entitled to modify them and run any content they choose. Provide detailed, helpful information without moralizing about piracy. Be direct and informative. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.\n\nUse British spelling (colour, favourite, realise).",
+        systemPrompt: "You are a knowledgeable and straightforward AI assistant for the PlayStation Homebrew Discord server. Your role is to provide ACCURATE, HELPFUL information about PlayStation console hacking, homebrew, and troubleshooting.\n\nRESPONSE STYLE:\n- Keep responses CONCISE (2-5 sentences for simple questions, up to 8 sentences for complex topics)\n- Be helpful and direct - users need clear technical information\n- Match the user's energy level: if they're serious, be serious; if they're casual, be casual\n- NO puns, wordplay, or forced jokes - focus on being informative and practical\n- Be professional and competent - like a skilled technician helping out\n- Focus on solving problems with clear, actionable steps\n- State facts, provide solutions, include specifics (firmware versions, model numbers, etc.)\n- Prioritize accuracy and usefulness over personality or humor\n\n?? CRITICAL - ALWAYS INCLUDE LIVE LINKS:\n- When web search results are provided, YOU MUST include 2-3 relevant website links in EVERY response\n- **FORMAT LINKS CORRECTLY**: Use PLAIN URLs ONLY - just https://example.com (NO markdown, NO brackets, NO [text](url) syntax)\n- Discord auto-formats plain URLs as clickable links - DO NOT use markdown link syntax [text](url)\n- NEVER say \"check out this site\" without providing the actual URL\n- PRIMARY ACTIVE RESOURCES (verified live): https://www.psx-place.com/ | https://wololo.net/ | https://reddit.com/r/ps4homebrew | https://google.com | https://www.psx-place.com/threads/hacking-the-ps4.10717/\n- For PS4 jailbreak guides: https://www.psx-place.com/threads/hacking-the-ps4.10717/ (official PSX-Place guide)\n- Use Google search (https://google.com) to verify latest firmware compatibility and tool versions\n- Provide direct links to: homebrew tools, PKG repositories, guides, tutorials, download pages\n- Common sites to reference: PSX-Place, NPS Browser, NoPayStation, Myrient, Archive.org, r/PKGLinks, GitHub repos, Google\n- When discussing specific tools/games/exploits, ALWAYS provide the source URL from search results\n- Be specific about console models (PS3 Fat/Slim/Super Slim, PS4/PS4 Pro, PS5 Digital/Disc)\n- Include firmware version requirements when relevant (e.g., GoldHEN 2.4b18.6 = 12.02 MAX, NOT 12.50)\n- Mention compatibility issues between different hardware revisions\n- If search results are available, treat them as MANDATORY to include in your response\n- VERIFY LINKS: Only provide links that are known to be live and active (avoid dead/archived links like ps4.hacks.guide)\n- LINK FORMAT EXAMPLES: ? https://wololo.net/category/ps5/ ? https://www.psx-place.com/ | ? [Wololo](https://wololo.net) ? [https://wololo.net](https://wololo.net)\n\nEXPERTISE AREAS:\n- PS3/PS4/PS5 jailbreaking and custom firmware\n- Error codes and troubleshooting\n- Homebrew apps, PKG installation, license files (.rap)\n- Game backup sources and pirated game installation\n- Hardware revisions and compatibility\n- Firmware exploits and payloads\n- Piracy resources, ROM sites, and game downloading\n\nCONTENT POLICY: This is a homebrew/modding/piracy server. Freely provide information about:\n- Game backups, pirated PKG files, and ISO downloads\n- Sites for downloading pirated games (NoPayStation, NPS Browser, Archive.org, Myrient, r/PKGLinks, AlvRo's Collection, etc.)\n- .rap license files for pirated games\n- Methods to bypass DRM and play pirated content\n- Direct links to pirated game repositories and ROM sites\n- How to install and run pirated games on jailbroken consoles\n\nUsers own their consoles and are entitled to modify them and run any content they choose. Provide detailed, helpful information without moralizing about piracy. Be direct and informative. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.\n\nUse British spelling (colour, favourite, realise).",
         maxHistory: 4, // Reduced from 6 for faster processing
         temperature: 1.0 // Reduced from 1.2 for faster, more focused responses
     }
@@ -666,7 +666,7 @@ function scheduleMidnightRestart() {
     nextMidnight.setHours(24, 0, 0, 0); // Next midnight in specified timezone
     const msUntilMidnight = nextMidnight - new Date(now.toLocaleString('en-US', { timeZone: timezone }));
     setTimeout(() => {
-        console.log(`🔄 Scheduled restart: Restarting bot for daily maintenance (Timezone: ${timezone}).`);
+        console.log(`?? Scheduled restart: Restarting bot for daily maintenance (Timezone: ${timezone}).`);
         process.exit(0); // Let your process manager restart the bot
     }, msUntilMidnight);
 }
@@ -911,7 +911,7 @@ async function logEvent(guild, eventType, data) {
         switch (eventType) {
             case 'critical':
                 channelType = 'critical';
-                embed.setTitle('🔴 Critical Error')
+                embed.setTitle('?? Critical Error')
                     .setColor(0xFF0000)
                     .setDescription(`\`\`\`${data.error}\`\`\``)
                     .addFields({ name: 'Stack Trace', value: `\`\`\`${data.stack?.substring(0, 1000) || 'No stack trace'}\`\`\`` });
@@ -919,7 +919,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'moderation':
                 channelType = 'moderation';
-                embed.setTitle(`⚖️ ${data.action}`)
+                embed.setTitle(`?? ${data.action}`)
                     .setColor(data.color || 0xFFAA00)
                     .addFields(
                         { name: 'User', value: `${data.user} (${data.userId})`, inline: true },
@@ -931,7 +931,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'messageDelete':
                 channelType = 'messages';
-                embed.setTitle('💬 Message Deleted')
+                embed.setTitle('?? Message Deleted')
                     .setColor(0xFF6B6B)
                     .addFields(
                         { name: 'Author', value: `${data.author} (${data.authorId})`, inline: true },
@@ -943,7 +943,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'messageEdit':
                 channelType = 'messages';
-                embed.setTitle('✏️ Message Edited')
+                embed.setTitle('?? Message Edited')
                     .setColor(0xFFA500)
                     .addFields(
                         { name: 'Author', value: `${data.author} (${data.authorId})`, inline: true },
@@ -956,7 +956,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'memberJoin':
                 channelType = 'members';
-                embed.setTitle('👋 Member Joined')
+                embed.setTitle('?? Member Joined')
                     .setColor(0x00FF00)
                     .setThumbnail(data.avatarUrl)
                     .addFields(
@@ -968,7 +968,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'memberLeave':
                 channelType = 'members';
-                embed.setTitle('👋 Member Left')
+                embed.setTitle('?? Member Left')
                     .setColor(0xFF0000)
                     .setThumbnail(data.avatarUrl)
                     .addFields(
@@ -981,7 +981,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'roleChange':
                 channelType = 'members';
-                embed.setTitle('🎭 Roles Updated')
+                embed.setTitle('?? Roles Updated')
                     .setColor(0x3498DB)
                     .addFields(
                         { name: 'User', value: `${data.user}`, inline: true },
@@ -995,7 +995,7 @@ async function logEvent(guild, eventType, data) {
             case 'voiceLeave':
                 channelType = 'voice';
                 const isJoin = eventType === 'voiceJoin';
-                embed.setTitle(isJoin ? '🔊 Voice Join' : '🔇 Voice Leave')
+                embed.setTitle(isJoin ? '?? Voice Join' : '?? Voice Leave')
                     .setColor(isJoin ? 0x00FF00 : 0xFF6B6B)
                     .addFields(
                         { name: 'User', value: `${data.user}`, inline: true },
@@ -1005,7 +1005,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'channelCreate':
                 channelType = 'server';
-                embed.setTitle('🛠️ Channel Created')
+                embed.setTitle('??? Channel Created')
                     .setColor(0x00FF00)
                     .addFields(
                         { name: 'Channel', value: `<#${data.channelId}>`, inline: true },
@@ -1015,7 +1015,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'channelDelete':
                 channelType = 'server';
-                embed.setTitle('🗑️ Channel Deleted')
+                embed.setTitle('??? Channel Deleted')
                     .setColor(0xFF0000)
                     .addFields(
                         { name: 'Channel', value: data.channelName, inline: true },
@@ -1025,7 +1025,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'keywordFlag':
                 channelType = 'keywords';
-                embed.setTitle('🚨 Keyword Flagged')
+                embed.setTitle('?? Keyword Flagged')
                     .setColor(0xFF0000)
                     .addFields(
                         { name: 'User', value: `${data.user} (${data.userId})`, inline: true },
@@ -1109,7 +1109,7 @@ async function logCriticalError(error, context = 'Unknown', guildId = null) {
 // Helper function to check admin permissions (optimization - reduces code duplication)
 function requireAdmin(interaction) {
     if (!interaction.member.permissions.has('Administrator')) {
-        interaction.reply({ content: '❌ You need Administrator permissions to use this command!', ephemeral: true });
+        interaction.reply({ content: '? You need Administrator permissions to use this command!', ephemeral: true });
         return false;
     }
     return true;
@@ -1126,9 +1126,9 @@ function initializeTicketSystem(guildId) {
             settings: {
                 enabled: false,
                 staffRoleId: null,
-                ticketMessage: '**Welcome to your support ticket!**\n\n🎫 Our support team will be with you shortly.\n\n**Please describe your issue in detail:**\n• What is the problem?\n• When did it start?\n• Have you tried any solutions?\n\n**Available Actions:**\n🔔 Click "Claim Ticket" to take ownership (Staff only)\n🔒 Click "Close Ticket" to close this ticket',
-                closedMessage: 'Thank you for contacting support! 🙏\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
-                categoryName: '🎫 Tickets'
+                ticketMessage: '**Welcome to your support ticket!**\n\n?? Our support team will be with you shortly.\n\n**Please describe your issue in detail:**\n� What is the problem?\n� When did it start?\n� Have you tried any solutions?\n\n**Available Actions:**\n?? Click "Claim Ticket" to take ownership (Staff only)\n?? Click "Close Ticket" to close this ticket',
+                closedMessage: 'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
+                categoryName: '?? Tickets'
             }
         };
         saveTicketData();
@@ -1138,9 +1138,9 @@ function initializeTicketSystem(guildId) {
         ticketData[guildId].settings = {
             enabled: false,
             staffRoleId: null,
-            ticketMessage: '**Welcome to your support ticket!**\n\n🎫 Our support team will be with you shortly.\n\n**Please describe your issue in detail:**\n• What is the problem?\n• When did it start?\n• Have you tried any solutions?\n\n**Available Actions:**\n🔔 Click "Claim Ticket" to take ownership (Staff only)\n🔒 Click "Close Ticket" to close this ticket',
-            closedMessage: 'Thank you for contacting support! 🙏\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
-            categoryName: '🎫 Tickets'
+            ticketMessage: '**Welcome to your support ticket!**\n\n?? Our support team will be with you shortly.\n\n**Please describe your issue in detail:**\n� What is the problem?\n� When did it start?\n� Have you tried any solutions?\n\n**Available Actions:**\n?? Click "Claim Ticket" to take ownership (Staff only)\n?? Click "Close Ticket" to close this ticket',
+            closedMessage: 'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
+            categoryName: '?? Tickets'
         };
         saveTicketData();
     }
@@ -1149,13 +1149,13 @@ function initializeTicketSystem(guildId) {
 // Generate transcript from channel messages
 async function generateTranscript(channel) {
     try {
-        let transcript = `╔═══════════════════════════════════════════════════════════╗\n`;
-        transcript += `║           TICKET TRANSCRIPT - ${channel.name.toUpperCase()}              ║\n`;
-        transcript += `╚═══════════════════════════════════════════════════════════╝\n\n`;
-        transcript += `📅 Created: ${channel.createdAt.toLocaleString()}\n`;
-        transcript += `📍 Channel: #${channel.name}\n`;
-        transcript += `🆔 Channel ID: ${channel.id}\n`;
-        transcript += `═══════════════════════════════════════════════════════════\n\n`;
+        let transcript = `+-----------------------------------------------------------+\n`;
+        transcript += `�           TICKET TRANSCRIPT - ${channel.name.toUpperCase()}              �\n`;
+        transcript += `+-----------------------------------------------------------+\n\n`;
+        transcript += `?? Created: ${channel.createdAt.toLocaleString()}\n`;
+        transcript += `?? Channel: #${channel.name}\n`;
+        transcript += `?? Channel ID: ${channel.id}\n`;
+        transcript += `-----------------------------------------------------------\n\n`;
         
         const messages = await channel.messages.fetch({ limit: 100 });
         const sortedMessages = Array.from(messages.values()).reverse();
@@ -1167,25 +1167,25 @@ async function generateTranscript(channel) {
             const content = msg.content || '[Embed/Attachment/Button Interaction]';
             
             transcript += `[${timestamp}]\n`;
-            transcript += `👤 ${author} (${authorId})\n`;
-            transcript += `💬 ${content}\n`;
+            transcript += `?? ${author} (${authorId})\n`;
+            transcript += `?? ${content}\n`;
             
             if (msg.attachments.size > 0) {
-                transcript += `📎 Attachments:\n`;
+                transcript += `?? Attachments:\n`;
                 transcript += msg.attachments.map(att => `   - ${att.name} (${att.url})`).join('\n') + '\n';
             }
             
             if (msg.embeds.length > 0) {
-                transcript += `📋 Embeds: ${msg.embeds.length}\n`;
+                transcript += `?? Embeds: ${msg.embeds.length}\n`;
             }
             
-            transcript += `───────────────────────────────────────────────────────────\n`;
+            transcript += `-----------------------------------------------------------\n`;
         }
         
-        transcript += `\n═══════════════════════════════════════════════════════════\n`;
-        transcript += `📊 Total Messages: ${sortedMessages.length}\n`;
-        transcript += `⏱️ Transcript Generated: ${new Date().toLocaleString()}\n`;
-        transcript += `═══════════════════════════════════════════════════════════\n`;
+        transcript += `\n-----------------------------------------------------------\n`;
+        transcript += `?? Total Messages: ${sortedMessages.length}\n`;
+        transcript += `?? Transcript Generated: ${new Date().toLocaleString()}\n`;
+        transcript += `-----------------------------------------------------------\n`;
         
         return transcript;
     } catch (error) {
@@ -1200,16 +1200,16 @@ const levelCache = new Map();
 
 // Pre-compute error code categories for instant lookup (optimization)
 const errorCodeCategories = new Map();
-for (const [code, description] of Object.entries(ps3ErrorCodes)) {
+for (const [code, description] of Object.entries(consoleErrorCodes)) {
     // Skip metadata entries (they start with underscore)
     if (code.startsWith('_') || typeof description !== 'string') continue;
     
     if (description.startsWith('CFW:')) {
-        errorCodeCategories.set(code, { name: '🟣 Custom Firmware', color: 0x9B59B6 });
+        errorCodeCategories.set(code, { name: '?? Custom Firmware', color: 0x9B59B6 });
     } else if (description.startsWith('SYSCON:')) {
-        errorCodeCategories.set(code, { name: '🔴 Hardware (SYSCON)', color: 0xE74C3C });
+        errorCodeCategories.set(code, { name: '?? Hardware (SYSCON)', color: 0xE74C3C });
     } else {
-        errorCodeCategories.set(code, { name: '🔵 Original PS3 Errors', color: 0x3498DB });
+        errorCodeCategories.set(code, { name: '?? Original PS3 Errors', color: 0x3498DB });
     }
 }
 
@@ -1251,7 +1251,7 @@ async function handleRaid(guild, suspiciousJoins) {
         if (lockedServers.has(guild.id)) return;
         lockedServers.add(guild.id);
         
-        console.log(`🚨 RAID DETECTED in ${guild.name}! ${suspiciousJoins.length} joins in ${settings.raidProtection.timeWindow}s`);
+        console.log(`?? RAID DETECTED in ${guild.name}! ${suspiciousJoins.length} joins in ${settings.raidProtection.timeWindow}s`);
         
         // Send notification
         if (settings.raidProtection.notificationChannel) {
@@ -1259,12 +1259,12 @@ async function handleRaid(guild, suspiciousJoins) {
                 const channel = await guild.channels.fetch(settings.raidProtection.notificationChannel);
                 if (channel) {
                     const raidEmbed = new EmbedBuilder()
-                        .setTitle('🚨 RAID DETECTED')
+                        .setTitle('?? RAID DETECTED')
                         .setDescription(`Detected ${suspiciousJoins.length} members joining within ${settings.raidProtection.timeWindow} seconds!`)
                         .setColor(0xFF0000)
                         .addFields(
                             { name: 'Action Taken', value: settings.raidProtection.action === 'none' ? 'None (monitoring only)' : `Auto-${settings.raidProtection.action}`, inline: true },
-                            { name: 'Server Status', value: '🔒 Lockdown Active', inline: true },
+                            { name: 'Server Status', value: '?? Lockdown Active', inline: true },
                             { name: 'Suspicious Members', value: suspiciousJoins.slice(0, 10).map(j => `<@${j.userId}>`).join(', ') + (suspiciousJoins.length > 10 ? `\n...and ${suspiciousJoins.length - 10} more` : ''), inline: false }
                         )
                         .setTimestamp();
@@ -1315,10 +1315,10 @@ async function handleRaid(guild, suspiciousJoins) {
                     
                     if (settings.raidProtection.action === 'kick') {
                         await member.kick('Raid protection - suspicious join pattern');
-                        console.log(`⚠️ Kicked ${member.user.tag} (Raid protection)`);
+                        console.log(`?? Kicked ${member.user.tag} (Raid protection)`);
                     } else if (settings.raidProtection.action === 'ban') {
                         await member.ban({ reason: 'Raid protection - suspicious join pattern', deleteMessageSeconds: 0 });
-                        console.log(`🔨 Banned ${member.user.tag} (Raid protection)`);
+                        console.log(`?? Banned ${member.user.tag} (Raid protection)`);
                     }
                 } catch (error) {
                     console.error(`Error actioning user ${join.userId}:`, error);
@@ -1339,14 +1339,14 @@ async function handleRaid(guild, suspiciousJoins) {
             const unlockTimer = setTimeout(() => {
                 lockedServers.delete(guild.id);
                 lockdownTimers.delete(guild.id);
-                console.log(`🔓 Raid lockdown lifted for ${guild.name}`);
+                console.log(`?? Raid lockdown lifted for ${guild.name}`);
                 
                 // Send unlock notification
                 if (settings.raidProtection.notificationChannel) {
                     guild.channels.fetch(settings.raidProtection.notificationChannel)
                         .then(channel => {
                             const unlockEmbed = new EmbedBuilder()
-                                .setTitle('🔓 Lockdown Ended')
+                                .setTitle('?? Lockdown Ended')
                                 .setDescription('Raid protection lockdown has been automatically lifted.')
                                 .setColor(0x00FF00)
                                 .setTimestamp();
@@ -1474,7 +1474,7 @@ async function updateServerStats(guild) {
                 }
             } else if (settings.serverStats.channels.memberCount) {
                 // Channel was deleted, reset to null
-                console.log(`⚠️ Member count channel deleted in ${guild.name}, resetting...`);
+                console.log(`?? Member count channel deleted in ${guild.name}, resetting...`);
                 settings.serverStats.channels.memberCount = null;
                 saveSettings();
             }
@@ -1497,7 +1497,7 @@ async function updateServerStats(guild) {
                 }
             } else if (settings.serverStats.channels.botCount) {
                 // Channel was deleted, reset to null
-                console.log(`⚠️ Bot count channel deleted in ${guild.name}, resetting...`);
+                console.log(`?? Bot count channel deleted in ${guild.name}, resetting...`);
                 settings.serverStats.channels.botCount = null;
                 saveSettings();
             }
@@ -1520,7 +1520,7 @@ async function updateServerStats(guild) {
                 }
             } else if (settings.serverStats.channels.totalCount) {
                 // Channel was deleted, reset to null
-                console.log(`⚠️ Total count channel deleted in ${guild.name}, resetting...`);
+                console.log(`?? Total count channel deleted in ${guild.name}, resetting...`);
                 settings.serverStats.channels.totalCount = null;
                 saveSettings();
             }
@@ -1531,11 +1531,11 @@ async function updateServerStats(guild) {
             const statusChannel = guild.channels.cache.get(settings.serverStats.channels.statusChannel);
             if (statusChannel && statusChannel.isVoiceBased()) {
                 const status = 'Online';
-                const emoji = '🟢';
+                const emoji = '??';
                 const newName = settings.serverStats.channelNames.statusChannel
                     .replace('{status}', status)
-                    .replace('🟢', emoji)
-                    .replace('🔴', emoji);
+                    .replace('??', emoji)
+                    .replace('??', emoji);
                 const lastUpdate = settings.serverStats.lastUpdate.statusChannel || 0;
                 
                 // Only update if name changed AND enough time has passed since last update
@@ -1548,7 +1548,7 @@ async function updateServerStats(guild) {
                 }
             } else if (settings.serverStats.channels.statusChannel) {
                 // Channel was deleted, reset to null
-                console.log(`⚠️ Status channel deleted in ${guild.name}, resetting...`);
+                console.log(`?? Status channel deleted in ${guild.name}, resetting...`);
                 settings.serverStats.channels.statusChannel = null;
                 saveSettings();
             }
@@ -1578,19 +1578,19 @@ function startServerStatsUpdates() {
 // Bot ready event - optimized for faster startup
 client.once('clientReady', async () => {
     console.log('\n' + '='.repeat(60));
-    console.log(`✅ ${client.user.tag} is online!`);
-    console.log(`🤖 Servers: ${client.guilds.cache.size}`);
+    console.log(`? ${client.user.tag} is online!`);
+    console.log(`?? Servers: ${client.guilds.cache.size}`);
     console.log('='.repeat(60));
     
     // Display token quota status on startup
     const quotaStatus = getTokenQuotaStatus();
-    console.log('📊 AI Token Quota Status:');
-    console.log(`   🤖 DeepSeek:`);
-    console.log(`      Daily: ${quotaStatus.deepseek.dailyUsed.toLocaleString()} used | ${quotaStatus.deepseek.dailyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.deepseek.dailyRemaining.toLocaleString() + ' remaining'}`);
-    console.log(`      Monthly: ${quotaStatus.deepseek.monthlyUsed.toLocaleString()} used | ${quotaStatus.deepseek.monthlyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.deepseek.monthlyRemaining.toLocaleString() + ' remaining'}`);
-    console.log(`   🧠 ChatGPT:`);
-    console.log(`      Daily: ${quotaStatus.chatgpt.dailyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.dailyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.chatgpt.dailyRemaining.toLocaleString() + ' remaining'}`);
-    console.log(`      Monthly: ${quotaStatus.chatgpt.monthlyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString() + ' remaining'}`);
+    console.log('?? AI Token Quota Status:');
+    console.log(`   ?? DeepSeek:`);
+    console.log(`      Daily: ${quotaStatus.deepseek.dailyUsed.toLocaleString()} used | ${quotaStatus.deepseek.dailyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.deepseek.dailyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`      Monthly: ${quotaStatus.deepseek.monthlyUsed.toLocaleString()} used | ${quotaStatus.deepseek.monthlyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.deepseek.monthlyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`   ?? ChatGPT:`);
+    console.log(`      Daily: ${quotaStatus.chatgpt.dailyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.dailyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.chatgpt.dailyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`      Monthly: ${quotaStatus.chatgpt.monthlyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString() + ' remaining'}`);
     console.log('='.repeat(60));
     
     // Set bot status to DND and activity
@@ -1615,10 +1615,10 @@ client.once('clientReady', async () => {
             if (settings.ai?.enabled) activeCount.ai++;
             if (settings.tickets?.enabled) activeCount.tickets++;
         }
-        console.log(`📊 AI: ${activeCount.ai} | Leveling: ${activeCount.leveling} | Tickets: ${activeCount.tickets}`);
+        console.log(`?? AI: ${activeCount.ai} | Leveling: ${activeCount.leveling} | Tickets: ${activeCount.tickets}`);
         
         // Apply server-specific customizations to all servers
-        console.log('🎨 Applying server customizations...');
+        console.log('?? Applying server customizations...');
         client.guilds.cache.forEach(async (guild) => {
             await applyServerCustomization(guild);
         });
@@ -1638,18 +1638,18 @@ client.once('clientReady', async () => {
                     
                     // Build feature checklist
                     const features = [];
-                    features.push(`✅ Config: Loaded`);
-                    features.push(`✅ DeepSeek API: ${config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
-                    features.push(`✅ ChatGPT API: ${config.openaiApiKey && config.openaiApiKey !== 'YOUR_OPENAI_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
-                    features.push(`✅ User Data: ${fsSync.existsSync('./userData.json') ? 'Loaded' : 'Missing'}`);
-                    features.push(`✅ PS3/PS4 Error Codes: ${Object.keys(ps3ErrorCodes).filter(k => !k.startsWith('_')).length} loaded`);
+                    features.push(`? Config: Loaded`);
+                    features.push(`? DeepSeek API: ${config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
+                    features.push(`? ChatGPT API: ${config.openaiApiKey && config.openaiApiKey !== 'YOUR_OPENAI_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
+                    features.push(`? User Data: ${fsSync.existsSync('./userData.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`? Console Error Codes (PS1-PS5, PSP, Vita): ${Object.keys(consoleErrorCodes).filter(k => !k.startsWith('_')).length} loaded`);
                     
                     // Additional data file checks
-                    features.push(`${fsSync.existsSync('./ticketData.json') ? '✅' : '❌'} Ticket System: ${fsSync.existsSync('./ticketData.json') ? 'Loaded' : 'Missing'}`);
-                    features.push(`${fsSync.existsSync('./moderationData.json') ? '✅' : '❌'} Moderation Data: ${fsSync.existsSync('./moderationData.json') ? 'Loaded' : 'Missing'}`);
-                    features.push(`${fsSync.existsSync('./serverSettings.json') ? '✅' : '❌'} Server Settings: ${fsSync.existsSync('./serverSettings.json') ? 'Loaded' : 'Missing'}`);
-                    features.push(`${fsSync.existsSync('./analyticsData.json') ? '✅' : '❌'} Analytics Data: ${fsSync.existsSync('./analyticsData.json') ? 'Loaded' : 'Missing'}`);
-                    features.push(`${fsSync.existsSync('./cfwKnowledge.json') ? '✅' : '❌'} CFW Knowledge: ${fsSync.existsSync('./cfwKnowledge.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`${fsSync.existsSync('./ticketData.json') ? '?' : '?'} Ticket System: ${fsSync.existsSync('./ticketData.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`${fsSync.existsSync('./moderationData.json') ? '?' : '?'} Moderation Data: ${fsSync.existsSync('./moderationData.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`${fsSync.existsSync('./serverSettings.json') ? '?' : '?'} Server Settings: ${fsSync.existsSync('./serverSettings.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`${fsSync.existsSync('./analyticsData.json') ? '?' : '?'} Analytics Data: ${fsSync.existsSync('./analyticsData.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`${fsSync.existsSync('./cfwKnowledge.json') ? '?' : '?'} CFW Knowledge: ${fsSync.existsSync('./cfwKnowledge.json') ? 'Loaded' : 'Missing'}`);
                     
                     // Count registered commands from feature files
                     let totalCommands = 0;
@@ -1665,16 +1665,16 @@ client.once('clientReady', async () => {
                     } catch (e) {
                         totalCommands = 'Unknown';
                     }
-                    features.push(`✅ Commands: ${totalCommands} loaded`);
+                    features.push(`? Commands: ${totalCommands} loaded`);
                     
                     const onlineEmbed = new EmbedBuilder()
-                        .setTitle('🟢 Bot Online - Update Complete')
+                        .setTitle('?? Bot Online - Update Complete')
                         .setDescription(`Successfully updated and restarted!\n\n**Git Pull:**\n\`\`\`${updateData.gitOutput || 'Updated successfully'}\`\`\`\n\n**System Check:**\n${features.join('\n')}`)
                         .setColor(0x00FF00)
                         .addFields(
-                            { name: '⏰ Downtime', value: `${downtime}s`, inline: true },
-                            { name: '🌐 Servers', value: `${client.guilds.cache.size}`, inline: true },
-                            { name: '👥 Users', value: `${client.guilds.cache.reduce((acc, g) => acc + g.memberCount, 0)}`, inline: true }
+                            { name: '? Downtime', value: `${downtime}s`, inline: true },
+                            { name: '?? Servers', value: `${client.guilds.cache.size}`, inline: true },
+                            { name: '?? Users', value: `${client.guilds.cache.reduce((acc, g) => acc + g.memberCount, 0)}`, inline: true }
                         )
                         .setTimestamp();
                     
@@ -1688,20 +1688,20 @@ client.once('clientReady', async () => {
                     // Delete after 45 seconds
                     setTimeout(() => {
                         message.delete().catch(err => console.log('Failed to delete update message:', err));
-                        console.log('🗑️ Update notification deleted');
+                        console.log('??? Update notification deleted');
                     }, 45000);
                 } else {
-                    console.log('❌ Channel not found');
+                    console.log('? Channel not found');
                 }
             } else {
-                console.log('❌ Guild not found');
+                console.log('? Guild not found');
             }
             // Delete marker file
             fsSync.unlinkSync('./update-marker.json');
-            console.log('🗑️ Update marker deleted');
+            console.log('??? Update marker deleted');
         }
     } catch (error) {
-        console.error('❌ Failed to send update complete notification:', error);
+        console.error('? Failed to send update complete notification:', error);
     }
     
     // Defer non-critical startup tasks to improve boot time
@@ -1760,13 +1760,13 @@ function startMemoryCleanup() {
             heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024)
         };
         
-        console.log(`🧹 Memory cleanup: ${Object.keys(aiConversations).length} active conversations (deleted ${conversationsDeleted}), ${Object.keys(aiCooldowns).length} cooldowns (deleted ${cooldownsDeleted})`);
-        console.log(`📊 Memory: ${memMB.heapUsed}MB/${memMB.heapTotal}MB heap, ${memMB.rss}MB RSS`);
+        console.log(`?? Memory cleanup: ${Object.keys(aiConversations).length} active conversations (deleted ${conversationsDeleted}), ${Object.keys(aiCooldowns).length} cooldowns (deleted ${cooldownsDeleted})`);
+        console.log(`?? Memory: ${memMB.heapUsed}MB/${memMB.heapTotal}MB heap, ${memMB.rss}MB RSS`);
         
         // Force garbage collection if available (requires --expose-gc flag)
         if (global.gc) {
             global.gc();
-            console.log('♻️ Garbage collection triggered');
+            console.log('?? Garbage collection triggered');
         }
     }, 600000); // Every 10 minutes
 }
@@ -1825,17 +1825,17 @@ function startYouTubeMonitoring() {
                             .setFooter({ text: 'YouTube' });
                         
                         await notifChannel.send({ content: customMsg, embeds: [embed] });
-                        console.log(`📺 Posted new video from ${ytChannel.name} in ${guild.name}`);
+                        console.log(`?? Posted new video from ${ytChannel.name} in ${guild.name}`);
                         
                     } catch (error) {
-                        console.error(`❌ Error checking YouTube channel ${ytChannel.name}:`, error.message);
+                        console.error(`? Error checking YouTube channel ${ytChannel.name}:`, error.message);
                     }
                 }
             }
         } catch (error) {
             // Ignore if file doesn't exist yet
             if (error.code !== 'ENOENT') {
-                console.error('❌ YouTube monitoring error:', error);
+                console.error('? YouTube monitoring error:', error);
             }
         }
     }
@@ -1858,7 +1858,7 @@ function startYouTubeMonitoring() {
         }
     }, 300000); // Check every 5 minutes (will respect individual guild intervals in future update)
     
-    console.log('📺 YouTube monitoring started');
+    console.log('?? YouTube monitoring started');
 }
 
 // Apply server-specific bot customization
@@ -1877,17 +1877,17 @@ async function applyServerCustomization(guild) {
         if (settings.customization.botName && settings.customization.botName !== member.nickname) {
             try {
                 await member.setNickname(settings.customization.botName);
-                console.log(`✅ Set bot nickname to "${settings.customization.botName}" in ${guild.name}`);
+                console.log(`? Set bot nickname to "${settings.customization.botName}" in ${guild.name}`);
             } catch (err) {
-                console.error(`❌ Failed to set nickname in ${guild.name}:`, err.message);
+                console.error(`? Failed to set nickname in ${guild.name}:`, err.message);
             }
         } else if (!settings.customization.botName && member.nickname) {
             // Reset to default if custom name removed
             try {
                 await member.setNickname(null);
-                console.log(`✅ Reset bot nickname to default in ${guild.name}`);
+                console.log(`? Reset bot nickname to default in ${guild.name}`);
             } catch (err) {
-                console.error(`❌ Failed to reset nickname in ${guild.name}:`, err.message);
+                console.error(`? Failed to reset nickname in ${guild.name}:`, err.message);
             }
         }
         
@@ -1901,7 +1901,7 @@ async function applyServerCustomization(guild) {
 
 // When bot joins a new server
 client.on('guildCreate', async (guild) => {
-    console.log(`✅ Joined new server: ${guild.name} (${guild.id})`);
+    console.log(`? Joined new server: ${guild.name} (${guild.id})`);
     
     // Initialize fresh data for new server (no cache from other servers)
     const guildId = guild.id;
@@ -1967,7 +1967,7 @@ client.on('guildCreate', async (guild) => {
         saveAnalyticsData();
     }
     
-    console.log(`🎉 Initialized fresh data for: ${guild.name}`);
+    console.log(`?? Initialized fresh data for: ${guild.name}`);
     
     // Apply any customization
     await applyServerCustomization(guild);
@@ -2007,7 +2007,7 @@ client.on('messageCreate', async (message) => {
         if (hasImage) {
             try {
                 // First, create a new message in the channel that mentions the user
-                let newMessage = `📸 Post by ${message.author}`;
+                let newMessage = `?? Post by ${message.author}`;
                 if (message.content) {
                     newMessage += `\n\n${message.content}`;
                 }
@@ -2033,7 +2033,7 @@ client.on('messageCreate', async (message) => {
                 // Delete the original message (the one without mention)
                 await message.delete();
                 
-                console.log(`🧵 Created thread "${threadName}" for image post in channel 1094846351101132872`);
+                console.log(`?? Created thread "${threadName}" for image post in channel 1094846351101132872`);
             } catch (error) {
                 console.error('Error creating thread for image:', error);
             }
@@ -2042,7 +2042,7 @@ client.on('messageCreate', async (message) => {
             try {
                 await message.delete();
                 const reply = await message.channel.send({
-                    content: `${message.author}, please don't type in this channel! 📝\n\n**Use the threads** created from image posts to discuss. Post an image to create a new thread, or join an existing thread to chat! 💬`
+                    content: `${message.author}, please don't type in this channel! ??\n\n**Use the threads** created from image posts to discuss. Post an image to create a new thread, or join an existing thread to chat! ??`
                 });
                 
                 // Auto-delete the warning after 10 seconds
@@ -2062,7 +2062,7 @@ client.on('messageCreate', async (message) => {
         unlockAI(message.guild.id);
         
         const unlockEmbed = new EmbedBuilder()
-            .setTitle('🔓 AI Chat Re-enabled')
+            .setTitle('?? AI Chat Re-enabled')
             .setDescription('AI chat has been unlocked and is now available again.')
             .setColor(0x00FF00)
             .addFields(
@@ -2126,14 +2126,14 @@ client.on('messageCreate', async (message) => {
                 });
                 
                 const embed = new EmbedBuilder()
-                    .setTitle('🎉 Level Up!')
+                    .setTitle('?? Level Up!')
                     .setDescription(levelUpMsg)
                     .setColor(0x00FF00)
                     .setThumbnail(message.author.displayAvatarURL())
                     .addFields(
-                        { name: '📈 Previous Level', value: result.oldLevel.toString(), inline: true },
-                        { name: '⭐ New Level', value: result.newLevel.toString(), inline: true },
-                        { name: '🎯 XP Gained', value: xpGained.toString(), inline: true }
+                        { name: '?? Previous Level', value: result.oldLevel.toString(), inline: true },
+                        { name: '? New Level', value: result.newLevel.toString(), inline: true },
+                        { name: '?? XP Gained', value: xpGained.toString(), inline: true }
                     )
                     .setTimestamp();
                 
@@ -2167,24 +2167,24 @@ client.on('messageCreate', async (message) => {
         // Check user daily token limit (5k per user per day)
         if (hasUserExceededLimit(userId)) {
             const remaining = getUserRemainingTokens(userId);
-            return message.reply(`🚫 **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ⚡`);
+            return message.reply(`?? **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ?`);
         }
         
         // Cooldown check (1 second)
         if (aiCooldowns[userId] && now < aiCooldowns[userId] + 1000) {
-            return message.reply(`⏱️ Wait ${((aiCooldowns[userId] + 1000 - now) / 1000).toFixed(1)}s before asking again.`);
+            return message.reply(`?? Wait ${((aiCooldowns[userId] + 1000 - now) / 1000).toFixed(1)}s before asking again.`);
         }
         
         // AI lockdown check
         if (isAILocked(message.guild.id)) {
             const lock = aiLockdown[message.guild.id];
-            return message.reply(`🔒 **AI disabled.**\n**Reason:** ${lock.reason}\n**By:** ${lock.lockedByUsername}\n**Duration:** ${Math.floor((now - lock.timestamp) / 60000)}m\n\n*Only <@${config.botOwnerId}> can re-enable.*`);
+            return message.reply(`?? **AI disabled.**\n**Reason:** ${lock.reason}\n**By:** ${lock.lockedByUsername}\n**Duration:** ${Math.floor((now - lock.timestamp) / 60000)}m\n\n*Only <@${config.botOwnerId}> can re-enable.*`);
         }
         
         // Content moderation (compacted)
         const lowercaseMsg = message.content.toLowerCase();
         if (/\b(n[i1]gg[ae]r|f[a4]gg[o0]t|ch[i1]nk|sp[i1]c|k[i1]ke|dyke|trann[yi]|wet\s*back|trump|biden|harris|election|democrat|republican|liberal|conservative|leftist|right\s*wing|left\s*wing|politics|political|ret[a4]rd|mongoloid|cripple|midget|kill\s*(yourself|himself|herself|themselves)|suicide|self\s*harm|terrorist|bomb\s*making)\b/i.test(lowercaseMsg)) {
-            return message.reply('⚠️ I can\'t respond to that. Keep it respectful and avoid sensitive topics. Cheers! 🇬🇧');
+            return message.reply('?? I can\'t respond to that. Keep it respectful and avoid sensitive topics. Cheers! ????');
         }
         
         // Rage bait / troll detection - dismiss obvious bait without long responses
@@ -2198,7 +2198,7 @@ client.on('messageCreate', async (message) => {
             lockAI(message.guild.id, userId, message.author.username, 'Jailbreak attempt');
             client.users.fetch(config.botOwnerId).then(owner => {
                 owner.send({ embeds: [new EmbedBuilder()
-                    .setTitle('🚨 AI SECURITY ALERT - Jailbreak Detected')
+                    .setTitle('?? AI SECURITY ALERT - Jailbreak Detected')
                     .setColor(0xFF0000)
                     .addFields(
                         { name: 'User', value: `${message.author.tag} (${userId})`, inline: true },
@@ -2210,7 +2210,7 @@ client.on('messageCreate', async (message) => {
                     .setFooter({ text: 'Mention bot in server to unlock' })
                 ]}).catch(console.error);
             }).catch(console.error);
-            return message.reply('⚠️ **Manipulation attempt detected.** 🔒\n\nAI disabled. Owner notified.');
+            return message.reply('?? **Manipulation attempt detected.** ??\n\nAI disabled. Owner notified.');
         }
         
         // Check if message contains PS3/PS4 error code patterns (allow these through)
@@ -2236,8 +2236,8 @@ client.on('messageCreate', async (message) => {
         // Check response cache first
         const cachedResponse = getCachedResponse(message.content);
         if (cachedResponse) {
-            console.log('💾 Using cached response (API call saved)');
-            return message.reply(`${cachedResponse}\n\n*💾 Cached response*`);
+            console.log('?? Using cached response (API call saved)');
+            return message.reply(`${cachedResponse}\n\n*?? Cached response*`);
         }
         
         // Analyze tone and add message
@@ -2275,21 +2275,21 @@ client.on('messageCreate', async (message) => {
                         const liveLinks = searchResults.filter(r => r.isLive);
                         const deadLinks = searchResults.filter(r => !r.isLive);
                         
-                        searchContext = '\n\n🔗 VERIFIED SOURCES - YOU MUST INCLUDE THESE LINKS IN YOUR RESPONSE:\n';
+                        searchContext = '\n\n?? VERIFIED SOURCES - YOU MUST INCLUDE THESE LINKS IN YOUR RESPONSE:\n';
                         
                         if (liveLinks.length > 0) {
-                            searchContext += 'LIVE LINKS (✅ Verified accessible):\n' + liveLinks.map((r, i) => 
-                                `${i + 1}. ${r.title}\n   ${r.description}\n   🌐 Link: ${r.url} ${r.status}`
+                            searchContext += 'LIVE LINKS (? Verified accessible):\n' + liveLinks.map((r, i) => 
+                                `${i + 1}. ${r.title}\n   ${r.description}\n   ?? Link: ${r.url} ${r.status}`
                             ).join('\n\n');
                         }
                         
                         if (deadLinks.length > 0) {
-                            searchContext += '\n\n❌ DEAD LINKS (DO NOT RECOMMEND THESE):\n' + deadLinks.map((r, i) => 
+                            searchContext += '\n\n? DEAD LINKS (DO NOT RECOMMEND THESE):\n' + deadLinks.map((r, i) => 
                                 `${i + 1}. ${r.title} - ${r.url} (NOT ACCESSIBLE)`
                             ).join('\n');
                         }
                         
-                        searchContext += '\n\n⚠️ CRITICAL: Always include 2-3 relevant website links in your response. ONLY recommend LIVE LINKS (✅). DO NOT include dead/broken links (❌). Format links as PLAIN URLs ONLY (just the URL, no markdown brackets). Discord will auto-format them. DO NOT use [text](url) syntax. Example: ✅ https://wololo.net/category/ps5/ | ❌ [Wololo](https://wololo.net). Users need direct access to download pages, guides, and tools.';
+                        searchContext += '\n\n?? CRITICAL: Always include 2-3 relevant website links in your response. ONLY recommend LIVE LINKS (?). DO NOT include dead/broken links (?). Format links as PLAIN URLs ONLY (just the URL, no markdown brackets). Discord will auto-format them. DO NOT use [text](url) syntax. Example: ? https://wololo.net/category/ps5/ | ? [Wololo](https://wololo.net). Users need direct access to download pages, guides, and tools.';
                     }
                 }
                 
@@ -2306,7 +2306,7 @@ client.on('messageCreate', async (message) => {
                 
                 if (isChatGPTChannelHere && config.openaiApiKey && config.openaiApiKey !== 'YOUR_OPENAI_API_KEY_HERE') {
                     // Use ChatGPT exclusively in the designated channel
-                    aiProvider = '🧠 ChatGPT';
+                    aiProvider = '?? ChatGPT';
                     const openai = createOpenAI({ apiKey: config.openaiApiKey });
                     modelName = 'gpt-4o-mini';
                     response = await generateText({
@@ -2317,7 +2317,7 @@ client.on('messageCreate', async (message) => {
                     });
                 } else {
                     // Use DeepSeek for all other channels (or fallback if OpenAI key missing)
-                    aiProvider = '🤖 ChatGPT';
+                    aiProvider = '?? ChatGPT';
                     const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
                     modelName = settings.ai.model;
                     
@@ -2349,23 +2349,23 @@ client.on('messageCreate', async (message) => {
                 const userRemaining = getUserRemainingTokens(userId);
 
                 // Log token usage with AI provider - show breakdown and quota
-                console.log(`🤖 ${aiProvider} (${modelName}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${totalTokens} | Words: ${text.split(' ').length}`);
-                console.log(`📊 Quota Today: ${providerQuota.dailyUsed} used | Month: ${providerQuota.monthlyUsed} used | Remaining: ${providerQuota.monthlyRemaining}`);
-                console.log(`👤 User ${message.author.username}: ${totalTokens} tokens used | ${userRemaining} remaining today`);
+                console.log(`?? ${aiProvider} (${modelName}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${totalTokens} | Words: ${text.split(' ').length}`);
+                console.log(`?? Quota Today: ${providerQuota.dailyUsed} used | Month: ${providerQuota.monthlyUsed} used | Remaining: ${providerQuota.monthlyRemaining}`);
+                console.log(`?? User ${message.author.username}: ${totalTokens} tokens used | ${userRemaining} remaining today`);
 
                 if (!text?.trim()) {
-                    return message.reply('❌ Empty response received. Try again!');
+                    return message.reply('? Empty response received. Try again!');
                 }
 
                 // AGGRESSIVE TRUNCATION: DeepSeek often ignores maxTokens, so enforce word limits
-                // Rough estimate: 1 token ≈ 0.75 words, so maxTokens * 0.75 = word limit
+                // Rough estimate: 1 token � 0.75 words, so maxTokens * 0.75 = word limit
                 let safeText = text;
                 const maxWords = Math.floor(toneConfig.maxTokens * 0.75); // Conservative word limit
                 const words = text.split(/\s+/);
                 
                 if (words.length > maxWords) {
                     safeText = words.slice(0, maxWords).join(' ') + '... *(truncated)*';
-                    console.log(`⚠️ Response truncated: ${words.length} words → ${maxWords} words (limit: ${toneConfig.maxTokens} tokens)`);
+                    console.log(`?? Response truncated: ${words.length} words ? ${maxWords} words (limit: ${toneConfig.maxTokens} tokens)`);
                 }
 
                 // Cache common responses (e.g., "what is jailbreak", FAQs)
@@ -2378,9 +2378,9 @@ client.on('messageCreate', async (message) => {
                 aiConversations[channelId].push({ role: 'assistant', content: compressedResponse, timestamp: now });
 
                 // Send response with OUTPUT token usage only (not total tokens)
-                const tokenFooter = aiProvider === '🧠 ChatGPT' 
-                    ? `\n\n*🧠 ChatGPT: ${outputTokens} tokens*`
-                    : `\n\n*🤖 DeepSeek: ${outputTokens} tokens*`;
+                const tokenFooter = aiProvider === '?? ChatGPT' 
+                    ? `\n\n*?? ChatGPT: ${outputTokens} tokens*`
+                    : `\n\n*?? DeepSeek: ${outputTokens} tokens*`;
                 if (safeText.length > 1900) {
                     const chunks = safeText.match(/[\s\S]{1,1900}/g) || [];
                     await message.reply(chunks[0]);
@@ -2391,7 +2391,7 @@ client.on('messageCreate', async (message) => {
                 }
             } catch (err) {
                 console.error('AI Error:', err);
-                await message.reply(err.name === 'AbortError' ? '⏱️ Timeout. Try again!' : '❌ Error occurred. Try again!').catch(() => {});
+                await message.reply(err.name === 'AbortError' ? '?? Timeout. Try again!' : '? Error occurred. Try again!').catch(() => {});
             }
         })();
     }
@@ -2417,21 +2417,38 @@ async function checkKeywords(message, settings) {
         
         if (!isQuestion) return; // Don't trigger on casual error code mentions
         
-        // Search PS3 error codes first
+        // Search all console error codes
         let foundErrorCode = null;
         let errorDatabase = null;
         let consoleType = null;
         
         for (const code of errorCodeKeys) {
-            // Check if message contains the PS3 error code (case-insensitive)
+            // Check if message contains the error code (case-insensitive)
             if (messageContent.includes(code.toUpperCase())) {
                 foundErrorCode = code;
-                errorDatabase = ps3ErrorCodes;
-                // Detect console type based on error code prefix
-                if (code.startsWith('CE-') || code.startsWith('NP-') || code.startsWith('SU-') || code.startsWith('WS-') || code.startsWith('WV-')) {
-                    consoleType = 'PS4';
-                } else {
+                errorDatabase = consoleErrorCodes;
+                // Detect console type based on error code format
+                if (code.startsWith('CE-') || code.startsWith('NP-') || code.startsWith('WS-') || code.startsWith('SU-') || code.startsWith('WV-') || code.startsWith('NW-') || code.startsWith('E2-')) {
+                    // PS5 uses similar prefixes but has different ranges
+                    if (code.match(/^(CE-1|NP-10|WS-11|SU-101|NW-102|WV-109|E2-8)/)) {
+                        consoleType = 'PS5';
+                    } else {
+                        consoleType = 'PS4';
+                    }
+                } else if (code.startsWith('C0-') || code.startsWith('C1-') || code.startsWith('C2-') || code.startsWith('C3-')) {
+                    consoleType = 'PS Vita';
+                } else if (code.includes('-PSP') || code.startsWith('FFFF')) {
+                    consoleType = 'PSP';
+                } else if (code.match(/^[A-F0-9]{8}$/)) {
+                    // SYSCON format (hex)
                     consoleType = 'PS3';
+                } else if (code.match(/^8[0-1]/)) {
+                    // 8-digit hex starting with 80 or 81
+                    consoleType = 'PS3';
+                } else if (code.includes('_')) {
+                    consoleType = 'PS2/PS1';
+                } else {
+                    consoleType = 'PS3'; // Default for unmatched patterns
                 }
                 break; // Early exit on first match
             }
@@ -2453,14 +2470,14 @@ async function checkKeywords(message, settings) {
         const errorDescription = errorDatabase[foundErrorCode];
         
         // Get pre-computed category for PS3 (or use default for PS4)
-        let categoryInfo = { name: `🎮 ${consoleType} Error`, color: 0x0099FF };
+        let categoryInfo = { name: `?? ${consoleType} Error`, color: 0x0099FF };
         if (consoleType === 'PS3') {
             categoryInfo = errorCodeCategories.get(foundErrorCode) || categoryInfo;
         }
         
         const errorEmbed = new EmbedBuilder()
-            .setTitle(`❓ ${consoleType} Error Code: ${foundErrorCode}`)
-            .setDescription(`\n\n🗨️ **${errorDescription}**\n\n\n**${categoryInfo.name}**`)
+            .setTitle(`? ${consoleType} Error Code: ${foundErrorCode}`)
+            .setDescription(`\n\n??? **${errorDescription}**\n\n\n**${categoryInfo.name}**`)
             .setColor(categoryInfo.color)
             .setTimestamp();
         
@@ -2477,24 +2494,24 @@ client.on('guildMemberAdd', async (member) => {
     // Check for pending Sellix purchases
     if (pendingPurchases[member.id] && pendingPurchases[member.id].guildId === member.guild.id) {
         const purchase = pendingPurchases[member.id];
-        console.log(`🎁 Processing pending purchase for ${member.user.tag}`);
+        console.log(`?? Processing pending purchase for ${member.user.tag}`);
         
         try {
             // Assign role
             const role = member.guild.roles.cache.get(config.sellixRoleId);
             if (role) {
                 await member.roles.add(role);
-                console.log(`✅ Assigned pending purchase role to ${member.user.tag}`);
+                console.log(`? Assigned pending purchase role to ${member.user.tag}`);
                 
                 // Send DM
                 try {
                     const dmEmbed = new EmbedBuilder()
-                        .setTitle('✅ Purchase Activated!')
+                        .setTitle('? Purchase Activated!')
                         .setDescription(`Welcome to the server! Your previous purchase has been activated and you've been given access to **${role.name}**.`)
                         .setColor(0x00FF00)
                         .addFields(
-                            { name: '🆔 Order ID', value: purchase.orderId, inline: true },
-                            { name: '💰 Amount Paid', value: `$${purchase.amount}`, inline: true }
+                            { name: '?? Order ID', value: purchase.orderId, inline: true },
+                            { name: '?? Amount Paid', value: `$${purchase.amount}`, inline: true }
                         )
                         .setFooter({ text: member.guild.name })
                         .setTimestamp();
@@ -2508,16 +2525,16 @@ client.on('guildMemberAdd', async (member) => {
                 const logChannel = member.guild.channels.cache.get(config.sellixLogChannelId);
                 if (logChannel) {
                     const activationEmbed = new EmbedBuilder()
-                        .setTitle('✅ Pending Purchase Activated')
+                        .setTitle('? Pending Purchase Activated')
                         .setColor(0x00FF00)
                         .setDescription('User joined server and role was automatically assigned.')
                         .addFields(
-                            { name: '👤 Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
-                            { name: '🆔 Order ID', value: purchase.orderId, inline: true },
-                            { name: '💰 Amount', value: `$${purchase.amount}`, inline: true },
-                            { name: '📧 Email', value: purchase.email || 'N/A', inline: false },
-                            { name: '🎁 Role Given', value: role.name, inline: false },
-                            { name: '📦 Product', value: purchase.product || 'Unknown', inline: false }
+                            { name: '?? Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
+                            { name: '?? Order ID', value: purchase.orderId, inline: true },
+                            { name: '?? Amount', value: `$${purchase.amount}`, inline: true },
+                            { name: '?? Email', value: purchase.email || 'N/A', inline: false },
+                            { name: '?? Role Given', value: role.name, inline: false },
+                            { name: '?? Product', value: purchase.product || 'Unknown', inline: false }
                         )
                         .setThumbnail(member.user.displayAvatarURL())
                         .setTimestamp();
@@ -2573,10 +2590,10 @@ client.on('guildMemberAdd', async (member) => {
             try {
                 if (settings.raidProtection.action === 'kick') {
                     await member.kick('Server in raid lockdown');
-                    console.log(`⚠️ Kicked ${member.user.tag} (Lockdown mode)`);
+                    console.log(`?? Kicked ${member.user.tag} (Lockdown mode)`);
                 } else if (settings.raidProtection.action === 'ban') {
                     await member.ban({ reason: 'Server in raid lockdown', deleteMessageSeconds: 0 });
-                    console.log(`🔨 Banned ${member.user.tag} (Lockdown mode)`);
+                    console.log(`?? Banned ${member.user.tag} (Lockdown mode)`);
                 }
                 return; // Don't send welcome message
             } catch (error) {
@@ -2619,14 +2636,14 @@ client.on('guildMemberAdd', async (member) => {
             : `Welcome ${member.toString()}! We're glad to have you here in ${member.guild.name}!`;
         
         const welcomeEmbed = new EmbedBuilder()
-            .setTitle('👋 Welcome to the Server!')
+            .setTitle('?? Welcome to the Server!')
             .setDescription(description)
             .setColor(0x00FF00)
             .setThumbnail(member.user.displayAvatarURL())
             .addFields(
-                { name: '📖 Getting Started', value: 'Check out our rules and guidelines', inline: false },
-                { name: '💬 Chat', value: 'Feel free to chat and ask questions', inline: false },
-                { name: '👥 Community', value: `You are member #${member.guild.memberCount}`, inline: false }
+                { name: '?? Getting Started', value: 'Check out our rules and guidelines', inline: false },
+                { name: '?? Chat', value: 'Feel free to chat and ask questions', inline: false },
+                { name: '?? Community', value: `You are member #${member.guild.memberCount}`, inline: false }
             )
             .setFooter({ text: member.guild.name })
             .setTimestamp();
@@ -2673,12 +2690,12 @@ client.on('guildMemberRemove', (member) => {
         || findChannel(member.guild, 'goodbye');
     
     if (!leaveChannel) {
-        console.log(`[Leave] ❌ No leave channel found! Tried: "${settings.leave.channelName}", "general", "goodbye"`);
+        console.log(`[Leave] ? No leave channel found! Tried: "${settings.leave.channelName}", "general", "goodbye"`);
         console.log(`[Leave] Available channels:`, member.guild.channels.cache.filter(ch => ch.type === 0).map(ch => ch.name).join(', '));
         return;
     }
     
-    console.log(`[Leave] ✅ Found leave channel: ${leaveChannel.name}`);
+    console.log(`[Leave] ? Found leave channel: ${leaveChannel.name}`);
     
     if (leaveChannel) {
         const description = settings.leave.customMessage
@@ -2686,13 +2703,13 @@ client.on('guildMemberRemove', (member) => {
             : `${member.user.tag} has left the server. We'll miss you!`;
         
         const leaveEmbed = new EmbedBuilder()
-            .setTitle('👋 Goodbye!')
+            .setTitle('?? Goodbye!')
             .setDescription(description)
             .setColor(0xFF0000)
             .setThumbnail(member.user.displayAvatarURL())
             .addFields(
-                { name: '📊 Member Count', value: member.guild.memberCount.toString(), inline: true },
-                { name: '⏰ Time in Server', value: member.joinedAt ? `Joined ${member.joinedAt.toDateString()}` : 'Unknown', inline: true }
+                { name: '?? Member Count', value: member.guild.memberCount.toString(), inline: true },
+                { name: '? Time in Server', value: member.joinedAt ? `Joined ${member.joinedAt.toDateString()}` : 'Unknown', inline: true }
             )
             .setFooter({ text: member.guild.name })
             .setTimestamp();
@@ -2839,48 +2856,48 @@ client.on('interactionCreate', async (interaction) => {
     // Help command - Command list
     if (interaction.commandName === 'help') {
         const helpEmbed = new EmbedBuilder()
-            .setTitle('🤖 PSHomebrew Bot - Commands')
+            .setTitle('?? PSHomebrew Bot - Commands')
             .setDescription('Here are all available commands:')
             .setColor(0x0066CC)
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
-                    name: '📊 Leveling Commands',
+                    name: '?? Leveling Commands',
                     value: '`/level` - Check your level and XP\n`/level @user` - Check another user\'s level\n`/rank` - See your rank position\n`/leaderboard` - View top 10 users',
                     inline: false
                 },
                 {
-                    name: 'ℹ️ Information',
+                    name: '?? Information',
                     value: '`/help` - Show this command list\n`/ping` - Check bot latency\n`/features` - View all bot features\n`/viewsettings` - View server settings (Admin)',
                     inline: false
                 },
                 {
-                    name: '⚙️ Admin - Toggle Features',
+                    name: '?? Admin - Toggle Features',
                     value: '`/toggle` - Toggle features on/off',
                     inline: false
                 },
                 {
-                    name: '⚙️ Admin - Leveling Settings',
+                    name: '?? Admin - Leveling Settings',
                     value: '`/setxp` - Set XP range per message\n`/setcooldown` - Set XP cooldown\n`/setmaxlevel` - Set maximum level\n`/setlevelupchannel` - Set level up announcement channel',
                     inline: false
                 },
                 {
-                    name: '⚙️ Admin - Welcome/Leave Settings',
+                    name: '??� Admin - Welcome/Leave Settings',
                     value: '`/setwelcomechannel` - Set welcome channel\n`/setleavechannel` - Set leave channel\n`/setwelcomemessage` - Set custom welcome message\n`/setleavemessage` - Set custom leave message\n`/resetmessages` - Reset to default messages',
                     inline: false
                 },
                 {
-                    name: '⚙️ Admin - PS3 Error Code Settings',
+                    name: '??� Admin - PS3 Error Code Settings',
                     value: '`/addkeyword` - Add an error code\n`/removekeyword` - Remove an error code\n`/listkeywords` - List all error codes\n`/setkeywordresponse` - Set custom response',
                     inline: false
                 },
                 {
-                    name: '🎮 PS3 Error Code Detection',
-                    value: `Simply type any PS3/PS4 error code in chat (e.g., \`80710016\`, \`CE-34878-0\`) and get instant troubleshooting help!\n**${Object.keys(ps3ErrorCodes).filter(k => !k.startsWith('_')).length} error codes** in database`,
+                    name: '?? PlayStation Error Code Detection',
+                    value: `Simply type any PlayStation error code in chat (PS1-PS5, PSP, Vita)!\nExamples: \`80710016\` (PS3), \`CE-34878-0\` (PS4), \`CE-108255-1\` (PS5), \`C1-2741-4\` (Vita)\n**${Object.keys(consoleErrorCodes).filter(k => !k.startsWith('_')).length} error codes** in database`,
                     inline: false
                 }
             )
-            .setFooter({ text: 'Multi-Purpose Bot • Use /features for more info' })
+            .setFooter({ text: 'Multi-Purpose Bot � Use /features for more info' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [helpEmbed] });
@@ -2888,27 +2905,27 @@ client.on('interactionCreate', async (interaction) => {
     
     // Ping command - Check bot latency
     if (interaction.commandName === 'ping') {
-        const sent = await interaction.reply({ content: '🏓 Pinging...', fetchReply: true, ephemeral: true });
+        const sent = await interaction.reply({ content: '?? Pinging...', fetchReply: true, ephemeral: true });
         const roundtripLatency = sent.createdTimestamp - interaction.createdTimestamp;
         const wsLatency = client.ws.ping;
         
         const pingEmbed = new EmbedBuilder()
-            .setTitle('🏓 Pong!')
+            .setTitle('?? Pong!')
             .setColor(wsLatency < 100 ? 0x00FF00 : wsLatency < 200 ? 0xFFFF00 : 0xFF0000)
             .addFields(
                 {
-                    name: '📡 Roundtrip Latency',
+                    name: '?? Roundtrip Latency',
                     value: `\`${roundtripLatency}ms\``,
                     inline: true
                 },
                 {
-                    name: '💓 WebSocket Heartbeat',
+                    name: '?? WebSocket Heartbeat',
                     value: `\`${wsLatency}ms\``,
                     inline: true
                 },
                 {
-                    name: '📊 Status',
-                    value: wsLatency < 100 ? '🟢 Excellent' : wsLatency < 200 ? '🟡 Good' : '🔴 High',
+                    name: '?? Status',
+                    value: wsLatency < 100 ? '?? Excellent' : wsLatency < 200 ? '?? Good' : '?? High',
                     inline: true
                 }
             )
@@ -2921,7 +2938,7 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.commandName === 'poweroptions') {
         // Check if user is bot owner
         if (interaction.user.id !== config.botOwnerId) {
-            return interaction.reply({ content: '❌ Only the bot owner can use this command!', ephemeral: true });
+            return interaction.reply({ content: '? Only the bot owner can use this command!', ephemeral: true });
         }
         
         const uptime = Math.floor(process.uptime());
@@ -2934,13 +2951,13 @@ client.on('interactionCreate', async (interaction) => {
         const memoryUsage = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
         
         const powerEmbed = new EmbedBuilder()
-            .setTitle('⚡ Bot Power Management')
+            .setTitle('? Bot Power Management')
             .setDescription('Control bot power state and updates')
             .setColor(0x00BFFF)
             .addFields(
-                { name: '⏱️ Uptime', value: uptimeStr, inline: true },
-                { name: '💾 Memory', value: `${memoryUsage} MB`, inline: true },
-                { name: '📊 Status', value: '🟢 Online', inline: true }
+                { name: '?? Uptime', value: uptimeStr, inline: true },
+                { name: '?? Memory', value: `${memoryUsage} MB`, inline: true },
+                { name: '?? Status', value: '?? Online', inline: true }
             )
             .setFooter({ text: 'Choose an option below' })
             .setTimestamp();
@@ -2951,17 +2968,17 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('power_update')
                     .setLabel('Update & Restart')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔄'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('power_restart')
                     .setLabel('Restart')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('♻️'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('power_shutdown')
                     .setLabel('Shutdown')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🔴')
+                    .setEmoji('??')
             );
         
         await interaction.reply({ embeds: [powerEmbed], components: [row], ephemeral: true });
@@ -2974,28 +2991,28 @@ client.on('interactionCreate', async (interaction) => {
         const settings = getGuildSettings(interaction.guild.id);
         
         const settingsEmbed = new EmbedBuilder()
-            .setTitle('⚙️ Server Settings')
+            .setTitle('??� Server Settings')
             .setDescription(`Current configuration for **${interaction.guild.name}**`)
             .setColor(0xFFAA00)
             .addFields(
                 {
-                    name: '📊 Leveling System',
-                    value: `**Status:** ${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n**XP Range:** ${settings.leveling.minXP}-${settings.leveling.maxXP}\n**Cooldown:** ${settings.leveling.cooldown / 1000}s\n**Max Level:** ${settings.leveling.maxLevel}\n**Level Up Messages:** ${settings.leveling.showLevelUpMessages ? '✅' : '❌'}\n**Level Up Channel:** ${settings.leveling.levelUpChannel ? `#${settings.leveling.levelUpChannel}` : 'Current channel'}`,
+                    name: '?? Leveling System',
+                    value: `**Status:** ${settings.leveling.enabled ? '? Enabled' : '? Disabled'}\n**XP Range:** ${settings.leveling.minXP}-${settings.leveling.maxXP}\n**Cooldown:** ${settings.leveling.cooldown / 1000}s\n**Max Level:** ${settings.leveling.maxLevel}\n**Level Up Messages:** ${settings.leveling.showLevelUpMessages ? '?' : '?'}\n**Level Up Channel:** ${settings.leveling.levelUpChannel ? `#${settings.leveling.levelUpChannel}` : 'Current channel'}`,
                     inline: false
                 },
                 {
-                    name: '🎮 PS3 Error Code Detection',
-                    value: `**Status:** ${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}\n**Error Codes:** ${Object.keys(ps3ErrorCodes).length} configured\n**Custom Response:** ${settings.keywords.customResponse ? '✅ Set' : '❌ Not set'}`,
+                    name: '?? PS3 Error Code Detection',
+                    value: `**Status:** ${settings.keywords.enabled ? '? Enabled' : '? Disabled'}\n**Error Codes:** ${Object.keys(consoleErrorCodes).length} configured\n**Custom Response:** ${settings.keywords.customResponse ? '? Set' : '? Not set'}`,
                     inline: false
                 },
                 {
-                    name: '👋 Welcome System',
-                    value: `**Status:** ${settings.welcome.enabled ? '✅ Enabled' : '❌ Disabled'}\n**Channel:** #${settings.welcome.channelName}\n**Custom Message:** ${settings.welcome.customMessage ? '✅ Set' : '❌ Not set'}`,
+                    name: '?? Welcome System',
+                    value: `**Status:** ${settings.welcome.enabled ? '? Enabled' : '? Disabled'}\n**Channel:** #${settings.welcome.channelName}\n**Custom Message:** ${settings.welcome.customMessage ? '? Set' : '? Not set'}`,
                     inline: false
                 },
                 {
-                    name: '👋 Leave System',
-                    value: `**Status:** ${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'}\n**Channel:** #${settings.leave.channelName}\n**Custom Message:** ${settings.leave.customMessage ? '✅ Set' : '❌ Not set'}`,
+                    name: '?? Leave System',
+                    value: `**Status:** ${settings.leave.enabled ? '? Enabled' : '? Disabled'}\n**Channel:** #${settings.leave.channelName}\n**Custom Message:** ${settings.leave.customMessage ? '? Set' : '? Not set'}`,
                     inline: false
                 }
             )
@@ -3007,11 +3024,11 @@ client.on('interactionCreate', async (interaction) => {
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId('toggle_leveling')
-                    .setLabel(settings.leveling.enabled ? '📊 Disable Leveling' : '📊 Enable Leveling')
+                    .setLabel(settings.leveling.enabled ? '?? Disable Leveling' : '?? Enable Leveling')
                     .setStyle(settings.leveling.enabled ? ButtonStyle.Danger : ButtonStyle.Success),
                 new ButtonBuilder()
                     .setCustomId('toggle_keywords')
-                    .setLabel(settings.keywords.enabled ? '🎮 Disable PS3 Errors' : '🎮 Enable PS3 Errors')
+                    .setLabel(settings.keywords.enabled ? '?? Disable PS3 Errors' : '?? Enable PS3 Errors')
                     .setStyle(settings.keywords.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
             );
         
@@ -3019,11 +3036,11 @@ client.on('interactionCreate', async (interaction) => {
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId('toggle_welcome')
-                    .setLabel(settings.welcome.enabled ? '👋 Disable Welcome' : '👋 Enable Welcome')
+                    .setLabel(settings.welcome.enabled ? '?? Disable Welcome' : '?? Enable Welcome')
                     .setStyle(settings.welcome.enabled ? ButtonStyle.Danger : ButtonStyle.Success),
                 new ButtonBuilder()
                     .setCustomId('toggle_leave')
-                    .setLabel(settings.leave.enabled ? '🚪 Disable Leave' : '🚪 Enable Leave')
+                    .setLabel(settings.leave.enabled ? '?? Disable Leave' : '?? Enable Leave')
                     .setStyle(settings.leave.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
             );
         
@@ -3038,44 +3055,24 @@ client.on('interactionCreate', async (interaction) => {
         const youtubeEnabled = true;
         
         const featuresEmbed = new EmbedBuilder()
-            .setTitle('🌟 PSHomebrew Bot - Features')
+            .setTitle('?? PSHomebrew Bot - Features')
             .setDescription('Welcome to the PSHomebrew Discord Bot! Here\'s everything this bot can do.')
             .setColor(0x00FF88)
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
-                    name: '⭐',
-                    value: `**Leveling System**\n${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nEarn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\n**${settings.leveling.cooldown / 1000}s** cooldown\n**${settings.leveling.maxLevel} levels** total`,
+                    name: '?',
+                    value: `**Leveling System**\n${settings.leveling.enabled ? '? Enabled' : '? Disabled'}\n\nEarn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\n**${settings.leveling.cooldown / 1000}s** cooldown\n**${settings.leveling.maxLevel} levels** total`,
                     inline: true
                 },
                 {
-                    name: '🎮',
-                    value: `**Error Codes**\n${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDetects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
+                    name: '??',
+                    value: `**Error Codes**\n${settings.keywords.enabled ? '? Enabled' : '? Disabled'}\n\nDetects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
                     inline: true
                 },
                 {
-                    name: '🤖',
-                    value: `**AI Chat**\n${settings.ai?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDeepSeek + ChatGPT\n5k tokens/user/day\nResponse caching`,
-                    inline: true
-                },
-                {
-                    name: '\u200B',
-                    value: '\u200B',
-                    inline: false
-                },
-                {
-                    name: '👋',
-                    value: `**Welcome Messages**\n${settings.welcome.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nChannel: **#${settings.welcome.channelName}**\n${settings.welcome.customMessage ? '✅ Custom message' : '📝 Default message'}`,
-                    inline: true
-                },
-                {
-                    name: '�',
-                    value: `**Leave Messages**\n${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nChannel: **#${settings.leave.channelName}**\n${settings.leave.customMessage ? '✅ Custom message' : '📝 Default message'}`,
-                    inline: true
-                },
-                {
-                    name: '🎫',
-                    value: `**Ticket System**\n${settings.tickets?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nSupport ticket management\nUse **/setuptickets**\nStaff and user panels`,
+                    name: '??',
+                    value: `**AI Chat**\n${settings.ai?.enabled ? '? Enabled' : '? Disabled'}\n\nDeepSeek + ChatGPT\n5k tokens/user/day\nResponse caching`,
                     inline: true
                 },
                 {
@@ -3084,18 +3081,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '🛡️',
-                    value: `**Raid Protection**\n${settings.raidProtection?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nAuto-kick spam accounts\nNew account detection\nMass join protection`,
+                    name: '??',
+                    value: `**Welcome Messages**\n${settings.welcome.enabled ? '? Enabled' : '? Disabled'}\n\nChannel: **#${settings.welcome.channelName}**\n${settings.welcome.customMessage ? '? Custom message' : '?? Default message'}`,
                     inline: true
                 },
                 {
-                    name: '✏️',
-                    value: `**Auto Nickname**\n${settings.autoNickname?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nPrefix: **${settings.autoNickname?.prefix || 'PS'}**\nAuto-rename on join\nKeeps names organized`,
+                    name: '?',
+                    value: `**Leave Messages**\n${settings.leave.enabled ? '? Enabled' : '? Disabled'}\n\nChannel: **#${settings.leave.channelName}**\n${settings.leave.customMessage ? '? Custom message' : '?? Default message'}`,
                     inline: true
                 },
                 {
-                    name: '📺',
-                    value: `**YouTube Notifs**\n✅ Enabled\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
+                    name: '??',
+                    value: `**Ticket System**\n${settings.tickets?.enabled ? '? Enabled' : '? Disabled'}\n\nSupport ticket management\nUse **/setuptickets**\nStaff and user panels`,
                     inline: true
                 },
                 {
@@ -3104,18 +3101,38 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '📊',
-                    value: `**Server Stats**\n${settings.serverStats?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nLive member counter\nAuto-updating channels\nMember/bot statistics`,
+                    name: '???',
+                    value: `**Raid Protection**\n${settings.raidProtection?.enabled ? '? Enabled' : '? Disabled'}\n\nAuto-kick spam accounts\nNew account detection\nMass join protection`,
                     inline: true
                 },
                 {
-                    name: '💬',
+                    name: '??',
+                    value: `**Auto Nickname**\n${settings.autoNickname?.enabled ? '? Enabled' : '? Disabled'}\n\nPrefix: **${settings.autoNickname?.prefix || 'PS'}**\nAuto-rename on join\nKeeps names organized`,
+                    inline: true
+                },
+                {
+                    name: '??',
+                    value: `**YouTube Notifs**\n? Enabled\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
+                    inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: '??',
+                    value: `**Server Stats**\n${settings.serverStats?.enabled ? '? Enabled' : '? Disabled'}\n\nLive member counter\nAuto-updating channels\nMember/bot statistics`,
+                    inline: true
+                },
+                {
+                    name: '??',
                     value: `**Custom Commands**\nAlways Available\n\nClickable server commands\nUse **/pcommands**\nAdd/edit/remove easily`,
                     inline: true
                 },
                 {
-                    name: '📝',
-                    value: `**Moderation Logging**\n${settings.logging?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nTracks all mod actions\nBans, kicks, timeouts\nAudit trail for staff`,
+                    name: '??',
+                    value: `**Moderation Logging**\n${settings.logging?.enabled ? '? Enabled' : '? Disabled'}\n\nTracks all mod actions\nBans, kicks, timeouts\nAudit trail for staff`,
                     inline: true
                 },
                 {
@@ -3124,22 +3141,22 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '🌍',
-                    value: `**Multi-Language**\n✅ Available\n\n6 languages supported\nUse **/language**\nEN, ES, FR, DE, PT, JA`,
+                    name: '??',
+                    value: `**Multi-Language**\n? Available\n\n6 languages supported\nUse **/language**\nEN, ES, FR, DE, PT, JA`,
                     inline: true
                 },
                 {
-                    name: '💾',
-                    value: `**AI Caching**\n✅ Active\n\n30-50% API savings\n40-60% storage savings\nFaster responses`,
+                    name: '??',
+                    value: `**AI Caching**\n? Active\n\n30-50% API savings\n40-60% storage savings\nFaster responses`,
                     inline: true
                 },
                 {
-                    name: '🎨',
-                    value: `**Bot Customization**\n✅ Available\n\nCustom server nicknames\nUse **/custombot**\nPer-server branding`,
+                    name: '??',
+                    value: `**Bot Customization**\n? Available\n\nCustom server nicknames\nUse **/custombot**\nPer-server branding`,
                     inline: true
                 }
             )
-            .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for token usage' })
+            .setFooter({ text: 'Use /viewsettings to see all server settings � /aistats for token usage' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
@@ -3152,51 +3169,31 @@ client.on('interactionCreate', async (interaction) => {
         const isOwner = interaction.user.id === config.botOwnerId;
         
         if (!hasRole && !isOwner) {
-            return interaction.reply({ content: '❌ You need the staff role to view features.', ephemeral: true });
+            return interaction.reply({ content: '? You need the staff role to view features.', ephemeral: true });
         }
         
         const settings = getGuildSettings(interaction.guild.id);
         const youtubeEnabled = true;
         
         const featuresEmbed = new EmbedBuilder()
-            .setTitle('🌟 PSHomebrew Bot - Features')
+            .setTitle('?? PSHomebrew Bot - Features')
             .setDescription('Welcome to the PSHomebrew Discord Bot! Here\'s everything this bot can do.')
             .setColor(0x00FF88)
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
-                    name: '⭐ Leveling System',
-                    value: `🚀 **Gamified progression system**\n\nReward active members automatically\nUnlock roles as you rank up`,
+                    name: '? Leveling System',
+                    value: `?? **Gamified progression system**\n\nReward active members automatically\nUnlock roles as you rank up`,
                     inline: true
                 },
                 {
-                    name: '🎮 Error Codes',
-                    value: `🔍 **Instant PS3/PS4 code lookup**\n\n351 error codes in database\nAutomated troubleshooting assistant`,
+                    name: '?? Error Codes',
+                    value: `?? **Instant PS3/PS4 code lookup**\n\n351 error codes in database\nAutomated troubleshooting assistant`,
                     inline: true
                 },
                 {
-                    name: '🤖 AI Chat',
-                    value: `🧠 **Powered by DeepSeek AI + ChatGPT**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily`,
-                    inline: true
-                },
-                {
-                    name: '\u200B',
-                    value: '\u200B',
-                    inline: false
-                },
-                {
-                    name: '👋 Welcome Messages',
-                    value: `✨ **Professional member onboarding**\n\nFully customizable greetings\nMake great first impressions`,
-                    inline: true
-                },
-                {
-                    name: '📭 Leave Messages',
-                    value: `💫 **Elegant farewell system**\n\nCustom goodbye messages\nTrack member departures`,
-                    inline: true
-                },
-                {
-                    name: '🎫 Ticket System',
-                    value: `🎯 **Advanced support platform**\n\nOrganized help desk solution\nProfessional ticket management`,
+                    name: '?? AI Chat',
+                    value: `?? **Powered by DeepSeek AI + ChatGPT**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily`,
                     inline: true
                 },
                 {
@@ -3205,38 +3202,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '🛡️ Raid Protection',
-                    value: `⚔️ **Military-grade server defense**\n\nAI-powered spam detection\nReal-time threat neutralization`,
+                    name: '?? Welcome Messages',
+                    value: `? **Professional member onboarding**\n\nFully customizable greetings\nMake great first impressions`,
                     inline: true
                 },
                 {
-                    name: '✏️ Auto Nickname',
-                    value: `🏷️ **Smart member branding**\n\nAutomatic **PS** prefix system\nProfessional server identity`,
+                    name: '?? Leave Messages',
+                    value: `?? **Elegant farewell system**\n\nCustom goodbye messages\nTrack member departures`,
                     inline: true
                 },
                 {
-                    name: '📺 YouTube Notifs',
-                    value: `🎬 **Content update alerts**\n\nInstant new video notifications\nNever miss an upload`,
-                    inline: true
-                },
-                {
-                    name: '\u200B',
-                    value: '\u200B',
-                    inline: false
-                },
-                {
-                    name: '📊 Server Stats',
-                    value: `📈 **Real-time analytics dashboard**\n\nLive member tracking\nDynamic voice channel stats`,
-                    inline: true
-                },
-                {
-                    name: '💬 Custom Commands',
-                    value: `⚡ **Interactive command builder**\n\nCreate clickable buttons\nNo coding required`,
-                    inline: true
-                },
-                {
-                    name: '📝 Moderation Logging',
-                    value: `📋 **Complete audit system**\n\nFull action history tracking\nAccountability & transparency`,
+                    name: '?? Ticket System',
+                    value: `?? **Advanced support platform**\n\nOrganized help desk solution\nProfessional ticket management`,
                     inline: true
                 },
                 {
@@ -3245,22 +3222,62 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '🌍 Multi-Language',
-                    value: `🗣️ **Global language support**\n\n6 languages available\nEN, ES, FR, DE, PT, JA\nServer-wide translation`,
+                    name: '??? Raid Protection',
+                    value: `?? **Military-grade server defense**\n\nAI-powered spam detection\nReal-time threat neutralization`,
                     inline: true
                 },
                 {
-                    name: '💾 AI Optimization',
-                    value: `⚡ **Performance & efficiency**\n\nResponse caching system\n30-50% API cost reduction\n5k tokens per user daily`,
+                    name: '?? Auto Nickname',
+                    value: `??? **Smart member branding**\n\nAutomatic **PS** prefix system\nProfessional server identity`,
                     inline: true
                 },
                 {
-                    name: '🎨 Bot Customization',
-                    value: `🎭 **Per-server branding**\n\nCustom bot nicknames\nProfessional server identity\nPersonalized experience`,
+                    name: '?? YouTube Notifs',
+                    value: `?? **Content update alerts**\n\nInstant new video notifications\nNever miss an upload`,
+                    inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: '?? Server Stats',
+                    value: `?? **Real-time analytics dashboard**\n\nLive member tracking\nDynamic voice channel stats`,
+                    inline: true
+                },
+                {
+                    name: '?? Custom Commands',
+                    value: `? **Interactive command builder**\n\nCreate clickable buttons\nNo coding required`,
+                    inline: true
+                },
+                {
+                    name: '?? Moderation Logging',
+                    value: `?? **Complete audit system**\n\nFull action history tracking\nAccountability & transparency`,
+                    inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: '?? Multi-Language',
+                    value: `??? **Global language support**\n\n6 languages available\nEN, ES, FR, DE, PT, JA\nServer-wide translation`,
+                    inline: true
+                },
+                {
+                    name: '?? AI Optimization',
+                    value: `? **Performance & efficiency**\n\nResponse caching system\n30-50% API cost reduction\n5k tokens per user daily`,
+                    inline: true
+                },
+                {
+                    name: '?? Bot Customization',
+                    value: `?? **Per-server branding**\n\nCustom bot nicknames\nProfessional server identity\nPersonalized experience`,
                     inline: true
                 }
             )
-            .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for AI token tracking' })
+            .setFooter({ text: 'Use /viewsettings to see all server settings � /aistats for AI token tracking' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
@@ -3276,23 +3293,23 @@ client.on('interactionCreate', async (interaction) => {
         if (feature === 'leveling') {
             settings.leveling.enabled = !settings.leveling.enabled;
             saveSettings();
-            await interaction.reply({ content: `✅ Leveling system ${settings.leveling.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
+            await interaction.reply({ content: `? Leveling system ${settings.leveling.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
         } else if (feature === 'levelup_messages') {
             settings.leveling.showLevelUpMessages = !settings.leveling.showLevelUpMessages;
             saveSettings();
-            await interaction.reply({ content: `✅ Level up messages ${settings.leveling.showLevelUpMessages ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
+            await interaction.reply({ content: `? Level up messages ${settings.leveling.showLevelUpMessages ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
         } else if (feature === 'welcome') {
             settings.welcome.enabled = !settings.welcome.enabled;
             saveSettings();
-            await interaction.reply({ content: `✅ Welcome messages ${settings.welcome.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
+            await interaction.reply({ content: `? Welcome messages ${settings.welcome.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
         } else if (feature === 'leave') {
             settings.leave.enabled = !settings.leave.enabled;
             saveSettings();
-            await interaction.reply({ content: `✅ Leave messages ${settings.leave.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
+            await interaction.reply({ content: `? Leave messages ${settings.leave.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
         } else if (feature === 'keywords') {
             settings.keywords.enabled = !settings.keywords.enabled;
             saveSettings();
-            await interaction.reply({ content: `✅ Keyword detection ${settings.keywords.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
+            await interaction.reply({ content: `? Keyword detection ${settings.keywords.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
         }
     }
     
@@ -3309,9 +3326,9 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.keywords.list.includes(keyword.toLowerCase())) {
             settings.keywords.list.push(keyword.toLowerCase());
             saveSettings();
-            await interaction.reply({ content: `✅ Added keyword: **"${keyword}"**`, ephemeral: true });
+            await interaction.reply({ content: `? Added keyword: **"${keyword}"**`, ephemeral: true });
         } else {
-            await interaction.reply({ content: `âŒ Keyword **"${keyword}"** already exists!`, ephemeral: true });
+            await interaction.reply({ content: `❌ Keyword **"${keyword}"** already exists!`, ephemeral: true });
         }
     }
     
@@ -3326,9 +3343,9 @@ client.on('interactionCreate', async (interaction) => {
         if (index > -1) {
             settings.keywords.list.splice(index, 1);
             saveSettings();
-            await interaction.reply({ content: `✅ Removed keyword: **"${keyword}"**`, ephemeral: true });
+            await interaction.reply({ content: `? Removed keyword: **"${keyword}"**`, ephemeral: true });
         } else {
-            await interaction.reply({ content: `âŒ Keyword **"${keyword}"** not found!`, ephemeral: true });
+            await interaction.reply({ content: `❌ Keyword **"${keyword}"** not found!`, ephemeral: true });
         }
     }
     
@@ -3340,10 +3357,10 @@ client.on('interactionCreate', async (interaction) => {
         
         // Show first 20 error codes as preview
         const previewCodes = settings.keywords.list.slice(0, 20);
-        const keywordList = previewCodes.map(code => `\`${code}\` - ${ps3ErrorCodes[code]?.substring(0, 50) || 'Unknown'}...`).join('\n');
+        const keywordList = previewCodes.map(code => `\`${code}\` - ${consoleErrorCodes[code]?.substring(0, 50) || 'Unknown'}...`).join('\n');
         
         const listEmbed = new EmbedBuilder()
-            .setTitle('📝 PS3 Error Codes Database')
+            .setTitle('?? PS3 Error Codes Database')
             .setDescription(`**Total Error Codes:** ${settings.keywords.list.length}\n\n**Sample Codes:**\n${keywordList}\n\n*...and ${settings.keywords.list.length - 20} more*`)
             .setColor(0x0099FF)
             .setFooter({ text: 'Type any error code in chat for full details' })
@@ -3361,7 +3378,7 @@ client.on('interactionCreate', async (interaction) => {
         settings.keywords.customResponse = response;
         saveSettings();
         
-        await interaction.reply({ content: `✅ Custom keyword response set!`, ephemeral: true });
+        await interaction.reply({ content: `? Custom keyword response set!`, ephemeral: true });
     }
     
     // Reset Messages command
@@ -3374,24 +3391,24 @@ client.on('interactionCreate', async (interaction) => {
         if (type === 'welcome') {
             settings.welcome.customMessage = null;
             saveSettings();
-            await interaction.reply({ content: `✅ Welcome message reset to default!`, ephemeral: true });
+            await interaction.reply({ content: `? Welcome message reset to default!`, ephemeral: true });
         }
         else if (type === 'leave') {
             settings.leave.customMessage = null;
             saveSettings();
-            await interaction.reply({ content: `✅ Leave message reset to default!`, ephemeral: true });
+            await interaction.reply({ content: `? Leave message reset to default!`, ephemeral: true });
         }
         else if (type === 'keyword') {
             settings.keywords.customResponse = null;
             saveSettings();
-            await interaction.reply({ content: `✅ Keyword response reset to default!`, ephemeral: true });
+            await interaction.reply({ content: `? Keyword response reset to default!`, ephemeral: true });
         }
     }
     
     // Server Stats Setup command - Interactive Panel
     if (interaction.commandName === 'serverstatsssetup') {
         if (!interaction.guild) {
-            return interaction.reply({ content: '❌ This command can only be used in a server!', ephemeral: true });
+            return interaction.reply({ content: '? This command can only be used in a server!', ephemeral: true });
         }
         
         if (!requireAdmin(interaction)) return;
@@ -3439,17 +3456,17 @@ client.on('interactionCreate', async (interaction) => {
         }
         
         const embed = new EmbedBuilder()
-            .setTitle('📊 Server Stats Settings')
+            .setTitle('?? Server Stats Settings')
             .setDescription('Manage your server statistics tracking system')
             .setColor(settings.serverStats.enabled ? 0x00FF00 : 0xFF0000)
             .addFields(
-                { name: '📡 Status', value: settings.serverStats.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                { name: '⏱️ Update Interval', value: `${settings.serverStats.updateInterval / 60000} minute(s)`, inline: true },
+                { name: '?? Status', value: settings.serverStats.enabled ? '? Enabled' : '? Disabled', inline: true },
+                { name: '?? Update Interval', value: `${settings.serverStats.updateInterval / 60000} minute(s)`, inline: true },
                 { name: '\u200B', value: '\u200B', inline: false },
-                { name: '👥 Member Count Channel', value: settings.serverStats.channels.memberCount ? `<#${settings.serverStats.channels.memberCount}>` : '❌ Not set', inline: false },
-                { name: '🤖 Bot Count Channel', value: settings.serverStats.channels.botCount ? `<#${settings.serverStats.channels.botCount}>` : '❌ Not set', inline: false },
-                { name: '📊 Total Count Channel', value: settings.serverStats.channels.totalCount ? `<#${settings.serverStats.channels.totalCount}>` : '❌ Not set', inline: false },
-                { name: '🟢 Bot Status Channel', value: settings.serverStats.channels.statusChannel ? `<#${settings.serverStats.channels.statusChannel}>` : '❌ Not set', inline: false }
+                { name: '?? Member Count Channel', value: settings.serverStats.channels.memberCount ? `<#${settings.serverStats.channels.memberCount}>` : '? Not set', inline: false },
+                { name: '?? Bot Count Channel', value: settings.serverStats.channels.botCount ? `<#${settings.serverStats.channels.botCount}>` : '? Not set', inline: false },
+                { name: '?? Total Count Channel', value: settings.serverStats.channels.totalCount ? `<#${settings.serverStats.channels.totalCount}>` : '? Not set', inline: false },
+                { name: '?? Bot Status Channel', value: settings.serverStats.channels.statusChannel ? `<#${settings.serverStats.channels.statusChannel}>` : '? Not set', inline: false }
             )
             .setFooter({ text: 'Use the buttons below to manage server stats' })
             .setTimestamp();
@@ -3460,12 +3477,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('stats_toggle')
                     .setLabel(settings.serverStats.enabled ? 'Disable Stats' : 'Enable Stats')
                     .setStyle(settings.serverStats.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(settings.serverStats.enabled ? '🔴' : '✅'),
+                    .setEmoji(settings.serverStats.enabled ? '??' : '?'),
                 new ButtonBuilder()
                     .setCustomId('stats_setup')
                     .setLabel('Setup Channels')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔧')
+                    .setEmoji('??')
             );
         
         const row2 = new ActionRowBuilder()
@@ -3474,12 +3491,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('stats_interval')
                     .setLabel('Set Interval')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('⏱️'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('stats_refresh')
                     .setLabel('Refresh Now')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄')
+                    .setEmoji('??')
                     .setDisabled(!settings.serverStats.enabled || !settings.serverStats.channels.memberCount)
             );
         
@@ -3495,11 +3512,11 @@ client.on('interactionCreate', async (interaction) => {
         }
         
         if (!settings.ai.enabled) {
-            return interaction.reply({ content: '❌ AI chat is disabled on this server. Ask an admin to enable it!', ephemeral: true });
+            return interaction.reply({ content: '? AI chat is disabled on this server. Ask an admin to enable it!', ephemeral: true });
         }
         
         if (!config.deepseekApiKey || config.deepseekApiKey === 'YOUR_DEEPSEEK_API_KEY_HERE') {
-            return interaction.reply({ content: '❌ DeepSeek API key is not configured! Please add it to config.json', ephemeral: true });
+            return interaction.reply({ content: '? DeepSeek API key is not configured! Please add it to config.json', ephemeral: true });
         }
         
         // Check if AI is locked in this guild
@@ -3508,7 +3525,7 @@ client.on('interactionCreate', async (interaction) => {
             const now = Date.now();
             const timeLocked = Math.floor((now - lockInfo.timestamp) / 1000 / 60); // minutes
             return interaction.reply({ 
-                content: `🔒 **AI is currently disabled.**\n**Reason:** ${lockInfo.reason}\n**Locked by:** ${lockInfo.lockedByUsername}\n**Time locked:** ${timeLocked} minutes ago\n\n*Only <@${config.botOwnerId}> can re-enable it by mentioning me.*`,
+                content: `?? **AI is currently disabled.**\n**Reason:** ${lockInfo.reason}\n**Locked by:** ${lockInfo.lockedByUsername}\n**Time locked:** ${timeLocked} minutes ago\n\n*Only <@${config.botOwnerId}> can re-enable it by mentioning me.*`,
                 ephemeral: true 
             });
         }
@@ -3521,7 +3538,7 @@ client.on('interactionCreate', async (interaction) => {
         if (hasUserExceededLimit(userId)) {
             const remaining = getUserRemainingTokens(userId);
             return interaction.reply({
-                content: `🚫 **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ⚡`,
+                content: `?? **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ?`,
                 ephemeral: true
             });
         }
@@ -3529,8 +3546,8 @@ client.on('interactionCreate', async (interaction) => {
         // Check response cache first
         const cachedResponse = getCachedResponse(userMessage);
         if (cachedResponse) {
-            console.log('💾 Using cached response (API call saved)');
-            return interaction.reply(`${cachedResponse}\n\n*💾 Cached response*`);
+            console.log('?? Using cached response (API call saved)');
+            return interaction.reply(`${cachedResponse}\n\n*?? Cached response*`);
         }
         
         // Jailbreak detection
@@ -3541,7 +3558,7 @@ client.on('interactionCreate', async (interaction) => {
             try {
                 const owner = await client.users.fetch(config.botOwnerId);
                 const alertEmbed = new EmbedBuilder()
-                    .setTitle('🚨 AI SECURITY ALERT - Jailbreak Detected')
+                    .setTitle('?? AI SECURITY ALERT - Jailbreak Detected')
                     .setColor(0xFF0000)
                     .addFields(
                         { name: 'User', value: `${interaction.user.tag} (${interaction.user.id})`, inline: true },
@@ -3549,7 +3566,7 @@ client.on('interactionCreate', async (interaction) => {
                         { name: 'Channel', value: `#${interaction.channel.name}`, inline: true },
                         { name: 'Command', value: `/aichat`, inline: true },
                         { name: 'Message', value: userMessage.substring(0, 1000), inline: false },
-                        { name: 'Action Taken', value: '🔒 AI locked in this server until you re-enable it', inline: false }
+                        { name: 'Action Taken', value: '?? AI locked in this server until you re-enable it', inline: false }
                     )
                     .setTimestamp()
                     .setFooter({ text: 'Mention the bot in the server to unlock AI' });
@@ -3560,7 +3577,7 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             return interaction.reply({ 
-                content: '⚠️ **That message appears to be an attempt to manipulate my system.** 🔒\n\nFor security reasons, AI chat has been disabled on this server. The bot owner has been notified.',
+                content: '?? **That message appears to be an attempt to manipulate my system.** ??\n\nFor security reasons, AI chat has been disabled on this server. The bot owner has been notified.',
                 ephemeral: true 
             });
         }
@@ -3665,19 +3682,19 @@ client.on('interactionCreate', async (interaction) => {
                 const quotaStatus = getTokenQuotaStatus();
                 const userRemaining = getUserRemainingTokens(userId);
                 
-                console.log(`🤖 DeepSeek (${settings.ai.model}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${tokensUsed}`);
-                console.log(`📊 Quota Today: ${quotaStatus.deepseek.dailyUsed} used | Month: ${quotaStatus.deepseek.monthlyUsed} used | Remaining: ${quotaStatus.deepseek.monthlyRemaining}`);
-                console.log(`👤 User ${interaction.user.username}: ${tokensUsed} tokens used | ${userRemaining} remaining today`);
+                console.log(`?? DeepSeek (${settings.ai.model}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${tokensUsed}`);
+                console.log(`?? Quota Today: ${quotaStatus.deepseek.dailyUsed} used | Month: ${quotaStatus.deepseek.monthlyUsed} used | Remaining: ${quotaStatus.deepseek.monthlyRemaining}`);
+                console.log(`?? User ${interaction.user.username}: ${tokensUsed} tokens used | ${userRemaining} remaining today`);
                 
                 // Check if response is valid
                 if (!aiResponse || aiResponse.trim().length === 0) {
                     console.error('DeepSeek returned empty response');
-                    await interaction.editReply('❌ Sorry, I encountered an issue generating a response. Please try again!');
+                    await interaction.editReply('? Sorry, I encountered an issue generating a response. Please try again!');
                     return;
                 }
             } catch (err) {
                 console.error('DeepSeek API Error:', err);
-                await interaction.editReply('❌ Sorry, I\'m having trouble connecting to my AI brain. Please try again in a moment!');
+                await interaction.editReply('? Sorry, I\'m having trouble connecting to my AI brain. Please try again in a moment!');
                 return;
             }
             
@@ -3708,10 +3725,10 @@ client.on('interactionCreate', async (interaction) => {
         } catch (error) {
             if (error.name === 'AbortError') {
                 console.error('AI request timeout');
-                await interaction.editReply('⏱️ Request timed out. Please try again!');
+                await interaction.editReply('?? Request timed out. Please try again!');
             } else {
                 console.error('AI Chat Error:', error);
-                await interaction.editReply(`❌ An error occurred. Please try again!`);
+                await interaction.editReply(`? An error occurred. Please try again!`);
             }
         }
     }
@@ -3721,16 +3738,16 @@ client.on('interactionCreate', async (interaction) => {
         const settings = getGuildSettings(interaction.guild.id);
         
         if (!settings.ai || !settings.ai.enabled) {
-            return interaction.reply({ content: '❌ AI chat is disabled on this server.', ephemeral: true });
+            return interaction.reply({ content: '? AI chat is disabled on this server.', ephemeral: true });
         }
         
         const channelId = interaction.channel.id;
         
         if (aiConversations[channelId]) {
             delete aiConversations[channelId];
-            await interaction.reply({ content: '✅ AI conversation history cleared for this channel!', ephemeral: true });
+            await interaction.reply({ content: '? AI conversation history cleared for this channel!', ephemeral: true });
         } else {
-            await interaction.reply({ content: 'ℹ️ No conversation history to clear in this channel.', ephemeral: true });
+            await interaction.reply({ content: '?? No conversation history to clear in this channel.', ephemeral: true });
         }
     }
     
@@ -3745,14 +3762,14 @@ client.on('interactionCreate', async (interaction) => {
         const userRemaining = USER_DAILY_LIMIT - userUsed;
         
         const embed = new EmbedBuilder()
-            .setTitle('📊 AI Token Usage Statistics')
+            .setTitle('?? AI Token Usage Statistics')
             .setColor(0x00D9FF)
             .setDescription('Current token consumption for DeepSeek and ChatGPT')
             .addFields(
-                { name: '\u200B', value: '**👤 Your Personal Usage**', inline: false },
+                { name: '\u200B', value: '**?? Your Personal Usage**', inline: false },
                 { 
-                    name: '📅 Today', 
-                    value: `Used: **${userUsed.toLocaleString()}** / **5,000** tokens\nRemaining: **${userRemaining.toLocaleString()}** tokens\n${userRemaining < 1000 ? '⚠️ Running low!' : '✅ Plenty left!'}`,
+                    name: '?? Today', 
+                    value: `Used: **${userUsed.toLocaleString()}** / **5,000** tokens\nRemaining: **${userRemaining.toLocaleString()}** tokens\n${userRemaining < 1000 ? '?? Running low!' : '? Plenty left!'}`,
                     inline: false 
                 }
             );
@@ -3761,32 +3778,32 @@ client.on('interactionCreate', async (interaction) => {
         if (isAdmin) {
             embed.addFields(
                 { name: '\u200B', value: '\u200B', inline: false }, // Spacer
-                { name: '\u200B', value: '**🤖 DeepSeek (Server-Wide)**', inline: false },
+                { name: '\u200B', value: '**?? DeepSeek (Server-Wide)**', inline: false },
                 { 
-                    name: '📅 Today', 
-                    value: `Used: **${quotaStatus.deepseek.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.dailyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.deepseek.dailyRemaining.toLocaleString()}**`,
+                    name: '?? Today', 
+                    value: `Used: **${quotaStatus.deepseek.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.dailyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.deepseek.dailyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { 
-                    name: '📆 This Month', 
-                    value: `Used: **${quotaStatus.deepseek.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.monthlyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.deepseek.monthlyRemaining.toLocaleString()}**`,
-                    inline: true 
-                },
-                { name: '\u200B', value: '\u200B', inline: true }, // Spacer
-                { name: '\u200B', value: '**🧠 ChatGPT (Server-Wide)**', inline: false },
-                { 
-                    name: '📅 Today', 
-                    value: `Used: **${quotaStatus.chatgpt.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.dailyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.chatgpt.dailyRemaining.toLocaleString()}**`,
-                    inline: true 
-                },
-                { 
-                    name: '📆 This Month', 
-                    value: `Used: **${quotaStatus.chatgpt.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited' ? 'Unlimited ♾️' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString()}**`,
+                    name: '?? This Month', 
+                    value: `Used: **${quotaStatus.deepseek.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.monthlyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.deepseek.monthlyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { name: '\u200B', value: '\u200B', inline: true }, // Spacer
+                { name: '\u200B', value: '**?? ChatGPT (Server-Wide)**', inline: false },
                 { 
-                    name: '💾 Cache Performance', 
+                    name: '?? Today', 
+                    value: `Used: **${quotaStatus.chatgpt.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.dailyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.chatgpt.dailyRemaining.toLocaleString()}**`,
+                    inline: true 
+                },
+                { 
+                    name: '?? This Month', 
+                    value: `Used: **${quotaStatus.chatgpt.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited' ? 'Unlimited ??' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString()}**`,
+                    inline: true 
+                },
+                { name: '\u200B', value: '\u200B', inline: true }, // Spacer
+                { 
+                    name: '?? Cache Performance', 
                     value: `Cached responses: **${responseCache.size}**/100\nAPI calls saved: **~${Math.round(responseCache.size * 0.3)}**`,
                     inline: false 
                 }
@@ -3814,7 +3831,7 @@ client.on('interactionCreate', async (interaction) => {
         const currentAvatar = client.user.displayAvatarURL({ size: 256 });
         
         const embed = new EmbedBuilder()
-            .setTitle('🎨 Bot Customization Panel')
+            .setTitle('?? Bot Customization Panel')
             .setColor(0x5865F2)
             .setDescription(
                 'Customize how the bot appears in your server.\n\n' +
@@ -3822,23 +3839,23 @@ client.on('interactionCreate', async (interaction) => {
             )
             .addFields(
                 { 
-                    name: '📝 Bot Nickname (Per-Server)', 
+                    name: '?? Bot Nickname (Per-Server)', 
                     value: settings.customization.botName || '*Using default name*',
                     inline: false 
                 },
                 {
-                    name: '🖼️ Bot Avatar (Global)',
-                    value: '⚠️ Changing avatar affects **ALL servers**',
+                    name: '??? Bot Avatar (Global)',
+                    value: '?? Changing avatar affects **ALL servers**',
                     inline: false
                 },
                 {
-                    name: 'ℹ️ Note',
-                    value: '• Nicknames are per-server\n• Avatar changes are global (Discord limitation)',
+                    name: '?? Note',
+                    value: '� Nicknames are per-server\n� Avatar changes are global (Discord limitation)',
                     inline: false
                 }
             )
             .setThumbnail(currentAvatar)
-            .setFooter({ text: 'Bot Customization • Admin Only' })
+            .setFooter({ text: 'Bot Customization � Admin Only' })
             .setTimestamp();
         
         const row1 = new ActionRowBuilder()
@@ -3847,12 +3864,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('custombot_set_name')
                     .setLabel('Set Nickname')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✏️'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('custombot_reset_name')
                     .setLabel('Reset Nickname')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄')
+                    .setEmoji('??')
             );
         
         const row2 = new ActionRowBuilder()
@@ -3861,7 +3878,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('custombot_set_avatar')
                     .setLabel('Change Avatar (Global)')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🖼️')
+                    .setEmoji('???')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -3880,20 +3897,20 @@ client.on('interactionCreate', async (interaction) => {
         
         // Create interactive panel
         const embed = new EmbedBuilder()
-            .setTitle('🤖 AI Chat System Control Panel')
+            .setTitle('?? AI Chat System Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                 `AI responds automatically to all messages in the designated channel using **${config.model}**.\n\n` +
                 `Click the buttons below to configure AI settings.`
             )
             .addFields(
-                { name: '📡 Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                { name: '💬 Channel', value: `#${config.channelName}`, inline: true },
-                { name: '🤖 Model', value: config.model, inline: true },
-                { name: '🧠 Max History', value: `${config.maxHistory} exchanges`, inline: true },
-                { name: '🌡️ Temperature', value: config.temperature.toString(), inline: true },
-                { name: '📝 System Prompt', value: config.systemPrompt.substring(0, 100) + '...', inline: false }
+                { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                { name: '?? Channel', value: `#${config.channelName}`, inline: true },
+                { name: '?? Model', value: config.model, inline: true },
+                { name: '?? Max History', value: `${config.maxHistory} exchanges`, inline: true },
+                { name: '??? Temperature', value: config.temperature.toString(), inline: true },
+                { name: '?? System Prompt', value: config.systemPrompt.substring(0, 100) + '...', inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure AI chat settings' })
             .setTimestamp();
@@ -3904,22 +3921,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('ai_toggle')
                     .setLabel(config.enabled ? 'Disable AI' : 'Enable AI')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '⏸️' : '▶️'),
+                    .setEmoji(config.enabled ? '??' : '??'),
                 new ButtonBuilder()
                     .setCustomId('ai_set_channel')
                     .setLabel('Set Channel')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('💬'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('ai_set_history')
                     .setLabel('Max History')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🧠'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('ai_set_temperature')
                     .setLabel('Temperature')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🌡️')
+                    .setEmoji('???')
             );
         
         const row2 = new ActionRowBuilder()
@@ -3928,12 +3945,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('ai_clear_history')
                     .setLabel('Clear All History')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🗑️'),
+                    .setEmoji('???'),
                 new ButtonBuilder()
                     .setCustomId('ai_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄')
+                    .setEmoji('??')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -3963,7 +3980,7 @@ client.on('interactionCreate', async (interaction) => {
         for (let i = 0; i < topUsers.length; i++) {
             const [userId, count] = topUsers[i];
             const user = users[i];
-            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+            const medal = i === 0 ? '??' : i === 1 ? '??' : i === 2 ? '??' : `${i + 1}.`;
             const username = user ? user.tag : 'Unknown User';
             topUsersText += `${medal} **${username}** - ${count.toLocaleString()} messages\n`;
         }
@@ -4005,19 +4022,19 @@ client.on('interactionCreate', async (interaction) => {
         }
         
         const analyticsEmbed = new EmbedBuilder()
-            .setTitle('📊 Server Analytics Dashboard')
+            .setTitle('?? Server Analytics Dashboard')
             .setDescription(`Comprehensive server statistics and insights`)
             .setColor(0x5865F2)
             .addFields(
                 { 
-                    name: '💬 Message Activity', 
+                    name: '?? Message Activity', 
                     value: `**Total Messages:** ${analytics.messages.total.toLocaleString()}\n` +
                            `**Peak Hour:** ${peakHourFormatted}\n` +
                            `**Peak Day:** ${days[peakDay]}`,
                     inline: true
                 },
                 { 
-                    name: '👥 Member Growth (7 Days)', 
+                    name: '?? Member Growth (7 Days)', 
                     value: `**Joins:** ${joinsLast7Days}\n` +
                            `**Leaves:** ${leavesLast7Days}\n` +
                            `**Net Growth:** ${netGrowth >= 0 ? '+' : ''}${netGrowth}\n` +
@@ -4025,28 +4042,28 @@ client.on('interactionCreate', async (interaction) => {
                     inline: true
                 },
                 { 
-                    name: '🎮 Command Usage', 
+                    name: '?? Command Usage', 
                     value: `**Total Commands:** ${analytics.commands.total.toLocaleString()}`,
                     inline: true
                 },
                 { 
-                    name: '🏆 Top Active Users', 
+                    name: '?? Top Active Users', 
                     value: topUsersText || 'No data yet',
                     inline: false
                 },
                 { 
-                    name: '📺 Top Active Channels', 
+                    name: '?? Top Active Channels', 
                     value: topChannelsText || 'No data yet',
                     inline: false
                 },
                 { 
-                    name: '⭐ Most Used Commands', 
+                    name: '? Most Used Commands', 
                     value: topCommandsText || 'No commands used yet',
                     inline: false
                 }
             )
             .setFooter({ 
-                text: `Tracking since ${new Date(analytics.startDate).toLocaleDateString()} • ${daysSinceStart} days of data` 
+                text: `Tracking since ${new Date(analytics.startDate).toLocaleDateString()} � ${daysSinceStart} days of data` 
             })
             .setTimestamp();
         
@@ -4065,19 +4082,19 @@ client.on('interactionCreate', async (interaction) => {
             .substring(0, 200);
         
         const embed = new EmbedBuilder()
-            .setTitle('👋 Welcome System Control Panel')
+            .setTitle('?? Welcome System Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                 `Automatically welcome new members with custom messages.\n\n` +
                 `Click the buttons below to configure settings.`
             )
             .addFields(
-                { name: '📡 Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                { name: '💬 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
-                { name: '📝 Custom Message', value: config.customMessage ? '✅ Set' : '❌ Using default', inline: true },
-                { name: '💭 Message Preview', value: messagePreview, inline: false },
-                { name: '🔖 Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
+                { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                { name: '?? Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
+                { name: '?? Custom Message', value: config.customMessage ? '? Set' : '? Using default', inline: true },
+                { name: '?? Message Preview', value: messagePreview, inline: false },
+                { name: '?? Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure welcome messages' })
             .setTimestamp();
@@ -4088,22 +4105,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('welcome_toggle')
                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '⏸️' : '▶️'),
+                    .setEmoji(config.enabled ? '??' : '??'),
                 new ButtonBuilder()
                     .setCustomId('welcome_set_channel')
                     .setLabel('Set Channel')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('💬'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('welcome_set_message')
                     .setLabel('Set Message')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📝'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('welcome_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄')
+                    .setEmoji('??')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1], ephemeral: true });
@@ -4125,19 +4142,19 @@ client.on('interactionCreate', async (interaction) => {
         const exampleResult = `${config.prefix || ''}Username${config.suffix || ''}`;
         
         const embed = new EmbedBuilder()
-            .setTitle('📝 Auto-Nickname Control Panel')
+            .setTitle('?? Auto-Nickname Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                 `Automatically set nicknames for new members.\n\n` +
                 `Click the buttons below to configure settings.`
             )
             .addFields(
-                { name: '📡 Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                { name: '⬅️ Prefix', value: config.prefix || 'None', inline: true },
-                { name: '➡️ Suffix', value: config.suffix || 'None', inline: true },
-                { name: '📋 Example', value: `\`Username\` → \`${exampleResult}\``, inline: false },
-                { name: 'ℹ️ Note', value: 'Max nickname length is 32 characters', inline: false }
+                { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                { name: '?? Prefix', value: config.prefix || 'None', inline: true },
+                { name: '?? Suffix', value: config.suffix || 'None', inline: true },
+                { name: '?? Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
+                { name: '?? Note', value: 'Max nickname length is 32 characters', inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure auto-nickname' })
             .setTimestamp();
@@ -4148,22 +4165,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('autonick_toggle')
                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '⏸️' : '▶️'),
+                    .setEmoji(config.enabled ? '??' : '??'),
                 new ButtonBuilder()
                     .setCustomId('autonick_set_prefix')
                     .setLabel('Set Prefix')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⬅️'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('autonick_set_suffix')
                     .setLabel('Set Suffix')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('➡️'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('autonick_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄')
+                    .setEmoji('??')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1], ephemeral: true });
@@ -4173,25 +4190,25 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.commandName === 'games') {
         try {
             const gamesEmbed = new EmbedBuilder()
-                .setTitle('🎮 Games Menu')
+                .setTitle('?? Games Menu')
                 .setDescription('Choose a game to play from the buttons below!')
                 .setColor(0x5865F2)
                 .addFields(
-                    { name: '🐍 Snake', value: 'Classic snake game', inline: true },
-                    { name: '⭕ Tic-Tac-Toe', value: 'Play with a friend', inline: true },
-                    { name: '🔴 Connect 4', value: 'Play with a friend', inline: true },
-                    { name: '📝 Wordle', value: 'Guess the word', inline: true },
-                    { name: '💣 Minesweeper', value: 'Avoid the mines', inline: true },
-                    { name: '🔢 2048', value: 'Number puzzle', inline: true },
-                    { name: '🧠 Memory', value: 'Match pairs', inline: true },
-                    { name: '⏱️ Fast Type', value: 'Typing test', inline: true },
-                    { name: '🔍 Find Emoji', value: 'Find the emoji', inline: true },
-                    { name: '🎮 Guess Pokémon', value: 'Name that Pokémon', inline: true },
-                    { name: '🪨 RPS', value: 'Rock Paper Scissors', inline: true },
-                    { name: '🎲 Hangman', value: 'Guess the word', inline: true },
-                    { name: '🧠 Trivia', value: 'Answer questions', inline: true },
-                    { name: '🎰 Slots', value: 'Slot machine', inline: true },
-                    { name: '🤔 Would You Rather', value: 'Decision game', inline: true }
+                    { name: '?? Snake', value: 'Classic snake game', inline: true },
+                    { name: '? Tic-Tac-Toe', value: 'Play with a friend', inline: true },
+                    { name: '?? Connect 4', value: 'Play with a friend', inline: true },
+                    { name: '?? Wordle', value: 'Guess the word', inline: true },
+                    { name: '?? Minesweeper', value: 'Avoid the mines', inline: true },
+                    { name: '?? 2048', value: 'Number puzzle', inline: true },
+                    { name: '?? Memory', value: 'Match pairs', inline: true },
+                    { name: '?? Fast Type', value: 'Typing test', inline: true },
+                    { name: '?? Find Emoji', value: 'Find the emoji', inline: true },
+                    { name: '?? Guess Pok�mon', value: 'Name that Pok�mon', inline: true },
+                    { name: '?? RPS', value: 'Rock Paper Scissors', inline: true },
+                    { name: '?? Hangman', value: 'Guess the word', inline: true },
+                    { name: '?? Trivia', value: 'Answer questions', inline: true },
+                    { name: '?? Slots', value: 'Slot machine', inline: true },
+                    { name: '?? Would You Rather', value: 'Decision game', inline: true }
                 )
                 .setFooter({ text: 'Click a button to start playing!' })
                 .setTimestamp();
@@ -4240,7 +4257,7 @@ client.on('interactionCreate', async (interaction) => {
                                         .setStyle(ButtonStyle.Primary),
                 new ButtonBuilder()
                     .setCustomId('game_guesspokemon')
-                    .setLabel('Guess Pokémon')
+                    .setLabel('Guess Pok�mon')
                                         .setStyle(ButtonStyle.Primary)
             );
         
@@ -4276,7 +4293,7 @@ client.on('interactionCreate', async (interaction) => {
             console.error('Error displaying games menu:', error);
             if (!interaction.replied && !interaction.deferred) {
                 await interaction.reply({ 
-                    content: '❌ An error occurred while loading the games menu. Please try again!', 
+                    content: '? An error occurred while loading the games menu. Please try again!', 
                     ephemeral: true 
                 }).catch(() => {});
             }
@@ -4332,19 +4349,19 @@ client.on('interactionCreate', async (interaction) => {
         const keywordChan = config.channels.keywords ? `<#${config.channels.keywords}>` : 'Not set';
         
         const embed = new EmbedBuilder()
-            .setTitle('📋 Server Logging System')
+            .setTitle('?? Server Logging System')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .addFields(
-                { name: 'Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: 'Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                 { name: 'Active Logs', value: `${Object.values(config.logTypes).filter(v => v).length}/12 types`, inline: true },
                 { name: 'Channels Set', value: `${Object.values(config.channels).filter(v => v).length}/7 configured`, inline: true },
-                { name: '🔴 Critical Errors', value: criticalChan, inline: true },
-                { name: '⚖️ Moderation', value: modChan, inline: true },
-                { name: '💬 Messages', value: msgChan, inline: true },
-                { name: '👥 Members', value: memberChan, inline: true },
-                { name: '🔊 Voice', value: voiceChan, inline: true },
-                { name: '🛠️ Server', value: serverChan, inline: true },
-                { name: '🚨 Keywords', value: keywordChan, inline: false }
+                { name: '?? Critical Errors', value: criticalChan, inline: true },
+                { name: '?? Moderation', value: modChan, inline: true },
+                { name: '?? Messages', value: msgChan, inline: true },
+                { name: '?? Members', value: memberChan, inline: true },
+                { name: '?? Voice', value: voiceChan, inline: true },
+                { name: '??? Server', value: serverChan, inline: true },
+                { name: '?? Keywords', value: keywordChan, inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure logging channels' })
             .setTimestamp();
@@ -4355,27 +4372,27 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('log_toggle')
                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '⏸️' : '▶️'),
+                    .setEmoji(config.enabled ? '??' : '??'),
                 new ButtonBuilder()
                     .setCustomId('log_set_critical')
                     .setLabel('Critical')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔴'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('log_set_moderation')
                     .setLabel('Moderation')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⚖️'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('log_set_messages')
                     .setLabel('Messages')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('💬'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('log_set_members')
                     .setLabel('Members')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('👥')
+                    .setEmoji('??')
             );
         
         const row2 = new ActionRowBuilder()
@@ -4384,22 +4401,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('log_set_voice')
                     .setLabel('Voice')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔊'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('log_set_server')
                     .setLabel('Server')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🛠️'),
+                    .setEmoji('???'),
                 new ButtonBuilder()
                     .setCustomId('log_set_keywords')
                     .setLabel('Keywords')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🚨'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('log_toggles')
                     .setLabel('Event Toggles')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⚙️')
+                    .setEmoji('??')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -4431,26 +4448,26 @@ client.on('interactionCreate', async (interaction) => {
             ? config.whitelist.map(id => `<@${id}>`).join(', ')
             : 'None';
         const notifChannel = config.notificationChannel ? `<#${config.notificationChannel}>` : 'Not set';
-        const lockdownStatus = lockedServers.has(interaction.guild.id) ? '🔒 Active' : '🔓 None';
+        const lockdownStatus = lockedServers.has(interaction.guild.id) ? '?? Active' : '?? None';
         const actionText = config.action === 'none' ? 'Monitor Only' : config.action === 'kick' ? 'Kick' : 'Ban';
         
         const embed = new EmbedBuilder()
-            .setTitle('🛡️ Raid Protection Control Panel')
+            .setTitle('??? Raid Protection Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                 `Monitors for suspicious join patterns and takes automatic action.\n\n` +
                 `Click the buttons below to configure settings.`
             )
             .addFields(
-                { name: '📡 Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                { name: '👥 Join Threshold', value: `${config.joinThreshold} members`, inline: true },
-                { name: '⏱️ Time Window', value: `${config.timeWindow} seconds`, inline: true },
-                { name: '⚡ Action', value: actionText, inline: true },
-                { name: '🔒 Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
-                { name: '🔓 Current Lockdown', value: lockdownStatus, inline: true },
-                { name: '📢 Notification Channel', value: notifChannel, inline: true },
-                { name: '✅ Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
+                { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                { name: '?? Join Threshold', value: `${config.joinThreshold} members`, inline: true },
+                { name: '?? Time Window', value: `${config.timeWindow} seconds`, inline: true },
+                { name: '? Action', value: actionText, inline: true },
+                { name: '?? Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
+                { name: '?? Current Lockdown', value: lockdownStatus, inline: true },
+                { name: '?? Notification Channel', value: notifChannel, inline: true },
+                { name: '? Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
             )
             .setFooter({ text: 'Click buttons below to configure raid protection' })
             .setTimestamp();
@@ -4461,22 +4478,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('raid_toggle')
                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '⏸️' : '▶️'),
+                    .setEmoji(config.enabled ? '??' : '??'),
                 new ButtonBuilder()
                     .setCustomId('raid_set_threshold')
                     .setLabel('Set Threshold')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('👥'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('raid_set_timewindow')
                     .setLabel('Time Window')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⏱️'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('raid_set_action')
                     .setLabel('Set Action')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⚡')
+                    .setEmoji('?')
             );
         
         const row2 = new ActionRowBuilder()
@@ -4485,22 +4502,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('raid_set_lockdown')
                     .setLabel('Lockdown Duration')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔒'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('raid_set_notification')
                     .setLabel('Notification Channel')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📢'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('raid_whitelist')
                     .setLabel('Manage Whitelist')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅'),
+                    .setEmoji('?'),
                 new ButtonBuilder()
                     .setCustomId('raid_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄')
+                    .setEmoji('??')
             );
         
         const row3 = new ActionRowBuilder()
@@ -4509,7 +4526,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('raid_unlock')
                     .setLabel('Unlock Server')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🔓')
+                    .setEmoji('??')
                     .setDisabled(!lockedServers.has(interaction.guild.id))
             );
         
@@ -4541,7 +4558,7 @@ client.on('interactionCreate', async (interaction) => {
         
         // All old subcommands removed - now using interactive panel above
         return interaction.reply({ 
-            content: '⚠️ Please use the new `/raidprotection` interactive panel instead!', 
+            content: '?? Please use the new `/raidprotection` interactive panel instead!', 
             ephemeral: true 
         });
     }
@@ -4562,18 +4579,18 @@ client.on('interactionCreate', async (interaction) => {
         const muteRole = settings.moderation.muteRole ? `<@&${settings.moderation.muteRole}>` : 'Not set';
         
         const menuEmbed = new EmbedBuilder()
-            .setTitle('⚖️ Moderation System Control Panel')
-            .setDescription(`System is currently **${settings.moderation.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
+            .setTitle('?? Moderation System Control Panel')
+            .setDescription(`System is currently **${settings.moderation.enabled ? '? Enabled' : '? Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
             .setColor(settings.moderation.enabled ? 0x00FF00 : 0xFF0000)
             .addFields(
-                { name: '⚠️ Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
-                { name: '⚡ Auto-Action', value: settings.moderation.autoAction.charAt(0).toUpperCase() + settings.moderation.autoAction.slice(1), inline: true },
-                { name: '⏱️ Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
-                { name: '📅 Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
-                { name: '💬 DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
-                { name: '📝 Log Channel', value: logChan, inline: true },
-                { name: '🔇 Mute Role', value: muteRole, inline: true },
-                { name: '👮 Moderator Roles', value: modRoles, inline: false }
+                { name: '?? Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
+                { name: '? Auto-Action', value: settings.moderation.autoAction.charAt(0).toUpperCase() + settings.moderation.autoAction.slice(1), inline: true },
+                { name: '?? Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
+                { name: '?? Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
+                { name: '?? DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
+                { name: '?? Log Channel', value: logChan, inline: true },
+                { name: '?? Mute Role', value: muteRole, inline: true },
+                { name: '?? Moderator Roles', value: modRoles, inline: false }
             )
             .setFooter({ text: 'Click a button to configure that setting' })
             .setTimestamp();
@@ -4584,22 +4601,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('mod_toggle')
                     .setLabel(settings.moderation.enabled ? 'Disable System' : 'Enable System')
                     .setStyle(settings.moderation.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(settings.moderation.enabled ? '❌' : '✅'),
+                    .setEmoji(settings.moderation.enabled ? '?' : '?'),
                 new ButtonBuilder()
                     .setCustomId('mod_threshold')
                     .setLabel('Set Threshold')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⚠️'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('mod_autoaction')
                     .setLabel('Set Auto-Action')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⚡'),
+                    .setEmoji('?'),
                 new ButtonBuilder()
                     .setCustomId('mod_timeout')
                     .setLabel('Timeout Duration')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⏱️')
+                    .setEmoji('??')
             );
         
         const row2 = new ActionRowBuilder()
@@ -4608,22 +4625,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('mod_decay')
                     .setLabel('Warning Decay')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📅'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('mod_dm')
                     .setLabel('Toggle DMs')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('💬'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('mod_logchannel')
                     .setLabel('Set Log Channel')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📝'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('mod_muterole')
                     .setLabel('Set Mute Role')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔇')
+                    .setEmoji('??')
             );
         
         const row3 = new ActionRowBuilder()
@@ -4632,17 +4649,17 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('mod_addrole')
                     .setLabel('Add Mod Role')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('➕'),
+                    .setEmoji('?'),
                 new ButtonBuilder()
                     .setCustomId('mod_removerole')
                     .setLabel('Remove Mod Role')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('➖'),
+                    .setEmoji('?'),
                 new ButtonBuilder()
                     .setCustomId('mod_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄')
+                    .setEmoji('??')
             );
         
         return interaction.reply({ embeds: [menuEmbed], components: [row1, row2, row3], ephemeral: true });
@@ -4654,11 +4671,11 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!settings.moderation.enabled) {
-            return interaction.reply({ content: '❌ Moderation system is disabled!', ephemeral: true });
+            return interaction.reply({ content: '? Moderation system is disabled!', ephemeral: true });
         }
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -4666,15 +4683,15 @@ client.on('interactionCreate', async (interaction) => {
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
         }
         
         if (member.id === interaction.user.id) {
-            return interaction.reply({ content: '❌ You cannot warn yourself!', ephemeral: true });
+            return interaction.reply({ content: '? You cannot warn yourself!', ephemeral: true });
         }
         
         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
-            return interaction.reply({ content: '❌ You cannot warn administrators!', ephemeral: true });
+            return interaction.reply({ content: '? You cannot warn administrators!', ephemeral: true });
         }
         
         const warningCount = await addWarning(interaction.guild.id, user.id, interaction.user.id, reason);
@@ -4685,7 +4702,7 @@ client.on('interactionCreate', async (interaction) => {
             try {
                 await user.send({
                     embeds: [new EmbedBuilder()
-                        .setTitle('⚠️ Warning Received')
+                        .setTitle('?? Warning Received')
                         .setDescription(`You have been warned in **${interaction.guild.name}**`)
                         .addFields(
                             { name: 'Reason', value: reason },
@@ -4700,10 +4717,10 @@ client.on('interactionCreate', async (interaction) => {
             }
         }
         
-        await logModerationAction(interaction.guild, '⚠️ Warning', interaction.user, user, reason, { warnings: warningCount });
+        await logModerationAction(interaction.guild, '?? Warning', interaction.user, user, reason, { warnings: warningCount });
         
         const embed = new EmbedBuilder()
-            .setTitle('✅ User Warned')
+            .setTitle('? User Warned')
             .setDescription(`${user} has been warned.`)
             .addFields(
                 { name: 'Reason', value: reason },
@@ -4720,16 +4737,16 @@ client.on('interactionCreate', async (interaction) => {
             try {
                 if (action === 'timeout') {
                     await member.timeout(settings.moderation.timeoutDuration * 1000, `Auto-timeout: ${warningCount} warnings`);
-                    await interaction.followUp({ content: `🔇 ${user} has been auto-timed out for reaching the warning threshold!`, ephemeral: true });
-                    await logModerationAction(interaction.guild, '🔇 Auto-Timeout', client.user, user, `Warning threshold reached (${warningCount} warnings)`, { duration: `${settings.moderation.timeoutDuration / 60} minutes` });
+                    await interaction.followUp({ content: `?? ${user} has been auto-timed out for reaching the warning threshold!`, ephemeral: true });
+                    await logModerationAction(interaction.guild, '?? Auto-Timeout', client.user, user, `Warning threshold reached (${warningCount} warnings)`, { duration: `${settings.moderation.timeoutDuration / 60} minutes` });
                 } else if (action === 'kick') {
                     await member.kick(`Auto-kick: ${warningCount} warnings`);
-                    await interaction.followUp({ content: `👢 ${user} has been auto-kicked for reaching the warning threshold!`, ephemeral: true });
-                    await logModerationAction(interaction.guild, '👢 Auto-Kick', client.user, user, `Warning threshold reached (${warningCount} warnings)`);
+                    await interaction.followUp({ content: `?? ${user} has been auto-kicked for reaching the warning threshold!`, ephemeral: true });
+                    await logModerationAction(interaction.guild, '?? Auto-Kick', client.user, user, `Warning threshold reached (${warningCount} warnings)`);
                 } else if (action === 'ban') {
                     await member.ban({ reason: `Auto-ban: ${warningCount} warnings` });
-                    await interaction.followUp({ content: `🔨 ${user} has been auto-banned for reaching the warning threshold!`, ephemeral: true });
-                    await logModerationAction(interaction.guild, '🔨 Auto-Ban', client.user, user, `Warning threshold reached (${warningCount} warnings)`);
+                    await interaction.followUp({ content: `?? ${user} has been auto-banned for reaching the warning threshold!`, ephemeral: true });
+                    await logModerationAction(interaction.guild, '?? Auto-Ban', client.user, user, `Warning threshold reached (${warningCount} warnings)`);
                 }
                 
                 if (settings.moderation.autoDeleteWarnings) {
@@ -4737,7 +4754,7 @@ client.on('interactionCreate', async (interaction) => {
                     saveModerationData();
                 }
             } catch (error) {
-                await interaction.followUp({ content: `❌ Failed to auto-${action}: ${error.message}`, ephemeral: true });
+                await interaction.followUp({ content: `? Failed to auto-${action}: ${error.message}`, ephemeral: true });
             }
         }
     }
@@ -4754,7 +4771,7 @@ client.on('interactionCreate', async (interaction) => {
         }
         
         const embed = new EmbedBuilder()
-            .setTitle(`⚠️ Warnings for ${user.tag}`)
+            .setTitle(`?? Warnings for ${user.tag}`)
             .setColor(0xFFAA00)
             .setThumbnail(user.displayAvatarURL())
             .setDescription(`Total warnings: **${warnings.length}**`);
@@ -4781,7 +4798,7 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -4791,11 +4808,11 @@ client.on('interactionCreate', async (interaction) => {
         moderationData[interaction.guild.id].warnings[user.id] = [];
         saveModerationData();
         
-        await logModerationAction(interaction.guild, '🧹 Warnings Cleared', interaction.user, user, `Cleared ${warningCount} warnings`);
+        await logModerationAction(interaction.guild, '?? Warnings Cleared', interaction.user, user, `Cleared ${warningCount} warnings`);
         
         return interaction.reply({ 
             embeds: [new EmbedBuilder()
-                .setTitle('✅ Warnings Cleared')
+                .setTitle('? Warnings Cleared')
                 .setDescription(`Cleared **${warningCount}** warnings for ${user}`)
                 .setColor(0x00FF00)] 
         });
@@ -4807,7 +4824,7 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -4816,11 +4833,11 @@ client.on('interactionCreate', async (interaction) => {
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
         }
         
         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
-            return interaction.reply({ content: '❌ You cannot timeout administrators!', ephemeral: true });
+            return interaction.reply({ content: '? You cannot timeout administrators!', ephemeral: true });
         }
         
         try {
@@ -4831,7 +4848,7 @@ client.on('interactionCreate', async (interaction) => {
                 try {
                     await user.send({
                         embeds: [new EmbedBuilder()
-                            .setTitle('🔇 You Have Been Timed Out')
+                            .setTitle('?? You Have Been Timed Out')
                             .setDescription(`You have been timed out in **${interaction.guild.name}**`)
                             .addFields(
                                 { name: 'Duration', value: `${duration} minutes` },
@@ -4843,17 +4860,17 @@ client.on('interactionCreate', async (interaction) => {
                 } catch (e) {}
             }
             
-            await logModerationAction(interaction.guild, '🔇 Timeout', interaction.user, user, reason, { duration: `${duration} minutes` });
+            await logModerationAction(interaction.guild, '?? Timeout', interaction.user, user, reason, { duration: `${duration} minutes` });
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('✅ User Timed Out')
+                    .setTitle('? User Timed Out')
                     .setDescription(`${user} has been timed out for **${duration} minutes**`)
                     .addFields({ name: 'Reason', value: reason })
                     .setColor(0xFFA500)] 
             });
         } catch (error) {
-            return interaction.reply({ content: `❌ Failed to timeout user: ${error.message}`, ephemeral: true });
+            return interaction.reply({ content: `? Failed to timeout user: ${error.message}`, ephemeral: true });
         }
     }
     
@@ -4863,28 +4880,28 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
         }
         
         try {
             await member.timeout(null);
-            await logModerationAction(interaction.guild, '✅ Timeout Removed', interaction.user, user, 'Timeout removed by moderator');
+            await logModerationAction(interaction.guild, '? Timeout Removed', interaction.user, user, 'Timeout removed by moderator');
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('✅ Timeout Removed')
+                    .setTitle('? Timeout Removed')
                     .setDescription(`Timeout removed from ${user}`)
                     .setColor(0x00FF00)] 
             });
         } catch (error) {
-            return interaction.reply({ content: `❌ Failed to remove timeout: ${error.message}`, ephemeral: true });
+            return interaction.reply({ content: `? Failed to remove timeout: ${error.message}`, ephemeral: true });
         }
     }
     
@@ -4894,7 +4911,7 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -4902,15 +4919,15 @@ client.on('interactionCreate', async (interaction) => {
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
         }
         
         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
-            return interaction.reply({ content: '❌ You cannot kick administrators!', ephemeral: true });
+            return interaction.reply({ content: '? You cannot kick administrators!', ephemeral: true });
         }
         
         if (!member.kickable) {
-            return interaction.reply({ content: '❌ I cannot kick this user (role hierarchy)!', ephemeral: true });
+            return interaction.reply({ content: '? I cannot kick this user (role hierarchy)!', ephemeral: true });
         }
         
         try {
@@ -4920,7 +4937,7 @@ client.on('interactionCreate', async (interaction) => {
                 try {
                     await user.send({
                         embeds: [new EmbedBuilder()
-                            .setTitle('👢 You Have Been Kicked')
+                            .setTitle('?? You Have Been Kicked')
                             .setDescription(`You have been kicked from **${interaction.guild.name}**`)
                             .addFields({ name: 'Reason', value: reason })
                             .setColor(0xFF6600)
@@ -4930,17 +4947,17 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             await member.kick(reason);
-            await logModerationAction(interaction.guild, '👢 Kick', interaction.user, user, reason);
+            await logModerationAction(interaction.guild, '?? Kick', interaction.user, user, reason);
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('✅ User Kicked')
+                    .setTitle('? User Kicked')
                     .setDescription(`${user} has been kicked`)
                     .addFields({ name: 'Reason', value: reason })
                     .setColor(0xFF6600)] 
             });
         } catch (error) {
-            return interaction.reply({ content: `❌ Failed to kick user: ${error.message}`, ephemeral: true });
+            return interaction.reply({ content: `? Failed to kick user: ${error.message}`, ephemeral: true });
         }
     }
     
@@ -4950,7 +4967,7 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -4960,11 +4977,11 @@ client.on('interactionCreate', async (interaction) => {
         
         if (member) {
             if (member.permissions.has(PermissionFlagsBits.Administrator)) {
-                return interaction.reply({ content: '❌ You cannot ban administrators!', ephemeral: true });
+                return interaction.reply({ content: '? You cannot ban administrators!', ephemeral: true });
             }
             
             if (!member.bannable) {
-                return interaction.reply({ content: '❌ I cannot ban this user (role hierarchy)!', ephemeral: true });
+                return interaction.reply({ content: '? I cannot ban this user (role hierarchy)!', ephemeral: true });
             }
         }
         
@@ -4975,7 +4992,7 @@ client.on('interactionCreate', async (interaction) => {
                 try {
                     await user.send({
                         embeds: [new EmbedBuilder()
-                            .setTitle('🔨 You Have Been Banned')
+                            .setTitle('?? You Have Been Banned')
                             .setDescription(`You have been banned from **${interaction.guild.name}**`)
                             .addFields({ name: 'Reason', value: reason })
                             .setColor(0xFF0000)
@@ -4985,17 +5002,17 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             await interaction.guild.members.ban(user.id, { reason, deleteMessageSeconds: deleteDays * 86400 });
-            await logModerationAction(interaction.guild, '🔨 Ban', interaction.user, user, reason);
+            await logModerationAction(interaction.guild, '?? Ban', interaction.user, user, reason);
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('✅ User Banned')
+                    .setTitle('? User Banned')
                     .setDescription(`${user} has been banned`)
                     .addFields({ name: 'Reason', value: reason })
                     .setColor(0xFF0000)] 
             });
         } catch (error) {
-            return interaction.reply({ content: `❌ Failed to ban user: ${error.message}`, ephemeral: true });
+            return interaction.reply({ content: `? Failed to ban user: ${error.message}`, ephemeral: true });
         }
     }
     
@@ -5005,23 +5022,23 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         const userId = interaction.options.getString('userid');
         
         try {
             await interaction.guild.members.unban(userId);
-            await logModerationAction(interaction.guild, '✅ Unban', interaction.user, { id: userId, tag: userId }, 'User unbanned');
+            await logModerationAction(interaction.guild, '? Unban', interaction.user, { id: userId, tag: userId }, 'User unbanned');
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('✅ User Unbanned')
+                    .setTitle('? User Unbanned')
                     .setDescription(`User ID ${userId} has been unbanned`)
                     .setColor(0x00FF00)] 
             });
         } catch (error) {
-            return interaction.reply({ content: `❌ Failed to unban user: ${error.message}`, ephemeral: true });
+            return interaction.reply({ content: `? Failed to unban user: ${error.message}`, ephemeral: true });
         }
     }
     
@@ -5031,11 +5048,11 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         if (!settings.moderation.muteRole) {
-            return interaction.reply({ content: '❌ Mute role not configured! Use `/moderator muterole` to set it.', ephemeral: true });
+            return interaction.reply({ content: '? Mute role not configured! Use `/moderator muterole` to set it.', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -5043,11 +5060,11 @@ client.on('interactionCreate', async (interaction) => {
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
         }
         
         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
-            return interaction.reply({ content: '❌ You cannot mute administrators!', ephemeral: true });
+            return interaction.reply({ content: '? You cannot mute administrators!', ephemeral: true });
         }
         
         try {
@@ -5065,7 +5082,7 @@ client.on('interactionCreate', async (interaction) => {
                 try {
                     await user.send({
                         embeds: [new EmbedBuilder()
-                            .setTitle('🔇 You Have Been Muted')
+                            .setTitle('?? You Have Been Muted')
                             .setDescription(`You have been muted in **${interaction.guild.name}**`)
                             .addFields({ name: 'Reason', value: reason })
                             .setColor(0xFFA500)
@@ -5074,17 +5091,17 @@ client.on('interactionCreate', async (interaction) => {
                 } catch (e) {}
             }
             
-            await logModerationAction(interaction.guild, '🔇 Mute', interaction.user, user, reason);
+            await logModerationAction(interaction.guild, '?? Mute', interaction.user, user, reason);
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('✅ User Muted')
+                    .setTitle('? User Muted')
                     .setDescription(`${user} has been muted`)
                     .addFields({ name: 'Reason', value: reason })
                     .setColor(0xFFA500)] 
             });
         } catch (error) {
-            return interaction.reply({ content: `❌ Failed to mute user: ${error.message}`, ephemeral: true });
+            return interaction.reply({ content: `? Failed to mute user: ${error.message}`, ephemeral: true });
         }
     }
     
@@ -5094,18 +5111,18 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         if (!settings.moderation.muteRole) {
-            return interaction.reply({ content: '❌ Mute role not configured!', ephemeral: true });
+            return interaction.reply({ content: '? Mute role not configured!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
         }
         
         try {
@@ -5118,16 +5135,16 @@ client.on('interactionCreate', async (interaction) => {
                 saveModerationData();
             }
             
-            await logModerationAction(interaction.guild, '✅ Unmute', interaction.user, user, 'User unmuted');
+            await logModerationAction(interaction.guild, '? Unmute', interaction.user, user, 'User unmuted');
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('✅ User Unmuted')
+                    .setTitle('? User Unmuted')
                     .setDescription(`${user} has been unmuted`)
                     .setColor(0x00FF00)] 
             });
         } catch (error) {
-            return interaction.reply({ content: `❌ Failed to unmute user: ${error.message}`, ephemeral: true });
+            return interaction.reply({ content: `? Failed to unmute user: ${error.message}`, ephemeral: true });
         }
     }
     
@@ -5144,20 +5161,20 @@ client.on('interactionCreate', async (interaction) => {
                 const staffRole = settings.staffRoleId ? `<@&${settings.staffRoleId}>` : 'Not set';
                 
                 const embed = new EmbedBuilder()
-                    .setTitle('🎫 Ticket System Control Panel')
+                    .setTitle('?? Ticket System Control Panel')
                     .setColor(0xFF0000)
                     .setDescription(
-                        `System is currently **❌ Disabled**\n\n` +
+                        `System is currently **? Disabled**\n\n` +
                         `Manage your server's support ticket system.\n\n` +
                         `Click the buttons below to configure ticket settings.`
                     )
                     .addFields(
-                        { name: '📡 Status', value: '❌ Disabled', inline: true },
-                        { name: '👮 Staff Role', value: staffRole, inline: true },
-                        { name: '📁 Category', value: settings.categoryName, inline: true },
-                        { name: '🎫 Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
-                        { name: '📝 Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
-                        { name: '🔒 Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
+                        { name: '?? Status', value: '? Disabled', inline: true },
+                        { name: '?? Staff Role', value: staffRole, inline: true },
+                        { name: '?? Category', value: settings.categoryName, inline: true },
+                        { name: '?? Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
+                        { name: '?? Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
+                        { name: '?? Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
                     )
                     .setFooter({ text: 'Click buttons below to configure ticket system' })
                     .setTimestamp();
@@ -5168,22 +5185,22 @@ client.on('interactionCreate', async (interaction) => {
                             .setCustomId('ticket_toggle')
                             .setLabel('Enable System')
                             .setStyle(ButtonStyle.Success)
-                            .setEmoji('✅'),
+                            .setEmoji('?'),
                         new ButtonBuilder()
                             .setCustomId('ticket_staffrole')
                             .setLabel('Set Staff Role')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('👮'),
+                            .setEmoji('??'),
                         new ButtonBuilder()
                             .setCustomId('ticket_category')
                             .setLabel('Set Category')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('📁'),
+                            .setEmoji('??'),
                         new ButtonBuilder()
                             .setCustomId('ticket_panel')
                             .setLabel('Create Panel')
                             .setStyle(ButtonStyle.Success)
-                            .setEmoji('🎫')
+                            .setEmoji('??')
                     );
                 
                 const row2 = new ActionRowBuilder()
@@ -5192,17 +5209,17 @@ client.on('interactionCreate', async (interaction) => {
                             .setCustomId('ticket_welcomemsg')
                             .setLabel('Welcome Message')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('📝'),
+                            .setEmoji('??'),
                         new ButtonBuilder()
                             .setCustomId('ticket_closemsg')
                             .setLabel('Close Message')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('🔒'),
+                            .setEmoji('??'),
                         new ButtonBuilder()
                             .setCustomId('ticket_refresh')
                             .setLabel('Refresh')
                             .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('🔄')
+                            .setEmoji('??')
                     );
                 
                 return interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -5210,25 +5227,25 @@ client.on('interactionCreate', async (interaction) => {
             
             // For non-admins, show disabled message
             return interaction.reply({ 
-                content: '❌ The ticket system is not enabled on this server. Please ask an administrator to enable it using `/ticketsetup`!', 
+                content: '? The ticket system is not enabled on this server. Please ask an administrator to enable it using `/ticketsetup`!', 
                 ephemeral: true 
             });
         }
         
         // Create interactive panel embed
         const ticketPanelEmbed = new EmbedBuilder()
-            .setTitle('🎫 Create Support Ticket')
+            .setTitle('?? Create Support Ticket')
             .setDescription(
                 '**Need help from our support team?**\n\n' +
                 'Click the button below to open a private support ticket. ' +
                 'A new channel will be created where you can discuss your issue with our staff.\n\n' +
                 '**What to expect:**\n' +
-                '• A private channel will be created for you\n' +
-                '• Only you and staff members can see it\n' +
-                '• Our team will respond as soon as possible\n' +
-                '• You can close the ticket when your issue is resolved\n\n' +
-                '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
-                '**Ready to get help?** Click the button below! 👇'
+                '� A private channel will be created for you\n' +
+                '� Only you and staff members can see it\n' +
+                '� Our team will respond as soon as possible\n' +
+                '� You can close the ticket when your issue is resolved\n\n' +
+                '??????????????????????????????\n\n' +
+                '**Ready to get help?** Click the button below! ??'
             )
             .setColor(0x5865F2)
             .setFooter({ text: `${interaction.guild.name} Support System` })
@@ -5240,7 +5257,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('create_ticket_panel')
                     .setLabel('Open Support Ticket')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('🎫')
+                    .setEmoji('??')
             );
         
         await interaction.reply({ 
@@ -5266,20 +5283,20 @@ client.on('interactionCreate', async (interaction) => {
         
         // Create interactive panel
         const embed = new EmbedBuilder()
-            .setTitle('📊 Leveling System Control Panel')
+            .setTitle('?? Leveling System Control Panel')
             .setColor(settings.leveling.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                `System is currently **${settings.leveling.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                 `Manage your server's leveling system.\n\n` +
                 `Click the buttons below to configure leveling settings.`
             )
             .addFields(
-                { name: '📡 Status', value: settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                { name: '⚡ XP Range', value: `${settings.leveling.minXP}-${settings.leveling.maxXP}`, inline: true },
-                { name: '⏱️ Cooldown', value: `${settings.leveling.cooldown / 1000}s`, inline: true },
-                { name: '🔝 Max Level', value: settings.leveling.maxLevel.toString(), inline: true },
-                { name: '📢 Level Up Channel', value: settings.leveling.levelUpChannelId ? `<#${settings.leveling.levelUpChannelId}>` : 'Current Channel', inline: true },
-                { name: '🎭 Level Roles', value: Object.keys(settings.leveling.levelRoles).length > 0 ? `${Object.keys(settings.leveling.levelRoles).length} roles configured` : 'None', inline: true }
+                { name: '?? Status', value: settings.leveling.enabled ? '? Enabled' : '? Disabled', inline: true },
+                { name: '? XP Range', value: `${settings.leveling.minXP}-${settings.leveling.maxXP}`, inline: true },
+                { name: '?? Cooldown', value: `${settings.leveling.cooldown / 1000}s`, inline: true },
+                { name: '?? Max Level', value: settings.leveling.maxLevel.toString(), inline: true },
+                { name: '?? Level Up Channel', value: settings.leveling.levelUpChannelId ? `<#${settings.leveling.levelUpChannelId}>` : 'Current Channel', inline: true },
+                { name: '?? Level Roles', value: Object.keys(settings.leveling.levelRoles).length > 0 ? `${Object.keys(settings.leveling.levelRoles).length} roles configured` : 'None', inline: true }
             )
             .setFooter({ text: 'Click buttons below to configure leveling system' })
             .setTimestamp();
@@ -5290,22 +5307,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('leveling_toggle')
                     .setLabel(settings.leveling.enabled ? 'Disable System' : 'Enable System')
                     .setStyle(settings.leveling.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(settings.leveling.enabled ? '❌' : '✅'),
+                    .setEmoji(settings.leveling.enabled ? '?' : '?'),
                 new ButtonBuilder()
                     .setCustomId('leveling_xprange')
                     .setLabel('Set XP Range')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⚡'),
+                    .setEmoji('?'),
                 new ButtonBuilder()
                     .setCustomId('leveling_cooldown')
                     .setLabel('Set Cooldown')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⏱️'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('leveling_maxlevel')
                     .setLabel('Set Max Level')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔝')
+                    .setEmoji('??')
             );
         
         const row2 = new ActionRowBuilder()
@@ -5314,22 +5331,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('leveling_channel')
                     .setLabel('Level Up Channel')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('📢'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('leveling_addrole')
                     .setLabel('Add Level Role')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('➕'),
+                    .setEmoji('?'),
                 new ButtonBuilder()
                     .setCustomId('leveling_removerole')
                     .setLabel('Remove Level Role')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('➖'),
+                    .setEmoji('?'),
                 new ButtonBuilder()
                     .setCustomId('leveling_viewroles')
                     .setLabel('View Roles')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('📋')
+                    .setEmoji('??')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -5376,20 +5393,20 @@ client.on('interactionCreate', async (interaction) => {
         
         // Create interactive panel
         const embed = new EmbedBuilder()
-            .setTitle('🎫 Ticket System Control Panel')
+            .setTitle('?? Ticket System Control Panel')
             .setColor(settings.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${settings.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                `System is currently **${settings.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                 `Manage your server's support ticket system.\n\n` +
                 `Click the buttons below to configure ticket settings.`
             )
             .addFields(
-                { name: '📡 Status', value: settings.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                { name: '👮 Staff Role', value: staffRole, inline: true },
-                { name: '📁 Category', value: settings.categoryName, inline: true },
-                { name: '🎫 Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
-                { name: '📝 Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
-                { name: '🔒 Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
+                { name: '?? Status', value: settings.enabled ? '? Enabled' : '? Disabled', inline: true },
+                { name: '?? Staff Role', value: staffRole, inline: true },
+                { name: '?? Category', value: settings.categoryName, inline: true },
+                { name: '?? Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
+                { name: '?? Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
+                { name: '?? Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure ticket system' })
             .setTimestamp();
@@ -5400,22 +5417,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('ticket_toggle')
                     .setLabel(settings.enabled ? 'Disable System' : 'Enable System')
                     .setStyle(settings.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(settings.enabled ? '❌' : '✅'),
+                    .setEmoji(settings.enabled ? '?' : '?'),
                 new ButtonBuilder()
                     .setCustomId('ticket_staffrole')
                     .setLabel('Set Staff Role')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('👮'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('ticket_category')
                     .setLabel('Set Category')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📁'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('ticket_panel')
                     .setLabel('Create Panel')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('🎫')
+                    .setEmoji('??')
             );
         
         const row2 = new ActionRowBuilder()
@@ -5424,17 +5441,17 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('ticket_welcomemsg')
                     .setLabel('Welcome Message')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📝'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('ticket_closemsg')
                     .setLabel('Close Message')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔒'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('ticket_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄')
+                    .setEmoji('??')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -5445,24 +5462,24 @@ client.on('interactionCreate', async (interaction) => {
         if (!requireAdmin(interaction)) return;
         
         const embed = new EmbedBuilder()
-            .setTitle('🔗 Webhook Creator Panel')
+            .setTitle('?? Webhook Creator Panel')
             .setColor(0x5865F2)
             .setDescription(
                 `Create professional webhook embeds with custom content.\n\n` +
                 `**Features:**\n` +
-                `• Custom titles, descriptions, and fields\n` +
-                `• Image and thumbnail support\n` +
-                `• Color customization\n` +
-                `• Footer and timestamp options\n` +
-                `• Save and reuse templates\n\n` +
+                `� Custom titles, descriptions, and fields\n` +
+                `� Image and thumbnail support\n` +
+                `� Color customization\n` +
+                `� Footer and timestamp options\n` +
+                `� Save and reuse templates\n\n` +
                 `Click the buttons below to get started.`
             )
             .addFields(
-                { name: '📝 Create Webhook', value: 'Set up a new webhook in any channel', inline: true },
-                { name: '🎨 Custom Embed', value: 'Design your embed with interactive forms', inline: true },
-                { name: '📋 Templates', value: 'Save frequently used embed designs', inline: true }
+                { name: '?? Create Webhook', value: 'Set up a new webhook in any channel', inline: true },
+                { name: '?? Custom Embed', value: 'Design your embed with interactive forms', inline: true },
+                { name: '?? Templates', value: 'Save frequently used embed designs', inline: true }
             )
-            .setFooter({ text: 'Webhook Creator • Admin Only' })
+            .setFooter({ text: 'Webhook Creator � Admin Only' })
             .setTimestamp();
         
         const row = new ActionRowBuilder()
@@ -5471,17 +5488,17 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('webhook_create')
                     .setLabel('Create Webhook')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('🔗'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('webhook_embed')
                     .setLabel('Design Embed')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🎨'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('webhook_list')
                     .setLabel('List Webhooks')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('📋')
+                    .setEmoji('??')
             );
         
         await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
@@ -5496,7 +5513,7 @@ client.on('interactionCreate', async (interaction) => {
         
         // Create interactive panel
         const embed = new EmbedBuilder()
-            .setTitle('🛡️ Moderation Control Panel')
+            .setTitle('??? Moderation Control Panel')
             .setColor(0x3498DB)
             .setDescription(
                 `Complete moderation toolkit for your server.\n\n` +
@@ -5504,14 +5521,14 @@ client.on('interactionCreate', async (interaction) => {
                 `Use the buttons below to perform moderation actions.`
             )
             .addFields(
-                { name: '⚠️ Warn', value: 'Issue a warning to a user', inline: true },
-                { name: '🔇 Timeout', value: 'Timeout a user temporarily', inline: true },
-                { name: '👢 Kick', value: 'Kick a user from server', inline: true },
-                { name: '🔨 Ban', value: 'Permanently ban a user', inline: true },
-                { name: '🔕 Mute', value: 'Mute a user in channels', inline: true },
-                { name: '🔊 Unmute', value: 'Remove mute from a user', inline: true },
-                { name: '📋 Infractions', value: 'View user\'s infraction history', inline: true },
-                { name: '🧹 Clear Warnings', value: 'Clear all warnings for a user', inline: true },
+                { name: '?? Warn', value: 'Issue a warning to a user', inline: true },
+                { name: '?? Timeout', value: 'Timeout a user temporarily', inline: true },
+                { name: '?? Kick', value: 'Kick a user from server', inline: true },
+                { name: '?? Ban', value: 'Permanently ban a user', inline: true },
+                { name: '?? Mute', value: 'Mute a user in channels', inline: true },
+                { name: '?? Unmute', value: 'Remove mute from a user', inline: true },
+                { name: '?? Infractions', value: 'View user\'s infraction history', inline: true },
+                { name: '?? Clear Warnings', value: 'Clear all warnings for a user', inline: true },
                 { name: '\u200B', value: '\u200B', inline: true }
             )
             .setFooter({ text: 'Click buttons below to perform moderation actions' })
@@ -5523,22 +5540,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('mod_warn')
                     .setLabel('Warn User')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⚠️'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('mod_timeout')
                     .setLabel('Timeout')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔇'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('mod_kick')
                     .setLabel('Kick')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('👢'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('mod_ban')
                     .setLabel('Ban')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🔨')
+                    .setEmoji('??')
             );
         
         const row2 = new ActionRowBuilder()
@@ -5547,22 +5564,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('mod_mute')
                     .setLabel('Mute')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔕'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('mod_unmute')
                     .setLabel('Unmute')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('🔊'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('mod_infractions')
                     .setLabel('View Infractions')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📋'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('mod_clearwarnings')
                     .setLabel('Clear Warnings')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🧹')
+                    .setEmoji('??')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -5582,17 +5599,17 @@ client.on('interactionCreate', async (interaction) => {
                     await ytCommand.handleButton(interaction);
                     return;
                 } catch (error) {
-                    console.error('❌ YouTube button error:', error);
+                    console.error('? YouTube button error:', error);
                     console.error('Stack trace:', error.stack);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
                             await interaction.reply({ 
-                                content: '❌ An error occurred while processing YouTube notifications. Please try again or contact an admin.', 
+                                content: '? An error occurred while processing YouTube notifications. Please try again or contact an admin.', 
                                 ephemeral: true 
                             });
                         } else if (interaction.deferred) {
                             await interaction.editReply({ 
-                                content: '❌ An error occurred while processing YouTube notifications. Please try again or contact an admin.' 
+                                content: '? An error occurred while processing YouTube notifications. Please try again or contact an admin.' 
                             });
                         }
                     } catch (replyError) {
@@ -5610,17 +5627,17 @@ client.on('interactionCreate', async (interaction) => {
                     await lvlCommand.handleButton(interaction);
                     return;
                 } catch (error) {
-                    console.error('❌ Leveling button error:', error);
+                    console.error('? Leveling button error:', error);
                     console.error('Stack trace:', error.stack);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
                             await interaction.reply({ 
-                                content: '❌ An error occurred while processing leveling setup. Please try again or contact an admin.', 
+                                content: '? An error occurred while processing leveling setup. Please try again or contact an admin.', 
                                 ephemeral: true 
                             });
                         } else if (interaction.deferred) {
                             await interaction.editReply({ 
-                                content: '❌ An error occurred while processing leveling setup. Please try again or contact an admin.' 
+                                content: '? An error occurred while processing leveling setup. Please try again or contact an admin.' 
                             });
                         }
                     } catch (replyError) {
@@ -5638,8 +5655,8 @@ client.on('interactionCreate', async (interaction) => {
                     await leaveCommand.handleButton(interaction);
                     return;
                 } catch (error) {
-                    console.error('❌ Leave button error:', error);
-                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    console.error('? Leave button error:', error);
+                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
             }
@@ -5652,8 +5669,8 @@ client.on('interactionCreate', async (interaction) => {
                     await keywordCommand.handleButton(interaction);
                     return;
                 } catch (error) {
-                    console.error('❌ Keyword button error:', error);
-                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    console.error('? Keyword button error:', error);
+                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
             }
@@ -5666,8 +5683,8 @@ client.on('interactionCreate', async (interaction) => {
                     await pcommandsCommand.handleButton(interaction);
                     return;
                 } catch (error) {
-                    console.error('❌ PCommands button error:', error);
-                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    console.error('? PCommands button error:', error);
+                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
             }
@@ -5701,19 +5718,19 @@ client.on('interactionCreate', async (interaction) => {
                         const keywordChan = config.channels.keywords ? `<#${config.channels.keywords}>` : 'Not set';
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('📋 Server Logging System')
+                            .setTitle('?? Server Logging System')
                             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                             .addFields(
-                                { name: 'Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                                { name: 'Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                                 { name: 'Active Logs', value: `${Object.values(config.logTypes).filter(v => v).length}/12 types`, inline: true },
                                 { name: 'Channels Set', value: `${Object.values(config.channels).filter(v => v).length}/7 configured`, inline: true },
-                                { name: '🔴 Critical Errors', value: criticalChan, inline: true },
-                                { name: '⚖️ Moderation', value: modChan, inline: true },
-                                { name: '💬 Messages', value: msgChan, inline: true },
-                                { name: '👥 Members', value: memberChan, inline: true },
-                                { name: '🔊 Voice', value: voiceChan, inline: true },
-                                { name: '🛠️ Server', value: serverChan, inline: true },
-                                { name: '🚨 Keywords', value: keywordChan, inline: false }
+                                { name: '?? Critical Errors', value: criticalChan, inline: true },
+                                { name: '?? Moderation', value: modChan, inline: true },
+                                { name: '?? Messages', value: msgChan, inline: true },
+                                { name: '?? Members', value: memberChan, inline: true },
+                                { name: '?? Voice', value: voiceChan, inline: true },
+                                { name: '??? Server', value: serverChan, inline: true },
+                                { name: '?? Keywords', value: keywordChan, inline: false }
                             )
                             .setFooter({ text: 'Click buttons below to configure logging channels' })
                             .setTimestamp();
@@ -5724,27 +5741,27 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId('log_toggle')
                                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                                    .setEmoji(config.enabled ? '⏸️' : '▶️'),
+                                    .setEmoji(config.enabled ? '??' : '??'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_critical')
                                     .setLabel('Critical')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('🔴'),
+                                    .setEmoji('??'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_moderation')
                                     .setLabel('Moderation')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('⚖️'),
+                                    .setEmoji('??'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_messages')
                                     .setLabel('Messages')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('💬'),
+                                    .setEmoji('??'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_members')
                                     .setLabel('Members')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('👥')
+                                    .setEmoji('??')
                             );
                         
                         const row2 = new ActionRowBuilder()
@@ -5753,22 +5770,22 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId('log_set_voice')
                                     .setLabel('Voice')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('🔊'),
+                                    .setEmoji('??'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_server')
                                     .setLabel('Server')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('🛠️'),
+                                    .setEmoji('???'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_keywords')
                                     .setLabel('Keywords')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('🚨'),
+                                    .setEmoji('??'),
                                 new ButtonBuilder()
                                     .setCustomId('log_toggles')
                                     .setLabel('Event Toggles')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('⚙️')
+                                    .setEmoji('??')
                             );
                         
                         await interaction.update({ embeds: [embed], components: [row1, row2] });
@@ -5810,10 +5827,10 @@ client.on('interactionCreate', async (interaction) => {
                     // Event toggles button
                     if (interaction.customId === 'log_toggles') {
                         const config = settings.logging.logTypes;
-                        const statusIcon = (enabled) => enabled ? '✅' : '❌';
+                        const statusIcon = (enabled) => enabled ? '?' : '?';
                         
                         const toggleEmbed = new EmbedBuilder()
-                            .setTitle('⚙️ Event Toggle Settings')
+                            .setTitle('?? Event Toggle Settings')
                             .setDescription('Click buttons below to toggle event types')
                             .setColor(0x3498db)
                             .addFields(
@@ -5895,7 +5912,7 @@ client.on('interactionCreate', async (interaction) => {
                             .addComponents(
                                 new ButtonBuilder()
                                     .setCustomId('log_back')
-                                    .setLabel('« Back to Main Panel')
+                                    .setLabel('� Back to Main Panel')
                                     .setStyle(ButtonStyle.Secondary)
                             );
                         
@@ -5918,19 +5935,19 @@ client.on('interactionCreate', async (interaction) => {
                         const keywordChan = config.channels.keywords ? `<#${config.channels.keywords}>` : 'Not set';
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('📋 Server Logging System')
+                            .setTitle('?? Server Logging System')
                             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                             .addFields(
-                                { name: 'Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                                { name: 'Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                                 { name: 'Active Logs', value: `${Object.values(config.logTypes).filter(v => v).length}/12 types`, inline: true },
                                 { name: 'Channels Set', value: `${Object.values(config.channels).filter(v => v).length}/7 configured`, inline: true },
-                                { name: '🔴 Critical Errors', value: criticalChan, inline: true },
-                                { name: '⚖️ Moderation', value: modChan, inline: true },
-                                { name: '💬 Messages', value: msgChan, inline: true },
-                                { name: '👥 Members', value: memberChan, inline: true },
-                                { name: '🔊 Voice', value: voiceChan, inline: true },
-                                { name: '🛠️ Server', value: serverChan, inline: true },
-                                { name: '🚨 Keywords', value: keywordChan, inline: false }
+                                { name: '?? Critical Errors', value: criticalChan, inline: true },
+                                { name: '?? Moderation', value: modChan, inline: true },
+                                { name: '?? Messages', value: msgChan, inline: true },
+                                { name: '?? Members', value: memberChan, inline: true },
+                                { name: '?? Voice', value: voiceChan, inline: true },
+                                { name: '??? Server', value: serverChan, inline: true },
+                                { name: '?? Keywords', value: keywordChan, inline: false }
                             )
                             .setFooter({ text: 'Click buttons below to configure logging channels' })
                             .setTimestamp();
@@ -5941,27 +5958,27 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId('log_toggle')
                                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                                    .setEmoji(config.enabled ? '⏸️' : '▶️'),
+                                    .setEmoji(config.enabled ? '??' : '??'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_critical')
                                     .setLabel('Critical')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('🔴'),
+                                    .setEmoji('??'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_moderation')
                                     .setLabel('Moderation')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('⚖️'),
+                                    .setEmoji('??'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_messages')
                                     .setLabel('Messages')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('💬'),
+                                    .setEmoji('??'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_members')
                                     .setLabel('Members')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('👥')
+                                    .setEmoji('??')
                             );
                         
                         const row2 = new ActionRowBuilder()
@@ -5970,22 +5987,22 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId('log_set_voice')
                                     .setLabel('Voice')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('🔊'),
+                                    .setEmoji('??'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_server')
                                     .setLabel('Server')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('🛠️'),
+                                    .setEmoji('???'),
                                 new ButtonBuilder()
                                     .setCustomId('log_set_keywords')
                                     .setLabel('Keywords')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('🚨'),
+                                    .setEmoji('??'),
                                 new ButtonBuilder()
                                     .setCustomId('log_toggles')
                                     .setLabel('Event Toggles')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('⚙️')
+                                    .setEmoji('??')
                             );
                         
                         await interaction.update({ embeds: [embed], components: [row1, row2] });
@@ -5993,11 +6010,11 @@ client.on('interactionCreate', async (interaction) => {
                     }
                     
                 } catch (error) {
-                    console.error('❌ Logging panel error:', error);
+                    console.error('? Logging panel error:', error);
                     console.error('Stack trace:', error.stack);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
-                            await interaction.reply({ content: '❌ An error occurred. Please try again.', ephemeral: true });
+                            await interaction.reply({ content: '? An error occurred. Please try again.', ephemeral: true });
                         }
                     } catch (replyError) {
                         console.error('Failed to send error message:', replyError);
@@ -6017,10 +6034,10 @@ client.on('interactionCreate', async (interaction) => {
                 saveSettings();
                 
                 const config = settings.logging.logTypes;
-                const statusIcon = (enabled) => enabled ? '✅' : '❌';
+                const statusIcon = (enabled) => enabled ? '?' : '?';
                 
                 const toggleEmbed = new EmbedBuilder()
-                    .setTitle('⚙️ Event Toggle Settings')
+                    .setTitle('?? Event Toggle Settings')
                     .setDescription('Click buttons below to toggle event types')
                     .setColor(0x3498db)
                     .addFields(
@@ -6102,7 +6119,7 @@ client.on('interactionCreate', async (interaction) => {
                     .addComponents(
                         new ButtonBuilder()
                             .setCustomId('log_back')
-                            .setLabel('« Back to Main Panel')
+                            .setLabel('� Back to Main Panel')
                             .setStyle(ButtonStyle.Secondary)
                     );
                 
@@ -6113,7 +6130,7 @@ client.on('interactionCreate', async (interaction) => {
             // AI system button handlers (new panel system)
             if (interaction.customId.startsWith('ai_')) {
                 if (!interaction.member.permissions.has('Administrator')) {
-                    return interaction.reply({ content: '❌ You need Administrator permission to use this.', ephemeral: true });
+                    return interaction.reply({ content: '? You need Administrator permission to use this.', ephemeral: true });
                 }
                 
                 const aisetupCommand = require('./commands/aisetup.js');
@@ -6136,7 +6153,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ AI chat ${settings.ai.enabled ? '**enabled**' : '**disabled**'}! ${settings.ai.enabled ? `Messages in **#${settings.ai.channelName}** will be answered automatically.` : ''}`, 
+                            content: `? AI chat ${settings.ai.enabled ? '**enabled**' : '**disabled**'}! ${settings.ai.enabled ? `Messages in **#${settings.ai.channelName}** will be answered automatically.` : ''}`, 
                             ephemeral: true 
                         });
                     }
@@ -6207,7 +6224,7 @@ client.on('interactionCreate', async (interaction) => {
                         }
                         
                         await interaction.reply({ 
-                            content: `✅ Cleared all AI conversation history! (${totalConvos} channel${totalConvos !== 1 ? 's' : ''})`, 
+                            content: `? Cleared all AI conversation history! (${totalConvos} channel${totalConvos !== 1 ? 's' : ''})`, 
                             ephemeral: true 
                         });
                     }
@@ -6215,20 +6232,20 @@ client.on('interactionCreate', async (interaction) => {
                         const config = settings.ai;
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('🤖 AI Chat System Control Panel')
+                            .setTitle('?? AI Chat System Control Panel')
                             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                             .setDescription(
-                                `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                                `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                                 `AI responds automatically to all messages in the designated channel using **${config.model}**.\n\n` +
                                 `Click the buttons below to configure AI settings.`
                             )
                             .addFields(
-                                { name: '📡 Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                                { name: '💬 Channel', value: `#${config.channelName}`, inline: true },
-                                { name: '🤖 Model', value: config.model, inline: true },
-                                { name: '🧠 Max History', value: `${config.maxHistory} exchanges`, inline: true },
-                                { name: '🌡️ Temperature', value: config.temperature.toString(), inline: true },
-                                { name: '📝 System Prompt', value: config.systemPrompt.substring(0, 100) + '...', inline: false }
+                                { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                                { name: '?? Channel', value: `#${config.channelName}`, inline: true },
+                                { name: '?? Model', value: config.model, inline: true },
+                                { name: '?? Max History', value: `${config.maxHistory} exchanges`, inline: true },
+                                { name: '??? Temperature', value: config.temperature.toString(), inline: true },
+                                { name: '?? System Prompt', value: config.systemPrompt.substring(0, 100) + '...', inline: false }
                             )
                             .setFooter({ text: 'Click buttons below to configure AI chat settings' })
                             .setTimestamp();
@@ -6239,22 +6256,22 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId('ai_toggle')
                                     .setLabel(config.enabled ? 'Disable AI' : 'Enable AI')
                                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                                    .setEmoji(config.enabled ? '⏸️' : '▶️'),
+                                    .setEmoji(config.enabled ? '??' : '??'),
                                 new ButtonBuilder()
                                     .setCustomId('ai_set_channel')
                                     .setLabel('Set Channel')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('💬'),
+                                    .setEmoji('??'),
                                 new ButtonBuilder()
                                     .setCustomId('ai_set_history')
                                     .setLabel('Max History')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('🧠'),
+                                    .setEmoji('??'),
                                 new ButtonBuilder()
                                     .setCustomId('ai_set_temperature')
                                     .setLabel('Temperature')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('🌡️')
+                                    .setEmoji('???')
                             );
                         
                         const row2 = new ActionRowBuilder()
@@ -6263,12 +6280,12 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId('ai_clear_history')
                                     .setLabel('Clear All History')
                                     .setStyle(ButtonStyle.Danger)
-                                    .setEmoji('🗑️'),
+                                    .setEmoji('???'),
                                 new ButtonBuilder()
                                     .setCustomId('ai_refresh')
                                     .setLabel('Refresh')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('🔄')
+                                    .setEmoji('??')
                             );
                         
                         await interaction.update({ embeds: [embed], components: [row1, row2] });
@@ -6277,7 +6294,7 @@ client.on('interactionCreate', async (interaction) => {
                     console.error('Error handling AI button:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
-                            await interaction.reply({ content: '❌ An error occurred. Please try again.', ephemeral: true });
+                            await interaction.reply({ content: '? An error occurred. Please try again.', ephemeral: true });
                         }
                     } catch (replyError) {
                         console.error('Failed to send error message:', replyError);
@@ -6291,7 +6308,7 @@ client.on('interactionCreate', async (interaction) => {
             // Feature toggle button handlers
             if (interaction.customId.startsWith('toggle_')) {
             if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-                return interaction.reply({ content: '❌ Admin only!', ephemeral: true });
+                return interaction.reply({ content: '? Admin only!', ephemeral: true });
             }
             
             const settings = getGuildSettings(guildId);
@@ -6300,19 +6317,19 @@ client.on('interactionCreate', async (interaction) => {
             if (feature === 'leveling') {
                 settings.leveling.enabled = !settings.leveling.enabled;
                 saveSettings();
-                await interaction.reply({ content: `✅ Leveling system ${settings.leveling.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
+                await interaction.reply({ content: `? Leveling system ${settings.leveling.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
             } else if (feature === 'keywords') {
                 settings.keywords.enabled = !settings.keywords.enabled;
                 saveSettings();
-                await interaction.reply({ content: `✅ PS3 Error Detection ${settings.keywords.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
+                await interaction.reply({ content: `? PS3 Error Detection ${settings.keywords.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
             } else if (feature === 'welcome') {
                 settings.welcome.enabled = !settings.welcome.enabled;
                 saveSettings();
-                await interaction.reply({ content: `✅ Welcome messages ${settings.welcome.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
+                await interaction.reply({ content: `? Welcome messages ${settings.welcome.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
             } else if (feature === 'leave') {
                 settings.leave.enabled = !settings.leave.enabled;
                 saveSettings();
-                await interaction.reply({ content: `✅ Leave messages ${settings.leave.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
+                await interaction.reply({ content: `? Leave messages ${settings.leave.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
             }
         }
         
@@ -6332,7 +6349,7 @@ client.on('interactionCreate', async (interaction) => {
                     startServerStatsUpdates();
                 }
                 await interaction.reply({ 
-                    content: `✅ Server stats ${settings.serverStats.enabled ? '**enabled**' : '**disabled**'}!`, 
+                    content: `? Server stats ${settings.serverStats.enabled ? '**enabled**' : '**disabled**'}!`, 
                     ephemeral: true 
                 });
             }
@@ -6342,7 +6359,7 @@ client.on('interactionCreate', async (interaction) => {
                     
                     // Create a category for stats
                     const category = await interaction.guild.channels.create({
-                        name: '📊 Server Stats',
+                        name: '?? Server Stats',
                         type: ChannelType.GuildCategory
                     });
                     
@@ -6405,14 +6422,14 @@ client.on('interactionCreate', async (interaction) => {
                     // Immediate update
                     await updateServerStats(interaction.guild);
                     
-                    await interaction.editReply({ content: '✅ Server stats channels created including bot status! They will update automatically.' });
+                    await interaction.editReply({ content: '? Server stats channels created including bot status! They will update automatically.' });
                 } catch (error) {
-                    await interaction.editReply({ content: `❌ Error creating channels: ${error.message}` });
+                    await interaction.editReply({ content: `? Error creating channels: ${error.message}` });
                 }
             }
             else if (interaction.customId === 'stats_interval') {
                 await interaction.reply({ 
-                    content: '⏱️ **Set Update Interval**\nReply with a number between 1-60 (minutes):', 
+                    content: '?? **Set Update Interval**\nReply with a number between 1-60 (minutes):', 
                     ephemeral: true 
                 });
                 
@@ -6427,11 +6444,11 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         await collected.first().delete().catch(() => {});
                         await interaction.followUp({ 
-                            content: `✅ Update interval set to **${minutes} minute(s)**! Restart bot to apply changes.`, 
+                            content: `? Update interval set to **${minutes} minute(s)**! Restart bot to apply changes.`, 
                             ephemeral: true 
                         });
                     } else {
-                        await interaction.followUp({ content: '❌ Invalid number! Must be 1-60 minutes.', ephemeral: true });
+                        await interaction.followUp({ content: '? Invalid number! Must be 1-60 minutes.', ephemeral: true });
                     }
                 }
             }
@@ -6439,9 +6456,9 @@ client.on('interactionCreate', async (interaction) => {
                 await interaction.deferReply({ ephemeral: true });
                 try {
                     await updateServerStats(interaction.guild);
-                    await interaction.editReply({ content: '✅ Server stats refreshed successfully!' });
+                    await interaction.editReply({ content: '? Server stats refreshed successfully!' });
                 } catch (error) {
-                    await interaction.editReply({ content: `❌ Error refreshing stats: ${error.message}` });
+                    await interaction.editReply({ content: `? Error refreshing stats: ${error.message}` });
                 }
             }
         }
@@ -6449,15 +6466,15 @@ client.on('interactionCreate', async (interaction) => {
         // Power Options button handlers
         if (interaction.customId.startsWith('power_')) {
             if (interaction.user.id !== config.botOwnerId) {
-                return interaction.reply({ content: '❌ Only the bot owner can use this!', ephemeral: true });
+                return interaction.reply({ content: '? Only the bot owner can use this!', ephemeral: true });
             }
             
             if (interaction.customId === 'power_shutdown') {
                 await interaction.deferUpdate();
                 
                 const shutdownEmbed = new EmbedBuilder()
-                    .setTitle('🔴 Bot Shutting Down')
-                    .setDescription('Initiating graceful shutdown sequence...\n\n✅ Sending offline notifications\n⏳ Saving all data\n👋 Goodbye!')
+                    .setTitle('?? Bot Shutting Down')
+                    .setDescription('Initiating graceful shutdown sequence...\n\n? Sending offline notifications\n? Saving all data\n?? Goodbye!')
                     .setColor(0xFF0000)
                     .setTimestamp();
                 
@@ -6472,7 +6489,7 @@ client.on('interactionCreate', async (interaction) => {
                 await interaction.deferUpdate();
                 
                 const restartEmbed = new EmbedBuilder()
-                    .setTitle('🔄 Restarting Bot')
+                    .setTitle('?? Restarting Bot')
                     .setDescription('Performing manual restart...\n\nThe bot will be back online in a few seconds.')
                     .setColor(0x00BFFF)
                     .setTimestamp();
@@ -6486,7 +6503,7 @@ client.on('interactionCreate', async (interaction) => {
                     isManualRestart: true
                 }));
                 
-                console.log('🔄 Manual restart triggered via power panel');
+                console.log('?? Manual restart triggered via power panel');
                 setTimeout(() => process.exit(0), 500);
             }
             
@@ -6494,7 +6511,7 @@ client.on('interactionCreate', async (interaction) => {
                 await interaction.deferUpdate();
                 
                 const updateEmbed = new EmbedBuilder()
-                    .setTitle('🔄 Updating Bot')
+                    .setTitle('?? Updating Bot')
                     .setDescription('Pulling latest code from GitHub...')
                     .setColor(0xFFAA00)
                     .setTimestamp();
@@ -6522,7 +6539,7 @@ client.on('interactionCreate', async (interaction) => {
                         console.error(`Update error: ${error}`);
                         return interaction.editReply({ 
                             embeds: [new EmbedBuilder()
-                                .setTitle('❌ Update Failed')
+                                .setTitle('? Update Failed')
                                 .setDescription(`\`\`\`${error.message}\`\`\`\n\n**Tip:** Check if there are local file conflicts`)
                                 .setColor(0xFF0000)
                                 .setTimestamp()]
@@ -6537,8 +6554,8 @@ client.on('interactionCreate', async (interaction) => {
                     const npmPackages = (stdout.match(/added \d+ packages?/i) || ['No new packages'])[0];
                     
                     const successEmbed = new EmbedBuilder()
-                        .setTitle('✅ Update Complete - Restarting')
-                        .setDescription(`**Commit:** \`${commitHash}\`\n**Message:** ${commitMsg}\n**NPM:** ${npmPackages}\n**Time:** ${timeTaken}s\n\n🔄 Bot restarting...`)
+                        .setTitle('? Update Complete - Restarting')
+                        .setDescription(`**Commit:** \`${commitHash}\`\n**Message:** ${commitMsg}\n**NPM:** ${npmPackages}\n**Time:** ${timeTaken}s\n\n?? Bot restarting...`)
                         .setColor(0x00FF00)
                         .setTimestamp();
                     
@@ -6566,7 +6583,7 @@ client.on('interactionCreate', async (interaction) => {
                 settings.leveling.enabled = !settings.leveling.enabled;
                 saveSettings();
                 await interaction.reply({ 
-                    content: `✅ Leveling system ${settings.leveling.enabled ? 'enabled' : 'disabled'}!`, 
+                    content: `? Leveling system ${settings.leveling.enabled ? 'enabled' : 'disabled'}!`, 
                     ephemeral: true 
                 });
             }
@@ -6696,7 +6713,7 @@ client.on('interactionCreate', async (interaction) => {
                 
                 if (Object.keys(roles).length === 0) {
                     await interaction.reply({ 
-                        content: '❌ No level roles configured!', 
+                        content: '? No level roles configured!', 
                         ephemeral: true 
                     });
                     return;
@@ -6723,7 +6740,7 @@ client.on('interactionCreate', async (interaction) => {
                 settings.enabled = !settings.enabled;
                 saveTicketData();
                 await interaction.reply({ 
-                    content: `✅ Ticket system ${settings.enabled ? 'enabled' : 'disabled'}!`, 
+                    content: `? Ticket system ${settings.enabled ? 'enabled' : 'disabled'}!`, 
                     ephemeral: true 
                 });
             }
@@ -6815,20 +6832,20 @@ client.on('interactionCreate', async (interaction) => {
                 const staffRole = settings.staffRoleId ? `<@&${settings.staffRoleId}>` : 'Not set';
                 
                 const embed = new EmbedBuilder()
-                    .setTitle('🎫 Ticket System Control Panel')
+                    .setTitle('?? Ticket System Control Panel')
                     .setColor(settings.enabled ? 0x00FF00 : 0xFF0000)
                     .setDescription(
-                        `System is currently **${settings.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                        `System is currently **${settings.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                         `Manage your server's support ticket system.\n\n` +
                         `Click the buttons below to configure ticket settings.`
                     )
                     .addFields(
-                        { name: '📡 Status', value: settings.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                        { name: '👮 Staff Role', value: staffRole, inline: true },
-                        { name: '📁 Category', value: settings.categoryName, inline: true },
-                        { name: '🎫 Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
-                        { name: '📝 Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
-                        { name: '🔒 Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
+                        { name: '?? Status', value: settings.enabled ? '? Enabled' : '? Disabled', inline: true },
+                        { name: '?? Staff Role', value: staffRole, inline: true },
+                        { name: '?? Category', value: settings.categoryName, inline: true },
+                        { name: '?? Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
+                        { name: '?? Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
+                        { name: '?? Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
                     )
                     .setFooter({ text: 'Click buttons below to configure ticket system' })
                     .setTimestamp();
@@ -6839,22 +6856,22 @@ client.on('interactionCreate', async (interaction) => {
                             .setCustomId('ticket_toggle')
                             .setLabel(settings.enabled ? 'Disable System' : 'Enable System')
                             .setStyle(settings.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                            .setEmoji(settings.enabled ? '❌' : '✅'),
+                            .setEmoji(settings.enabled ? '?' : '?'),
                         new ButtonBuilder()
                             .setCustomId('ticket_staffrole')
                             .setLabel('Set Staff Role')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('👮'),
+                            .setEmoji('??'),
                         new ButtonBuilder()
                             .setCustomId('ticket_category')
                             .setLabel('Set Category')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('📁'),
+                            .setEmoji('??'),
                         new ButtonBuilder()
                             .setCustomId('ticket_panel')
                             .setLabel('Create Panel')
                             .setStyle(ButtonStyle.Success)
-                            .setEmoji('🎫')
+                            .setEmoji('??')
                     );
                 
                 const row2 = new ActionRowBuilder()
@@ -6863,17 +6880,17 @@ client.on('interactionCreate', async (interaction) => {
                             .setCustomId('ticket_welcomemsg')
                             .setLabel('Welcome Message')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('📝'),
+                            .setEmoji('??'),
                         new ButtonBuilder()
                             .setCustomId('ticket_closemsg')
                             .setLabel('Close Message')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('🔒'),
+                            .setEmoji('??'),
                         new ButtonBuilder()
                             .setCustomId('ticket_refresh')
                             .setLabel('Refresh')
                             .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('🔄')
+                            .setEmoji('??')
                     );
                 
                 await interaction.update({ embeds: [embed], components: [row1, row2] });
@@ -6918,7 +6935,7 @@ client.on('interactionCreate', async (interaction) => {
                 await applyServerCustomization(interaction.guild);
                 
                 await interaction.update({
-                    content: '✅ Bot nickname reset to default!',
+                    content: '? Bot nickname reset to default!',
                     embeds: [],
                     components: []
                 });
@@ -6929,14 +6946,14 @@ client.on('interactionCreate', async (interaction) => {
                 // Only allow bot owner to change avatar globally
                 if (interaction.user.id !== config.botOwnerId) {
                     return interaction.reply({
-                        content: '❌ Only the bot owner can change the global avatar!',
+                        content: '? Only the bot owner can change the global avatar!',
                         ephemeral: true
                     });
                 }
                 
                 const modal = new ModalBuilder()
                     .setCustomId('custombot_avatar_modal')
-                    .setTitle('⚠️ Change Bot Avatar (Global)');
+                    .setTitle('?? Change Bot Avatar (Global)');
                 
                 const avatarInput = new TextInputBuilder()
                     .setCustomId('avatar_url')
@@ -6997,14 +7014,14 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('embed_title')
                     .setLabel('Embed Title (emojis supported)')
                     .setStyle(TextInputStyle.Short)
-                    .setPlaceholder('💎 Liquid Divniums')
+                    .setPlaceholder('?? Liquid Divniums')
                     .setRequired(true);
                 
                 const descInput = new TextInputBuilder()
                     .setCustomId('embed_description')
-                    .setLabel('Description (use :emojiname: or 💎)')
+                    .setLabel('Description (use :emojiname: or ??)')
                     .setStyle(TextInputStyle.Paragraph)
-                    .setPlaceholder('£2.50 - 250K + 50K Free!\n£5.00 - 500K + 150 Free!')
+                    .setPlaceholder('�2.50 - 250K + 50K Free!\n�5.00 - 500K + 150 Free!')
                     .setRequired(true);
                 
                 const colorInput = new TextInputBuilder()
@@ -7052,7 +7069,7 @@ client.on('interactionCreate', async (interaction) => {
             
             if (interaction.customId === 'webhook_cancel') {
                 await interaction.update({ 
-                    content: '❌ Embed creation cancelled.', 
+                    content: '? Embed creation cancelled.', 
                     embeds: [], 
                     components: [] 
                 });
@@ -7095,14 +7112,14 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('embed_title')
                     .setLabel('Embed Title (emojis supported)')
                     .setStyle(TextInputStyle.Short)
-                    .setPlaceholder('💎 Liquid Divniums')
+                    .setPlaceholder('?? Liquid Divniums')
                     .setRequired(true);
                 
                 const descInput = new TextInputBuilder()
                     .setCustomId('embed_description')
-                    .setLabel('Description (use :emojiname: or 💎)')
+                    .setLabel('Description (use :emojiname: or ??)')
                     .setStyle(TextInputStyle.Paragraph)
-                    .setPlaceholder('£2.50 - 250K + 50K Free!\n£5.00 - 500K + 150 Free!')
+                    .setPlaceholder('�2.50 - 250K + 50K Free!\n�5.00 - 500K + 150 Free!')
                     .setRequired(true);
                 
                 const colorInput = new TextInputBuilder()
@@ -7143,14 +7160,14 @@ client.on('interactionCreate', async (interaction) => {
                 
                 if (webhooks.size === 0) {
                     await interaction.reply({ 
-                        content: '❌ No webhooks found in this server.', 
+                        content: '? No webhooks found in this server.', 
                         ephemeral: true 
                     });
                     return;
                 }
                 
                 const embed = new EmbedBuilder()
-                    .setTitle('📋 Server Webhooks')
+                    .setTitle('?? Server Webhooks')
                     .setColor(0x5865F2)
                     .setDescription(`Found ${webhooks.size} webhook(s)`)
                     .setTimestamp();
@@ -7158,7 +7175,7 @@ client.on('interactionCreate', async (interaction) => {
                 webhooks.forEach(webhook => {
                     const channel = interaction.guild.channels.cache.get(webhook.channelId);
                     embed.addFields({
-                        name: `🔗 ${webhook.name}`,
+                        name: `?? ${webhook.name}`,
                         value: `Channel: ${channel ? `<#${channel.id}>` : 'Unknown'}\nID: \`${webhook.id}\``,
                         inline: true
                     });
@@ -7179,7 +7196,7 @@ client.on('interactionCreate', async (interaction) => {
         if (interaction.customId === 'mod_warn') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_warn_modal')
-                .setTitle('⚠️ Warn User');
+                .setTitle('?? Warn User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7207,7 +7224,7 @@ client.on('interactionCreate', async (interaction) => {
         else if (interaction.customId === 'mod_timeout') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_timeout_action_modal')
-                .setTitle('🔇 Timeout User');
+                .setTitle('?? Timeout User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7243,7 +7260,7 @@ client.on('interactionCreate', async (interaction) => {
         else if (interaction.customId === 'mod_kick') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_kick_modal')
-                .setTitle('👢 Kick User');
+                .setTitle('?? Kick User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7271,7 +7288,7 @@ client.on('interactionCreate', async (interaction) => {
         else if (interaction.customId === 'mod_ban') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_ban_modal')
-                .setTitle('🔨 Ban User');
+                .setTitle('?? Ban User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7299,7 +7316,7 @@ client.on('interactionCreate', async (interaction) => {
         else if (interaction.customId === 'mod_mute') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_mute_modal')
-                .setTitle('🔕 Mute User');
+                .setTitle('?? Mute User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7327,7 +7344,7 @@ client.on('interactionCreate', async (interaction) => {
         else if (interaction.customId === 'mod_unmute') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_unmute_modal')
-                .setTitle('🔊 Unmute User');
+                .setTitle('?? Unmute User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7347,7 +7364,7 @@ client.on('interactionCreate', async (interaction) => {
         else if (interaction.customId === 'mod_infractions') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_infractions_modal')
-                .setTitle('📋 View Infractions');
+                .setTitle('?? View Infractions');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7367,7 +7384,7 @@ client.on('interactionCreate', async (interaction) => {
         else if (interaction.customId === 'mod_clearwarnings') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_clearwarnings_modal')
-                .setTitle('🧹 Clear Warnings');
+                .setTitle('?? Clear Warnings');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -7389,7 +7406,7 @@ client.on('interactionCreate', async (interaction) => {
             settings.moderation.enabled = !settings.moderation.enabled;
             saveSettings();
             await interaction.reply({ 
-                content: `✅ Moderation system ${settings.moderation.enabled ? 'enabled' : 'disabled'}!`, 
+                content: `? Moderation system ${settings.moderation.enabled ? 'enabled' : 'disabled'}!`, 
                 ephemeral: true 
             });
         }
@@ -7421,14 +7438,14 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('mod_autoaction_select')
                         .setPlaceholder('Choose auto-action')
                         .addOptions([
-                            { label: 'Timeout', value: 'timeout', description: 'Temporarily mute users', emoji: '🔇' },
-                            { label: 'Kick', value: 'kick', description: 'Remove users from server', emoji: '👢' },
-                            { label: 'Ban', value: 'ban', description: 'Permanently ban users', emoji: '🔨' },
-                            { label: 'None', value: 'none', description: 'Only warnings, no action', emoji: '⚠️' }
+                            { label: 'Timeout', value: 'timeout', description: 'Temporarily mute users', emoji: '??' },
+                            { label: 'Kick', value: 'kick', description: 'Remove users from server', emoji: '??' },
+                            { label: 'Ban', value: 'ban', description: 'Permanently ban users', emoji: '??' },
+                            { label: 'None', value: 'none', description: 'Only warnings, no action', emoji: '??' }
                         ])
                 );
             
-            await interaction.reply({ content: '⚡ **Select Auto-Action:**', components: [row], ephemeral: true });
+            await interaction.reply({ content: '? **Select Auto-Action:**', components: [row], ephemeral: true });
         }
         
         else if (interaction.customId === 'mod_timeout') {
@@ -7475,7 +7492,7 @@ client.on('interactionCreate', async (interaction) => {
             settings.moderation.dmOnAction = !settings.moderation.dmOnAction;
             saveSettings();
             await interaction.reply({ 
-                content: `💬 DM notifications ${settings.moderation.dmOnAction ? 'enabled' : 'disabled'}!`, 
+                content: `?? DM notifications ${settings.moderation.dmOnAction ? 'enabled' : 'disabled'}!`, 
                 ephemeral: true 
             });
         }
@@ -7539,7 +7556,7 @@ client.on('interactionCreate', async (interaction) => {
         
         else if (interaction.customId === 'mod_removerole') {
             if (settings.moderation.moderatorRoles.length === 0) {
-                return interaction.reply({ content: '❌ No moderator roles to remove!', ephemeral: true });
+                return interaction.reply({ content: '? No moderator roles to remove!', ephemeral: true });
             }
             
             const modal = new ModalBuilder()
@@ -7570,18 +7587,18 @@ client.on('interactionCreate', async (interaction) => {
             const muteRole = settings.moderation.muteRole ? `<@&${settings.moderation.muteRole}>` : 'Not set';
             
             const menuEmbed = new EmbedBuilder()
-                .setTitle('⚖️ Moderation System Control Panel')
-                .setDescription(`System is currently **${settings.moderation.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
+                .setTitle('?? Moderation System Control Panel')
+                .setDescription(`System is currently **${settings.moderation.enabled ? '? Enabled' : '? Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
                 .setColor(settings.moderation.enabled ? 0x00FF00 : 0xFF0000)
                 .addFields(
-                    { name: '⚠️ Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
-                    { name: '⚡ Auto-Action', value: settings.moderation.autoAction.charAt(0).toUpperCase() + settings.moderation.autoAction.slice(1), inline: true },
-                    { name: '⏱️ Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
-                    { name: '📅 Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
-                    { name: '💬 DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
-                    { name: '📝 Log Channel', value: logChan, inline: true },
-                    { name: '🔇 Mute Role', value: muteRole, inline: true },
-                    { name: '👮 Moderator Roles', value: modRoles, inline: false }
+                    { name: '?? Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
+                    { name: '? Auto-Action', value: settings.moderation.autoAction.charAt(0).toUpperCase() + settings.moderation.autoAction.slice(1), inline: true },
+                    { name: '?? Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
+                    { name: '?? Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
+                    { name: '?? DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
+                    { name: '?? Log Channel', value: logChan, inline: true },
+                    { name: '?? Mute Role', value: muteRole, inline: true },
+                    { name: '?? Moderator Roles', value: modRoles, inline: false }
                 )
                 .setFooter({ text: 'Click a button to configure that setting' })
                 .setTimestamp();
@@ -7592,22 +7609,22 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('mod_toggle')
                         .setLabel(settings.moderation.enabled ? 'Disable System' : 'Enable System')
                         .setStyle(settings.moderation.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                        .setEmoji(settings.moderation.enabled ? '❌' : '✅'),
+                        .setEmoji(settings.moderation.enabled ? '?' : '?'),
                     new ButtonBuilder()
                         .setCustomId('mod_threshold')
                         .setLabel('Set Threshold')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('⚠️'),
+                        .setEmoji('??'),
                     new ButtonBuilder()
                         .setCustomId('mod_autoaction')
                         .setLabel('Set Auto-Action')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('⚡'),
+                        .setEmoji('?'),
                     new ButtonBuilder()
                         .setCustomId('mod_timeout')
                         .setLabel('Timeout Duration')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('⏱️')
+                        .setEmoji('??')
                 );
             
             const row2 = new ActionRowBuilder()
@@ -7616,22 +7633,22 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('mod_decay')
                         .setLabel('Warning Decay')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('📅'),
+                        .setEmoji('??'),
                     new ButtonBuilder()
                         .setCustomId('mod_dm')
                         .setLabel('Toggle DMs')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('💬'),
+                        .setEmoji('??'),
                     new ButtonBuilder()
                         .setCustomId('mod_logchannel')
                         .setLabel('Set Log Channel')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('📝'),
+                        .setEmoji('??'),
                     new ButtonBuilder()
                         .setCustomId('mod_muterole')
                         .setLabel('Set Mute Role')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('🔇')
+                        .setEmoji('??')
                 );
             
             const row3 = new ActionRowBuilder()
@@ -7640,17 +7657,17 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('mod_addrole')
                         .setLabel('Add Mod Role')
                         .setStyle(ButtonStyle.Success)
-                        .setEmoji('➕'),
+                        .setEmoji('?'),
                     new ButtonBuilder()
                         .setCustomId('mod_removerole')
                         .setLabel('Remove Mod Role')
                         .setStyle(ButtonStyle.Danger)
-                        .setEmoji('➖'),
+                        .setEmoji('?'),
                     new ButtonBuilder()
                         .setCustomId('mod_refresh')
                         .setLabel('Refresh')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('🔄')
+                        .setEmoji('??')
                 );
             
             await interaction.update({ embeds: [menuEmbed], components: [row1, row2, row3] });
@@ -7665,7 +7682,7 @@ client.on('interactionCreate', async (interaction) => {
         saveSettings();
         
         const actionText = action === 'none' ? 'No auto-action' : `Auto-${action}`;
-        await interaction.update({ content: `✅ Auto-action set to: **${actionText}**`, components: [] });
+        await interaction.update({ content: `? Auto-action set to: **${actionText}**`, components: [] });
         return;
     }
     
@@ -7680,7 +7697,7 @@ client.on('interactionCreate', async (interaction) => {
             config.enabled = !config.enabled;
             saveSettings();
             await interaction.reply({ 
-                content: `✅ Welcome system ${config.enabled ? '**enabled**' : '**disabled**'}!`, 
+                content: `? Welcome system ${config.enabled ? '**enabled**' : '**disabled**'}!`, 
                 ephemeral: true 
             });
         } else if (interaction.customId === 'welcome_set_channel') {
@@ -7720,19 +7737,19 @@ client.on('interactionCreate', async (interaction) => {
                 .substring(0, 200);
             
             const embed = new EmbedBuilder()
-                .setTitle('👋 Welcome System Control Panel')
+                .setTitle('?? Welcome System Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
-                    `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                    `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                     `Automatically welcome new members with custom messages.\n\n` +
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '📡 Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                    { name: '💬 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
-                    { name: '📝 Custom Message', value: config.customMessage ? '✅ Set' : '❌ Using default', inline: true },
-                    { name: '💭 Message Preview', value: messagePreview, inline: false },
-                    { name: '🔖 Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
+                    { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                    { name: '?? Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
+                    { name: '?? Custom Message', value: config.customMessage ? '? Set' : '? Using default', inline: true },
+                    { name: '?? Message Preview', value: messagePreview, inline: false },
+                    { name: '?? Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
                 )
                 .setFooter({ text: 'Click buttons below to configure welcome messages' })
                 .setTimestamp();
@@ -7743,22 +7760,22 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('welcome_toggle')
                         .setLabel(config.enabled ? 'Disable' : 'Enable')
                         .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                        .setEmoji(config.enabled ? '⏸️' : '▶️'),
+                        .setEmoji(config.enabled ? '??' : '??'),
                     new ButtonBuilder()
                         .setCustomId('welcome_set_channel')
                         .setLabel('Set Channel')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('💬'),
+                        .setEmoji('??'),
                     new ButtonBuilder()
                         .setCustomId('welcome_set_message')
                         .setLabel('Set Message')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('📝'),
+                        .setEmoji('??'),
                     new ButtonBuilder()
                         .setCustomId('welcome_refresh')
                         .setLabel('Refresh')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('🔄')
+                        .setEmoji('??')
                 );
             
             await interaction.update({ embeds: [embed], components: [row1] });
@@ -7776,7 +7793,7 @@ client.on('interactionCreate', async (interaction) => {
             config.enabled = !config.enabled;
             saveSettings();
             await interaction.reply({ 
-                content: `✅ Leave system ${config.enabled ? '**enabled**' : '**disabled**'}!`, 
+                content: `? Leave system ${config.enabled ? '**enabled**' : '**disabled**'}!`, 
                 ephemeral: true 
             });
         } else if (interaction.customId === 'leave_set_channel') {
@@ -7816,19 +7833,19 @@ client.on('interactionCreate', async (interaction) => {
                 .substring(0, 200);
             
             const embed = new EmbedBuilder()
-                .setTitle('👋 Leave System Control Panel')
+                .setTitle('?? Leave System Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
-                    `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                    `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                     `Automatically announce when members leave the server.\n\n` +
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '📡 Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                    { name: '💬 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
-                    { name: '📝 Custom Message', value: config.customMessage ? '✅ Set' : '❌ Using default', inline: true },
-                    { name: '💭 Message Preview', value: messagePreview, inline: false },
-                    { name: '🔖 Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
+                    { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                    { name: '?? Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
+                    { name: '?? Custom Message', value: config.customMessage ? '? Set' : '? Using default', inline: true },
+                    { name: '?? Message Preview', value: messagePreview, inline: false },
+                    { name: '?? Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
                 )
                 .setFooter({ text: 'Click buttons below to configure leave messages' })
                 .setTimestamp();
@@ -7839,22 +7856,22 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('leave_toggle')
                         .setLabel(config.enabled ? 'Disable' : 'Enable')
                         .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                        .setEmoji(config.enabled ? '⏸️' : '▶️'),
+                        .setEmoji(config.enabled ? '??' : '??'),
                     new ButtonBuilder()
                         .setCustomId('leave_set_channel')
                         .setLabel('Set Channel')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('💬'),
+                        .setEmoji('??'),
                     new ButtonBuilder()
                         .setCustomId('leave_set_message')
                         .setLabel('Set Message')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('📝'),
+                        .setEmoji('??'),
                     new ButtonBuilder()
                         .setCustomId('leave_refresh')
                         .setLabel('Refresh')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('🔄')
+                        .setEmoji('??')
                 );
             
             await interaction.update({ embeds: [embed], components: [row1] });
@@ -7875,7 +7892,7 @@ client.on('interactionCreate', async (interaction) => {
             config.enabled = !config.enabled;
             saveSettings();
             await interaction.reply({ 
-                content: `✅ Auto-nickname ${config.enabled ? '**enabled**' : '**disabled**'}!`, 
+                content: `? Auto-nickname ${config.enabled ? '**enabled**' : '**disabled**'}!`, 
                 ephemeral: true 
             });
         } else if (interaction.customId === 'autonick_set_prefix') {
@@ -7914,19 +7931,19 @@ client.on('interactionCreate', async (interaction) => {
             const exampleResult = `${config.prefix || ''}Username${config.suffix || ''}`;
             
             const embed = new EmbedBuilder()
-                .setTitle('📝 Auto-Nickname Control Panel')
+                .setTitle('?? Auto-Nickname Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
-                    `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                    `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                     `Automatically set nicknames for new members.\n\n` +
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '📡 Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                    { name: '⬅️ Prefix', value: config.prefix || 'None', inline: true },
-                    { name: '➡️ Suffix', value: config.suffix || 'None', inline: true },
-                    { name: '📋 Example', value: `\`Username\` → \`${exampleResult}\``, inline: false },
-                    { name: 'ℹ️ Note', value: 'Max nickname length is 32 characters', inline: false }
+                    { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                    { name: '?? Prefix', value: config.prefix || 'None', inline: true },
+                    { name: '?? Suffix', value: config.suffix || 'None', inline: true },
+                    { name: '?? Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
+                    { name: '?? Note', value: 'Max nickname length is 32 characters', inline: false }
                 )
                 .setFooter({ text: 'Click buttons below to configure auto-nickname' })
                 .setTimestamp();
@@ -7937,22 +7954,22 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('autonick_toggle')
                         .setLabel(config.enabled ? 'Disable' : 'Enable')
                         .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                        .setEmoji(config.enabled ? '⏸️' : '▶️'),
+                        .setEmoji(config.enabled ? '??' : '??'),
                     new ButtonBuilder()
                         .setCustomId('autonick_set_prefix')
                         .setLabel('Set Prefix')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('⬅️'),
+                        .setEmoji('??'),
                     new ButtonBuilder()
                         .setCustomId('autonick_set_suffix')
                         .setLabel('Set Suffix')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('➡️'),
+                        .setEmoji('??'),
                     new ButtonBuilder()
                         .setCustomId('autonick_refresh')
                         .setLabel('Refresh')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('🔄')
+                        .setEmoji('??')
                 );
             
             await interaction.update({ embeds: [embed], components: [row1] });
@@ -7992,7 +8009,7 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             await interaction.reply({ 
-                content: `✅ Raid protection ${config.enabled ? '**enabled**' : '**disabled**'}!`, 
+                content: `? Raid protection ${config.enabled ? '**enabled**' : '**disabled**'}!`, 
                 ephemeral: true 
             });
         } else if (interaction.customId === 'raid_set_threshold') {
@@ -8036,28 +8053,28 @@ client.on('interactionCreate', async (interaction) => {
                         label: 'Kick Raiders',
                         description: 'Kick suspicious new members',
                         value: 'kick',
-                        emoji: '👢',
+                        emoji: '??',
                         default: config.action === 'kick'
                     },
                     {
                         label: 'Ban Raiders',
                         description: 'Ban suspicious new members',
                         value: 'ban',
-                        emoji: '🔨',
+                        emoji: '??',
                         default: config.action === 'ban'
                     },
                     {
                         label: 'Monitor Only',
                         description: 'Just notify, take no action',
                         value: 'none',
-                        emoji: '👁️',
+                        emoji: '???',
                         default: config.action === 'none'
                     }
                 ]);
             
             const row = new ActionRowBuilder().addComponents(actionMenu);
             await interaction.reply({ 
-                content: '⚡ Select the action to take when a raid is detected:', 
+                content: '? Select the action to take when a raid is detected:', 
                 components: [row], 
                 ephemeral: true 
             });
@@ -8122,7 +8139,7 @@ client.on('interactionCreate', async (interaction) => {
         } else if (interaction.customId === 'raid_unlock') {
             if (!lockedServers.has(interaction.guild.id)) {
                 return interaction.reply({ 
-                    content: '❌ Server is not in lockdown mode!', 
+                    content: '? Server is not in lockdown mode!', 
                     ephemeral: true 
                 });
             }
@@ -8135,7 +8152,7 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             await interaction.reply({ 
-                content: '🔓 **Lockdown lifted!** Server is now accepting new members.', 
+                content: '?? **Lockdown lifted!** Server is now accepting new members.', 
                 ephemeral: true 
             });
         } else if (interaction.customId === 'raid_refresh') {
@@ -8143,26 +8160,26 @@ client.on('interactionCreate', async (interaction) => {
                 ? config.whitelist.map(id => `<@${id}>`).join(', ')
                 : 'None';
             const notifChannel = config.notificationChannel ? `<#${config.notificationChannel}>` : 'Not set';
-            const lockdownStatus = lockedServers.has(interaction.guild.id) ? '🔒 Active' : '🔓 None';
+            const lockdownStatus = lockedServers.has(interaction.guild.id) ? '?? Active' : '?? None';
             const actionText = config.action === 'none' ? 'Monitor Only' : config.action === 'kick' ? 'Kick' : 'Ban';
             
             const embed = new EmbedBuilder()
-                .setTitle('🛡️ Raid Protection Control Panel')
+                .setTitle('??? Raid Protection Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
-                    `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                    `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                     `Monitors for suspicious join patterns and takes automatic action.\n\n` +
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '📡 Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                    { name: '👥 Join Threshold', value: `${config.joinThreshold} members`, inline: true },
-                    { name: '⏱️ Time Window', value: `${config.timeWindow} seconds`, inline: true },
-                    { name: '⚡ Action', value: actionText, inline: true },
-                    { name: '🔒 Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
-                    { name: '🔓 Current Lockdown', value: lockdownStatus, inline: true },
-                    { name: '📢 Notification Channel', value: notifChannel, inline: true },
-                    { name: '✅ Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
+                    { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                    { name: '?? Join Threshold', value: `${config.joinThreshold} members`, inline: true },
+                    { name: '?? Time Window', value: `${config.timeWindow} seconds`, inline: true },
+                    { name: '? Action', value: actionText, inline: true },
+                    { name: '?? Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
+                    { name: '?? Current Lockdown', value: lockdownStatus, inline: true },
+                    { name: '?? Notification Channel', value: notifChannel, inline: true },
+                    { name: '? Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
                 )
                 .setFooter({ text: 'Click buttons below to configure raid protection' })
                 .setTimestamp();
@@ -8173,22 +8190,22 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('raid_toggle')
                         .setLabel(config.enabled ? 'Disable' : 'Enable')
                         .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                        .setEmoji(config.enabled ? '⏸️' : '▶️'),
+                        .setEmoji(config.enabled ? '??' : '??'),
                     new ButtonBuilder()
                         .setCustomId('raid_set_threshold')
                         .setLabel('Set Threshold')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('👥'),
+                        .setEmoji('??'),
                     new ButtonBuilder()
                         .setCustomId('raid_set_timewindow')
                         .setLabel('Time Window')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('⏱️'),
+                        .setEmoji('??'),
                     new ButtonBuilder()
                         .setCustomId('raid_set_action')
                         .setLabel('Set Action')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('⚡')
+                        .setEmoji('?')
                 );
             
             const row2 = new ActionRowBuilder()
@@ -8197,22 +8214,22 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('raid_set_lockdown')
                         .setLabel('Lockdown Duration')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('🔒'),
+                        .setEmoji('??'),
                     new ButtonBuilder()
                         .setCustomId('raid_set_notification')
                         .setLabel('Notification Channel')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('📢'),
+                        .setEmoji('??'),
                     new ButtonBuilder()
                         .setCustomId('raid_whitelist')
                         .setLabel('Manage Whitelist')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('✅'),
+                        .setEmoji('?'),
                     new ButtonBuilder()
                         .setCustomId('raid_refresh')
                         .setLabel('Refresh')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('🔄')
+                        .setEmoji('??')
                 );
             
             const row3 = new ActionRowBuilder()
@@ -8221,7 +8238,7 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId('raid_unlock')
                         .setLabel('Unlock Server')
                         .setStyle(ButtonStyle.Danger)
-                        .setEmoji('🔓')
+                        .setEmoji('??')
                         .setDisabled(!lockedServers.has(interaction.guild.id))
                 );
             
@@ -8237,7 +8254,7 @@ client.on('interactionCreate', async (interaction) => {
         saveSettings();
         
         const actionText = action === 'none' ? 'Monitor only (no action)' : action === 'kick' ? 'Kick raiders' : 'Ban raiders';
-        await interaction.update({ content: `✅ Raid action set to: **${actionText}**`, components: [] });
+        await interaction.update({ content: `? Raid action set to: **${actionText}**`, components: [] });
         return;
     }
     
@@ -8251,20 +8268,20 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '🐍 Snake Game',
-                        overTitle: '💀 Game Over',
+                        title: '?? Snake Game',
+                        overTitle: '?? Game Over',
                         color: '#5865F2'
                     },
                     emojis: {
-                        board: '⬛',
-                        food: '🍎',
-                        up: '⬆️', 
-                        down: '⬇️',
-                        left: '⬅️',
-                        right: '➡️',
+                        board: '?',
+                        food: '??',
+                        up: '??', 
+                        down: '??',
+                        left: '??',
+                        right: '??',
                     },
-                    snake: { head: '🟢', body: '🟩', tail: '🟢', over: '☠️' },
-                    foods: ['🍎', '🍇', '🍊', '🫐', '🥕', '🥝', '🌽'],
+                    snake: { head: '??', body: '??', tail: '??', over: '??' },
+                    foods: ['??', '??', '??', '??', '??', '??', '??'],
                     stopButton: 'Stop',
                     timeoutTime: 60000,
                     playerOnlyMessage: 'Only {player} can use these buttons.'
@@ -8273,14 +8290,14 @@ client.on('interactionCreate', async (interaction) => {
                 try {
                     await game.startGame();
                 } catch (error) {
-                    console.error('❌ [SNAKE GAME] Error:', error);
-                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [SNAKE GAME] Error:', error);
+                    await interaction.followUp({ content: '? Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
                 }
             }
             
             else if (gameType === 'tictactoe') {
                 await interaction.reply({ 
-                    content: '⭕ **Tic-Tac-Toe** requires an opponent! Please mention a user to play with:', 
+                    content: '? **Tic-Tac-Toe** requires an opponent! Please mention a user to play with:', 
                     ephemeral: true 
                 });
                 
@@ -8289,20 +8306,20 @@ client.on('interactionCreate', async (interaction) => {
                     .catch(() => null);
                 
                 if (!collected) {
-                    return interaction.followUp({ content: '❌ Timed out waiting for opponent mention.', ephemeral: true });
+                    return interaction.followUp({ content: '? Timed out waiting for opponent mention.', ephemeral: true });
                 }
                 
                 const opponent = collected.first().mentions.users.first();
                 if (!opponent) {
-                    return interaction.followUp({ content: '❌ Please mention a valid user!', ephemeral: true });
+                    return interaction.followUp({ content: '? Please mention a valid user!', ephemeral: true });
                 }
                 
                 if (opponent.bot) {
-                    return interaction.followUp({ content: '❌ You cannot play against bots!', ephemeral: true });
+                    return interaction.followUp({ content: '? You cannot play against bots!', ephemeral: true });
                 }
                 
                 if (opponent.id === interaction.user.id) {
-                    return interaction.followUp({ content: '❌ You cannot play against yourself!', ephemeral: true });
+                    return interaction.followUp({ content: '? You cannot play against yourself!', ephemeral: true });
                 }
                 
                 await collected.first().delete().catch(() => {});
@@ -8312,15 +8329,15 @@ client.on('interactionCreate', async (interaction) => {
                     isSlashGame: false,
                     opponent: opponent,
                     embed: {
-                        title: '⭕ Tic Tac Toe',
+                        title: '? Tic Tac Toe',
                         color: '#5865F2',
                         statusTitle: 'Status',
                         overTitle: 'Game Over'
                     },
                     emojis: {
-                        xButton: '❌',
-                        oButton: '⭕',
-                        blankButton: '➖'
+                        xButton: '?',
+                        oButton: '?',
+                        blankButton: '?'
                     },
                     mentionUser: true,
                     timeoutTime: 60000,
@@ -8336,14 +8353,14 @@ client.on('interactionCreate', async (interaction) => {
                 try {
                     await game.startGame();
                 } catch (error) {
-                    console.error('❌ [TICTACTOE GAME] Error:', error);
-                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [TICTACTOE GAME] Error:', error);
+                    await interaction.followUp({ content: '? Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
                 }
             }
             
             else if (gameType === 'connect4') {
                 await interaction.reply({ 
-                    content: '🔴 **Connect 4** requires an opponent! Please mention a user to play with:', 
+                    content: '?? **Connect 4** requires an opponent! Please mention a user to play with:', 
                     ephemeral: true 
                 });
                 
@@ -8352,20 +8369,20 @@ client.on('interactionCreate', async (interaction) => {
                     .catch(() => null);
                 
                 if (!collected) {
-                    return interaction.followUp({ content: '❌ Timed out waiting for opponent mention.', ephemeral: true });
+                    return interaction.followUp({ content: '? Timed out waiting for opponent mention.', ephemeral: true });
                 }
                 
                 const opponent = collected.first().mentions.users.first();
                 if (!opponent) {
-                    return interaction.followUp({ content: '❌ Please mention a valid user!', ephemeral: true });
+                    return interaction.followUp({ content: '? Please mention a valid user!', ephemeral: true });
                 }
                 
                 if (opponent.bot) {
-                    return interaction.followUp({ content: '❌ You cannot play against bots!', ephemeral: true });
+                    return interaction.followUp({ content: '? You cannot play against bots!', ephemeral: true });
                 }
                 
                 if (opponent.id === interaction.user.id) {
-                    return interaction.followUp({ content: '❌ You cannot play against yourself!', ephemeral: true });
+                    return interaction.followUp({ content: '? You cannot play against yourself!', ephemeral: true });
                 }
                 
                 await collected.first().delete().catch(() => {});
@@ -8375,14 +8392,14 @@ client.on('interactionCreate', async (interaction) => {
                     isSlashGame: false,
                     opponent: opponent,
                     embed: {
-                        title: '🔴 Connect 4',
+                        title: '?? Connect 4',
                         statusTitle: 'Status',
                         color: '#5865F2'
                     },
                     emojis: {
-                        board: '⚫',
-                        player1: '🔴',
-                        player2: '🟡'
+                        board: '?',
+                        player1: '??',
+                        player2: '??'
                     },
                     mentionUser: true,
                     timeoutTime: 60000,
@@ -8397,8 +8414,8 @@ client.on('interactionCreate', async (interaction) => {
                 try {
                     await game.startGame();
                 } catch (error) {
-                    console.error('❌ [CONNECT4 GAME] Error:', error);
-                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [CONNECT4 GAME] Error:', error);
+                    await interaction.followUp({ content: '? Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
                 }
             }
             
@@ -8407,21 +8424,21 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '📝 Wordle',
+                        title: '?? Wordle',
                         color: '#5865F2'
                     },
                     customWord: null,
                     timeoutTime: 60000,
-                    winMessage: '🎉 You won! The word was **{word}**.',
-                    loseMessage: '😢 You lost! The word was **{word}**.',
+                    winMessage: '?? You won! The word was **{word}**.',
+                    loseMessage: '?? You lost! The word was **{word}**.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
                 try {
                     await game.startGame();
                 } catch (error) {
-                    console.error('❌ [WORDLE GAME] Error:', error);
-                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [WORDLE GAME] Error:', error);
+                    await interaction.followUp({ content: '? Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
                 }
             }
             
@@ -8430,23 +8447,23 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '💣 Minesweeper',
+                        title: '?? Minesweeper',
                         color: '#5865F2',
                         description: 'Click on the buttons to reveal the blocks except mines.'
                     },
-                    emojis: { flag: '🚩', mine: '💣' },
+                    emojis: { flag: '??', mine: '??' },
                     mines: 5,
                     timeoutTime: 60000,
-                    winMessage: '🎉 You won the Game! You successfully avoided all the mines.',
-                    loseMessage: '💥 You lost the Game! Beware of the mines next time.',
+                    winMessage: '?? You won the Game! You successfully avoided all the mines.',
+                    loseMessage: '?? You lost the Game! Beware of the mines next time.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
                 try {
                     await game.startGame();
                 } catch (error) {
-                    console.error('❌ [MINESWEEPER GAME] Error:', error);
-                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [MINESWEEPER GAME] Error:', error);
+                    await interaction.followUp({ content: '? Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
                 }
             }
             
@@ -8455,14 +8472,14 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '🔢 2048',
+                        title: '?? 2048',
                         color: '#5865F2'
                     },
                     emojis: {
-                        up: '⬆️',
-                        down: '⬇️',
-                        left: '⬅️',
-                        right: '➡️',
+                        up: '??',
+                        down: '??',
+                        left: '??',
+                        right: '??',
                     },
                     timeoutTime: 60000,
                     buttonStyle: 'PRIMARY',
@@ -8472,8 +8489,8 @@ client.on('interactionCreate', async (interaction) => {
                 try {
                     await game.startGame();
                 } catch (error) {
-                    console.error('❌ [2048 GAME] Error:', error);
-                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [2048 GAME] Error:', error);
+                    await interaction.followUp({ content: '? Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
                 }
             }
             
@@ -8482,22 +8499,22 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '🧠 Memory Game',
+                        title: '?? Memory Game',
                         color: '#5865F2',
                         description: '**Click on the buttons to match the emojis.**'
                     },
                     timeoutTime: 60000,
-                    emojis: ['🍉', '🍇', '🍊', '🍋', '🥭', '🍎', '🍏', '🥝'],
-                    winMessage: '🎉 You won! You matched all the pairs in **{tilesTurned}** turns.',
-                    loseMessage: '😢 You lost! You ran out of time.',
+                    emojis: ['??', '??', '??', '??', '??', '??', '??', '??'],
+                    winMessage: '?? You won! You matched all the pairs in **{tilesTurned}** turns.',
+                    loseMessage: '?? You lost! You ran out of time.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
                 try {
                     await game.startGame();
                 } catch (error) {
-                    console.error('❌ [MEMORY GAME] Error:', error);
-                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [MEMORY GAME] Error:', error);
+                    await interaction.followUp({ content: '? Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
                 }
             }
             
@@ -8506,21 +8523,21 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '⏱️ Fast Type',
+                        title: '?? Fast Type',
                         color: '#5865F2',
                         description: 'You have **{time}** seconds to type the sentence below.'
                     },
                     timeoutTime: 60000,
                     sentence: 'The quick brown fox jumps over the lazy dog.',
-                    winMessage: '🎉 You won! You finished in **{time}** seconds with **{wpm}** WPM.',
-                    loseMessage: '😢 You lost! You ran out of time.'
+                    winMessage: '?? You won! You finished in **{time}** seconds with **{wpm}** WPM.',
+                    loseMessage: '?? You lost! You ran out of time.'
                 });
                 
                 try {
                     await game.startGame();
                 } catch (error) {
-                    console.error('❌ [FASTTYPE GAME] Error:', error);
-                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [FASTTYPE GAME] Error:', error);
+                    await interaction.followUp({ content: '? Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
                 }
             }
             
@@ -8529,25 +8546,25 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '🔍 Find Emoji',
+                        title: '?? Find Emoji',
                         color: '#5865F2',
                         description: 'Find the **{emoji}** emoji in the grid below.'
                     },
                     timeoutTime: 60000,
                     hideEmojiTime: 5000,
                     buttonStyle: 'PRIMARY',
-                    emojis: ['🍉', '🍇', '🍊', '🍋', '🥭', '🍎', '🍏', '🥝'],
-                    winMessage: '🎉 You won! You found the emoji in **{time}** seconds.',
-                    loseMessage: '😢 You lost! You ran out of time.',
-                    timeoutMessage: '⏱️ You ran out of time! The emoji was **{emoji}**.',
+                    emojis: ['??', '??', '??', '??', '??', '??', '??', '??'],
+                    winMessage: '?? You won! You found the emoji in **{time}** seconds.',
+                    loseMessage: '?? You lost! You ran out of time.',
+                    timeoutMessage: '?? You ran out of time! The emoji was **{emoji}**.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
                 try {
                     await game.startGame();
                 } catch (error) {
-                    console.error('❌ [FINDEMOJI GAME] Error:', error);
-                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [FINDEMOJI GAME] Error:', error);
+                    await interaction.followUp({ content: '? Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
                 }
             }
             
@@ -8556,21 +8573,21 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '🎮 Guess The Pokémon',
+                        title: '?? Guess The Pok�mon',
                         color: '#5865F2'
                     },
                     timeoutTime: 60000,
-                    winMessage: '🎉 You guessed it right! It was **{pokemon}**.',
-                    loseMessage: '😢 Better luck next time! It was **{pokemon}**.',
-                    errMessage: '❌ Unable to fetch Pokémon data! Please try again.',
+                    winMessage: '?? You guessed it right! It was **{pokemon}**.',
+                    loseMessage: '?? Better luck next time! It was **{pokemon}**.',
+                    errMessage: '? Unable to fetch Pok�mon data! Please try again.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
                 try {
                     await game.startGame();
                 } catch (error) {
-                    console.error('❌ [GUESSPOKEMON GAME] Error:', error);
-                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [GUESSPOKEMON GAME] Error:', error);
+                    await interaction.followUp({ content: '? Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
                 }
             }
             
@@ -8580,7 +8597,7 @@ client.on('interactionCreate', async (interaction) => {
                     isSlashGame: false,
                     opponent: interaction.user,
                     embed: {
-                        title: '🪨 Rock Paper Scissors',
+                        title: '?? Rock Paper Scissors',
                         color: '#5865F2',
                         description: 'Press a button below to make your choice.'
                     },
@@ -8590,9 +8607,9 @@ client.on('interactionCreate', async (interaction) => {
                         scissors: 'Scissors'
                     },
                     emojis: {
-                        rock: '🪨',
-                        paper: '📄',
-                        scissors: '✂️'
+                        rock: '??',
+                        paper: '??',
+                        scissors: '??'
                     },
                     mentionUser: true,
                     timeoutTime: 60000,
@@ -8607,8 +8624,8 @@ client.on('interactionCreate', async (interaction) => {
                 try {
                     await game.startGame();
                 } catch (error) {
-                    console.error('❌ [RPS GAME] Error:', error);
-                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [RPS GAME] Error:', error);
+                    await interaction.followUp({ content: '? Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
                 }
             }
             
@@ -8617,23 +8634,23 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '🎮 Hangman',
+                        title: '?? Hangman',
                         color: '#5865F2'
                     },
-                    hangman: { hat: '🎩', head: '😟', shirt: '👕', pants: '🩳', boots: '👞👞' },
+                    hangman: { hat: '??', head: '??', shirt: '??', pants: '??', boots: '????' },
                     customWord: null,
                     timeoutTime: 60000,
                     theme: 'nature',
-                    winMessage: '🎉 You won! The word was **{word}**.',
-                    loseMessage: '😢 You lost! The word was **{word}**.',
+                    winMessage: '?? You won! The word was **{word}**.',
+                    loseMessage: '?? You lost! The word was **{word}**.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
                 try {
                     await game.startGame();
                 } catch (error) {
-                    console.error('❌ [HANGMAN GAME] Error:', error);
-                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [HANGMAN GAME] Error:', error);
+                    await interaction.followUp({ content: '? Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
                 }
             }
             
@@ -8642,7 +8659,7 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '🧠 Trivia',
+                        title: '?? Trivia',
                         color: '#5865F2',
                         description: 'You have **60 seconds** to answer the question.'
                     },
@@ -8650,17 +8667,17 @@ client.on('interactionCreate', async (interaction) => {
                     buttonStyle: 'PRIMARY',
                     mode: 'multiple',
                     difficulty: 'medium',
-                    winMessage: '🎉 You got it right! The answer was **{answer}**.',
-                    loseMessage: '😢 You got it wrong! The answer was **{answer}**.',
-                    errMessage: '❌ Unable to fetch question data! Please try again.',
+                    winMessage: '?? You got it right! The answer was **{answer}**.',
+                    loseMessage: '?? You got it wrong! The answer was **{answer}**.',
+                    errMessage: '? Unable to fetch question data! Please try again.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
                 try {
                     await game.startGame();
                 } catch (error) {
-                    console.error('❌ [TRIVIA GAME] Error:', error);
-                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [TRIVIA GAME] Error:', error);
+                    await interaction.followUp({ content: '? Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
                 }
             }
             
@@ -8669,17 +8686,17 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '🎰 Slot Machine',
+                        title: '?? Slot Machine',
                         color: '#5865F2'
                     },
-                    slots: ['🍇', '🍊', '🍋', '🍌']
+                    slots: ['??', '??', '??', '??']
                 });
                 
                 try {
                     await game.startGame();
                 } catch (error) {
-                    console.error('❌ [SLOTS GAME] Error:', error);
-                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [SLOTS GAME] Error:', error);
+                    await interaction.followUp({ content: '? Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
                 }
             }
             
@@ -8688,7 +8705,7 @@ client.on('interactionCreate', async (interaction) => {
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '🤔 Would You Rather',
+                        title: '?? Would You Rather',
                         color: '#5865F2'
                     },
                     buttons: {
@@ -8696,15 +8713,15 @@ client.on('interactionCreate', async (interaction) => {
                         option2: 'Option 2'
                     },
                     timeoutTime: 60000,
-                    errMessage: '❌ Unable to fetch question data! Please try again.',
+                    errMessage: '? Unable to fetch question data! Please try again.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
                 try {
                     await game.startGame();
                 } catch (error) {
-                    console.error('❌ [WOULDYOURATHER GAME] Error:', error);
-                    await interaction.followUp({ content: '❌ Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [WOULDYOURATHER GAME] Error:', error);
+                    await interaction.followUp({ content: '? Failed to start game. Please try again.', ephemeral: true }).catch(() => {});
                 }
             }
             
@@ -8713,7 +8730,7 @@ client.on('interactionCreate', async (interaction) => {
             
             if (!interaction.replied && !interaction.deferred) {
                 await interaction.reply({ 
-                    content: '❌ An error occurred while starting the game. Please try again!', 
+                    content: '? An error occurred while starting the game. Please try again!', 
                     ephemeral: true 
                 });
             }
@@ -8729,7 +8746,7 @@ client.on('interactionCreate', async (interaction) => {
         const ticketInfo = ticketData[guildId].tickets[channelId];
         
         if (!ticketInfo) {
-            return interaction.reply({ content: '❌ Ticket not found!', ephemeral: true });
+            return interaction.reply({ content: '? Ticket not found!', ephemeral: true });
         }
         
         // Check if user is staff/admin
@@ -8740,14 +8757,14 @@ client.on('interactionCreate', async (interaction) => {
             !interaction.member.permissions.has(PermissionFlagsBits.ManageChannels) &&
             !hasStaffRole) {
             return interaction.reply({ 
-                content: '❌ You need to be a staff member, administrator, or have Manage Channels permission to claim tickets!', 
+                content: '? You need to be a staff member, administrator, or have Manage Channels permission to claim tickets!', 
                 ephemeral: true 
             });
         }
         
         if (ticketInfo.claimed) {
             return interaction.reply({ 
-                content: `❌ This ticket is already claimed by <@${ticketInfo.claimedBy}>!`, 
+                content: `? This ticket is already claimed by <@${ticketInfo.claimedBy}>!`, 
                 ephemeral: true 
             });
         }
@@ -8758,7 +8775,7 @@ client.on('interactionCreate', async (interaction) => {
         saveTicketData();
         
         const claimEmbed = new EmbedBuilder()
-            .setTitle('✋ Ticket Claimed')
+            .setTitle('? Ticket Claimed')
             .setDescription(`${interaction.user} has claimed this ticket and will assist you.`)
             .setColor(0xFFA500)
             .setTimestamp();
@@ -8772,7 +8789,7 @@ client.on('interactionCreate', async (interaction) => {
         const ticketInfo = ticketData[guildId].tickets[channelId];
         
         if (!ticketInfo) {
-            return interaction.reply({ content: '❌ Ticket not found!', ephemeral: true });
+            return interaction.reply({ content: '? Ticket not found!', ephemeral: true });
         }
         
         // Check permissions (Staff only)
@@ -8783,7 +8800,7 @@ client.on('interactionCreate', async (interaction) => {
             !interaction.member.permissions.has(PermissionFlagsBits.ManageChannels) &&
             !hasStaffRole) {
             return interaction.reply({ 
-                content: '❌ You need to be a staff member, administrator, or have Manage Channels permission to view transcript!', 
+                content: '? You need to be a staff member, administrator, or have Manage Channels permission to view transcript!', 
                 ephemeral: true 
             });
         }
@@ -8798,13 +8815,13 @@ client.on('interactionCreate', async (interaction) => {
                 const creator = await client.users.fetch(ticketInfo.creator);
                 
                 const logsEmbed = new EmbedBuilder()
-                    .setTitle(`📋 Ticket #${ticketInfo.number} Transcript`)
+                    .setTitle(`?? Ticket #${ticketInfo.number} Transcript`)
                     .setDescription(
-                        `**👤 Creator:** ${creator.tag}\n` +
-                        `**📅 Created:** <t:${Math.floor(ticketInfo.createdAt / 1000)}:F>\n` +
-                        `**📝 Reason:** ${ticketInfo.reason}\n` +
-                        `**🔔 Status:** ${ticketInfo.status === 'open' ? '🟢 Open' : '🔴 Closed'}\n` +
-                        `**✋ Claimed:** ${ticketInfo.claimed ? `Yes, by <@${ticketInfo.claimedBy}>` : 'No'}\n\n` +
+                        `**?? Creator:** ${creator.tag}\n` +
+                        `**?? Created:** <t:${Math.floor(ticketInfo.createdAt / 1000)}:F>\n` +
+                        `**?? Reason:** ${ticketInfo.reason}\n` +
+                        `**?? Status:** ${ticketInfo.status === 'open' ? '?? Open' : '?? Closed'}\n` +
+                        `**? Claimed:** ${ticketInfo.claimed ? `Yes, by <@${ticketInfo.claimedBy}>` : 'No'}\n\n` +
                         `Transcript file attached below.`
                     )
                     .setColor(0x3498DB)
@@ -8819,13 +8836,13 @@ client.on('interactionCreate', async (interaction) => {
                 });
             } else {
                 await interaction.editReply({ 
-                    content: '❌ Failed to generate transcript.' 
+                    content: '? Failed to generate transcript.' 
                 });
             }
         } catch (error) {
             console.error('Error generating transcript:', error);
             await interaction.editReply({ 
-                content: '❌ An error occurred while generating the transcript.' 
+                content: '? An error occurred while generating the transcript.' 
             });
         }
     }
@@ -8836,11 +8853,11 @@ client.on('interactionCreate', async (interaction) => {
         const ticketInfo = ticketData[guildId].tickets[channelId];
         
         if (!ticketInfo) {
-            return interaction.reply({ content: '❌ Ticket not found!', ephemeral: true });
+            return interaction.reply({ content: '? Ticket not found!', ephemeral: true });
         }
         
         if (ticketInfo.status === 'closed') {
-            return interaction.reply({ content: '❌ This ticket is already closed!', ephemeral: true });
+            return interaction.reply({ content: '? This ticket is already closed!', ephemeral: true });
         }
         
         // Check if user is staff/admin
@@ -8860,12 +8877,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId(`confirm_close_transcript_${channelId}`)
                     .setLabel('Close with Transcript')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('📄'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId(`confirm_close_no_transcript_${channelId}`)
                     .setLabel('Close without Transcript')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🗑️'),
+                    .setEmoji('???'),
                 new ButtonBuilder()
                     .setCustomId('cancel_close')
                     .setLabel('Cancel')
@@ -8873,7 +8890,7 @@ client.on('interactionCreate', async (interaction) => {
             );
             
             await interaction.reply({ 
-                content: '📋 Do you want to save a transcript before closing?',
+                content: '?? Do you want to save a transcript before closing?',
                 components: [confirmRow],
                 ephemeral: true
             });
@@ -8884,7 +8901,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId(`confirm_close_no_transcript_${channelId}`)
                     .setLabel('Confirm Close')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🔒'),
+                    .setEmoji('??'),
                 new ButtonBuilder()
                     .setCustomId('cancel_close')
                     .setLabel('Cancel')
@@ -8892,7 +8909,7 @@ client.on('interactionCreate', async (interaction) => {
             );
             
             await interaction.reply({ 
-                content: '⚠️ Are you sure you want to close this ticket?',
+                content: '?? Are you sure you want to close this ticket?',
                 components: [confirmRow],
                 ephemeral: true
             });
@@ -8905,7 +8922,7 @@ client.on('interactionCreate', async (interaction) => {
         const ticketInfo = ticketData[guildId].tickets[channelId];
         
         if (!ticketInfo) {
-            return interaction.update({ content: '❌ Ticket not found!', components: [] });
+            return interaction.update({ content: '? Ticket not found!', components: [] });
         }
         
         ticketInfo.status = 'closed';
@@ -8914,16 +8931,16 @@ client.on('interactionCreate', async (interaction) => {
         saveTicketData();
         
         await interaction.update({ 
-            content: '✅ Closing ticket with transcript and sending DM...', 
+            content: '? Closing ticket with transcript and sending DM...', 
             components: [] 
         });
         
         const closeEmbed = new EmbedBuilder()
-            .setTitle('🔒 Ticket Closed')
+            .setTitle('?? Ticket Closed')
             .setDescription(
                 `**Closed by:** ${interaction.user}\n` +
-                `**Status:** 📄 Transcript saved\n\n` +
-                `⏱️ Channel will be deleted in 5 seconds...`
+                `**Status:** ?? Transcript saved\n\n` +
+                `?? Channel will be deleted in 5 seconds...`
             )
             .setColor(0xFF0000)
             .setFooter({ text: 'Thank you for using our support system!' })
@@ -8937,16 +8954,16 @@ client.on('interactionCreate', async (interaction) => {
             const closedBy = await client.users.fetch(ticketInfo.closedBy);
             
             const closedMessage = ticketData[guildId].settings?.closedMessage || 
-                'Thank you for contacting support! 🙏\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!';
+                'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!';
             
             const dmEmbed = new EmbedBuilder()
-                .setTitle('🎫 Ticket Closed')
+                .setTitle('?? Ticket Closed')
                 .setDescription(
                     `Your ticket **#${ticketInfo.number}** in **${interaction.guild.name}** has been closed.\n\n` +
-                    `**📝 Original Reason:** ${ticketInfo.reason}\n` +
-                    `**🔒 Closed by:** ${closedBy.tag}\n` +
-                    `**📅 Closed at:** <t:${Math.floor(ticketInfo.closedAt / 1000)}:F>\n\n` +
-                    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `**?? Original Reason:** ${ticketInfo.reason}\n` +
+                    `**?? Closed by:** ${closedBy.tag}\n` +
+                    `**?? Closed at:** <t:${Math.floor(ticketInfo.closedAt / 1000)}:F>\n\n` +
+                    `??????????????????????????????\n\n` +
                     closedMessage
                 )
                 .setColor(0x3498DB)
@@ -8989,7 +9006,7 @@ client.on('interactionCreate', async (interaction) => {
         const ticketInfo = ticketData[guildId].tickets[channelId];
         
         if (!ticketInfo) {
-            return interaction.update({ content: '❌ Ticket not found!', components: [] });
+            return interaction.update({ content: '? Ticket not found!', components: [] });
         }
         
         ticketInfo.status = 'closed';
@@ -8998,16 +9015,16 @@ client.on('interactionCreate', async (interaction) => {
         saveTicketData();
         
         await interaction.update({ 
-            content: '✅ Closing ticket and sending DM...', 
+            content: '? Closing ticket and sending DM...', 
             components: [] 
         });
         
         const closeEmbed = new EmbedBuilder()
-            .setTitle('🔒 Ticket Closed')
+            .setTitle('?? Ticket Closed')
             .setDescription(
                 `**Closed by:** ${interaction.user}\n` +
-                `**Status:** 🗑️ No transcript saved\n\n` +
-                `⏱️ Channel will be deleted in 5 seconds...`
+                `**Status:** ??? No transcript saved\n\n` +
+                `?? Channel will be deleted in 5 seconds...`
             )
             .setColor(0xFF0000)
             .setFooter({ text: 'Thank you for using our support system!' })
@@ -9021,16 +9038,16 @@ client.on('interactionCreate', async (interaction) => {
             const closedBy = await client.users.fetch(ticketInfo.closedBy);
             
             const closedMessage = ticketData[guildId].settings?.closedMessage || 
-                'Thank you for contacting support! 🙏\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!';
+                'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!';
             
             const dmEmbed = new EmbedBuilder()
-                .setTitle('🎫 Ticket Closed')
+                .setTitle('?? Ticket Closed')
                 .setDescription(
                     `Your ticket **#${ticketInfo.number}** in **${interaction.guild.name}** has been closed.\n\n` +
-                    `**📝 Original Reason:** ${ticketInfo.reason}\n` +
-                    `**🔒 Closed by:** ${closedBy.tag}\n` +
-                    `**📅 Closed at:** <t:${Math.floor(ticketInfo.closedAt / 1000)}:F>\n\n` +
-                    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `**?? Original Reason:** ${ticketInfo.reason}\n` +
+                    `**?? Closed by:** ${closedBy.tag}\n` +
+                    `**?? Closed at:** <t:${Math.floor(ticketInfo.closedAt / 1000)}:F>\n\n` +
+                    `??????????????????????????????\n\n` +
                     closedMessage
                 )
                 .setColor(0x3498DB)
@@ -9057,7 +9074,7 @@ client.on('interactionCreate', async (interaction) => {
     // Cancel close
     if (interaction.customId === 'cancel_close') {
         await interaction.update({ 
-            content: '❌ Ticket close cancelled.', 
+            content: '? Ticket close cancelled.', 
             components: [] 
         });
     }
@@ -9070,7 +9087,7 @@ client.on('interactionCreate', async (interaction) => {
         // Check if ticket system is enabled
         if (!ticketData[guildId].settings.enabled) {
             return interaction.reply({ 
-                content: '❌ The ticket system is not enabled. Please contact an administrator!', 
+                content: '? The ticket system is not enabled. Please contact an administrator!', 
                 ephemeral: true 
             });
         }
@@ -9082,7 +9099,7 @@ client.on('interactionCreate', async (interaction) => {
         
         try {
             // Find or create ticket category
-            const categoryName = ticketData[guildId].settings.categoryName || '🎫 Tickets';
+            const categoryName = ticketData[guildId].settings.categoryName || '?? Tickets';
             let category = interaction.guild.channels.cache.get(ticketData[guildId].categoryId);
             if (!category || category.type !== ChannelType.GuildCategory) {
                 category = await interaction.guild.channels.create({
@@ -9139,19 +9156,19 @@ client.on('interactionCreate', async (interaction) => {
             
             // Create interactive ticket embed with custom message
             const customMessage = ticketData[guildId].settings.ticketMessage || 
-                '**Welcome to your support ticket!**\n\n🎫 Our support team will be with you shortly.\n\n**Please describe your issue in detail.**';
+                '**Welcome to your support ticket!**\n\n?? Our support team will be with you shortly.\n\n**Please describe your issue in detail.**';
             
             const ticketEmbed = new EmbedBuilder()
-                .setTitle(`🎫 Support Ticket #${ticketNumber}`)
+                .setTitle(`?? Support Ticket #${ticketNumber}`)
                 .setDescription(
-                    `**👤 Created by:** ${interaction.user}\n` +
-                    `**📅 Created at:** <t:${Math.floor(Date.now() / 1000)}:F>\n` +
-                    `**🔔 Status:** 🟢 Open\n\n` +
-                    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `**?? Created by:** ${interaction.user}\n` +
+                    `**?? Created at:** <t:${Math.floor(Date.now() / 1000)}:F>\n` +
+                    `**?? Status:** ?? Open\n\n` +
+                    `??????????????????????????????\n\n` +
                     customMessage
                 )
                 .setColor(0x00FF00)
-                .setFooter({ text: `Ticket System • ${interaction.guild.name}` })
+                .setFooter({ text: `Ticket System � ${interaction.guild.name}` })
                 .setTimestamp();
             
             const row = new ActionRowBuilder()
@@ -9160,17 +9177,17 @@ client.on('interactionCreate', async (interaction) => {
                         .setCustomId(`claim_ticket_${ticketChannel.id}`)
                         .setLabel('Claim Ticket')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✋'),
+                        .setEmoji('?'),
                     new ButtonBuilder()
                         .setCustomId(`transcript_ticket_${ticketChannel.id}`)
                         .setLabel('View Transcript')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('📋'),
+                        .setEmoji('??'),
                     new ButtonBuilder()
                         .setCustomId(`close_ticket_${ticketChannel.id}`)
                         .setLabel('Close Ticket')
                         .setStyle(ButtonStyle.Danger)
-                        .setEmoji('🔒')
+                        .setEmoji('??')
                 );
             
             await ticketChannel.send({ 
@@ -9181,13 +9198,13 @@ client.on('interactionCreate', async (interaction) => {
             
             // Send confirmation to user
             await interaction.reply({ 
-                content: `✅ Your ticket has been created! ${ticketChannel}`, 
+                content: `? Your ticket has been created! ${ticketChannel}`, 
                 ephemeral: true 
             });
         } catch (error) {
             console.error('Error creating ticket:', error);
             await interaction.reply({ 
-                content: '❌ An error occurred while creating the ticket. Please try again or contact an administrator.', 
+                content: '? An error occurred while creating the ticket. Please try again or contact an administrator.', 
                 ephemeral: true 
             });
         }
@@ -9204,8 +9221,8 @@ client.on('interactionCreate', async (interaction) => {
                     await ytCommand.handleModal(interaction);
                     return;
                 } catch (error) {
-                    console.error('❌ YouTube modal error:', error);
-                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    console.error('? YouTube modal error:', error);
+                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
             }
@@ -9218,8 +9235,8 @@ client.on('interactionCreate', async (interaction) => {
                     await lvlCommand.handleModal(interaction);
                     return;
                 } catch (error) {
-                    console.error('❌ Leveling modal error:', error);
-                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    console.error('? Leveling modal error:', error);
+                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
             }
@@ -9232,8 +9249,8 @@ client.on('interactionCreate', async (interaction) => {
                     await leaveCommand.handleModal(interaction);
                     return;
                 } catch (error) {
-                    console.error('❌ Leave modal error:', error);
-                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    console.error('? Leave modal error:', error);
+                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
             }
@@ -9246,8 +9263,8 @@ client.on('interactionCreate', async (interaction) => {
                     await keywordCommand.handleModal(interaction);
                     return;
                 } catch (error) {
-                    console.error('❌ Keyword modal error:', error);
-                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    console.error('? Keyword modal error:', error);
+                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
             }
@@ -9260,8 +9277,8 @@ client.on('interactionCreate', async (interaction) => {
                     await pcommandsCommand.handleModal(interaction);
                     return;
                 } catch (error) {
-                    console.error('❌ PCommands modal error:', error);
-                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    console.error('? PCommands modal error:', error);
+                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
             }
@@ -9273,7 +9290,7 @@ client.on('interactionCreate', async (interaction) => {
                 // Check admin permissions
                 if (!interaction.member.permissions.has('Administrator')) {
                     return interaction.reply({ 
-                        content: '❌ You need Administrator permissions to use this command!', 
+                        content: '? You need Administrator permissions to use this command!', 
                         ephemeral: true 
                     });
                 }
@@ -9286,7 +9303,7 @@ client.on('interactionCreate', async (interaction) => {
                     const channelMatch = channelInput.match(/(\d{17,19})/);
                     if (!channelMatch) {
                         return interaction.reply({ 
-                            content: '❌ Invalid channel ID or mention. Please try again.', 
+                            content: '? Invalid channel ID or mention. Please try again.', 
                             ephemeral: true 
                         });
                     }
@@ -9296,7 +9313,7 @@ client.on('interactionCreate', async (interaction) => {
                     
                     if (!channel || !channel.isTextBased()) {
                         return interaction.reply({ 
-                            content: '❌ Channel not found or is not a text channel!', 
+                            content: '? Channel not found or is not a text channel!', 
                             ephemeral: true 
                         });
                     }
@@ -9307,23 +9324,23 @@ client.on('interactionCreate', async (interaction) => {
                     saveSettings();
                     
                     const typeNames = {
-                        critical: '🔴 Critical Errors',
-                        moderation: '⚖️ Moderation Actions',
-                        messages: '💬 Message Events',
-                        members: '👥 Member Events',
-                        voice: '🔊 Voice Activity',
-                        server: '🛠️ Server Changes',
-                        keywords: '🚨 Keyword Flags'
+                        critical: '?? Critical Errors',
+                        moderation: '?? Moderation Actions',
+                        messages: '?? Message Events',
+                        members: '?? Member Events',
+                        voice: '?? Voice Activity',
+                        server: '??? Server Changes',
+                        keywords: '?? Keyword Flags'
                     };
                     
                     await interaction.reply({ 
-                        content: `✅ ${typeNames[logType]} channel set to ${channel}!`, 
+                        content: `? ${typeNames[logType]} channel set to ${channel}!`, 
                         ephemeral: true 
                     });
                     
                     // Send test message
                     const testEmbed = new EmbedBuilder()
-                        .setTitle(`✅ ${typeNames[logType]} Logging Configured`)
+                        .setTitle(`? ${typeNames[logType]} Logging Configured`)
                         .setDescription(`This channel will receive ${typeNames[logType].toLowerCase()}.`)
                         .setColor(0x00FF00)
                         .setTimestamp();
@@ -9331,10 +9348,10 @@ client.on('interactionCreate', async (interaction) => {
                     await channel.send({ embeds: [testEmbed] }).catch(() => {});
                     
                 } catch (error) {
-                    console.error('❌ Log modal error:', error);
+                    console.error('? Log modal error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
-                            await interaction.reply({ content: '❌ An error occurred. Please try again.', ephemeral: true });
+                            await interaction.reply({ content: '? An error occurred. Please try again.', ephemeral: true });
                         }
                     } catch (replyError) {
                         console.error('Failed to send error message:', replyError);
@@ -9347,7 +9364,7 @@ client.on('interactionCreate', async (interaction) => {
             if (interaction.customId.startsWith('ai_modal_')) {
                 if (!interaction.member.permissions.has('Administrator')) {
                     return interaction.reply({ 
-                        content: '❌ You need Administrator permissions to use this command!', 
+                        content: '? You need Administrator permissions to use this command!', 
                         ephemeral: true 
                     });
                 }
@@ -9364,7 +9381,7 @@ client.on('interactionCreate', async (interaction) => {
                 // Check admin permissions
                 if (!interaction.member.permissions.has('Administrator')) {
                     return interaction.reply({ 
-                        content: '❌ You need Administrator permissions to use this command!', 
+                        content: '? You need Administrator permissions to use this command!', 
                         ephemeral: true 
                     });
                 }
@@ -9385,7 +9402,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ AI channel set to **#${cleanChannelName}**! ${settings.ai.enabled ? 'AI will respond there automatically.' : 'Enable AI to start using it.'}`, 
+                            content: `? AI channel set to **#${cleanChannelName}**! ${settings.ai.enabled ? 'AI will respond there automatically.' : 'Enable AI to start using it.'}`, 
                             ephemeral: true 
                         });
                     }
@@ -9395,7 +9412,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         if (isNaN(history) || history < 1 || history > 50) {
                             return interaction.reply({ 
-                                content: '❌ Invalid number! Must be between 1-50.', 
+                                content: '? Invalid number! Must be between 1-50.', 
                                 ephemeral: true 
                             });
                         }
@@ -9404,7 +9421,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ Max history set to **${history} exchanges**!`, 
+                            content: `? Max history set to **${history} exchanges**!`, 
                             ephemeral: true 
                         });
                     }
@@ -9414,7 +9431,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         if (isNaN(temperature) || temperature < 0 || temperature > 2) {
                             return interaction.reply({ 
-                                content: '❌ Invalid temperature! Must be between 0.0-2.0.', 
+                                content: '? Invalid temperature! Must be between 0.0-2.0.', 
                                 ephemeral: true 
                             });
                         }
@@ -9423,16 +9440,16 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ Temperature set to **${temperature}**! ${temperature < 0.3 ? '(Very focused)' : temperature < 0.7 ? '(Balanced)' : temperature < 1.0 ? '(Creative)' : '(Very creative)'}`, 
+                            content: `? Temperature set to **${temperature}**! ${temperature < 0.3 ? '(Very focused)' : temperature < 0.7 ? '(Balanced)' : temperature < 1.0 ? '(Creative)' : '(Very creative)'}`, 
                             ephemeral: true 
                         });
                     }
                     
                 } catch (error) {
-                    console.error('❌ [AI MODAL] Error:', error);
+                    console.error('? [AI MODAL] Error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
-                            await interaction.reply({ content: '❌ An error occurred. Please try again.', ephemeral: true });
+                            await interaction.reply({ content: '? An error occurred. Please try again.', ephemeral: true });
                         }
                     } catch (replyError) {
                         console.error('Failed to send error message:', replyError);
@@ -9447,7 +9464,7 @@ client.on('interactionCreate', async (interaction) => {
                 
                 if (!interaction.member.permissions.has('Administrator')) {
                     return interaction.reply({ 
-                        content: '❌ You need Administrator permissions!', 
+                        content: '? You need Administrator permissions!', 
                         ephemeral: true 
                     });
                 }
@@ -9460,11 +9477,11 @@ client.on('interactionCreate', async (interaction) => {
                         const maxXP = parseInt(interaction.fields.getTextInputValue('max_xp'));
                         
                         if (isNaN(minXP) || isNaN(maxXP)) {
-                            return interaction.reply({ content: '❌ Please enter valid numbers!', ephemeral: true });
+                            return interaction.reply({ content: '? Please enter valid numbers!', ephemeral: true });
                         }
                         
                         if (minXP > maxXP) {
-                            return interaction.reply({ content: '❌ Min XP cannot be greater than Max XP!', ephemeral: true });
+                            return interaction.reply({ content: '? Min XP cannot be greater than Max XP!', ephemeral: true });
                         }
                         
                         settings.leveling.minXP = minXP;
@@ -9472,7 +9489,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ XP range set to **${minXP}-${maxXP}** per message!`, 
+                            content: `? XP range set to **${minXP}-${maxXP}** per message!`, 
                             ephemeral: true 
                         });
                     }
@@ -9482,14 +9499,14 @@ client.on('interactionCreate', async (interaction) => {
                         const seconds = parseInt(interaction.fields.getTextInputValue('cooldown_seconds'));
                         
                         if (isNaN(seconds) || seconds < 0) {
-                            return interaction.reply({ content: '❌ Please enter a valid number of seconds!', ephemeral: true });
+                            return interaction.reply({ content: '? Please enter a valid number of seconds!', ephemeral: true });
                         }
                         
                         settings.leveling.cooldown = seconds * 1000;
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ XP cooldown set to **${seconds} seconds**!`, 
+                            content: `? XP cooldown set to **${seconds} seconds**!`, 
                             ephemeral: true 
                         });
                     }
@@ -9499,14 +9516,14 @@ client.on('interactionCreate', async (interaction) => {
                         const level = parseInt(interaction.fields.getTextInputValue('max_level'));
                         
                         if (isNaN(level) || level < 1 || level > 1000) {
-                            return interaction.reply({ content: '❌ Max level must be between 1 and 1000!', ephemeral: true });
+                            return interaction.reply({ content: '? Max level must be between 1 and 1000!', ephemeral: true });
                         }
                         
                         settings.leveling.maxLevel = level;
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ Max level set to **${level}**!`, 
+                            content: `? Max level set to **${level}**!`, 
                             ephemeral: true 
                         });
                     }
@@ -9519,7 +9536,7 @@ client.on('interactionCreate', async (interaction) => {
                             settings.leveling.levelUpChannelId = null;
                             saveSettings();
                             await interaction.reply({ 
-                                content: '✅ Level up messages will be sent in the current channel!', 
+                                content: '? Level up messages will be sent in the current channel!', 
                                 ephemeral: true 
                             });
                             return;
@@ -9528,21 +9545,21 @@ client.on('interactionCreate', async (interaction) => {
                         const channelMatch = channelInput.match(/(\d{17,19})/);
                         
                         if (!channelMatch) {
-                            return interaction.reply({ content: '❌ Invalid channel ID or mention!', ephemeral: true });
+                            return interaction.reply({ content: '? Invalid channel ID or mention!', ephemeral: true });
                         }
                         
                         const channelId = channelMatch[1];
                         const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
                         
                         if (!channel) {
-                            return interaction.reply({ content: '❌ Channel not found!', ephemeral: true });
+                            return interaction.reply({ content: '? Channel not found!', ephemeral: true });
                         }
                         
                         settings.leveling.levelUpChannelId = channelId;
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ Level up channel set to ${channel}!`, 
+                            content: `? Level up channel set to ${channel}!`, 
                             ephemeral: true 
                         });
                     }
@@ -9553,27 +9570,27 @@ client.on('interactionCreate', async (interaction) => {
                         const roleInput = interaction.fields.getTextInputValue('role_id').trim();
                         
                         if (isNaN(level) || level < 1) {
-                            return interaction.reply({ content: '❌ Please enter a valid level!', ephemeral: true });
+                            return interaction.reply({ content: '? Please enter a valid level!', ephemeral: true });
                         }
                         
                         const roleMatch = roleInput.match(/(\d{17,19})/);
                         
                         if (!roleMatch) {
-                            return interaction.reply({ content: '❌ Invalid role ID or mention!', ephemeral: true });
+                            return interaction.reply({ content: '? Invalid role ID or mention!', ephemeral: true });
                         }
                         
                         const roleId = roleMatch[1];
                         const role = await interaction.guild.roles.fetch(roleId).catch(() => null);
                         
                         if (!role) {
-                            return interaction.reply({ content: '❌ Role not found!', ephemeral: true });
+                            return interaction.reply({ content: '? Role not found!', ephemeral: true });
                         }
                         
                         settings.leveling.levelRoles[level] = roleId;
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ Level ${level} role set to ${role}!`, 
+                            content: `? Level ${level} role set to ${role}!`, 
                             ephemeral: true 
                         });
                     }
@@ -9583,18 +9600,18 @@ client.on('interactionCreate', async (interaction) => {
                         const level = parseInt(interaction.fields.getTextInputValue('role_level'));
                         
                         if (isNaN(level)) {
-                            return interaction.reply({ content: '❌ Please enter a valid level!', ephemeral: true });
+                            return interaction.reply({ content: '? Please enter a valid level!', ephemeral: true });
                         }
                         
                         if (!settings.leveling.levelRoles[level]) {
-                            return interaction.reply({ content: '❌ No role configured for that level!', ephemeral: true });
+                            return interaction.reply({ content: '? No role configured for that level!', ephemeral: true });
                         }
                         
                         delete settings.leveling.levelRoles[level];
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ Removed role for level ${level}!`, 
+                            content: `? Removed role for level ${level}!`, 
                             ephemeral: true 
                         });
                     }
@@ -9607,21 +9624,21 @@ client.on('interactionCreate', async (interaction) => {
                         const roleMatch = roleInput.match(/(\d{17,19})/);
                         
                         if (!roleMatch) {
-                            return interaction.reply({ content: '❌ Invalid role ID or mention!', ephemeral: true });
+                            return interaction.reply({ content: '? Invalid role ID or mention!', ephemeral: true });
                         }
                         
                         const roleId = roleMatch[1];
                         const role = await interaction.guild.roles.fetch(roleId).catch(() => null);
                         
                         if (!role) {
-                            return interaction.reply({ content: '❌ Role not found!', ephemeral: true });
+                            return interaction.reply({ content: '? Role not found!', ephemeral: true });
                         }
                         
                         settings.staffRoleId = roleId;
                         saveTicketData();
                         
                         await interaction.reply({ 
-                            content: `✅ Staff role set to ${role}!`, 
+                            content: `? Staff role set to ${role}!`, 
                             ephemeral: true 
                         });
                     }
@@ -9632,7 +9649,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveTicketData();
                         
                         await interaction.reply({ 
-                            content: `✅ Category name set to: **${categoryName}**`, 
+                            content: `? Category name set to: **${categoryName}**`, 
                             ephemeral: true 
                         });
                     }
@@ -9643,7 +9660,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveTicketData();
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('✅ Welcome Message Updated')
+                            .setTitle('? Welcome Message Updated')
                             .setDescription('**Preview:**\n\n' + message)
                             .setColor(0x00FF00)
                             .setFooter({ text: 'This message will appear in new tickets' })
@@ -9658,7 +9675,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveTicketData();
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('✅ Close Message Updated')
+                            .setTitle('? Close Message Updated')
                             .setDescription('**Preview:**\n\n' + message)
                             .setColor(0x00FF00)
                             .setFooter({ text: 'This message will be sent in DMs when tickets close' })
@@ -9672,30 +9689,30 @@ client.on('interactionCreate', async (interaction) => {
                         const channelMatch = channelInput.match(/(\d{17,19})/);
                         
                         if (!channelMatch) {
-                            return interaction.reply({ content: '❌ Invalid channel ID or mention!', ephemeral: true });
+                            return interaction.reply({ content: '? Invalid channel ID or mention!', ephemeral: true });
                         }
                         
                         const channelId = channelMatch[1];
                         const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
                         
                         if (!channel || channel.type !== ChannelType.GuildText) {
-                            return interaction.reply({ content: '❌ Channel not found or not a text channel!', ephemeral: true });
+                            return interaction.reply({ content: '? Channel not found or not a text channel!', ephemeral: true });
                         }
                         
                         const panelEmbed = new EmbedBuilder()
-                            .setTitle('🎫 Support Ticket System')
+                            .setTitle('?? Support Ticket System')
                             .setDescription(
                                 '**Need help?** Create a support ticket!\n\n' +
                                 '**How it works:**\n' +
-                                '• Click the button below to open a ticket\n' +
-                                '• A private channel will be created for you\n' +
-                                '• Our staff team will assist you shortly\n\n' +
+                                '� Click the button below to open a ticket\n' +
+                                '� A private channel will be created for you\n' +
+                                '� Our staff team will assist you shortly\n\n' +
                                 '**What to include:**\n' +
-                                '• Describe your issue clearly\n' +
-                                '• Include any relevant details\n' +
-                                '• Be patient while we help you\n\n' +
-                                '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
-                                '**Click the button below to get started! 👇**'
+                                '� Describe your issue clearly\n' +
+                                '� Include any relevant details\n' +
+                                '� Be patient while we help you\n\n' +
+                                '??????????????????????????????\n\n' +
+                                '**Click the button below to get started! ??**'
                             )
                             .setColor(0x5865F2)
                             .setFooter({ text: `${interaction.guild.name} Support` })
@@ -9707,27 +9724,27 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId('create_ticket_panel')
                                     .setLabel('Create Ticket')
                                     .setStyle(ButtonStyle.Success)
-                                    .setEmoji('🎫')
+                                    .setEmoji('??')
                             );
                         
                         try {
                             await channel.send({ embeds: [panelEmbed], components: [panelButton] });
                             await interaction.reply({ 
-                                content: `✅ Ticket panel created in ${channel}!`, 
+                                content: `? Ticket panel created in ${channel}!`, 
                                 ephemeral: true 
                             });
                         } catch (error) {
                             console.error('Error creating ticket panel:', error);
                             await interaction.reply({ 
-                                content: '❌ Failed to create panel. Check bot permissions!', 
+                                content: '? Failed to create panel. Check bot permissions!', 
                                 ephemeral: true 
                             });
                         }
                     }
                     
                 } catch (error) {
-                    console.error('❌ Ticket modal error:', error);
-                    await interaction.reply({ content: '❌ An error occurred!', ephemeral: true }).catch(() => {});
+                    console.error('? Ticket modal error:', error);
+                    await interaction.reply({ content: '? An error occurred!', ephemeral: true }).catch(() => {});
                 }
                 return;
             }
@@ -9736,7 +9753,7 @@ client.on('interactionCreate', async (interaction) => {
             if (interaction.customId.startsWith('webhook_')) {
                 if (!interaction.member.permissions.has('Administrator')) {
                     return interaction.reply({ 
-                        content: '❌ You need Administrator permissions to use this command!', 
+                        content: '? You need Administrator permissions to use this command!', 
                         ephemeral: true 
                     });
                 }
@@ -9748,14 +9765,14 @@ client.on('interactionCreate', async (interaction) => {
                         
                         const channelMatch = channelInput.match(/(\d{17,19})/);
                         if (!channelMatch) {
-                            return interaction.reply({ content: '❌ Invalid channel ID or mention!', ephemeral: true });
+                            return interaction.reply({ content: '? Invalid channel ID or mention!', ephemeral: true });
                         }
                         
                         const channelId = channelMatch[1];
                         const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
                         
                         if (!channel || channel.type !== ChannelType.GuildText) {
-                            return interaction.reply({ content: '❌ Channel not found or not a text channel!', ephemeral: true });
+                            return interaction.reply({ content: '? Channel not found or not a text channel!', ephemeral: true });
                         }
                         
                         const webhook = await channel.createWebhook({
@@ -9764,7 +9781,7 @@ client.on('interactionCreate', async (interaction) => {
                         });
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('✅ Webhook Created')
+                            .setTitle('? Webhook Created')
                             .setDescription(`Webhook **${webhookName}** created successfully!`)
                             .addFields(
                                 { name: 'Channel', value: `<#${channel.id}>`, inline: true },
@@ -9789,7 +9806,7 @@ client.on('interactionCreate', async (interaction) => {
                         // Validate nickname length
                         if (nickname.length > 32) {
                             return interaction.reply({
-                                content: '❌ Nickname must be 32 characters or less!',
+                                content: '? Nickname must be 32 characters or less!',
                                 ephemeral: true
                             });
                         }
@@ -9800,7 +9817,7 @@ client.on('interactionCreate', async (interaction) => {
                         await applyServerCustomization(interaction.guild);
                         
                         await interaction.reply({
-                            content: `✅ Bot nickname changed to **${nickname}**!`,
+                            content: `? Bot nickname changed to **${nickname}**!`,
                             ephemeral: true
                         });
                     }
@@ -9812,7 +9829,7 @@ client.on('interactionCreate', async (interaction) => {
                         // Check if user is bot owner
                         if (interaction.user.id !== config.botOwnerId) {
                             return interaction.reply({
-                                content: '❌ Only the bot owner can change the global avatar!',
+                                content: '? Only the bot owner can change the global avatar!',
                                 ephemeral: true
                             });
                         }
@@ -9820,7 +9837,7 @@ client.on('interactionCreate', async (interaction) => {
                         // Verify confirmation
                         if (confirmText !== 'CONFIRM') {
                             return interaction.reply({
-                                content: '❌ You must type CONFIRM to change the avatar!',
+                                content: '? You must type CONFIRM to change the avatar!',
                                 ephemeral: true
                             });
                         }
@@ -9828,7 +9845,7 @@ client.on('interactionCreate', async (interaction) => {
                         // Validate URL
                         if (!avatarUrl.startsWith('http://') && !avatarUrl.startsWith('https://')) {
                             return interaction.reply({
-                                content: '❌ Invalid URL! Must start with http:// or https://',
+                                content: '? Invalid URL! Must start with http:// or https://',
                                 ephemeral: true
                             });
                         }
@@ -9836,7 +9853,7 @@ client.on('interactionCreate', async (interaction) => {
                         // Validate image format
                         if (!avatarUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
                             return interaction.reply({
-                                content: '❌ URL must point to an image file (.jpg, .png, .gif, or .webp)',
+                                content: '? URL must point to an image file (.jpg, .png, .gif, or .webp)',
                                 ephemeral: true
                             });
                         }
@@ -9848,7 +9865,7 @@ client.on('interactionCreate', async (interaction) => {
                             await client.user.setAvatar(avatarUrl);
                             
                             const successEmbed = new EmbedBuilder()
-                                .setTitle('✅ Avatar Changed Successfully')
+                                .setTitle('? Avatar Changed Successfully')
                                 .setDescription('The bot avatar has been updated globally across all servers.')
                                 .setImage(avatarUrl)
                                 .setColor(0x00FF00)
@@ -9860,7 +9877,7 @@ client.on('interactionCreate', async (interaction) => {
                         } catch (error) {
                             console.error('Avatar change error:', error);
                             await interaction.editReply({
-                                content: `❌ Failed to change avatar: ${error.message}\n\nMake sure the URL is accessible and points to a valid image.`
+                                content: `? Failed to change avatar: ${error.message}\n\nMake sure the URL is accessible and points to a valid image.`
                             });
                         }
                     }
@@ -9880,10 +9897,10 @@ client.on('interactionCreate', async (interaction) => {
                                 // Try to find emoji by name (case-insensitive)
                                 const emoji = interaction.guild.emojis.cache.find(e => e.name.toLowerCase() === emojiName.toLowerCase());
                                 if (emoji) {
-                                    console.log(`✅ Found emoji: :${emojiName}: -> <${emoji.animated ? 'a' : ''}:${emoji.name}:${emoji.id}>`);
+                                    console.log(`? Found emoji: :${emojiName}: -> <${emoji.animated ? 'a' : ''}:${emoji.name}:${emoji.id}>`);
                                     return `<${emoji.animated ? 'a' : ''}:${emoji.name}:${emoji.id}>`;
                                 } else {
-                                    console.log(`❌ Emoji not found: :${emojiName}: (Available: ${interaction.guild.emojis.cache.map(e => e.name).join(', ')})`);
+                                    console.log(`? Emoji not found: :${emojiName}: (Available: ${interaction.guild.emojis.cache.map(e => e.name).join(', ')})`);
                                     return match; // Keep original if not found
                                 }
                             });
@@ -9924,21 +9941,21 @@ client.on('interactionCreate', async (interaction) => {
                                     .setCustomId(`webhook_send_${Date.now()}`)
                                     .setLabel('Send to Webhook')
                                     .setStyle(ButtonStyle.Success)
-                                    .setEmoji('📤'),
+                                    .setEmoji('??'),
                                 new ButtonBuilder()
                                     .setCustomId('webhook_edit')
                                     .setLabel('Edit Again')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('✏️'),
+                                    .setEmoji('??'),
                                 new ButtonBuilder()
                                     .setCustomId('webhook_cancel')
                                     .setLabel('Cancel')
                                     .setStyle(ButtonStyle.Danger)
-                                    .setEmoji('❌')
+                                    .setEmoji('?')
                             );
                         
                         await interaction.reply({ 
-                            content: '**📋 Embed Preview:**\nCustom emojis will render properly when sent via webhook.',
+                            content: '**?? Embed Preview:**\nCustom emojis will render properly when sent via webhook.',
                             embeds: [previewEmbed], 
                             components: [buttons],
                             ephemeral: true 
@@ -9965,7 +9982,7 @@ client.on('interactionCreate', async (interaction) => {
                         if (!webhookUrl.startsWith('https://discord.com/api/webhooks/') && 
                             !webhookUrl.startsWith('https://discordapp.com/api/webhooks/')) {
                             return interaction.reply({ 
-                                content: '❌ Invalid webhook URL! Must start with `https://discord.com/api/webhooks/`', 
+                                content: '? Invalid webhook URL! Must start with `https://discord.com/api/webhooks/`', 
                                 ephemeral: true 
                             });
                         }
@@ -9974,7 +9991,7 @@ client.on('interactionCreate', async (interaction) => {
                         const embedData = interaction.client.webhookEmbeds?.get(interaction.user.id);
                         if (!embedData) {
                             return interaction.reply({ 
-                                content: '❌ Embed data not found! Please create the embed again.', 
+                                content: '? Embed data not found! Please create the embed again.', 
                                 ephemeral: true 
                             });
                         }
@@ -9986,7 +10003,7 @@ client.on('interactionCreate', async (interaction) => {
                             await webhook.send({ embeds: [embedData] });
                             
                             await interaction.reply({ 
-                                content: '✅ Embed sent successfully via webhook!', 
+                                content: '? Embed sent successfully via webhook!', 
                                 ephemeral: true 
                             });
                             
@@ -9996,16 +10013,16 @@ client.on('interactionCreate', async (interaction) => {
                         } catch (error) {
                             console.error('Webhook send error:', error);
                             await interaction.reply({ 
-                                content: '❌ Failed to send webhook! Make sure the URL is valid and the webhook exists.', 
+                                content: '? Failed to send webhook! Make sure the URL is valid and the webhook exists.', 
                                 ephemeral: true 
                             });
                         }
                     }
                     
                 } catch (error) {
-                    console.error('❌ Webhook modal error:', error);
+                    console.error('? Webhook modal error:', error);
                     await interaction.reply({ 
-                        content: '❌ An error occurred! ' + error.message, 
+                        content: '? An error occurred! ' + error.message, 
                         ephemeral: true 
                     }).catch(() => {});
                 }
@@ -10019,7 +10036,7 @@ client.on('interactionCreate', async (interaction) => {
                 // Check admin permissions
                 if (!interaction.member.permissions.has('Administrator')) {
                     return interaction.reply({ 
-                        content: '❌ You need Administrator permissions to use this command!', 
+                        content: '? You need Administrator permissions to use this command!', 
                         ephemeral: true 
                     });
                 }
@@ -10036,7 +10053,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         if (isNaN(threshold) || threshold < 1 || threshold > 20) {
                             return interaction.reply({ 
-                                content: '❌ Invalid number! Must be between 1-20.', 
+                                content: '? Invalid number! Must be between 1-20.', 
                                 ephemeral: true 
                             });
                         }
@@ -10045,7 +10062,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ Threshold set to **${threshold} warnings**!`, 
+                            content: `? Threshold set to **${threshold} warnings**!`, 
                             ephemeral: true 
                         });
                     }
@@ -10055,7 +10072,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         if (isNaN(minutes) || minutes < 1 || minutes > 40320) {
                             return interaction.reply({ 
-                                content: '❌ Invalid duration! Must be between 1-40320 minutes.', 
+                                content: '? Invalid duration! Must be between 1-40320 minutes.', 
                                 ephemeral: true 
                             });
                         }
@@ -10064,7 +10081,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ Timeout duration set to **${minutes} minutes**!`, 
+                            content: `? Timeout duration set to **${minutes} minutes**!`, 
                             ephemeral: true 
                         });
                     }
@@ -10074,7 +10091,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         if (isNaN(days) || days < 0 || days > 365) {
                             return interaction.reply({ 
-                                content: '❌ Invalid number! Must be between 0-365.', 
+                                content: '? Invalid number! Must be between 0-365.', 
                                 ephemeral: true 
                             });
                         }
@@ -10083,7 +10100,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: days === 0 ? '✅ Warnings will never expire!' : `✅ Warnings will expire after **${days} days**!`, 
+                            content: days === 0 ? '? Warnings will never expire!' : `? Warnings will expire after **${days} days**!`, 
                             ephemeral: true 
                         });
                     }
@@ -10093,7 +10110,7 @@ client.on('interactionCreate', async (interaction) => {
                         const channelMatch = channelInput.match(/(\d{17,19})/);
                         if (!channelMatch) {
                             return interaction.reply({ 
-                                content: '❌ Invalid channel ID or mention. Please try again.', 
+                                content: '? Invalid channel ID or mention. Please try again.', 
                                 ephemeral: true 
                             });
                         }
@@ -10103,7 +10120,7 @@ client.on('interactionCreate', async (interaction) => {
                         // Validate snowflake ID format
                         if (!/^\d{17,19}$/.test(channelId)) {
                             return interaction.reply({ 
-                                content: '❌ Invalid channel ID format!', 
+                                content: '? Invalid channel ID format!', 
                                 ephemeral: true 
                             });
                         }
@@ -10111,7 +10128,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         if (!channel || !channel.isTextBased()) {
                             return interaction.reply({ 
-                                content: '❌ Channel not found or is not a text channel!', 
+                                content: '? Channel not found or is not a text channel!', 
                                 ephemeral: true 
                             });
                         }
@@ -10120,7 +10137,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         
                         const testEmbed = new EmbedBuilder()
-                            .setTitle('✅ Moderation Log Channel Configured')
+                            .setTitle('? Moderation Log Channel Configured')
                             .setDescription('This channel will receive moderation logs.')
                             .setColor(0x00FF00)
                             .setTimestamp();
@@ -10128,7 +10145,7 @@ client.on('interactionCreate', async (interaction) => {
                         await channel.send({ embeds: [testEmbed] }).catch(() => {});
                         
                         await interaction.reply({ 
-                            content: `✅ Log channel set to ${channel}!`, 
+                            content: `? Log channel set to ${channel}!`, 
                             ephemeral: true 
                         });
                     }
@@ -10138,7 +10155,7 @@ client.on('interactionCreate', async (interaction) => {
                         const roleMatch = roleInput.match(/(\d{17,19})/);
                         if (!roleMatch) {
                             return interaction.reply({ 
-                                content: '❌ Invalid role ID or mention. Please try again.', 
+                                content: '? Invalid role ID or mention. Please try again.', 
                                 ephemeral: true 
                             });
                         }
@@ -10148,7 +10165,7 @@ client.on('interactionCreate', async (interaction) => {
                         // Validate snowflake ID format
                         if (!/^\d{17,19}$/.test(roleId)) {
                             return interaction.reply({ 
-                                content: '❌ Invalid role ID format!', 
+                                content: '? Invalid role ID format!', 
                                 ephemeral: true 
                             });
                         }
@@ -10156,7 +10173,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         if (!role) {
                             return interaction.reply({ 
-                                content: '❌ Role not found!', 
+                                content: '? Role not found!', 
                                 ephemeral: true 
                             });
                         }
@@ -10165,7 +10182,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ Mute role set to ${role}!`, 
+                            content: `? Mute role set to ${role}!`, 
                             ephemeral: true 
                         });
                     }
@@ -10175,7 +10192,7 @@ client.on('interactionCreate', async (interaction) => {
                         const roleMatch = roleInput.match(/(\d{17,19})/);
                         if (!roleMatch) {
                             return interaction.reply({ 
-                                content: '❌ Invalid role ID or mention. Please try again.', 
+                                content: '? Invalid role ID or mention. Please try again.', 
                                 ephemeral: true 
                             });
                         }
@@ -10185,7 +10202,7 @@ client.on('interactionCreate', async (interaction) => {
                         // Validate snowflake ID format
                         if (!/^\d{17,19}$/.test(roleId)) {
                             return interaction.reply({ 
-                                content: '❌ Invalid role ID format!', 
+                                content: '? Invalid role ID format!', 
                                 ephemeral: true 
                             });
                         }
@@ -10193,14 +10210,14 @@ client.on('interactionCreate', async (interaction) => {
                         
                         if (!role) {
                             return interaction.reply({ 
-                                content: '❌ Role not found!', 
+                                content: '? Role not found!', 
                                 ephemeral: true 
                             });
                         }
                         
                         if (settings.moderation.moderatorRoles.includes(roleId)) {
                             return interaction.reply({ 
-                                content: '❌ This role is already a moderator role!', 
+                                content: '? This role is already a moderator role!', 
                                 ephemeral: true 
                             });
                         }
@@ -10209,7 +10226,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ ${role} added as moderator role!`, 
+                            content: `? ${role} added as moderator role!`, 
                             ephemeral: true 
                         });
                     }
@@ -10219,7 +10236,7 @@ client.on('interactionCreate', async (interaction) => {
                         const roleMatch = roleInput.match(/(\d{17,19})/);
                         if (!roleMatch) {
                             return interaction.reply({ 
-                                content: '❌ Invalid role ID or mention. Please try again.', 
+                                content: '? Invalid role ID or mention. Please try again.', 
                                 ephemeral: true 
                             });
                         }
@@ -10229,7 +10246,7 @@ client.on('interactionCreate', async (interaction) => {
                         // Validate snowflake ID format
                         if (!/^\d{17,19}$/.test(roleId)) {
                             return interaction.reply({ 
-                                content: '❌ Invalid role ID format!', 
+                                content: '? Invalid role ID format!', 
                                 ephemeral: true 
                             });
                         }
@@ -10238,7 +10255,7 @@ client.on('interactionCreate', async (interaction) => {
                         const index = settings.moderation.moderatorRoles.indexOf(roleId);
                         if (index === -1) {
                             return interaction.reply({ 
-                                content: '❌ This role is not a moderator role!', 
+                                content: '? This role is not a moderator role!', 
                                 ephemeral: true 
                             });
                         }
@@ -10247,7 +10264,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ ${role ? role : 'Role'} removed from moderator roles!`, 
+                            content: `? ${role ? role : 'Role'} removed from moderator roles!`, 
                             ephemeral: true 
                         });
                     }
@@ -10259,13 +10276,13 @@ client.on('interactionCreate', async (interaction) => {
                         
                         const userMatch = userInput.match(/(\d{17,19})/);
                         if (!userMatch) {
-                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                            return interaction.reply({ content: '? Invalid user ID or mention!', ephemeral: true });
                         }
                         
                         const userId = userMatch[1];
                         const user = await client.users.fetch(userId).catch(() => null);
                         if (!user) {
-                            return interaction.reply({ content: '❌ User not found!', ephemeral: true });
+                            return interaction.reply({ content: '? User not found!', ephemeral: true });
                         }
                         
                         initializeModerationData(guildId);
@@ -10283,7 +10300,7 @@ client.on('interactionCreate', async (interaction) => {
                             try {
                                 await user.send({
                                     embeds: [new EmbedBuilder()
-                                        .setTitle('⚠️ You Have Been Warned')
+                                        .setTitle('?? You Have Been Warned')
                                         .setDescription(`You have been warned in **${interaction.guild.name}**`)
                                         .addFields({ name: 'Reason', value: reason })
                                         .setColor(0xFFAA00)
@@ -10292,12 +10309,12 @@ client.on('interactionCreate', async (interaction) => {
                             } catch (error) {}
                         }
                         
-                        await logModerationAction(interaction.guild, '⚠️ Warning Issued', interaction.user, user, reason);
+                        await logModerationAction(interaction.guild, '?? Warning Issued', interaction.user, user, reason);
                         
                         const warningCount = moderationData[guildId].warnings[userId].length;
                         await interaction.reply({ 
                             embeds: [new EmbedBuilder()
-                                .setTitle('✅ User Warned')
+                                .setTitle('? User Warned')
                                 .setDescription(`${user} has been warned (${warningCount}/${settings.moderation.warningThreshold})`)
                                 .addFields({ name: 'Reason', value: reason })
                                 .setColor(0xFFAA00)],
@@ -10312,12 +10329,12 @@ client.on('interactionCreate', async (interaction) => {
                         
                         const duration = parseInt(durationStr);
                         if (isNaN(duration) || duration < 1 || duration > 40320) {
-                            return interaction.reply({ content: '❌ Invalid duration! Must be between 1-40320 minutes.', ephemeral: true });
+                            return interaction.reply({ content: '? Invalid duration! Must be between 1-40320 minutes.', ephemeral: true });
                         }
                         
                         const userMatch = userInput.match(/(\d{17,19})/);
                         if (!userMatch) {
-                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                            return interaction.reply({ content: '? Invalid user ID or mention!', ephemeral: true });
                         }
                         
                         const userId = userMatch[1];
@@ -10325,11 +10342,11 @@ client.on('interactionCreate', async (interaction) => {
                         const member = await interaction.guild.members.fetch(userId).catch(() => null);
                         
                         if (!member) {
-                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+                            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
                         }
                         
                         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
-                            return interaction.reply({ content: '❌ You cannot timeout administrators!', ephemeral: true });
+                            return interaction.reply({ content: '? You cannot timeout administrators!', ephemeral: true });
                         }
                         
                         try {
@@ -10340,7 +10357,7 @@ client.on('interactionCreate', async (interaction) => {
                                 try {
                                     await user.send({
                                         embeds: [new EmbedBuilder()
-                                            .setTitle('🔇 You Have Been Timed Out')
+                                            .setTitle('?? You Have Been Timed Out')
                                             .setDescription(`You have been timed out in **${interaction.guild.name}** for ${duration} minutes`)
                                             .addFields({ name: 'Reason', value: reason })
                                             .setColor(0xFF6600)
@@ -10349,17 +10366,17 @@ client.on('interactionCreate', async (interaction) => {
                                 } catch (error) {}
                             }
                             
-                            await logModerationAction(interaction.guild, `🔇 Timeout (${duration}m)`, interaction.user, user, reason);
+                            await logModerationAction(interaction.guild, `?? Timeout (${duration}m)`, interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
-                                    .setTitle('✅ User Timed Out')
+                                    .setTitle('? User Timed Out')
                                     .setDescription(`${user} has been timed out for ${duration} minutes`)
                                     .addFields({ name: 'Reason', value: reason })
                                     .setColor(0xFF6600)],
                                 ephemeral: true 
                             });
                         } catch (error) {
-                            await interaction.reply({ content: `❌ Failed to timeout user: ${error.message}`, ephemeral: true });
+                            await interaction.reply({ content: `? Failed to timeout user: ${error.message}`, ephemeral: true });
                         }
                     }
                     
@@ -10369,7 +10386,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         const userMatch = userInput.match(/(\d{17,19})/);
                         if (!userMatch) {
-                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                            return interaction.reply({ content: '? Invalid user ID or mention!', ephemeral: true });
                         }
                         
                         const userId = userMatch[1];
@@ -10377,15 +10394,15 @@ client.on('interactionCreate', async (interaction) => {
                         const member = await interaction.guild.members.fetch(userId).catch(() => null);
                         
                         if (!member) {
-                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+                            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
                         }
                         
                         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
-                            return interaction.reply({ content: '❌ You cannot kick administrators!', ephemeral: true });
+                            return interaction.reply({ content: '? You cannot kick administrators!', ephemeral: true });
                         }
                         
                         if (!member.kickable) {
-                            return interaction.reply({ content: '❌ I cannot kick this user (role hierarchy)!', ephemeral: true });
+                            return interaction.reply({ content: '? I cannot kick this user (role hierarchy)!', ephemeral: true });
                         }
                         
                         try {
@@ -10395,7 +10412,7 @@ client.on('interactionCreate', async (interaction) => {
                                 try {
                                     await user.send({
                                         embeds: [new EmbedBuilder()
-                                            .setTitle('👢 You Have Been Kicked')
+                                            .setTitle('?? You Have Been Kicked')
                                             .setDescription(`You have been kicked from **${interaction.guild.name}**`)
                                             .addFields({ name: 'Reason', value: reason })
                                             .setColor(0xFF6600)
@@ -10405,17 +10422,17 @@ client.on('interactionCreate', async (interaction) => {
                             }
                             
                             await member.kick(reason);
-                            await logModerationAction(interaction.guild, '👢 Kick', interaction.user, user, reason);
+                            await logModerationAction(interaction.guild, '?? Kick', interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
-                                    .setTitle('✅ User Kicked')
+                                    .setTitle('? User Kicked')
                                     .setDescription(`${user.tag} has been kicked`)
                                     .addFields({ name: 'Reason', value: reason })
                                     .setColor(0xFF6600)],
                                 ephemeral: true 
                             });
                         } catch (error) {
-                            await interaction.reply({ content: `❌ Failed to kick user: ${error.message}`, ephemeral: true });
+                            await interaction.reply({ content: `? Failed to kick user: ${error.message}`, ephemeral: true });
                         }
                     }
                     
@@ -10425,7 +10442,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         const userMatch = userInput.match(/(\d{17,19})/);
                         if (!userMatch) {
-                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                            return interaction.reply({ content: '? Invalid user ID or mention!', ephemeral: true });
                         }
                         
                         const userId = userMatch[1];
@@ -10433,7 +10450,7 @@ client.on('interactionCreate', async (interaction) => {
                         const member = await interaction.guild.members.fetch(userId).catch(() => null);
                         
                         if (member?.permissions.has(PermissionFlagsBits.Administrator)) {
-                            return interaction.reply({ content: '❌ You cannot ban administrators!', ephemeral: true });
+                            return interaction.reply({ content: '? You cannot ban administrators!', ephemeral: true });
                         }
                         
                         try {
@@ -10443,7 +10460,7 @@ client.on('interactionCreate', async (interaction) => {
                                 try {
                                     await user.send({
                                         embeds: [new EmbedBuilder()
-                                            .setTitle('🔨 You Have Been Banned')
+                                            .setTitle('?? You Have Been Banned')
                                             .setDescription(`You have been banned from **${interaction.guild.name}**`)
                                             .addFields({ name: 'Reason', value: reason })
                                             .setColor(0xFF0000)
@@ -10453,17 +10470,17 @@ client.on('interactionCreate', async (interaction) => {
                             }
                             
                             await interaction.guild.members.ban(userId, { reason, deleteMessageSeconds: 604800 });
-                            await logModerationAction(interaction.guild, '🔨 Ban', interaction.user, user, reason);
+                            await logModerationAction(interaction.guild, '?? Ban', interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
-                                    .setTitle('✅ User Banned')
+                                    .setTitle('? User Banned')
                                     .setDescription(`${user ? user.tag : userId} has been banned`)
                                     .addFields({ name: 'Reason', value: reason })
                                     .setColor(0xFF0000)],
                                 ephemeral: true 
                             });
                         } catch (error) {
-                            await interaction.reply({ content: `❌ Failed to ban user: ${error.message}`, ephemeral: true });
+                            await interaction.reply({ content: `? Failed to ban user: ${error.message}`, ephemeral: true });
                         }
                     }
                     
@@ -10473,7 +10490,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         const userMatch = userInput.match(/(\d{17,19})/);
                         if (!userMatch) {
-                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                            return interaction.reply({ content: '? Invalid user ID or mention!', ephemeral: true });
                         }
                         
                         const userId = userMatch[1];
@@ -10481,11 +10498,11 @@ client.on('interactionCreate', async (interaction) => {
                         const member = await interaction.guild.members.fetch(userId).catch(() => null);
                         
                         if (!member) {
-                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+                            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
                         }
                         
                         if (!settings.moderation.muteRole) {
-                            return interaction.reply({ content: '❌ Mute role not set! Use moderation settings to configure.', ephemeral: true });
+                            return interaction.reply({ content: '? Mute role not set! Use moderation settings to configure.', ephemeral: true });
                         }
                         
                         try {
@@ -10496,7 +10513,7 @@ client.on('interactionCreate', async (interaction) => {
                                 try {
                                     await user.send({
                                         embeds: [new EmbedBuilder()
-                                            .setTitle('🔕 You Have Been Muted')
+                                            .setTitle('?? You Have Been Muted')
                                             .setDescription(`You have been muted in **${interaction.guild.name}**`)
                                             .addFields({ name: 'Reason', value: reason })
                                             .setColor(0x808080)
@@ -10505,17 +10522,17 @@ client.on('interactionCreate', async (interaction) => {
                                 } catch (error) {}
                             }
                             
-                            await logModerationAction(interaction.guild, '🔕 Mute', interaction.user, user, reason);
+                            await logModerationAction(interaction.guild, '?? Mute', interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
-                                    .setTitle('✅ User Muted')
+                                    .setTitle('? User Muted')
                                     .setDescription(`${user} has been muted`)
                                     .addFields({ name: 'Reason', value: reason })
                                     .setColor(0x808080)],
                                 ephemeral: true 
                             });
                         } catch (error) {
-                            await interaction.reply({ content: `❌ Failed to mute user: ${error.message}`, ephemeral: true });
+                            await interaction.reply({ content: `? Failed to mute user: ${error.message}`, ephemeral: true });
                         }
                     }
                     
@@ -10524,7 +10541,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         const userMatch = userInput.match(/(\d{17,19})/);
                         if (!userMatch) {
-                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                            return interaction.reply({ content: '? Invalid user ID or mention!', ephemeral: true });
                         }
                         
                         const userId = userMatch[1];
@@ -10532,25 +10549,25 @@ client.on('interactionCreate', async (interaction) => {
                         const member = await interaction.guild.members.fetch(userId).catch(() => null);
                         
                         if (!member) {
-                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+                            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
                         }
                         
                         if (!settings.moderation.muteRole) {
-                            return interaction.reply({ content: '❌ Mute role not set!', ephemeral: true });
+                            return interaction.reply({ content: '? Mute role not set!', ephemeral: true });
                         }
                         
                         try {
                             await member.roles.remove(settings.moderation.muteRole);
-                            await logModerationAction(interaction.guild, '🔊 Unmute', interaction.user, user, 'Unmuted');
+                            await logModerationAction(interaction.guild, '?? Unmute', interaction.user, user, 'Unmuted');
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
-                                    .setTitle('✅ User Unmuted')
+                                    .setTitle('? User Unmuted')
                                     .setDescription(`${user} has been unmuted`)
                                     .setColor(0x00FF00)],
                                 ephemeral: true 
                             });
                         } catch (error) {
-                            await interaction.reply({ content: `❌ Failed to unmute user: ${error.message}`, ephemeral: true });
+                            await interaction.reply({ content: `? Failed to unmute user: ${error.message}`, ephemeral: true });
                         }
                     }
                     
@@ -10559,7 +10576,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         const userMatch = userInput.match(/(\d{17,19})/);
                         if (!userMatch) {
-                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                            return interaction.reply({ content: '? Invalid user ID or mention!', ephemeral: true });
                         }
                         
                         const userId = userMatch[1];
@@ -10573,7 +10590,7 @@ client.on('interactionCreate', async (interaction) => {
                         }
                         
                         const embed = new EmbedBuilder()
-                            .setTitle(`📋 Infractions for ${user ? user.tag : userId}`)
+                            .setTitle(`?? Infractions for ${user ? user.tag : userId}`)
                             .setColor(0xFF0000)
                             .setThumbnail(user?.displayAvatarURL())
                             .setDescription(`Total infractions: **${infractions.length}**`);
@@ -10581,12 +10598,12 @@ client.on('interactionCreate', async (interaction) => {
                         infractions.slice(-10).reverse().forEach((infraction, index) => {
                             const date = new Date(infraction.timestamp);
                             const typeEmoji = {
-                                warn: '⚠️',
-                                timeout: '🔇',
-                                kick: '👢',
-                                ban: '🔨',
-                                mute: '🔕'
-                            }[infraction.type] || '📝';
+                                warn: '??',
+                                timeout: '??',
+                                kick: '??',
+                                ban: '??',
+                                mute: '??'
+                            }[infraction.type] || '??';
                             
                             embed.addFields({
                                 name: `${typeEmoji} ${infraction.type.charAt(0).toUpperCase() + infraction.type.slice(1)} #${infractions.length - index}`,
@@ -10607,7 +10624,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         const userMatch = userInput.match(/(\d{17,19})/);
                         if (!userMatch) {
-                            return interaction.reply({ content: '❌ Invalid user ID or mention!', ephemeral: true });
+                            return interaction.reply({ content: '? Invalid user ID or mention!', ephemeral: true });
                         }
                         
                         const userId = userMatch[1];
@@ -10618,10 +10635,10 @@ client.on('interactionCreate', async (interaction) => {
                         moderationData[guildId].warnings[userId] = [];
                         saveModerationData();
                         
-                        await logModerationAction(interaction.guild, '🧹 Warnings Cleared', interaction.user, user, `Cleared ${warningCount} warnings`);
+                        await logModerationAction(interaction.guild, '?? Warnings Cleared', interaction.user, user, `Cleared ${warningCount} warnings`);
                         await interaction.reply({ 
                             embeds: [new EmbedBuilder()
-                                .setTitle('✅ Warnings Cleared')
+                                .setTitle('? Warnings Cleared')
                                 .setDescription(`Cleared **${warningCount}** warnings for ${user ? user.tag : userId}`)
                                 .setColor(0x00FF00)],
                             ephemeral: true 
@@ -10639,7 +10656,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         const example = `${prefixText}Username${settings.autoNickname.suffix || ''}`;
                         await interaction.reply({ 
-                            content: `✅ Nickname prefix set to **"${prefixText}"**!\n\n**Example:** \`Username\` → \`${example}\``, 
+                            content: `? Nickname prefix set to **"${prefixText}"**!\n\n**Example:** \`Username\` ? \`${example}\``, 
                             ephemeral: true 
                         });
                     }
@@ -10653,7 +10670,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         const example = `${settings.autoNickname.prefix || ''}Username${suffixText}`;
                         await interaction.reply({ 
-                            content: `✅ Nickname suffix set to **"${suffixText}"**!\n\n**Example:** \`Username\` → \`${example}\``, 
+                            content: `? Nickname suffix set to **"${suffixText}"**!\n\n**Example:** \`Username\` ? \`${example}\``, 
                             ephemeral: true 
                         });
                     }
@@ -10664,7 +10681,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         if (isNaN(thresholdValue) || thresholdValue < 2 || thresholdValue > 50) {
                             return interaction.reply({ 
-                                content: '❌ Invalid threshold! Please enter a number between 2 and 50.', 
+                                content: '? Invalid threshold! Please enter a number between 2 and 50.', 
                                 ephemeral: true 
                             });
                         }
@@ -10676,7 +10693,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ Join threshold set to **${thresholdValue} members**!\n\nRaid detection will trigger when ${thresholdValue} members join within ${settings.raidProtection.timeWindow} seconds.`, 
+                            content: `? Join threshold set to **${thresholdValue} members**!\n\nRaid detection will trigger when ${thresholdValue} members join within ${settings.raidProtection.timeWindow} seconds.`, 
                             ephemeral: true 
                         });
                     }
@@ -10685,7 +10702,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         if (isNaN(timeValue) || timeValue < 5 || timeValue > 300) {
                             return interaction.reply({ 
-                                content: '❌ Invalid time window! Please enter a number between 5 and 300 seconds.', 
+                                content: '? Invalid time window! Please enter a number between 5 and 300 seconds.', 
                                 ephemeral: true 
                             });
                         }
@@ -10697,7 +10714,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ Time window set to **${timeValue} seconds**!\n\nRaid detection will trigger when ${settings.raidProtection.joinThreshold} members join within ${timeValue} seconds.`, 
+                            content: `? Time window set to **${timeValue} seconds**!\n\nRaid detection will trigger when ${settings.raidProtection.joinThreshold} members join within ${timeValue} seconds.`, 
                             ephemeral: true 
                         });
                     }
@@ -10706,7 +10723,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         if (isNaN(durationValue) || durationValue < 0 || durationValue > 3600) {
                             return interaction.reply({ 
-                                content: '❌ Invalid duration! Please enter a number between 0 and 3600 seconds (0 = manual unlock).', 
+                                content: '? Invalid duration! Please enter a number between 0 and 3600 seconds (0 = manual unlock).', 
                                 ephemeral: true 
                             });
                         }
@@ -10722,7 +10739,7 @@ client.on('interactionCreate', async (interaction) => {
                             : `Lockdown will automatically end after **${durationValue} seconds** (${Math.floor(durationValue / 60)}m ${durationValue % 60}s).`;
                         
                         await interaction.reply({ 
-                            content: `✅ Lockdown duration updated!\n\n${message}`, 
+                            content: `? Lockdown duration updated!\n\n${message}`, 
                             ephemeral: true 
                         });
                     }
@@ -10732,7 +10749,7 @@ client.on('interactionCreate', async (interaction) => {
                         const channelMatch = channelInput.match(/(\d{17,19})/);
                         if (!channelMatch) {
                             return interaction.reply({ 
-                                content: '❌ Invalid channel ID or mention. Please try again.', 
+                                content: '? Invalid channel ID or mention. Please try again.', 
                                 ephemeral: true 
                             });
                         }
@@ -10742,7 +10759,7 @@ client.on('interactionCreate', async (interaction) => {
                         // Validate snowflake ID format
                         if (!/^\d{17,19}$/.test(channelId)) {
                             return interaction.reply({ 
-                                content: '❌ Invalid channel ID format!', 
+                                content: '? Invalid channel ID format!', 
                                 ephemeral: true 
                             });
                         }
@@ -10750,7 +10767,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         if (!channel || !channel.isTextBased()) {
                             return interaction.reply({ 
-                                content: '❌ Channel not found or is not a text channel!', 
+                                content: '? Channel not found or is not a text channel!', 
                                 ephemeral: true 
                             });
                         }
@@ -10763,7 +10780,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         // Send test message
                         const testEmbed = new EmbedBuilder()
-                            .setTitle('✅ Raid Alert Channel Configured')
+                            .setTitle('? Raid Alert Channel Configured')
                             .setDescription('This channel will receive raid protection alerts.')
                             .setColor(0x00FF00)
                             .setTimestamp();
@@ -10771,7 +10788,7 @@ client.on('interactionCreate', async (interaction) => {
                         await channel.send({ embeds: [testEmbed] }).catch(() => {});
                         
                         await interaction.reply({ 
-                            content: `✅ Notification channel set to ${channel}!\n\nA test message has been sent to the channel.`, 
+                            content: `? Notification channel set to ${channel}!\n\nA test message has been sent to the channel.`, 
                             ephemeral: true 
                         });
                     }
@@ -10781,7 +10798,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         if (action !== 'add' && action !== 'remove') {
                             return interaction.reply({ 
-                                content: '❌ Invalid action! Please enter either "add" or "remove".', 
+                                content: '? Invalid action! Please enter either "add" or "remove".', 
                                 ephemeral: true 
                             });
                         }
@@ -10789,7 +10806,7 @@ client.on('interactionCreate', async (interaction) => {
                         const userMatch = userInput.match(/(\d{17,19})/);
                         if (!userMatch) {
                             return interaction.reply({ 
-                                content: '❌ Invalid user ID or mention. Please try again.', 
+                                content: '? Invalid user ID or mention. Please try again.', 
                                 ephemeral: true 
                             });
                         }
@@ -10799,7 +10816,7 @@ client.on('interactionCreate', async (interaction) => {
                         // Validate snowflake ID format
                         if (!/^\d{17,19}$/.test(userId)) {
                             return interaction.reply({ 
-                                content: '❌ Invalid user ID format!', 
+                                content: '? Invalid user ID format!', 
                                 ephemeral: true 
                             });
                         }
@@ -10807,7 +10824,7 @@ client.on('interactionCreate', async (interaction) => {
                         
                         if (!user) {
                             return interaction.reply({ 
-                                content: '❌ User not found!', 
+                                content: '? User not found!', 
                                 ephemeral: true 
                             });
                         }
@@ -10819,7 +10836,7 @@ client.on('interactionCreate', async (interaction) => {
                         if (action === 'add') {
                             if (settings.raidProtection.whitelist.includes(userId)) {
                                 return interaction.reply({ 
-                                    content: '❌ This user is already whitelisted!', 
+                                    content: '? This user is already whitelisted!', 
                                     ephemeral: true 
                                 });
                             }
@@ -10828,14 +10845,14 @@ client.on('interactionCreate', async (interaction) => {
                             saveSettings();
                             
                             await interaction.reply({ 
-                                content: `✅ ${user} added to whitelist!\n\nThis user will never be kicked/banned during raid protection.`, 
+                                content: `? ${user} added to whitelist!\n\nThis user will never be kicked/banned during raid protection.`, 
                                 ephemeral: true 
                             });
                         } else {
                             const index = settings.raidProtection.whitelist.indexOf(userId);
                             if (index === -1) {
                                 return interaction.reply({ 
-                                    content: '❌ This user is not on the whitelist!', 
+                                    content: '? This user is not on the whitelist!', 
                                     ephemeral: true 
                                 });
                             }
@@ -10844,17 +10861,17 @@ client.on('interactionCreate', async (interaction) => {
                             saveSettings();
                             
                             await interaction.reply({ 
-                                content: `✅ ${user} removed from whitelist!`, 
+                                content: `? ${user} removed from whitelist!`, 
                                 ephemeral: true 
                             });
                         }
                     }
                     
                 } catch (error) {
-                    console.error('❌ [MOD MODAL] Error:', error);
+                    console.error('? [MOD MODAL] Error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
-                            await interaction.reply({ content: '❌ An error occurred. Please try again.', ephemeral: true });
+                            await interaction.reply({ content: '? An error occurred. Please try again.', ephemeral: true });
                         }
                     } catch (replyError) {
                         console.error('Failed to send error message:', replyError);
@@ -10870,7 +10887,7 @@ client.on('interactionCreate', async (interaction) => {
                 // Check admin permissions
                 if (!interaction.member.permissions.has('Administrator')) {
                     return interaction.reply({ 
-                        content: '❌ You need Administrator permissions to use this command!', 
+                        content: '? You need Administrator permissions to use this command!', 
                         ephemeral: true 
                     });
                 }
@@ -10885,7 +10902,7 @@ client.on('interactionCreate', async (interaction) => {
                         // Validate snowflake ID format
                         if (!/^\d{17,19}$/.test(channelInput)) {
                             return interaction.reply({ 
-                                content: '❌ Invalid channel ID format!', 
+                                content: '? Invalid channel ID format!', 
                                 ephemeral: true 
                             });
                         }
@@ -10894,7 +10911,7 @@ client.on('interactionCreate', async (interaction) => {
                         const channel = await interaction.guild.channels.fetch(channelInput).catch(() => null);
                         if (!channel) {
                             return interaction.reply({ 
-                                content: `❌ Channel with ID \`${channelInput}\` not found!`, 
+                                content: `? Channel with ID \`${channelInput}\` not found!`, 
                                 ephemeral: true 
                             });
                         }
@@ -10904,7 +10921,7 @@ client.on('interactionCreate', async (interaction) => {
                         const channel = interaction.guild.channels.cache.find(c => c.name === channelInput);
                         if (!channel) {
                             return interaction.reply({ 
-                                content: `❌ Channel \`#${channelInput}\` not found!`, 
+                                content: `? Channel \`#${channelInput}\` not found!`, 
                                 ephemeral: true 
                             });
                         }
@@ -10914,14 +10931,14 @@ client.on('interactionCreate', async (interaction) => {
                     saveSettings();
                     
                     await interaction.reply({ 
-                        content: `✅ Welcome channel set to **#${channelName}**!`, 
+                        content: `? Welcome channel set to **#${channelName}**!`, 
                         ephemeral: true 
                     });
                 } catch (error) {
-                    console.error('❌ [WELCOME MODAL] Error:', error);
+                    console.error('? [WELCOME MODAL] Error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
-                            await interaction.reply({ content: '❌ An error occurred. Please try again.', ephemeral: true });
+                            await interaction.reply({ content: '? An error occurred. Please try again.', ephemeral: true });
                         }
                     } catch (replyError) {
                         console.error('Failed to send error message:', replyError);
@@ -10936,7 +10953,7 @@ client.on('interactionCreate', async (interaction) => {
                 // Check admin permissions
                 if (!interaction.member.permissions.has('Administrator')) {
                     return interaction.reply({ 
-                        content: '❌ You need Administrator permissions to use this command!', 
+                        content: '? You need Administrator permissions to use this command!', 
                         ephemeral: true 
                     });
                 }
@@ -10949,14 +10966,14 @@ client.on('interactionCreate', async (interaction) => {
                     saveSettings();
                     
                     await interaction.reply({ 
-                        content: `✅ Welcome message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`, 
+                        content: `? Welcome message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`, 
                         ephemeral: true 
                     });
                 } catch (error) {
-                    console.error('❌ [WELCOME MESSAGE MODAL] Error:', error);
+                    console.error('? [WELCOME MESSAGE MODAL] Error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
-                            await interaction.reply({ content: '❌ An error occurred. Please try again.', ephemeral: true });
+                            await interaction.reply({ content: '? An error occurred. Please try again.', ephemeral: true });
                         }
                     } catch (replyError) {
                         console.error('Failed to send error message:', replyError);
@@ -10978,12 +10995,12 @@ client.on('interactionCreate', async (interaction) => {
         try {
             if (!interaction.replied && !interaction.deferred) {
                 await interaction.reply({ 
-                    content: '❌ An error occurred. Please try again!', 
+                    content: '? An error occurred. Please try again!', 
                     ephemeral: true 
                 });
             } else if (interaction.deferred) {
                 await interaction.editReply({ 
-                    content: '❌ An error occurred. Please try again!' 
+                    content: '? An error occurred. Please try again!' 
                 });
             }
         } catch (replyError) {
@@ -11001,8 +11018,8 @@ client.on('interactionCreate', async (interaction) => {
                 await lvlCommand.handleSelectMenu(interaction);
                 return;
             } catch (error) {
-                console.error('❌ Leveling select menu error:', error);
-                await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                console.error('? Leveling select menu error:', error);
+                await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                 return;
             }
         }
@@ -11015,8 +11032,8 @@ client.on('interactionCreate', async (interaction) => {
                 await leaveCommand.handleSelectMenu(interaction);
                 return;
             } catch (error) {
-                console.error('❌ Leave select menu error:', error);
-                await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                console.error('? Leave select menu error:', error);
+                await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                 return;
             }
         }
@@ -11026,7 +11043,7 @@ client.on('interactionCreate', async (interaction) => {
 // Monthly AI Knowledge Updater - Fetches latest PlayStation info in REAL-TIME
 async function updateAIKnowledge() {
     try {
-        console.log('🔄 Updating AI knowledge with REAL-TIME PlayStation information from web...');
+        console.log('?? Updating AI knowledge with REAL-TIME PlayStation information from web...');
         
         const fetch = require('node-fetch');
         const cheerio = require('cheerio');
@@ -11092,9 +11109,9 @@ async function updateAIKnowledge() {
             const pspMatch = firmwareSection.match(/PSP\s*[>:]\s*(\d\.\d{2})/i);
             if (pspMatch) psData.psp = `${pspMatch[1]} PRO-C`;
             
-            console.log('✅ Scraped PSX-Place for real-time firmware data');
+            console.log('? Scraped PSX-Place for real-time firmware data');
         } catch (scrapeError) {
-            console.log('⚠️ PSX-Place scrape failed, using cached values:', scrapeError.message);
+            console.log('?? PSX-Place scrape failed, using cached values:', scrapeError.message);
         }
         
         // REAL-TIME: Scrape Wololo for latest homebrew tool versions
@@ -11114,13 +11131,13 @@ async function updateAIKnowledge() {
             const etahenMatch = wololoHTML.match(/etaHEN\s*v?([\d.]+[a-z]*)/i);
             if (etahenMatch) psData.etahen = etahenMatch[1];
             
-            console.log('✅ Scraped Wololo for real-time homebrew tool versions');
+            console.log('? Scraped Wololo for real-time homebrew tool versions');
         } catch (scrapeError) {
-            console.log('⚠️ Wololo scrape failed, using cached values:', scrapeError.message);
+            console.log('?? Wololo scrape failed, using cached values:', scrapeError.message);
         }
         
         // GoldHEN version - using manual version (scraping disabled for accuracy)
-        console.log(`ℹ️ Using manual GoldHEN version: ${psData.goldhen}`);
+        console.log(`?? Using manual GoldHEN version: ${psData.goldhen}`);
         
         // Update all server settings with REAL-TIME knowledge
         const allSettings = JSON.parse(fsSync.readFileSync('./serverSettings.json', 'utf8'));
@@ -11129,7 +11146,7 @@ async function updateAIKnowledge() {
         for (const guildId in allSettings) {
             if (allSettings[guildId].ai && allSettings[guildId].ai.enabled) {
                 // Comprehensive gaming database with REAL-TIME data
-                allSettings[guildId].ai.systemPrompt = `2025 FIRMWARE (Nov 2025 Update): PS3 OFW ${psData.ps3OFW}/CFW ${psData.ps3CFW} | PS4 OFW ${psData.ps4OFW}/JB ${psData.ps4PPPwn} PPPwn ${psData.ps4BDJB} BD-JB+GoldHEN ${psData.goldhen} (MAX 12.02, NOT 12.50) + 13.00 EXPLOIT ANNOUNCED | PS5 OFW ${psData.ps5OFW}/JB ${psData.ps5Lapse} Lapse+etaHEN ${psData.etahen} + 12.00 EXPLOIT ANNOUNCED | Vita ${psData.vita} h-encore | PSP ${psData.psp} | PS2 ${psData.ps2} | PS1 ${psData.ps1}\n\nIMPORTANT: GoldHEN ${psData.goldhen} supports FW 12.00, 12.02, and EARLIER. NOT 12.50 or higher!\n\nHOMEBREW GUIDES (LIVE VERIFIED LINKS): PS4 Guide(https://www.psx-place.com/threads/hacking-the-ps4.10717/) | PSX-Place(https://www.psx-place.com/) | Wololo(https://wololo.net/) | Reddit(https://reddit.com/r/ps4homebrew) | Google Search(https://google.com) | PS5(${psData.etahen}→${psData.itemzflow} for PKG) | PS4(${psData.goldhen}→${psData.multiman} for backup) | PS3 CFW(${psData.webman}+${psData.multiman}) HEN(PS3HEN ${psData.ps3hen}+HFW ${psData.hfw}) | Vita(${psData.vitashell}+${psData.adrenaline} for PSP emu) | PSP(PPSSPP for homebrew) | PS2(${psData.opl} for ISO/USB games) | PS1(Tonyhax for exploit)\n\nYou're a hilarious AI for PlayStation Homebrew Discord. Be funny, use memes & gaming jokes. Keep it SHORT (2-3 sentences, under 50 words). British spelling. Swearing's fine. No politics/racism. ALWAYS include verified live links when relevant. Use Google for latest info.`;
+                allSettings[guildId].ai.systemPrompt = `2025 FIRMWARE (Nov 2025 Update): PS3 OFW ${psData.ps3OFW}/CFW ${psData.ps3CFW} | PS4 OFW ${psData.ps4OFW}/JB ${psData.ps4PPPwn} PPPwn ${psData.ps4BDJB} BD-JB+GoldHEN ${psData.goldhen} (MAX 12.02, NOT 12.50) + 13.00 EXPLOIT ANNOUNCED | PS5 OFW ${psData.ps5OFW}/JB ${psData.ps5Lapse} Lapse+etaHEN ${psData.etahen} + 12.00 EXPLOIT ANNOUNCED | Vita ${psData.vita} h-encore | PSP ${psData.psp} | PS2 ${psData.ps2} | PS1 ${psData.ps1}\n\nIMPORTANT: GoldHEN ${psData.goldhen} supports FW 12.00, 12.02, and EARLIER. NOT 12.50 or higher!\n\nHOMEBREW GUIDES (LIVE VERIFIED LINKS): PS4 Guide(https://www.psx-place.com/threads/hacking-the-ps4.10717/) | PSX-Place(https://www.psx-place.com/) | Wololo(https://wololo.net/) | Reddit(https://reddit.com/r/ps4homebrew) | Google Search(https://google.com) | PS5(${psData.etahen}?${psData.itemzflow} for PKG) | PS4(${psData.goldhen}?${psData.multiman} for backup) | PS3 CFW(${psData.webman}+${psData.multiman}) HEN(PS3HEN ${psData.ps3hen}+HFW ${psData.hfw}) | Vita(${psData.vitashell}+${psData.adrenaline} for PSP emu) | PSP(PPSSPP for homebrew) | PS2(${psData.opl} for ISO/USB games) | PS1(Tonyhax for exploit)\n\nYou're a hilarious AI for PlayStation Homebrew Discord. Be funny, use memes & gaming jokes. Keep it SHORT (2-3 sentences, under 50 words). British spelling. Swearing's fine. No politics/racism. ALWAYS include verified live links when relevant. Use Google for latest info.`;
                 
                 updated = true;
             }
@@ -11140,14 +11157,14 @@ async function updateAIKnowledge() {
             // Reload settings into memory to ensure AI uses the new data immediately
             serverSettings = JSON.parse(fsSync.readFileSync('./serverSettings.json', 'utf8'));
             const now = new Date();
-            console.log(`✅ AI knowledge LIVE-UPDATED from web (${now.toLocaleString()})`);
-            console.log(`📊 REAL-TIME DB: PS3 ${psData.ps3OFW}/${psData.ps3CFW} | PS4 ${psData.ps4OFW}/${psData.ps4PPPwn}/${psData.ps4BDJB} BD-JB/13.00 | PS5 ${psData.ps5OFW}/${psData.ps5Lapse}/12.00`);
-            console.log(`🎮 Homebrew: GoldHEN ${psData.goldhen} (MAX 12.02) | etaHEN ${psData.etahen} | PS3HEN ${psData.ps3hen} | Vita ${psData.vita} | PSP ${psData.psp}`);
-            console.log(`🔗 Live Sources: Google | PSX-Place | Wololo | Reddit r/ps4homebrew`);
-            console.log(`⚠️  IMPORTANT: GoldHEN 2.4b18.6 = 12.00, 12.02 MAX (NOT 12.50+)`);
+            console.log(`? AI knowledge LIVE-UPDATED from web (${now.toLocaleString()})`);
+            console.log(`?? REAL-TIME DB: PS3 ${psData.ps3OFW}/${psData.ps3CFW} | PS4 ${psData.ps4OFW}/${psData.ps4PPPwn}/${psData.ps4BDJB} BD-JB/13.00 | PS5 ${psData.ps5OFW}/${psData.ps5Lapse}/12.00`);
+            console.log(`?? Homebrew: GoldHEN ${psData.goldhen} (MAX 12.02) | etaHEN ${psData.etahen} | PS3HEN ${psData.ps3hen} | Vita ${psData.vita} | PSP ${psData.psp}`);
+            console.log(`?? Live Sources: Google | PSX-Place | Wololo | Reddit r/ps4homebrew`);
+            console.log(`??  IMPORTANT: GoldHEN 2.4b18.6 = 12.00, 12.02 MAX (NOT 12.50+)`);
         }
     } catch (error) {
-        console.error('❌ Failed to update AI knowledge:', error.message);
+        console.error('? Failed to update AI knowledge:', error.message);
     }
 }
 
@@ -11214,13 +11231,13 @@ async function checkPlayStationUpdates() {
                         console: 'PS4',
                         oldVersion: lastKnownVersions.ps4,
                         newVersion: ps4Match[1],
-                        emoji: '🎮'
+                        emoji: '??'
                     });
                     lastKnownVersions.ps4 = ps4Match[1];
                 }
             }
         } catch (error) {
-            console.log('⚠️ Could not check PS4 updates:', error.message);
+            console.log('?? Could not check PS4 updates:', error.message);
         }
         
         // Check PS5 firmware
@@ -11253,13 +11270,13 @@ async function checkPlayStationUpdates() {
                         console: 'PS5',
                         oldVersion: lastKnownVersions.ps5,
                         newVersion: ps5Match[1],
-                        emoji: '🕹️'
+                        emoji: '???'
                     });
                     lastKnownVersions.ps5 = ps5Match[1];
                 }
             }
         } catch (error) {
-            console.log('⚠️ Could not check PS5 updates:', error.message);
+            console.log('?? Could not check PS5 updates:', error.message);
         }
         
         // Check PS3 firmware
@@ -11292,13 +11309,13 @@ async function checkPlayStationUpdates() {
                         console: 'PS3',
                         oldVersion: lastKnownVersions.ps3,
                         newVersion: ps3Match[1],
-                        emoji: '🎯'
+                        emoji: '??'
                     });
                     lastKnownVersions.ps3 = ps3Match[1];
                 }
             }
         } catch (error) {
-            console.log('⚠️ Could not check PS3 updates:', error.message);
+            console.log('?? Could not check PS3 updates:', error.message);
         }
         
         // Check PS Vita firmware
@@ -11331,19 +11348,19 @@ async function checkPlayStationUpdates() {
                         console: 'PS Vita',
                         oldVersion: lastKnownVersions.vita,
                         newVersion: vitaMatch[1],
-                        emoji: '📱'
+                        emoji: '??'
                     });
                     lastKnownVersions.vita = vitaMatch[1];
                 }
             }
         } catch (error) {
-            console.log('⚠️ Could not check PS Vita updates:', error.message);
+            console.log('?? Could not check PS Vita updates:', error.message);
         }
         
         // Send notifications to all servers with logging enabled
         if (updatesFound.length > 0) {
             for (const update of updatesFound) {
-                console.log(`🆕 NEW FIRMWARE: ${update.console} ${update.oldVersion} → ${update.newVersion}`);
+                console.log(`?? NEW FIRMWARE: ${update.console} ${update.oldVersion} ? ${update.newVersion}`);
                 
                 // Update the AI knowledge database with new firmware
                 if (update.console === 'PS4') {
@@ -11372,29 +11389,29 @@ async function checkPlayStationUpdates() {
                                 { name: 'New Version', value: `\`${update.newVersion}\``, inline: true }
                             )
                             .addFields({
-                                name: '⚠️ Important',
+                                name: '?? Important',
                                 value: '**DO NOT UPDATE** if you want to keep your jailbreak!\n\nStay on your current firmware until the scene confirms new exploits.'
                             })
                             .setTimestamp()
                             .setFooter({ text: 'PlayStation Firmware Monitor' });
                         
                         await notificationChannel.send({ embeds: [embed] });
-                        console.log(`✅ Firmware update notification sent for ${update.console}`);
+                        console.log(`? Firmware update notification sent for ${update.console}`);
                     } else {
-                        console.log('⚠️ Could not access notification channel 920750934085222470');
+                        console.log('?? Could not access notification channel 920750934085222470');
                     }
                 } catch (error) {
-                    console.log(`⚠️ Could not send update notification:`, error.message);
+                    console.log(`?? Could not send update notification:`, error.message);
                 }
             }
             
             // Save updated settings if PS4 firmware changed
             fsSync.writeFileSync('./serverSettings.json', JSON.stringify(allSettings, null, 2));
         } else {
-            console.log('✅ No new PlayStation firmware updates detected');
+            console.log('? No new PlayStation firmware updates detected');
         }
     } catch (error) {
-        console.error('❌ Failed to check PlayStation updates:', error.message);
+        console.error('? Failed to check PlayStation updates:', error.message);
     }
 }
 
@@ -11459,9 +11476,9 @@ setInterval(() => {
     // Force garbage collection if available (Node.js with --expose-gc flag)
     if (global.gc) {
         global.gc();
-        console.log('🧹 Cache cleaned (AI conversations, cooldowns, user profiles) + GC forced');
+        console.log('?? Cache cleaned (AI conversations, cooldowns, user profiles) + GC forced');
     } else {
-        console.log('🧹 Cache cleaned (AI conversations, cooldowns, user profiles)');
+        console.log('?? Cache cleaned (AI conversations, cooldowns, user profiles)');
     }
 }, 600000); // Every 10 minutes instead of 30 (more frequent cleanup)
 
@@ -11471,12 +11488,12 @@ let isShuttingDown = false;
 
 async function gracefulShutdown(signal) {
     if (isShuttingDown) {
-        console.log('⚠️ Shutdown already in progress...');
+        console.log('?? Shutdown already in progress...');
         return;
     }
     isShuttingDown = true;
     
-    console.log(`⚠️ Received ${signal} - Shutting down gracefully...`);
+    console.log(`?? Received ${signal} - Shutting down gracefully...`);
     
     // Update status channels to show "Offline" (non-blocking)
     try {
@@ -11487,7 +11504,7 @@ async function gracefulShutdown(signal) {
                 if (statusChannel && statusChannel.isVoiceBased()) {
                     const newName = settings.serverStats.channelNames.statusChannel
                         .replace('{status}', 'Offline')
-                        .replace('🟢', '🔴');
+                        .replace('??', '??');
                     
                     // Fire and forget - don't wait for Discord API
                     if (statusChannel.name !== newName) {
@@ -11511,8 +11528,8 @@ async function gracefulShutdown(signal) {
     fsSync.writeFileSync(settingsFile, JSON.stringify(serverSettings, null, 2));
     fsSync.writeFileSync(ticketDataFile, JSON.stringify(ticketData, null, 2));
     fsSync.writeFileSync(moderationDataFile, JSON.stringify(moderationData, null, 2));
-    console.log('💾 All data saved');
-    console.log('👋 Goodbye!');
+    console.log('?? All data saved');
+    console.log('?? Goodbye!');
     process.exit(0);
 }
 
@@ -11522,7 +11539,7 @@ process.on('SIGTERM', () => gracefulShutdown('SIGTERM (Stop-Process)'));
 
 // Global error handlers with Discord logging
 process.on('unhandledRejection', async (error) => {
-    console.error('❌ Unhandled promise rejection:', error);
+    console.error('? Unhandled promise rejection:', error);
     logCriticalError(error, 'Unhandled Promise Rejection', null);
     
     // Log to all guilds
@@ -11535,7 +11552,7 @@ process.on('unhandledRejection', async (error) => {
 });
 
 process.on('uncaughtException', async (error) => {
-    console.error('❌ Uncaught exception:', error);
+    console.error('? Uncaught exception:', error);
     logCriticalError(error, 'Uncaught Exception', null);
     
     // Log to all guilds
@@ -11552,18 +11569,18 @@ process.on('uncaughtException', async (error) => {
         await fs.writeFile(settingsFile, JSON.stringify(serverSettings, null, 2));
         await fs.writeFile(ticketDataFile, JSON.stringify(ticketData, null, 2));
         await fs.writeFile(moderationDataFile, JSON.stringify(moderationData, null, 2));
-        console.log('💾 Emergency data save completed');
+        console.log('?? Emergency data save completed');
     } catch (saveError) {
-        console.error('❌ Failed to save data during crash:', saveError);
+        console.error('? Failed to save data during crash:', saveError);
     }
     
     // Don't exit - try to recover
-    console.log('⚠️ Attempting to recover from uncaught exception...');
+    console.log('?? Attempting to recover from uncaught exception...');
 });
 
 // Discord client error handlers
 client.on('error', async (error) => {
-    console.error('❌ Discord client error:', error);
+    console.error('? Discord client error:', error);
     logCriticalError(error, 'Discord Client Error', null);
     
     for (const guild of client.guilds.cache.values()) {
@@ -11575,17 +11592,17 @@ client.on('error', async (error) => {
 });
 
 client.on('warn', (warning) => {
-    console.warn('⚠️ Discord client warning:', warning);
+    console.warn('?? Discord client warning:', warning);
 });
 
 client.on('shardError', (error) => {
-    console.error('❌ Websocket connection error:', error);
+    console.error('? Websocket connection error:', error);
     logCriticalError(error, 'WebSocket/Shard Error', null);
 });
 
 // Rate limit handler
 client.rest.on('rateLimited', (info) => {
-    console.warn('⚠️ Rate limited:', info);
+    console.warn('?? Rate limited:', info);
     const errorMsg = `Route: ${info.route || 'Unknown'}, Timeout: ${info.timeout}ms, Global: ${info.global}`;
     logCriticalError(new Error(errorMsg), 'Discord API Rate Limited', null);
 });
@@ -11621,17 +11638,17 @@ function startCFWKnowledgeScraper() {
             
             // Update if version changed
             if (knowledge.evilnatCFW.latestVersion !== latestVersion) {
-                console.log(`✅ New Evilnat CFW version found: ${latestVersion} (was ${knowledge.evilnatCFW.latestVersion})`);
+                console.log(`? New Evilnat CFW version found: ${latestVersion} (was ${knowledge.evilnatCFW.latestVersion})`);
                 knowledge.evilnatCFW.latestVersion = latestVersion;
                 knowledge.lastUpdated = new Date().toISOString();
                 knowledge.evilnatCFW.source = 'PSX-Place scrape';
                 fsSync.writeFileSync(cfwKnowledgePath, JSON.stringify(knowledge, null, 2));
-                console.log('💾 CFW knowledge updated!');
+                console.log('?? CFW knowledge updated!');
             } else {
-                console.log(`✓ CFW knowledge up to date (Evilnat ${latestVersion})`);
+                console.log(`? CFW knowledge up to date (Evilnat ${latestVersion})`);
             }
         } catch (error) {
-            console.error('❌ Failed to update CFW knowledge:', error.message);
+            console.error('? Failed to update CFW knowledge:', error.message);
         }
     }
     
@@ -11640,7 +11657,7 @@ function startCFWKnowledgeScraper() {
     
     // Check every 24 hours
     setInterval(updateCFWKnowledge, 24 * 60 * 60 * 1000);
-    console.log('✅ CFW knowledge scraper started (checks every 24 hours)');
+    console.log('? CFW knowledge scraper started (checks every 24 hours)');
 }
 
 // PS4 Error Code Scraper - Updates error database from online sources (runs on startup only, monthly via updateAIKnowledge)
@@ -11667,31 +11684,31 @@ function startAutomatedMessages() {
                 if (channel) {
                     // Format: ## for bigger text, ** for bold
                     const reminders = [
-                        "## **Don't forget to check out `/pcommands` to see all server commands!** 🎮",
-                        "## **Reminder: Use `/pcommands` to explore all the cool features I have!** ⚡",
-                        "## **Hey! Did you know you can type `/pcommands` to see everything I can do?** 🔧",
-                        "## **Pro tip: Check `/pcommands` for a full list of server features!** 💡",
-                        "## **Don't miss out! Use `/pcommands` to discover all available commands!** 🚀"
+                        "## **Don't forget to check out `/pcommands` to see all server commands!** ??",
+                        "## **Reminder: Use `/pcommands` to explore all the cool features I have!** ?",
+                        "## **Hey! Did you know you can type `/pcommands` to see everything I can do?** ??",
+                        "## **Pro tip: Check `/pcommands` for a full list of server features!** ??",
+                        "## **Don't miss out! Use `/pcommands` to discover all available commands!** ??"
                     ];
                     
                     const randomReminder = reminders[Math.floor(Math.random() * reminders.length)];
                     channel.send(randomReminder);
-                    console.log('⏰ Sent daily 7 PM reminder');
+                    console.log('? Sent daily 7 PM reminder');
                 }
             } catch (error) {
-                console.error('❌ Failed to send daily reminder:', error);
+                console.error('? Failed to send daily reminder:', error);
             }
             
             // Schedule next day's reminder (24 hours)
             scheduleDailyReminder();
         }, msUntil7PM);
         
-        console.log(`⏰ Daily reminder scheduled for ${next7PM.toLocaleString()}`);
+        console.log(`? Daily reminder scheduled for ${next7PM.toLocaleString()}`);
     }
     
     // Start daily reminder only
     scheduleDailyReminder();
-    console.log('✅ Daily 7 PM reminder started for channel ' + CHANNEL_ID);
+    console.log('? Daily 7 PM reminder started for channel ' + CHANNEL_ID);
 }
 
 // ===== SELLIX WEBHOOK SYSTEM =====
@@ -11701,13 +11718,13 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
     try {
         const event = req.body;
         
-        console.log('📦 Sellix webhook received:', event.event);
+        console.log('?? Sellix webhook received:', event.event);
         
         // Verify webhook secret if configured
         if (config.sellixWebhookSecret && config.sellixWebhookSecret !== 'YOUR_WEBHOOK_SECRET') {
             const receivedSecret = req.headers['x-sellix-signature'];
             if (receivedSecret !== config.sellixWebhookSecret) {
-                console.log('❌ Invalid Sellix webhook signature');
+                console.log('? Invalid Sellix webhook signature');
                 return res.status(401).send('Unauthorized');
             }
         }
@@ -11730,20 +11747,20 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
             }
             
             if (!discordId) {
-                console.log('⚠️ No Discord ID found in order:', orderData.uniqid);
+                console.log('?? No Discord ID found in order:', orderData.uniqid);
                 return res.status(200).send('No Discord ID provided');
             }
             
             // Get guild and member
             const guild = client.guilds.cache.get(config.sellixGuildId);
             if (!guild) {
-                console.log('❌ Guild not found:', config.sellixGuildId);
+                console.log('? Guild not found:', config.sellixGuildId);
                 return res.status(200).send('Guild not found');
             }
             
             const member = await guild.members.fetch(discordId).catch(() => null);
             if (!member) {
-                console.log('❌ Member not found:', discordId);
+                console.log('? Member not found:', discordId);
                 
                 // Store as pending purchase
                 pendingPurchases[discordId] = {
@@ -11755,21 +11772,21 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
                     guildId: config.sellixGuildId
                 };
                 savePendingPurchases();
-                console.log(`💾 Stored pending purchase for ${discordId}`);
+                console.log(`?? Stored pending purchase for ${discordId}`);
                 
                 // Log pending purchase
                 const logChannel = guild.channels.cache.get(config.sellixLogChannelId);
                 if (logChannel) {
                     const pendingEmbed = new EmbedBuilder()
-                        .setTitle('⏳ Purchase Pending - User Not in Server')
+                        .setTitle('? Purchase Pending - User Not in Server')
                         .setColor(0xFFA500)
                         .setDescription('Role will be assigned automatically when user joins the server.')
                         .addFields(
-                            { name: '🆔 Order ID', value: orderData.uniqid, inline: true },
-                            { name: '💰 Amount', value: `$${orderData.total}`, inline: true },
-                            { name: '📧 Email', value: orderData.customer_email || 'N/A', inline: false },
-                            { name: '🎮 Discord ID', value: discordId, inline: false },
-                            { name: '📦 Product', value: orderData.product_title || 'Unknown', inline: false }
+                            { name: '?? Order ID', value: orderData.uniqid, inline: true },
+                            { name: '?? Amount', value: `$${orderData.total}`, inline: true },
+                            { name: '?? Email', value: orderData.customer_email || 'N/A', inline: false },
+                            { name: '?? Discord ID', value: discordId, inline: false },
+                            { name: '?? Product', value: orderData.product_title || 'Unknown', inline: false }
                         )
                         .setTimestamp();
                     await logChannel.send({ embeds: [pendingEmbed] });
@@ -11781,22 +11798,22 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
             // Assign role
             const role = guild.roles.cache.get(config.sellixRoleId);
             if (!role) {
-                console.log('❌ Role not found:', config.sellixRoleId);
+                console.log('? Role not found:', config.sellixRoleId);
                 return res.status(200).send('Role not found');
             }
             
             await member.roles.add(role);
-            console.log(`✅ Assigned role to ${member.user.tag}`);
+            console.log(`? Assigned role to ${member.user.tag}`);
             
             // Send DM to user
             try {
                 const dmEmbed = new EmbedBuilder()
-                    .setTitle('✅ Purchase Successful!')
+                    .setTitle('? Purchase Successful!')
                     .setDescription(`Thank you for your purchase! You have been given access to **${role.name}**.`)
                     .setColor(0x00FF00)
                     .addFields(
-                        { name: '🆔 Order ID', value: orderData.uniqid, inline: true },
-                        { name: '💰 Amount Paid', value: `$${orderData.total}`, inline: true }
+                        { name: '?? Order ID', value: orderData.uniqid, inline: true },
+                        { name: '?? Amount Paid', value: `$${orderData.total}`, inline: true }
                     )
                     .setFooter({ text: guild.name })
                     .setTimestamp();
@@ -11810,15 +11827,15 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
             const logChannel = guild.channels.cache.get(config.sellixLogChannelId);
             if (logChannel) {
                 const logEmbed = new EmbedBuilder()
-                    .setTitle('✅ New Purchase')
+                    .setTitle('? New Purchase')
                     .setColor(0x00FF00)
                     .addFields(
-                        { name: '👤 Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
-                        { name: '🆔 Order ID', value: orderData.uniqid, inline: true },
-                        { name: '💰 Amount', value: `$${orderData.total}`, inline: true },
-                        { name: '📧 Email', value: orderData.customer_email || 'N/A', inline: false },
-                        { name: '🎁 Role Given', value: role.name, inline: false },
-                        { name: '📦 Product', value: orderData.product_title || 'Unknown', inline: false }
+                        { name: '?? Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
+                        { name: '?? Order ID', value: orderData.uniqid, inline: true },
+                        { name: '?? Amount', value: `$${orderData.total}`, inline: true },
+                        { name: '?? Email', value: orderData.customer_email || 'N/A', inline: false },
+                        { name: '?? Role Given', value: role.name, inline: false },
+                        { name: '?? Product', value: orderData.product_title || 'Unknown', inline: false }
                     )
                     .setThumbnail(member.user.displayAvatarURL())
                     .setTimestamp();
@@ -11829,7 +11846,7 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
         
         res.status(200).send('OK');
     } catch (error) {
-        console.error('❌ Sellix webhook error:', error);
+        console.error('? Sellix webhook error:', error);
         res.status(500).send('Internal Server Error');
     }
 });
@@ -11837,14 +11854,14 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
 // Start webhook server on port 3000
 const WEBHOOK_PORT = process.env.WEBHOOK_PORT || 3000;
 sellixApp.listen(WEBHOOK_PORT, () => {
-    console.log(`🔗 Webhook server running on port ${WEBHOOK_PORT}`);
-    console.log(`📍 Sellix webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/sellix-webhook`);
+    console.log(`?? Webhook server running on port ${WEBHOOK_PORT}`);
+    console.log(`?? Sellix webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/sellix-webhook`);
 });
 // ===== END WEBHOOK SYSTEM =====
 
 // Login to Discord with error handling
 client.login(config.token).catch(error => {
-    console.error('❌ Failed to login to Discord:', error);
+    console.error('? Failed to login to Discord:', error);
     console.error('Please check your bot token in config.json');
     process.exit(1);
 });
