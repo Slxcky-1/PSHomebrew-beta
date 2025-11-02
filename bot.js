@@ -74,7 +74,7 @@ try {
     // Try to load from config.json first
     if (fsSync.existsSync('./config.json')) {
         config = require('./config.json');
-        console.log('? Loaded configuration from config.json');
+        console.log('✅ Loaded configuration from config.json');
     } 
     // Fall back to encrypted config if available
     else if (fsSync.existsSync('./.secure-config')) {
@@ -83,12 +83,12 @@ try {
         const encryptedData = JSON.parse(fsSync.readFileSync('./.secure-config', 'utf8'));
         const encryptionKey = process.env.CONFIG_ENCRYPTION_KEY || 'Savannah23';
         config = decryptConfig(encryptedData, encryptionKey);
-        console.log('? Configuration decrypted successfully');
+        console.log('🔓 Configuration decrypted successfully');
     } else {
         throw new Error('No configuration file found');
     }
 } catch (error) {
-    console.error('? ERROR: Failed to load configuration!');
+    console.error('❌ ERROR: Failed to load configuration!');
     console.error('Details:', error.message);
     console.error('');
     console.error('Options:');
@@ -99,7 +99,7 @@ try {
 
 // Validate required configuration
 if (!config.token || !config.clientId) {
-    console.error('? ERROR: Missing required configuration!');
+    console.error('❌ ERROR: Missing required configuration!');
     console.error('config.json must contain "token" and "clientId"');
     process.exit(1);
 }
@@ -1109,7 +1109,7 @@ async function logCriticalError(error, context = 'Unknown', guildId = null) {
 // Helper function to check admin permissions (optimization - reduces code duplication)
 function requireAdmin(interaction) {
     if (!interaction.member.permissions.has('Administrator')) {
-        interaction.reply({ content: '? You need Administrator permissions to use this command!', ephemeral: true });
+        interaction.reply({ content: '❌ You need Administrator permissions to use this command!', ephemeral: true });
         return false;
     }
     return true;
@@ -1691,17 +1691,17 @@ client.once('clientReady', async () => {
                         console.log('🗑️ Update notification deleted');
                     }, 45000);
                 } else {
-                    console.log('? Channel not found');
+                    console.log('❌ Channel not found');
                 }
             } else {
-                console.log('? Guild not found');
+                console.log('❌ Guild not found');
             }
             // Delete marker file
             fsSync.unlinkSync('./update-marker.json');
             console.log('🗑️ Update marker deleted');
         }
     } catch (error) {
-        console.error('? Failed to send update complete notification:', error);
+        console.error('❌ Failed to send update complete notification:', error);
     }
     
     // Defer non-critical startup tasks to improve boot time
@@ -1835,7 +1835,7 @@ function startYouTubeMonitoring() {
         } catch (error) {
             // Ignore if file doesn't exist yet
             if (error.code !== 'ENOENT') {
-                console.error('? YouTube monitoring error:', error);
+                console.error('❌ YouTube monitoring error:', error);
             }
         }
     }
@@ -2132,7 +2132,7 @@ client.on('messageCreate', async (message) => {
                     .setThumbnail(message.author.displayAvatarURL())
                     .addFields(
                         { name: '📌 Previous Level', value: result.oldLevel.toString(), inline: true },
-                        { name: '? New Level', value: result.newLevel.toString(), inline: true },
+                        { name: '🆙 New Level', value: result.newLevel.toString(), inline: true },
                         { name: '📌 XP Gained', value: xpGained.toString(), inline: true }
                     )
                     .setTimestamp();
@@ -2354,7 +2354,7 @@ client.on('messageCreate', async (message) => {
                 console.log(`👤 User ${message.author.username}: ${totalTokens} tokens used | ${userRemaining} remaining today`);
 
                 if (!text?.trim()) {
-                    return message.reply('? Empty response received. Try again!');
+                    return message.reply('❌ Empty response received. Try again!');
                 }
 
                 // AGGRESSIVE TRUNCATION: DeepSeek often ignores maxTokens, so enforce word limits
@@ -2391,7 +2391,7 @@ client.on('messageCreate', async (message) => {
                 }
             } catch (err) {
                 console.error('AI Error:', err);
-                await message.reply(err.name === 'AbortError' ? '?? Timeout. Try again!' : '? Error occurred. Try again!').catch(() => {});
+                await message.reply(err.name === 'AbortError' ? '⏱️ Timeout. Try again!' : '❌ Error occurred. Try again!').catch(() => {});
             }
         })();
     }
@@ -2506,7 +2506,7 @@ client.on('guildMemberAdd', async (member) => {
                 // Send DM
                 try {
                     const dmEmbed = new EmbedBuilder()
-                        .setTitle('? Purchase Activated!')
+                        .setTitle('✅ Purchase Activated!')
                         .setDescription(`Welcome to the server! Your previous purchase has been activated and you've been given access to **${role.name}**.`)
                         .setColor(0x00FF00)
                         .addFields(
@@ -2525,7 +2525,7 @@ client.on('guildMemberAdd', async (member) => {
                 const logChannel = member.guild.channels.cache.get(config.sellixLogChannelId);
                 if (logChannel) {
                     const activationEmbed = new EmbedBuilder()
-                        .setTitle('? Pending Purchase Activated')
+                        .setTitle('✅ Pending Purchase Activated')
                         .setColor(0x00FF00)
                         .setDescription('User joined server and role was automatically assigned.')
                         .addFields(
@@ -2709,7 +2709,7 @@ client.on('guildMemberRemove', (member) => {
             .setThumbnail(member.user.displayAvatarURL())
             .addFields(
                 { name: '📌 Member Count', value: member.guild.memberCount.toString(), inline: true },
-                { name: '? Time in Server', value: member.joinedAt ? `Joined ${member.joinedAt.toDateString()}` : 'Unknown', inline: true }
+                { name: '⏰ Time in Server', value: member.joinedAt ? `Joined ${member.joinedAt.toDateString()}` : 'Unknown', inline: true }
             )
             .setFooter({ text: member.guild.name })
             .setTimestamp();
@@ -2938,7 +2938,7 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.commandName === 'poweroptions') {
         // Check if user is bot owner
         if (interaction.user.id !== config.botOwnerId) {
-            return interaction.reply({ content: '? Only the bot owner can use this command!', ephemeral: true });
+            return interaction.reply({ content: '❌ Only the bot owner can use this command!', ephemeral: true });
         }
         
         const uptime = Math.floor(process.uptime());
@@ -2951,7 +2951,7 @@ client.on('interactionCreate', async (interaction) => {
         const memoryUsage = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
         
         const powerEmbed = new EmbedBuilder()
-            .setTitle('? Bot Power Management')
+            .setTitle('⚙️ Bot Power Management')
             .setDescription('Control bot power state and updates')
             .setColor(0x00BFFF)
             .addFields(
@@ -2997,22 +2997,22 @@ client.on('interactionCreate', async (interaction) => {
             .addFields(
                 {
                     name: '📌 Leveling System',
-                    value: `**Status:** ${settings.leveling.enabled ? '? Enabled' : '? Disabled'}\n**XP Range:** ${settings.leveling.minXP}-${settings.leveling.maxXP}\n**Cooldown:** ${settings.leveling.cooldown / 1000}s\n**Max Level:** ${settings.leveling.maxLevel}\n**Level Up Messages:** ${settings.leveling.showLevelUpMessages ? '?' : '?'}\n**Level Up Channel:** ${settings.leveling.levelUpChannel ? `#${settings.leveling.levelUpChannel}` : 'Current channel'}`,
+                    value: `**Status:** ${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n**XP Range:** ${settings.leveling.minXP}-${settings.leveling.maxXP}\n**Cooldown:** ${settings.leveling.cooldown / 1000}s\n**Max Level:** ${settings.leveling.maxLevel}\n**Level Up Messages:** ${settings.leveling.showLevelUpMessages ? '?' : '?'}\n**Level Up Channel:** ${settings.leveling.levelUpChannel ? `#${settings.leveling.levelUpChannel}` : 'Current channel'}`,
                     inline: false
                 },
                 {
                     name: '📌 PS3 Error Code Detection',
-                    value: `**Status:** ${settings.keywords.enabled ? '? Enabled' : '? Disabled'}\n**Error Codes:** ${Object.keys(consoleErrorCodes).length} configured\n**Custom Response:** ${settings.keywords.customResponse ? '? Set' : '? Not set'}`,
+                    value: `**Status:** ${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}\n**Error Codes:** ${Object.keys(consoleErrorCodes).length} configured\n**Custom Response:** ${settings.keywords.customResponse ? '✅ Set' : '❌ Not set'}`,
                     inline: false
                 },
                 {
                     name: '📌 Welcome System',
-                    value: `**Status:** ${settings.welcome.enabled ? '? Enabled' : '? Disabled'}\n**Channel:** #${settings.welcome.channelName}\n**Custom Message:** ${settings.welcome.customMessage ? '? Set' : '? Not set'}`,
+                    value: `**Status:** ${settings.welcome.enabled ? '✅ Enabled' : '❌ Disabled'}\n**Channel:** #${settings.welcome.channelName}\n**Custom Message:** ${settings.welcome.customMessage ? '✅ Set' : '❌ Not set'}`,
                     inline: false
                 },
                 {
                     name: '📌 Leave System',
-                    value: `**Status:** ${settings.leave.enabled ? '? Enabled' : '? Disabled'}\n**Channel:** #${settings.leave.channelName}\n**Custom Message:** ${settings.leave.customMessage ? '? Set' : '? Not set'}`,
+                    value: `**Status:** ${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'}\n**Channel:** #${settings.leave.channelName}\n**Custom Message:** ${settings.leave.customMessage ? '✅ Set' : '❌ Not set'}`,
                     inline: false
                 }
             )
@@ -3024,11 +3024,11 @@ client.on('interactionCreate', async (interaction) => {
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId('toggle_leveling')
-                    .setLabel(settings.leveling.enabled ? '?? Disable Leveling' : '?? Enable Leveling')
+                    .setLabel(settings.leveling.enabled ? '❌ Disable Leveling' : '✅ Enable Leveling')
                     .setStyle(settings.leveling.enabled ? ButtonStyle.Danger : ButtonStyle.Success),
                 new ButtonBuilder()
                     .setCustomId('toggle_keywords')
-                    .setLabel(settings.keywords.enabled ? '?? Disable PS3 Errors' : '?? Enable PS3 Errors')
+                    .setLabel(settings.keywords.enabled ? '❌ Disable PS3 Errors' : '✅ Enable PS3 Errors')
                     .setStyle(settings.keywords.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
             );
         
@@ -3036,11 +3036,11 @@ client.on('interactionCreate', async (interaction) => {
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId('toggle_welcome')
-                    .setLabel(settings.welcome.enabled ? '?? Disable Welcome' : '?? Enable Welcome')
+                    .setLabel(settings.welcome.enabled ? '❌ Disable Welcome' : '✅ Enable Welcome')
                     .setStyle(settings.welcome.enabled ? ButtonStyle.Danger : ButtonStyle.Success),
                 new ButtonBuilder()
                     .setCustomId('toggle_leave')
-                    .setLabel(settings.leave.enabled ? '?? Disable Leave' : '?? Enable Leave')
+                    .setLabel(settings.leave.enabled ? '❌ Disable Leave' : '✅ Enable Leave')
                     .setStyle(settings.leave.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
             );
         
@@ -3062,17 +3062,17 @@ client.on('interactionCreate', async (interaction) => {
             .addFields(
                 {
                     name: '?',
-                    value: `**Leveling System**\n${settings.leveling.enabled ? '? Enabled' : '? Disabled'}\n\nEarn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\n**${settings.leveling.cooldown / 1000}s** cooldown\n**${settings.leveling.maxLevel} levels** total`,
+                    value: `**Leveling System**\n${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nEarn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\n**${settings.leveling.cooldown / 1000}s** cooldown\n**${settings.leveling.maxLevel} levels** total`,
                     inline: true
                 },
                 {
                     name: '✅',
-                    value: `**Error Codes**\n${settings.keywords.enabled ? '? Enabled' : '? Disabled'}\n\nDetects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
+                    value: `**Error Codes**\n${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDetects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
                     inline: true
                 },
                 {
                     name: '✅',
-                    value: `**AI Chat**\n${settings.ai?.enabled ? '? Enabled' : '? Disabled'}\n\nDeepSeek + ChatGPT\n5k tokens/user/day\nResponse caching`,
+                    value: `**AI Chat**\n${settings.ai?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDeepSeek + ChatGPT\n5k tokens/user/day\nResponse caching`,
                     inline: true
                 },
                 {
@@ -3082,17 +3082,17 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '✅',
-                    value: `**Welcome Messages**\n${settings.welcome.enabled ? '? Enabled' : '? Disabled'}\n\nChannel: **#${settings.welcome.channelName}**\n${settings.welcome.customMessage ? '? Custom message' : '?? Default message'}`,
+                    value: `**Welcome Messages**\n${settings.welcome.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nChannel: **#${settings.welcome.channelName}**\n${settings.welcome.customMessage ? '✅ Custom message' : '📝 Default message'}`,
                     inline: true
                 },
                 {
                     name: '?',
-                    value: `**Leave Messages**\n${settings.leave.enabled ? '? Enabled' : '? Disabled'}\n\nChannel: **#${settings.leave.channelName}**\n${settings.leave.customMessage ? '? Custom message' : '?? Default message'}`,
+                    value: `**Leave Messages**\n${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nChannel: **#${settings.leave.channelName}**\n${settings.leave.customMessage ? '✅ Custom message' : '📝 Default message'}`,
                     inline: true
                 },
                 {
                     name: '✅',
-                    value: `**Ticket System**\n${settings.tickets?.enabled ? '? Enabled' : '? Disabled'}\n\nSupport ticket management\nUse **/setuptickets**\nStaff and user panels`,
+                    value: `**Ticket System**\n${settings.tickets?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nSupport ticket management\nUse **/setuptickets**\nStaff and user panels`,
                     inline: true
                 },
                 {
@@ -3102,12 +3102,12 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '?✅',
-                    value: `**Raid Protection**\n${settings.raidProtection?.enabled ? '? Enabled' : '? Disabled'}\n\nAuto-kick spam accounts\nNew account detection\nMass join protection`,
+                    value: `**Raid Protection**\n${settings.raidProtection?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nAuto-kick spam accounts\nNew account detection\nMass join protection`,
                     inline: true
                 },
                 {
                     name: '✅',
-                    value: `**Auto Nickname**\n${settings.autoNickname?.enabled ? '? Enabled' : '? Disabled'}\n\nPrefix: **${settings.autoNickname?.prefix || 'PS'}**\nAuto-rename on join\nKeeps names organized`,
+                    value: `**Auto Nickname**\n${settings.autoNickname?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nPrefix: **${settings.autoNickname?.prefix || 'PS'}**\nAuto-rename on join\nKeeps names organized`,
                     inline: true
                 },
                 {
@@ -3122,7 +3122,7 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '✅',
-                    value: `**Server Stats**\n${settings.serverStats?.enabled ? '? Enabled' : '? Disabled'}\n\nLive member counter\nAuto-updating channels\nMember/bot statistics`,
+                    value: `**Server Stats**\n${settings.serverStats?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nLive member counter\nAuto-updating channels\nMember/bot statistics`,
                     inline: true
                 },
                 {
@@ -3132,7 +3132,7 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '✅',
-                    value: `**Moderation Logging**\n${settings.logging?.enabled ? '? Enabled' : '? Disabled'}\n\nTracks all mod actions\nBans, kicks, timeouts\nAudit trail for staff`,
+                    value: `**Moderation Logging**\n${settings.logging?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nTracks all mod actions\nBans, kicks, timeouts\nAudit trail for staff`,
                     inline: true
                 },
                 {
@@ -3169,7 +3169,7 @@ client.on('interactionCreate', async (interaction) => {
         const isOwner = interaction.user.id === config.botOwnerId;
         
         if (!hasRole && !isOwner) {
-            return interaction.reply({ content: '? You need the staff role to view features.', ephemeral: true });
+            return interaction.reply({ content: '❌ You need the staff role to view features.', ephemeral: true });
         }
         
         const settings = getGuildSettings(interaction.guild.id);
@@ -3408,7 +3408,7 @@ client.on('interactionCreate', async (interaction) => {
     // Server Stats Setup command - Interactive Panel
     if (interaction.commandName === 'serverstatsssetup') {
         if (!interaction.guild) {
-            return interaction.reply({ content: '? This command can only be used in a server!', ephemeral: true });
+            return interaction.reply({ content: '❌ This command can only be used in a server!', ephemeral: true });
         }
         
         if (!requireAdmin(interaction)) return;
@@ -3460,13 +3460,13 @@ client.on('interactionCreate', async (interaction) => {
             .setDescription('Manage your server statistics tracking system')
             .setColor(settings.serverStats.enabled ? 0x00FF00 : 0xFF0000)
             .addFields(
-                { name: '?? Status', value: settings.serverStats.enabled ? '? Enabled' : '? Disabled', inline: true },
+                { name: '?? Status', value: settings.serverStats.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: '📌 Update Interval', value: `${settings.serverStats.updateInterval / 60000} minute(s)`, inline: true },
                 { name: '\u200B', value: '\u200B', inline: false },
-                { name: '?? Member Count Channel', value: settings.serverStats.channels.memberCount ? `<#${settings.serverStats.channels.memberCount}>` : '? Not set', inline: false },
-                { name: '?? Bot Count Channel', value: settings.serverStats.channels.botCount ? `<#${settings.serverStats.channels.botCount}>` : '? Not set', inline: false },
-                { name: '?? Total Count Channel', value: settings.serverStats.channels.totalCount ? `<#${settings.serverStats.channels.totalCount}>` : '? Not set', inline: false },
-                { name: '?? Bot Status Channel', value: settings.serverStats.channels.statusChannel ? `<#${settings.serverStats.channels.statusChannel}>` : '? Not set', inline: false }
+                { name: '👥 Member Count Channel', value: settings.serverStats.channels.memberCount ? `<#${settings.serverStats.channels.memberCount}>` : '❌ Not set', inline: false },
+                { name: '🤖 Bot Count Channel', value: settings.serverStats.channels.botCount ? `<#${settings.serverStats.channels.botCount}>` : '❌ Not set', inline: false },
+                { name: '📊 Total Count Channel', value: settings.serverStats.channels.totalCount ? `<#${settings.serverStats.channels.totalCount}>` : '❌ Not set', inline: false },
+                { name: '📡 Bot Status Channel', value: settings.serverStats.channels.statusChannel ? `<#${settings.serverStats.channels.statusChannel}>` : '❌ Not set', inline: false }
             )
             .setFooter({ text: 'Use the buttons below to manage server stats' })
             .setTimestamp();
@@ -3512,11 +3512,11 @@ client.on('interactionCreate', async (interaction) => {
         }
         
         if (!settings.ai.enabled) {
-            return interaction.reply({ content: '? AI chat is disabled on this server. Ask an admin to enable it!', ephemeral: true });
+            return interaction.reply({ content: '❌ AI chat is disabled on this server. Ask an admin to enable it!', ephemeral: true });
         }
         
         if (!config.deepseekApiKey || config.deepseekApiKey === 'YOUR_DEEPSEEK_API_KEY_HERE') {
-            return interaction.reply({ content: '? DeepSeek API key is not configured! Please add it to config.json', ephemeral: true });
+            return interaction.reply({ content: '❌ DeepSeek API key is not configured! Please add it to config.json', ephemeral: true });
         }
         
         // Check if AI is locked in this guild
@@ -3738,14 +3738,14 @@ client.on('interactionCreate', async (interaction) => {
         const settings = getGuildSettings(interaction.guild.id);
         
         if (!settings.ai || !settings.ai.enabled) {
-            return interaction.reply({ content: '? AI chat is disabled on this server.', ephemeral: true });
+            return interaction.reply({ content: '❌ AI chat is disabled on this server.', ephemeral: true });
         }
         
         const channelId = interaction.channel.id;
         
         if (aiConversations[channelId]) {
             delete aiConversations[channelId];
-            await interaction.reply({ content: '? AI conversation history cleared for this channel!', ephemeral: true });
+            await interaction.reply({ content: '✅ AI conversation history cleared for this channel!', ephemeral: true });
         } else {
             await interaction.reply({ content: '✅ No conversation history to clear in this channel.', ephemeral: true });
         }
@@ -3769,7 +3769,7 @@ client.on('interactionCreate', async (interaction) => {
                 { name: '\u200B', value: '**?? Your Personal Usage**', inline: false },
                 { 
                     name: '📌 Today', 
-                    value: `Used: **${userUsed.toLocaleString()}** / **5,000** tokens\nRemaining: **${userRemaining.toLocaleString()}** tokens\n${userRemaining < 1000 ? '?? Running low!' : '? Plenty left!'}`,
+                    value: `Used: **${userUsed.toLocaleString()}** / **5,000** tokens\nRemaining: **${userRemaining.toLocaleString()}** tokens\n${userRemaining < 1000 ? '⚠️ Running low!' : '✅ Plenty left!'}`,
                     inline: false 
                 }
             );
@@ -3900,12 +3900,12 @@ client.on('interactionCreate', async (interaction) => {
             .setTitle('⚙️ AI Chat System Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
+                `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
                 `AI responds automatically to all messages in the designated channel using **${config.model}**.\n\n` +
                 `Click the buttons below to configure AI settings.`
             )
             .addFields(
-                { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: '📌 Channel', value: `#${config.channelName}`, inline: true },
                 { name: '📌 Model', value: config.model, inline: true },
                 { name: '📌 Max History', value: `${config.maxHistory} exchanges`, inline: true },
@@ -4085,14 +4085,14 @@ client.on('interactionCreate', async (interaction) => {
             .setTitle('⚙️ Welcome System Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
+                `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
                 `Automatically welcome new members with custom messages.\n\n` +
                 `Click the buttons below to configure settings.`
             )
             .addFields(
-                { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: '📌 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
-                { name: '?? Custom Message', value: config.customMessage ? '? Set' : '? Using default', inline: true },
+                { name: '💬 Custom Message', value: config.customMessage ? '✅ Set' : '📝 Using default', inline: true },
                 { name: '✅ Message Preview', value: messagePreview, inline: false },
                 { name: '📌 Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
             )
@@ -4145,12 +4145,12 @@ client.on('interactionCreate', async (interaction) => {
             .setTitle('⚙️ Auto-Nickname Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
+                `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
                 `Automatically set nicknames for new members.\n\n` +
                 `Click the buttons below to configure settings.`
             )
             .addFields(
-                { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: '📌 Prefix', value: config.prefix || 'None', inline: true },
                 { name: '📌 Suffix', value: config.suffix || 'None', inline: true },
                 { name: '📌 Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
@@ -4293,7 +4293,7 @@ client.on('interactionCreate', async (interaction) => {
             console.error('Error displaying games menu:', error);
             if (!interaction.replied && !interaction.deferred) {
                 await interaction.reply({ 
-                    content: '? An error occurred while loading the games menu. Please try again!', 
+                    content: '❌ An error occurred while loading the games menu. Please try again!', 
                     ephemeral: true 
                 }).catch(() => {});
             }
@@ -4352,7 +4352,7 @@ client.on('interactionCreate', async (interaction) => {
             .setTitle('⚙️ Server Logging System')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .addFields(
-                { name: 'Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                { name: 'Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: 'Active Logs', value: `${Object.values(config.logTypes).filter(v => v).length}/12 types`, inline: true },
                 { name: 'Channels Set', value: `${Object.values(config.channels).filter(v => v).length}/7 configured`, inline: true },
                 { name: '📌 Critical Errors', value: criticalChan, inline: true },
@@ -4455,19 +4455,19 @@ client.on('interactionCreate', async (interaction) => {
             .setTitle('🔸 Raid Protection Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
+                `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
                 `Monitors for suspicious join patterns and takes automatic action.\n\n` +
                 `Click the buttons below to configure settings.`
             )
             .addFields(
-                { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: '📌 Join Threshold', value: `${config.joinThreshold} members`, inline: true },
                 { name: '📌 Time Window', value: `${config.timeWindow} seconds`, inline: true },
                 { name: '? Action', value: actionText, inline: true },
-                { name: '?? Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
+                { name: '⏱️ Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
                 { name: '📌 Current Lockdown', value: lockdownStatus, inline: true },
                 { name: '📌 Notification Channel', value: notifChannel, inline: true },
-                { name: '? Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
+                { name: '✅ Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
             )
             .setFooter({ text: 'Click buttons below to configure raid protection' })
             .setTimestamp();
@@ -4580,14 +4580,14 @@ client.on('interactionCreate', async (interaction) => {
         
         const menuEmbed = new EmbedBuilder()
             .setTitle('⚙️ Moderation System Control Panel')
-            .setDescription(`System is currently **${settings.moderation.enabled ? '? Enabled' : '? Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
+            .setDescription(`System is currently **${settings.moderation.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
             .setColor(settings.moderation.enabled ? 0x00FF00 : 0xFF0000)
             .addFields(
                 { name: '📌 Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
                 { name: '? Auto-Action', value: settings.moderation.autoAction.charAt(0).toUpperCase() + settings.moderation.autoAction.slice(1), inline: true },
                 { name: '📌 Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
-                { name: '?? Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
-                { name: '?? DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
+                { name: '⏰ Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
+                { name: '📬 DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
                 { name: '📌 Log Channel', value: logChan, inline: true },
                 { name: '📌 Mute Role', value: muteRole, inline: true },
                 { name: '📌 Moderator Roles', value: modRoles, inline: false }
@@ -4671,11 +4671,11 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!settings.moderation.enabled) {
-            return interaction.reply({ content: '? Moderation system is disabled!', ephemeral: true });
+            return interaction.reply({ content: '❌ Moderation system is disabled!', ephemeral: true });
         }
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -4683,15 +4683,15 @@ client.on('interactionCreate', async (interaction) => {
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
         }
         
         if (member.id === interaction.user.id) {
-            return interaction.reply({ content: '? You cannot warn yourself!', ephemeral: true });
+            return interaction.reply({ content: '❌ You cannot warn yourself!', ephemeral: true });
         }
         
         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
-            return interaction.reply({ content: '? You cannot warn administrators!', ephemeral: true });
+            return interaction.reply({ content: '❌ You cannot warn administrators!', ephemeral: true });
         }
         
         const warningCount = await addWarning(interaction.guild.id, user.id, interaction.user.id, reason);
@@ -4720,7 +4720,7 @@ client.on('interactionCreate', async (interaction) => {
         await logModerationAction(interaction.guild, '✅ Warning', interaction.user, user, reason, { warnings: warningCount });
         
         const embed = new EmbedBuilder()
-            .setTitle('? User Warned')
+            .setTitle('⚠️ User Warned')
             .setDescription(`${user} has been warned.`)
             .addFields(
                 { name: 'Reason', value: reason },
@@ -4798,7 +4798,7 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -4812,7 +4812,7 @@ client.on('interactionCreate', async (interaction) => {
         
         return interaction.reply({ 
             embeds: [new EmbedBuilder()
-                .setTitle('? Warnings Cleared')
+                .setTitle('✅ Warnings Cleared')
                 .setDescription(`Cleared **${warningCount}** warnings for ${user}`)
                 .setColor(0x00FF00)] 
         });
@@ -4824,7 +4824,7 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -4833,7 +4833,7 @@ client.on('interactionCreate', async (interaction) => {
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
         }
         
         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
@@ -4864,7 +4864,7 @@ client.on('interactionCreate', async (interaction) => {
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('? User Timed Out')
+                    .setTitle('⏱️ User Timed Out')
                     .setDescription(`${user} has been timed out for **${duration} minutes**`)
                     .addFields({ name: 'Reason', value: reason })
                     .setColor(0xFFA500)] 
@@ -4880,14 +4880,14 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
         }
         
         try {
@@ -4896,7 +4896,7 @@ client.on('interactionCreate', async (interaction) => {
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('? Timeout Removed')
+                    .setTitle('✅ Timeout Removed')
                     .setDescription(`Timeout removed from ${user}`)
                     .setColor(0x00FF00)] 
             });
@@ -4911,7 +4911,7 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -4919,7 +4919,7 @@ client.on('interactionCreate', async (interaction) => {
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
         }
         
         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
@@ -4951,7 +4951,7 @@ client.on('interactionCreate', async (interaction) => {
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('? User Kicked')
+                    .setTitle('👢 User Kicked')
                     .setDescription(`${user} has been kicked`)
                     .addFields({ name: 'Reason', value: reason })
                     .setColor(0xFF6600)] 
@@ -4967,7 +4967,7 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -5006,7 +5006,7 @@ client.on('interactionCreate', async (interaction) => {
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('? User Banned')
+                    .setTitle('🔨 User Banned')
                     .setDescription(`${user} has been banned`)
                     .addFields({ name: 'Reason', value: reason })
                     .setColor(0xFF0000)] 
@@ -5022,7 +5022,7 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
         }
         
         const userId = interaction.options.getString('userid');
@@ -5033,7 +5033,7 @@ client.on('interactionCreate', async (interaction) => {
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('? User Unbanned')
+                    .setTitle('✅ User Unbanned')
                     .setDescription(`User ID ${userId} has been unbanned`)
                     .setColor(0x00FF00)] 
             });
@@ -5048,7 +5048,7 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
         }
         
         if (!settings.moderation.muteRole) {
@@ -5060,7 +5060,7 @@ client.on('interactionCreate', async (interaction) => {
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
         }
         
         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
@@ -5095,7 +5095,7 @@ client.on('interactionCreate', async (interaction) => {
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('? User Muted')
+                    .setTitle('🔇 User Muted')
                     .setDescription(`${user} has been muted`)
                     .addFields({ name: 'Reason', value: reason })
                     .setColor(0xFFA500)] 
@@ -5111,7 +5111,7 @@ client.on('interactionCreate', async (interaction) => {
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
         }
         
         if (!settings.moderation.muteRole) {
@@ -5122,7 +5122,7 @@ client.on('interactionCreate', async (interaction) => {
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
         }
         
         try {
@@ -5139,7 +5139,7 @@ client.on('interactionCreate', async (interaction) => {
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('? User Unmuted')
+                    .setTitle('🔊 User Unmuted')
                     .setDescription(`${user} has been unmuted`)
                     .setColor(0x00FF00)] 
             });
@@ -5286,12 +5286,12 @@ client.on('interactionCreate', async (interaction) => {
             .setTitle('⚙️ Leveling System Control Panel')
             .setColor(settings.leveling.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${settings.leveling.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
+                `System is currently **${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
                 `Manage your server's leveling system.\n\n` +
                 `Click the buttons below to configure leveling settings.`
             )
             .addFields(
-                { name: '?? Status', value: settings.leveling.enabled ? '? Enabled' : '? Disabled', inline: true },
+                { name: '?? Status', value: settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: '? XP Range', value: `${settings.leveling.minXP}-${settings.leveling.maxXP}`, inline: true },
                 { name: '📌 Cooldown', value: `${settings.leveling.cooldown / 1000}s`, inline: true },
                 { name: '📌 Max Level', value: settings.leveling.maxLevel.toString(), inline: true },
@@ -5396,12 +5396,12 @@ client.on('interactionCreate', async (interaction) => {
             .setTitle('⚙️ Ticket System Control Panel')
             .setColor(settings.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${settings.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
+                `System is currently **${settings.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
                 `Manage your server's support ticket system.\n\n` +
                 `Click the buttons below to configure ticket settings.`
             )
             .addFields(
-                { name: '?? Status', value: settings.enabled ? '? Enabled' : '? Disabled', inline: true },
+                { name: '?? Status', value: settings.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: '📌 Staff Role', value: staffRole, inline: true },
                 { name: '📌 Category', value: settings.categoryName, inline: true },
                 { name: '📌 Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
@@ -5599,7 +5599,7 @@ client.on('interactionCreate', async (interaction) => {
                     await ytCommand.handleButton(interaction);
                     return;
                 } catch (error) {
-                    console.error('? YouTube button error:', error);
+                    console.error('❌ YouTube button error:', error);
                     console.error('Stack trace:', error.stack);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
@@ -5627,7 +5627,7 @@ client.on('interactionCreate', async (interaction) => {
                     await lvlCommand.handleButton(interaction);
                     return;
                 } catch (error) {
-                    console.error('? Leveling button error:', error);
+                    console.error('❌ Leveling button error:', error);
                     console.error('Stack trace:', error.stack);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
@@ -5655,7 +5655,7 @@ client.on('interactionCreate', async (interaction) => {
                     await leaveCommand.handleButton(interaction);
                     return;
                 } catch (error) {
-                    console.error('? Leave button error:', error);
+                    console.error('❌ Leave button error:', error);
                     await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
@@ -5669,7 +5669,7 @@ client.on('interactionCreate', async (interaction) => {
                     await keywordCommand.handleButton(interaction);
                     return;
                 } catch (error) {
-                    console.error('? Keyword button error:', error);
+                    console.error('❌ Keyword button error:', error);
                     await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
@@ -5683,7 +5683,7 @@ client.on('interactionCreate', async (interaction) => {
                     await pcommandsCommand.handleButton(interaction);
                     return;
                 } catch (error) {
-                    console.error('? PCommands button error:', error);
+                    console.error('❌ PCommands button error:', error);
                     await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
@@ -5721,7 +5721,7 @@ client.on('interactionCreate', async (interaction) => {
                             .setTitle('⚙️ Server Logging System')
                             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                             .addFields(
-                                { name: 'Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                                { name: 'Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                                 { name: 'Active Logs', value: `${Object.values(config.logTypes).filter(v => v).length}/12 types`, inline: true },
                                 { name: 'Channels Set', value: `${Object.values(config.channels).filter(v => v).length}/7 configured`, inline: true },
                                 { name: '📌 Critical Errors', value: criticalChan, inline: true },
@@ -5938,7 +5938,7 @@ client.on('interactionCreate', async (interaction) => {
                             .setTitle('⚙️ Server Logging System')
                             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                             .addFields(
-                                { name: 'Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                                { name: 'Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                                 { name: 'Active Logs', value: `${Object.values(config.logTypes).filter(v => v).length}/12 types`, inline: true },
                                 { name: 'Channels Set', value: `${Object.values(config.channels).filter(v => v).length}/7 configured`, inline: true },
                                 { name: '📌 Critical Errors', value: criticalChan, inline: true },
@@ -6010,7 +6010,7 @@ client.on('interactionCreate', async (interaction) => {
                     }
                     
                 } catch (error) {
-                    console.error('? Logging panel error:', error);
+                    console.error('❌ Logging panel error:', error);
                     console.error('Stack trace:', error.stack);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
@@ -6235,12 +6235,12 @@ client.on('interactionCreate', async (interaction) => {
                             .setTitle('⚙️ AI Chat System Control Panel')
                             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                             .setDescription(
-                                `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
+                                `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
                                 `AI responds automatically to all messages in the designated channel using **${config.model}**.\n\n` +
                                 `Click the buttons below to configure AI settings.`
                             )
                             .addFields(
-                                { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                                { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                                 { name: '📌 Channel', value: `#${config.channelName}`, inline: true },
                                 { name: '📌 Model', value: config.model, inline: true },
                                 { name: '📌 Max History', value: `${config.maxHistory} exchanges`, inline: true },
@@ -6539,7 +6539,7 @@ client.on('interactionCreate', async (interaction) => {
                         console.error(`Update error: ${error}`);
                         return interaction.editReply({ 
                             embeds: [new EmbedBuilder()
-                                .setTitle('? Update Failed')
+                                .setTitle('❌ Update Failed')
                                 .setDescription(`\`\`\`${error.message}\`\`\`\n\n**Tip:** Check if there are local file conflicts`)
                                 .setColor(0xFF0000)
                                 .setTimestamp()]
@@ -6554,7 +6554,7 @@ client.on('interactionCreate', async (interaction) => {
                     const npmPackages = (stdout.match(/added \d+ packages?/i) || ['No new packages'])[0];
                     
                     const successEmbed = new EmbedBuilder()
-                        .setTitle('? Update Complete - Restarting')
+                        .setTitle('✅ Update Complete - Restarting')
                         .setDescription(`**Commit:** \`${commitHash}\`\n**Message:** ${commitMsg}\n**NPM:** ${npmPackages}\n**Time:** ${timeTaken}s\n\n?? Bot restarting...`)
                         .setColor(0x00FF00)
                         .setTimestamp();
@@ -6835,12 +6835,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setTitle('⚙️ Ticket System Control Panel')
                     .setColor(settings.enabled ? 0x00FF00 : 0xFF0000)
                     .setDescription(
-                        `System is currently **${settings.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
+                        `System is currently **${settings.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
                         `Manage your server's support ticket system.\n\n` +
                         `Click the buttons below to configure ticket settings.`
                     )
                     .addFields(
-                        { name: '?? Status', value: settings.enabled ? '? Enabled' : '? Disabled', inline: true },
+                        { name: '?? Status', value: settings.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                         { name: '📌 Staff Role', value: staffRole, inline: true },
                         { name: '📌 Category', value: settings.categoryName, inline: true },
                         { name: '📌 Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
@@ -7588,14 +7588,14 @@ client.on('interactionCreate', async (interaction) => {
             
             const menuEmbed = new EmbedBuilder()
                 .setTitle('⚙️ Moderation System Control Panel')
-                .setDescription(`System is currently **${settings.moderation.enabled ? '? Enabled' : '? Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
+                .setDescription(`System is currently **${settings.moderation.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
                 .setColor(settings.moderation.enabled ? 0x00FF00 : 0xFF0000)
                 .addFields(
                     { name: '📌 Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
                     { name: '? Auto-Action', value: settings.moderation.autoAction.charAt(0).toUpperCase() + settings.moderation.autoAction.slice(1), inline: true },
                     { name: '📌 Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
-                    { name: '?? Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
-                    { name: '?? DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
+                    { name: '⏰ Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
+                    { name: '📬 DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
                     { name: '📌 Log Channel', value: logChan, inline: true },
                     { name: '📌 Mute Role', value: muteRole, inline: true },
                     { name: '📌 Moderator Roles', value: modRoles, inline: false }
@@ -7740,14 +7740,14 @@ client.on('interactionCreate', async (interaction) => {
                 .setTitle('⚙️ Welcome System Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
-                    `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
+                    `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
                     `Automatically welcome new members with custom messages.\n\n` +
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                    { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                     { name: '📌 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
-                    { name: '?? Custom Message', value: config.customMessage ? '? Set' : '? Using default', inline: true },
+                    { name: '💬 Custom Message', value: config.customMessage ? '✅ Set' : '📝 Using default', inline: true },
                     { name: '✅ Message Preview', value: messagePreview, inline: false },
                     { name: '📌 Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
                 )
@@ -7836,14 +7836,14 @@ client.on('interactionCreate', async (interaction) => {
                 .setTitle('⚙️ Leave System Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
-                    `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
+                    `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
                     `Automatically announce when members leave the server.\n\n` +
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                    { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                     { name: '📌 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
-                    { name: '?? Custom Message', value: config.customMessage ? '? Set' : '? Using default', inline: true },
+                    { name: '💬 Custom Message', value: config.customMessage ? '✅ Set' : '📝 Using default', inline: true },
                     { name: '✅ Message Preview', value: messagePreview, inline: false },
                     { name: '📌 Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
                 )
@@ -7934,12 +7934,12 @@ client.on('interactionCreate', async (interaction) => {
                 .setTitle('⚙️ Auto-Nickname Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
-                    `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
+                    `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
                     `Automatically set nicknames for new members.\n\n` +
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                    { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                     { name: '📌 Prefix', value: config.prefix || 'None', inline: true },
                     { name: '📌 Suffix', value: config.suffix || 'None', inline: true },
                     { name: '📌 Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
@@ -8167,19 +8167,19 @@ client.on('interactionCreate', async (interaction) => {
                 .setTitle('🔸 Raid Protection Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
-                    `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
+                    `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
                     `Monitors for suspicious join patterns and takes automatic action.\n\n` +
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
+                    { name: '?? Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                     { name: '📌 Join Threshold', value: `${config.joinThreshold} members`, inline: true },
                     { name: '📌 Time Window', value: `${config.timeWindow} seconds`, inline: true },
                     { name: '? Action', value: actionText, inline: true },
-                    { name: '?? Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
+                    { name: '⏱️ Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
                     { name: '📌 Current Lockdown', value: lockdownStatus, inline: true },
                     { name: '📌 Notification Channel', value: notifChannel, inline: true },
-                    { name: '? Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
+                    { name: '✅ Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
                 )
                 .setFooter({ text: 'Click buttons below to configure raid protection' })
                 .setTimestamp();
@@ -8775,7 +8775,7 @@ client.on('interactionCreate', async (interaction) => {
         saveTicketData();
         
         const claimEmbed = new EmbedBuilder()
-            .setTitle('? Ticket Claimed')
+            .setTitle('✋ Ticket Claimed')
             .setDescription(`${interaction.user} has claimed this ticket and will assist you.`)
             .setColor(0xFFA500)
             .setTimestamp();
@@ -9221,7 +9221,7 @@ client.on('interactionCreate', async (interaction) => {
                     await ytCommand.handleModal(interaction);
                     return;
                 } catch (error) {
-                    console.error('? YouTube modal error:', error);
+                    console.error('❌ YouTube modal error:', error);
                     await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
@@ -9235,7 +9235,7 @@ client.on('interactionCreate', async (interaction) => {
                     await lvlCommand.handleModal(interaction);
                     return;
                 } catch (error) {
-                    console.error('? Leveling modal error:', error);
+                    console.error('❌ Leveling modal error:', error);
                     await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
@@ -9249,7 +9249,7 @@ client.on('interactionCreate', async (interaction) => {
                     await leaveCommand.handleModal(interaction);
                     return;
                 } catch (error) {
-                    console.error('? Leave modal error:', error);
+                    console.error('❌ Leave modal error:', error);
                     await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
@@ -9263,7 +9263,7 @@ client.on('interactionCreate', async (interaction) => {
                     await keywordCommand.handleModal(interaction);
                     return;
                 } catch (error) {
-                    console.error('? Keyword modal error:', error);
+                    console.error('❌ Keyword modal error:', error);
                     await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
@@ -9277,7 +9277,7 @@ client.on('interactionCreate', async (interaction) => {
                     await pcommandsCommand.handleModal(interaction);
                     return;
                 } catch (error) {
-                    console.error('? PCommands modal error:', error);
+                    console.error('❌ PCommands modal error:', error);
                     await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
@@ -9348,7 +9348,7 @@ client.on('interactionCreate', async (interaction) => {
                     await channel.send({ embeds: [testEmbed] }).catch(() => {});
                     
                 } catch (error) {
-                    console.error('? Log modal error:', error);
+                    console.error('❌ Log modal error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
                             await interaction.reply({ content: '? An error occurred. Please try again.', ephemeral: true });
@@ -9660,7 +9660,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveTicketData();
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('? Welcome Message Updated')
+                            .setTitle('✅ Welcome Message Updated')
                             .setDescription('**Preview:**\n\n' + message)
                             .setColor(0x00FF00)
                             .setFooter({ text: 'This message will appear in new tickets' })
@@ -9675,7 +9675,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveTicketData();
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('? Close Message Updated')
+                            .setTitle('✅ Close Message Updated')
                             .setDescription('**Preview:**\n\n' + message)
                             .setColor(0x00FF00)
                             .setFooter({ text: 'This message will be sent in DMs when tickets close' })
@@ -9743,7 +9743,7 @@ client.on('interactionCreate', async (interaction) => {
                     }
                     
                 } catch (error) {
-                    console.error('? Ticket modal error:', error);
+                    console.error('❌ Ticket modal error:', error);
                     await interaction.reply({ content: '? An error occurred!', ephemeral: true }).catch(() => {});
                 }
                 return;
@@ -9781,7 +9781,7 @@ client.on('interactionCreate', async (interaction) => {
                         });
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('? Webhook Created')
+                            .setTitle('✅ Webhook Created')
                             .setDescription(`Webhook **${webhookName}** created successfully!`)
                             .addFields(
                                 { name: 'Channel', value: `<#${channel.id}>`, inline: true },
@@ -9865,7 +9865,7 @@ client.on('interactionCreate', async (interaction) => {
                             await client.user.setAvatar(avatarUrl);
                             
                             const successEmbed = new EmbedBuilder()
-                                .setTitle('? Avatar Changed Successfully')
+                                .setTitle('✅ Avatar Changed Successfully')
                                 .setDescription('The bot avatar has been updated globally across all servers.')
                                 .setImage(avatarUrl)
                                 .setColor(0x00FF00)
@@ -10137,7 +10137,7 @@ client.on('interactionCreate', async (interaction) => {
                         saveSettings();
                         
                         const testEmbed = new EmbedBuilder()
-                            .setTitle('? Moderation Log Channel Configured')
+                            .setTitle('✅ Moderation Log Channel Configured')
                             .setDescription('This channel will receive moderation logs.')
                             .setColor(0x00FF00)
                             .setTimestamp();
@@ -10314,7 +10314,7 @@ client.on('interactionCreate', async (interaction) => {
                         const warningCount = moderationData[guildId].warnings[userId].length;
                         await interaction.reply({ 
                             embeds: [new EmbedBuilder()
-                                .setTitle('? User Warned')
+                                .setTitle('⚠️ User Warned')
                                 .setDescription(`${user} has been warned (${warningCount}/${settings.moderation.warningThreshold})`)
                                 .addFields({ name: 'Reason', value: reason })
                                 .setColor(0xFFAA00)],
@@ -10342,7 +10342,7 @@ client.on('interactionCreate', async (interaction) => {
                         const member = await interaction.guild.members.fetch(userId).catch(() => null);
                         
                         if (!member) {
-                            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
+                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
                         }
                         
                         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
@@ -10369,7 +10369,7 @@ client.on('interactionCreate', async (interaction) => {
                             await logModerationAction(interaction.guild, `✅ Timeout (${duration}m)`, interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
-                                    .setTitle('? User Timed Out')
+                                    .setTitle('⏱️ User Timed Out')
                                     .setDescription(`${user} has been timed out for ${duration} minutes`)
                                     .addFields({ name: 'Reason', value: reason })
                                     .setColor(0xFF6600)],
@@ -10394,7 +10394,7 @@ client.on('interactionCreate', async (interaction) => {
                         const member = await interaction.guild.members.fetch(userId).catch(() => null);
                         
                         if (!member) {
-                            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
+                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
                         }
                         
                         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
@@ -10425,7 +10425,7 @@ client.on('interactionCreate', async (interaction) => {
                             await logModerationAction(interaction.guild, '✅ Kick', interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
-                                    .setTitle('? User Kicked')
+                                    .setTitle('👢 User Kicked')
                                     .setDescription(`${user.tag} has been kicked`)
                                     .addFields({ name: 'Reason', value: reason })
                                     .setColor(0xFF6600)],
@@ -10473,7 +10473,7 @@ client.on('interactionCreate', async (interaction) => {
                             await logModerationAction(interaction.guild, '✅ Ban', interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
-                                    .setTitle('? User Banned')
+                                    .setTitle('🔨 User Banned')
                                     .setDescription(`${user ? user.tag : userId} has been banned`)
                                     .addFields({ name: 'Reason', value: reason })
                                     .setColor(0xFF0000)],
@@ -10498,7 +10498,7 @@ client.on('interactionCreate', async (interaction) => {
                         const member = await interaction.guild.members.fetch(userId).catch(() => null);
                         
                         if (!member) {
-                            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
+                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
                         }
                         
                         if (!settings.moderation.muteRole) {
@@ -10525,7 +10525,7 @@ client.on('interactionCreate', async (interaction) => {
                             await logModerationAction(interaction.guild, '✅ Mute', interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
-                                    .setTitle('? User Muted')
+                                    .setTitle('🔇 User Muted')
                                     .setDescription(`${user} has been muted`)
                                     .addFields({ name: 'Reason', value: reason })
                                     .setColor(0x808080)],
@@ -10549,7 +10549,7 @@ client.on('interactionCreate', async (interaction) => {
                         const member = await interaction.guild.members.fetch(userId).catch(() => null);
                         
                         if (!member) {
-                            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
+                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
                         }
                         
                         if (!settings.moderation.muteRole) {
@@ -10561,7 +10561,7 @@ client.on('interactionCreate', async (interaction) => {
                             await logModerationAction(interaction.guild, '✅ Unmute', interaction.user, user, 'Unmuted');
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
-                                    .setTitle('? User Unmuted')
+                                    .setTitle('🔊 User Unmuted')
                                     .setDescription(`${user} has been unmuted`)
                                     .setColor(0x00FF00)],
                                 ephemeral: true 
@@ -10638,7 +10638,7 @@ client.on('interactionCreate', async (interaction) => {
                         await logModerationAction(interaction.guild, '✅ Warnings Cleared', interaction.user, user, `Cleared ${warningCount} warnings`);
                         await interaction.reply({ 
                             embeds: [new EmbedBuilder()
-                                .setTitle('? Warnings Cleared')
+                                .setTitle('✅ Warnings Cleared')
                                 .setDescription(`Cleared **${warningCount}** warnings for ${user ? user.tag : userId}`)
                                 .setColor(0x00FF00)],
                             ephemeral: true 
@@ -11798,17 +11798,17 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
             // Assign role
             const role = guild.roles.cache.get(config.sellixRoleId);
             if (!role) {
-                console.log('? Role not found:', config.sellixRoleId);
+                console.log('❌ Role not found:', config.sellixRoleId);
                 return res.status(200).send('Role not found');
             }
             
             await member.roles.add(role);
-            console.log(`? Assigned role to ${member.user.tag}`);
+            console.log(`✅ Assigned role to ${member.user.tag}`);
             
             // Send DM to user
             try {
                 const dmEmbed = new EmbedBuilder()
-                    .setTitle('? Purchase Successful!')
+                    .setTitle('✅ Purchase Successful!')
                     .setDescription(`Thank you for your purchase! You have been given access to **${role.name}**.`)
                     .setColor(0x00FF00)
                     .addFields(
@@ -11827,7 +11827,7 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
             const logChannel = guild.channels.cache.get(config.sellixLogChannelId);
             if (logChannel) {
                 const logEmbed = new EmbedBuilder()
-                    .setTitle('? New Purchase')
+                    .setTitle('💰 New Purchase')
                     .setColor(0x00FF00)
                     .addFields(
                         { name: '📌 Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
@@ -11846,7 +11846,7 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
         
         res.status(200).send('OK');
     } catch (error) {
-        console.error('? Sellix webhook error:', error);
+        console.error('❌ Sellix webhook error:', error);
         res.status(500).send('Internal Server Error');
     }
 });
