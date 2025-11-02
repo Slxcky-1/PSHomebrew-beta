@@ -6878,6 +6878,9 @@ client.on('interactionCreate', async (interaction) => {
             
             if (interaction.customId === 'webhook_edit') {
                 // Don't defer - we need to show a modal immediately
+                // Get previously stored values if they exist
+                const storedFields = interaction.client.webhookEmbedFields?.get(interaction.user.id);
+                
                 const modal = new ModalBuilder()
                     .setCustomId('webhook_embed_modal')
                     .setTitle('Design Custom Embed');
@@ -6917,6 +6920,15 @@ client.on('interactionCreate', async (interaction) => {
                     .setStyle(TextInputStyle.Short)
                     .setPlaceholder('DSC.GG/TER152')
                     .setRequired(false);
+                
+                // Pre-fill with stored values if available
+                if (storedFields) {
+                    titleInput.setValue(storedFields.title);
+                    descInput.setValue(storedFields.description);
+                    colorInput.setValue(storedFields.color);
+                    if (storedFields.image) imageInput.setValue(storedFields.image);
+                    if (storedFields.footer) footerInput.setValue(storedFields.footer);
+                }
                 
                 modal.addComponents(
                     new ActionRowBuilder().addComponents(titleInput),
@@ -9716,9 +9728,17 @@ client.on('interactionCreate', async (interaction) => {
                             ephemeral: true 
                         });
                         
-                        // Store embed data temporarily for sending
+                        // Store embed data temporarily for sending and editing
                         if (!interaction.client.webhookEmbeds) interaction.client.webhookEmbeds = new Map();
+                        if (!interaction.client.webhookEmbedFields) interaction.client.webhookEmbedFields = new Map();
                         interaction.client.webhookEmbeds.set(interaction.user.id, previewEmbed.toJSON());
+                        interaction.client.webhookEmbedFields.set(interaction.user.id, {
+                            title: title,
+                            description: description,
+                            color: colorInput,
+                            image: imageUrl || '',
+                            footer: footerText || ''
+                        });
                     }
                     
                     else if (interaction.customId === 'webhook_send_url_modal') {
