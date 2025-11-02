@@ -2883,9 +2883,9 @@ client.on('interactionCreate', async (interaction) => {
             .setDescription('Control bot power state and updates')
             .setColor(0x00BFFF)
             .addFields(
-                { name: '📌 Uptime', value: uptimeStr, inline: true },
-                { name: '📌 Memory', value: `${memoryUsage} MB`, inline: true },
-                { name: '📌 Status', value: '📌 Online', inline: true }
+                { name: '� Uptime', value: uptimeStr, inline: true },
+                { name: '� Memory', value: `${memoryUsage} MB`, inline: true },
+                { name: '� Status', value: '✅ Online', inline: true }
             )
             .setFooter({ text: 'Choose an option below' })
             .setTimestamp();
@@ -2896,17 +2896,17 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('power_update')
                     .setLabel('Update & Restart')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    .setEmoji('🔄'),
                 new ButtonBuilder()
                     .setCustomId('power_restart')
                     .setLabel('Restart')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅'),
+                    .setEmoji('🔁'),
                 new ButtonBuilder()
                     .setCustomId('power_shutdown')
                     .setLabel('Shutdown')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('✅')
+                    .setEmoji('🔴')
             );
         
         await interaction.reply({ embeds: [powerEmbed], components: [row], ephemeral: true });
