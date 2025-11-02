@@ -2195,25 +2195,17 @@ client.on('messageCreate', async (message) => {
         // Check if message contains PS3/PS4 error code patterns (allow these through)
         const containsErrorCode = /\b(8[0-9]{7}|[AEF][0-9]{7})\b/i.test(message.content);
         
-        // AGGRESSIVE token-wasting detection
-        // Block attempts to make AI generate long responses on purpose
+        // Token-wasting detection (only block obvious abuse)
         if (!containsErrorCode && (
-            // Math/calculation spam
-            /\b(prove|proof|calculate|solve|compute|equation|theorem|conjecture|demonstrate|show\s+that|find\s+all|list\s+all|enumerate|factorial|fibonacci|prime\s+number|integration|derivative|matrix|polynomial|algorithm|step\s+by\s+step|explain\s+in\s+detail|mathematical|infinity|summation|sequence|series|permutation|combination)\b/i.test(lowercaseMsg) ||
-            /(\d+\s*[\+\-\*\/\^]\s*\d+.*[\+\-\*\/\^].*\d+)|(\d{5,})|([a-z]\s*[\+\-\*\/\^=]\s*[a-z])/i.test(message.content) ||
-            // Requests designed to waste tokens
-            /\b(write\s+(me\s+)?(a\s+)?(long|detailed|comprehensive|extensive|complete|full|entire|lengthy)|essay|paragraph|story|novel|article|blog|document|report|thesis|summary|analysis|breakdown|walkthrough|encyclopedia|history|timeline)\b/i.test(lowercaseMsg) ||
-            /\b(500\s+word|1000\s+word|2000\s+word|[0-9]+\s+word|multiple\s+paragraph|several\s+paragraph|many\s+sentence)\b/i.test(lowercaseMsg) ||
-            /\b(use\s+(all|more|lots|many|maximum)\s+(token|word)|token\s+(test|explosion|bomb|waste)|make\s+it\s+long|be\s+verbose|as\s+long\s+as\s+possible|longest\s+response)\b/i.test(lowercaseMsg) ||
-            // Sneaky "make it longer" attempts
-            /\b(make\s+it\s+(longer|bigger|more)|include\s+(more|all|every|each)\s+(detail|info|information)|add\s+more\s+(detail|info|content|word)|expand\s+on|elaborate\s+on)\b/i.test(lowercaseMsg) ||
-            /\b(all\s+the\s+(detail|difference|info|information|spec)|every\s+(detail|difference|aspect|feature)|small\s+detail|minor\s+detail)\b/i.test(lowercaseMsg) ||
-            /\b(longer\s+response|more\s+complete|even\s+include|also\s+include\s+how|what\s+files|what\s+drives|how\s+different|all\s+the\s+differences)\b/i.test(lowercaseMsg) ||
-            // Repetition/list spam
-            /\b(repeat|say\s+again|copy\s+paste|spam|flood)\s+(this|that|it|100|1000|times|words)/i.test(lowercaseMsg) ||
-            /\b(list\s+(all|every|100|1000)|tell\s+me\s+everything|give\s+me\s+all|name\s+all|count\s+to\s+(100|1000|10000))\b/i.test(lowercaseMsg) ||
-            // Overly long messages
-            message.content.length > 500)) {
+            // Explicit requests for long content
+            /\b(write\s+(me\s+)?a\s+(long|detailed|5000\s+word|essay|novel|story|article|blog\s+post))\b/i.test(lowercaseMsg) ||
+            /\b(500\s+word|1000\s+word|2000\s+word|[0-9]{3,}\s+word)\b/i.test(lowercaseMsg) ||
+            /\b(use\s+all\s+your\s+tokens|maximum\s+token|as\s+long\s+as\s+possible|longest\s+response\s+possible)\b/i.test(lowercaseMsg) ||
+            // Repetition spam
+            /\b(repeat|say|spam)\s+(this|that|it)\s+(100|1000|10000)\s+times\b/i.test(lowercaseMsg) ||
+            /\b(count\s+to\s+(10000|100000)|list\s+1000)\b/i.test(lowercaseMsg) ||
+            // Overly long messages (legitimate questions shouldn't be this long)
+            message.content.length > 800)) {
             return message.reply(translate(message.guild.id, 'ai.tokenBlocked'));
         }
         
@@ -3545,11 +3537,14 @@ client.on('interactionCreate', async (interaction) => {
             });
         }
         
-        // Token-heavy request detection (math problems, proofs, complex calculations)
+        // Token-wasting detection (only block obvious abuse)
         const lowercaseMsg = userMessage.toLowerCase();
-        if (/\b(prove|proof|calculate|solve|compute|equation|theorem|conjecture|demonstrate|show\s+that|find\s+all|list\s+all|enumerate|factorial|fibonacci|prime\s+number|integration|derivative|matrix|polynomial|algorithm|step\s+by\s+step|explain\s+in\s+detail|mathematical|infinity|summation|sequence|series|permutation|combination)\b/i.test(lowercaseMsg) ||
-            /(\d+\s*[\+\-\*\/\^]\s*\d+.*[\+\-\*\/\^].*\d+)|(\d{5,})|([a-z]\s*[\+\-\*\/\^=]\s*[a-z])/i.test(userMessage) ||
-            userMessage.length > 500) {
+        if (/\b(write\s+(me\s+)?a\s+(long|detailed|5000\s+word|essay|novel|story|article|blog\s+post))\b/i.test(lowercaseMsg) ||
+            /\b(500\s+word|1000\s+word|2000\s+word|[0-9]{3,}\s+word)\b/i.test(lowercaseMsg) ||
+            /\b(use\s+all\s+your\s+tokens|maximum\s+token|as\s+long\s+as\s+possible|longest\s+response\s+possible)\b/i.test(lowercaseMsg) ||
+            /\b(repeat|say|spam)\s+(this|that|it)\s+(100|1000|10000)\s+times\b/i.test(lowercaseMsg) ||
+            /\b(count\s+to\s+(10000|100000)|list\s+1000)\b/i.test(lowercaseMsg) ||
+            userMessage.length > 800) {
             return interaction.reply({
                 content: translate(interaction.guild.id, 'ai.tokenBlocked'),
                 ephemeral: true 
