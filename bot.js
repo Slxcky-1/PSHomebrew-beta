@@ -11950,6 +11950,8 @@ sellixApp.post('/sellix-webhook', async (req, res) => {
 });
 
 // ===== EBAY WEBHOOK SYSTEM =====
+
+// eBay Sale Notifications (Trading API)
 sellixApp.post('/ebay-webhook', async (req, res) => {
     try {
         console.log('📦 eBay webhook received:', JSON.stringify(req.body, null, 2));
@@ -12013,14 +12015,231 @@ sellixApp.post('/ebay-webhook', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-// ===== END EBAY WEBHOOK SYSTEM =====
+
+// ===== EBAY INVENTORY MAPPING API =====
+
+// Create Listing Preview with AI recommendations (GraphQL)
+sellixApp.post('/ebay-create-listing-preview', async (req, res) => {
+    try {
+        console.log('🤖 eBay Listing Preview Creation Request:', JSON.stringify(req.body, null, 2));
+        
+        const { productTitle, productDescription, photos, aspects, productIdentifiers, mappingReferenceID } = req.body;
+        
+        // Validate required fields
+        if (!productTitle && !photos?.length && !productIdentifiers) {
+            return res.status(400).json({ 
+                error: 'Missing required fields. Provide at least one: productTitle, photos, or productIdentifiers (UPC/EAN/ISBN)' 
+            });
+        }
+        
+        // Build GraphQL mutation for startListingPreviewsCreation
+        const graphqlQuery = {
+            query: `
+                mutation StartListingPreviewsCreation($input: StartListingPreviewsCreationInput!) {
+                    startListingPreviewsCreation(input: $input) {
+                        taskId
+                        status
+                        createdAt
+                        mappingReferenceID
+                    }
+                }
+            `,
+            variables: {
+                input: {
+                    productTitle: productTitle || null,
+                    productDescription: productDescription || null,
+                    photos: photos || [],
+                    aspects: aspects || {},
+                    productIdentifiers: productIdentifiers || {},
+                    mappingReferenceID: mappingReferenceID || `mapping_${Date.now()}`
+                }
+            }
+        };
+        
+        // Make GraphQL request to eBay
+        const fetch = require('node-fetch');
+        const ebayResponse = await fetch('https://api.ebay.com/sell/inventory_mapping/v1/graphql', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${config.ebayAccessToken}`,
+                'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US' // Currently US only
+            },
+            body: JSON.stringify(graphqlQuery)
+        });
+        
+        const responseData = await ebayResponse.json();
+        
+        if (responseData.errors) {
+            console.error('❌ eBay API Error:', responseData.errors);
+            return res.status(400).json({ error: 'eBay API error', details: responseData.errors });
+        }
+        
+        const taskData = responseData.data?.startListingPreviewsCreation;
+        
+        // Log to Discord channel
+        const logChannelId = config.ebayNotificationChannel;
+        if (logChannelId) {
+            const logChannel = await client.channels.fetch(logChannelId).catch(() => null);
+            if (logChannel) {
+                const previewEmbed = new EmbedBuilder()
+                    .setTitle('🤖 eBay Listing Preview Created')
+                    .setDescription('AI-powered listing preview generation started')
+                    .setColor(0x0064D2) // eBay blue
+                    .addFields(
+                        { name: '🆔 Task ID', value: taskData.taskId || 'N/A', inline: false },
+                        { name: '📊 Status', value: taskData.status || 'PROCESSING', inline: true },
+                        { name: '📦 Product', value: productTitle || 'N/A', inline: false },
+                        { name: '🔗 Mapping Ref', value: taskData.mappingReferenceID || 'N/A', inline: true }
+                    )
+                    .setFooter({ text: 'eBay Inventory Mapping API' })
+                    .setTimestamp();
+                
+                await logChannel.send({ embeds: [previewEmbed] });
+            }
+        }
+        
+        console.log(`✅ Listing preview task created: ${taskData.taskId}`);
+        res.status(200).json({ success: true, task: taskData });
+        
+    } catch (error) {
+        console.error('❌ eBay listing preview error:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+// Query Listing Preview Task Status by ID (GraphQL)
+sellixApp.get('/ebay-listing-task/:taskId', async (req, res) => {
+    try {
+        const { taskId } = req.params;
+        console.log(`🔍 Querying eBay listing task: ${taskId}`);
+        
+        // Build GraphQL query for listingPreviewsCreationTaskById
+        const graphqlQuery = {
+            query: `
+                query GetListingPreviewTask($taskId: ID!) {
+                    listingPreviewsCreationTaskById(taskId: $taskId) {
+                        taskId
+                        status
+                        createdAt
+                        completedAt
+                        mappingReferenceID
+                        listingPreviews {
+                            category {
+                                categoryId
+                                categoryName
+                            }
+                            title
+                            description
+                            aspects {
+                                name
+                                values
+                            }
+                            imageUrls
+                        }
+                        errors {
+                            message
+                            code
+                        }
+                    }
+                }
+            `,
+            variables: { taskId }
+        };
+        
+        // Make GraphQL request to eBay
+        const fetch = require('node-fetch');
+        const ebayResponse = await fetch('https://api.ebay.com/sell/inventory_mapping/v1/graphql', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${config.ebayAccessToken}`,
+                'X-EBAY-C-MARKETPLACE-ID': 'EBAY_US'
+            },
+            body: JSON.stringify(graphqlQuery)
+        });
+        
+        const responseData = await ebayResponse.json();
+        
+        if (responseData.errors) {
+            console.error('❌ eBay API Error:', responseData.errors);
+            return res.status(400).json({ error: 'eBay API error', details: responseData.errors });
+        }
+        
+        const taskData = responseData.data?.listingPreviewsCreationTaskById;
+        
+        console.log(`✅ Task status retrieved: ${taskData.status}`);
+        res.status(200).json({ success: true, task: taskData });
+        
+    } catch (error) {
+        console.error('❌ eBay task query error:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+});
+
+// Listing Preview Creation Task Status Notifications
+sellixApp.post('/ebay-listing-notification', async (req, res) => {
+    try {
+        console.log('🔔 eBay Listing Preview Notification:', JSON.stringify(req.body, null, 2));
+        
+        const notification = req.body;
+        
+        // Handle LISTING_PREVIEW_CREATION_TASK_STATUS notification
+        if (notification.topicId === 'LISTING_PREVIEW_CREATION_TASK_STATUS') {
+            const taskId = notification.taskId;
+            const status = notification.status;
+            const mappingReferenceID = notification.mappingReferenceID;
+            
+            // Log to Discord channel
+            const logChannelId = config.ebayNotificationChannel;
+            if (logChannelId) {
+                const logChannel = await client.channels.fetch(logChannelId).catch(() => null);
+                if (logChannel) {
+                    const statusEmbed = new EmbedBuilder()
+                        .setTitle('🔔 eBay Listing Preview Status Update')
+                        .setDescription(`Task ${taskId} status changed`)
+                        .setColor(status === 'COMPLETED' ? 0x00FF00 : status === 'FAILED' ? 0xFF0000 : 0xFFAA00)
+                        .addFields(
+                            { name: '🆔 Task ID', value: taskId || 'N/A', inline: false },
+                            { name: '📊 Status', value: status || 'UNKNOWN', inline: true },
+                            { name: '🔗 Mapping Ref', value: mappingReferenceID || 'N/A', inline: true }
+                        )
+                        .setFooter({ text: 'eBay Notification API' })
+                        .setTimestamp();
+                    
+                    // Add error details if failed
+                    if (status === 'FAILED' && notification.errors) {
+                        statusEmbed.addFields({
+                            name: '❌ Error',
+                            value: notification.errors.map(e => e.message).join('\n') || 'Unknown error',
+                            inline: false
+                        });
+                    }
+                    
+                    await logChannel.send({ embeds: [statusEmbed] });
+                    console.log(`✅ Listing preview notification sent for task: ${taskId}`);
+                }
+            }
+        }
+        
+        res.status(200).send('OK');
+    } catch (error) {
+        console.error('❌ eBay listing notification error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// ===== END EBAY INVENTORY MAPPING API =====
 
 // Start webhook server on port 3000
 const WEBHOOK_PORT = process.env.WEBHOOK_PORT || 3000;
 sellixApp.listen(WEBHOOK_PORT, () => {
     console.log(`🔗 Webhook server running on port ${WEBHOOK_PORT}`);
     console.log(`📍 Sellix webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/sellix-webhook`);
-    console.log(`📍 eBay webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/ebay-webhook`);
+    console.log(`📍 eBay Sale webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/ebay-webhook`);
+    console.log(`📍 eBay Listing Preview API: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/ebay-create-listing-preview`);
+    console.log(`📍 eBay Task Query: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/ebay-listing-task/:taskId`);
+    console.log(`📍 eBay Listing Notifications: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/ebay-listing-notification`);
 });
 // ===== END WEBHOOK SYSTEM =====
 
