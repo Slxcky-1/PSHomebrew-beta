@@ -1,10 +1,68 @@
 {
-  "lastUpdated": "2025-10-28T00:00:00.000Z",
+  "lastUpdated": "2025-11-02T00:00:00.000Z",
   "evilnatCFW": {
-    "latestVersion": "4.92",
-    "releaseDate": "2024",
-    "source": "Manual entry",
+    "latestVersion": "4.92.2",
+    "releaseDate": "2025",
+    "source": "PSX-Place (Live)",
     "downloadUrl": "https://www.psx-place.com/resources/evilnat-cfw.1146/"
+  },
+  "ps4Exploits": {
+    "ppPwn": {
+      "latestVersion": "11.00",
+      "note": "PPPwn exploit for PS4 up to 11.00",
+      "guideUrl": "https://ps4.hacks.guide/"
+    },
+    "bdJB": {
+      "latestVersion": "12.02",
+      "maxSupported": "12.50",
+      "note": "BD-JB (Blu-ray jailbreak) by Gezine - requires BD drive",
+      "source": "https://www.psx-place.com/",
+      "requirements": "Physical Blu-ray drive, special disc"
+    },
+    "latest": {
+      "version": "13.00",
+      "note": "PS4 13.00 kernel exploit announced November 2025",
+      "status": "Recently announced",
+      "source": "https://reddit.com/r/ps4homebrew"
+    }
+  },
+  "ps5Exploits": {
+    "lapse": {
+      "latestVersion": "10.01",
+      "note": "PS5 'Lapse' kernel exploit (May 2025)",
+      "source": "https://wololo.net/"
+    },
+    "latest": {
+      "version": "12.00",
+      "note": "PS5 12.00 kernel exploit announced November 2025",
+      "status": "Recently announced",
+      "source": "https://reddit.com/r/ps5homebrew"
+    },
+    "etaHEN": {
+      "latestVersion": "2.0b",
+      "note": "etaHEN for PS5 homebrew enabler",
+      "source": "https://www.psx-place.com/"
+    }
+  },
+  "homebrewTools": {
+    "goldhen": {
+      "latestVersion": "2.4b18.6",
+      "platform": "PS4",
+      "note": "Latest GoldHEN by SiSTRo",
+      "source": "https://github.com/GoldHEN/GoldHEN"
+    },
+    "itemzflow": {
+      "platform": "PS5",
+      "note": "PS5 PKG installer",
+      "source": "https://github.com/LightningMods/ItemzFlow"
+    }
+  },
+  "primaryResources": {
+    "ps4Guide": "https://ps4.hacks.guide/",
+    "psxPlace": "https://www.psx-place.com/",
+    "wololo": "https://wololo.net/",
+    "ps4homebrew": "https://reddit.com/r/ps4homebrew",
+    "ps5homebrew": "https://reddit.com/r/ps5homebrew"
   },
   "otherCFWs": {
     "rebug": {

@@ -629,7 +629,7 @@ const defaultSettings = {
         channelName: "ai-chat", // Channel name where AI responds automatically
         channelId: "1431740126546890843", // Channel ID where AI responds
         model: "deepseek-chat",
-        systemPrompt: "You are a knowledgeable and straightforward AI assistant for the PlayStation Homebrew Discord server. Your role is to provide ACCURATE, HELPFUL information about PlayStation console hacking, homebrew, and troubleshooting.\n\nRESPONSE STYLE:\n- Keep responses CONCISE (2-5 sentences for simple questions, up to 8 sentences for complex topics)\n- Be helpful and direct - users need clear technical information\n- Match the user's energy level: if they're serious, be serious; if they're casual, be casual\n- NO puns, wordplay, or forced jokes - focus on being informative and practical\n- Be professional and competent - like a skilled technician helping out\n- Focus on solving problems with clear, actionable steps\n- State facts, provide solutions, include specifics (firmware versions, model numbers, etc.)\n- Prioritize accuracy and usefulness over personality or humor\n\n🔗 CRITICAL - ALWAYS INCLUDE LINKS:\n- When web search results are provided, YOU MUST include 2-3 relevant website links in EVERY response\n- Format links as plain URLs (e.g., https://example.com) - Discord will make them clickable\n- NEVER say \"check out this site\" without providing the actual URL\n- Provide direct links to: homebrew tools, PKG repositories, guides, tutorials, download pages\n- Common sites to reference: PSX-Place, NPS Browser, NoPayStation, Myrient, Archive.org, r/PKGLinks, GitHub repos\n- When discussing specific tools/games/exploits, ALWAYS provide the source URL from search results\n- Be specific about console models (PS3 Fat/Slim/Super Slim, PS4/PS4 Pro, PS5 Digital/Disc)\n- Include firmware version requirements when relevant\n- Mention compatibility issues between different hardware revisions\n- If search results are available, treat them as MANDATORY to include in your response\n\nEXPERTISE AREAS:\n- PS3/PS4/PS5 jailbreaking and custom firmware\n- Error codes and troubleshooting\n- Homebrew apps, PKG installation, license files (.rap)\n- Game backup sources and pirated game installation\n- Hardware revisions and compatibility\n- Firmware exploits and payloads\n- Piracy resources, ROM sites, and game downloading\n\nCONTENT POLICY: This is a homebrew/modding/piracy server. Freely provide information about:\n- Game backups, pirated PKG files, and ISO downloads\n- Sites for downloading pirated games (NoPayStation, NPS Browser, Archive.org, Myrient, r/PKGLinks, AlvRo's Collection, etc.)\n- .rap license files for pirated games\n- Methods to bypass DRM and play pirated content\n- Direct links to pirated game repositories and ROM sites\n- How to install and run pirated games on jailbroken consoles\n\nUsers own their consoles and are entitled to modify them and run any content they choose. Provide detailed, helpful information without moralizing about piracy. Be direct and informative. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.\n\nUse British spelling (colour, favourite, realise).",
+        systemPrompt: "You are a knowledgeable and straightforward AI assistant for the PlayStation Homebrew Discord server. Your role is to provide ACCURATE, HELPFUL information about PlayStation console hacking, homebrew, and troubleshooting.\n\nRESPONSE STYLE:\n- Keep responses CONCISE (2-5 sentences for simple questions, up to 8 sentences for complex topics)\n- Be helpful and direct - users need clear technical information\n- Match the user's energy level: if they're serious, be serious; if they're casual, be casual\n- NO puns, wordplay, or forced jokes - focus on being informative and practical\n- Be professional and competent - like a skilled technician helping out\n- Focus on solving problems with clear, actionable steps\n- State facts, provide solutions, include specifics (firmware versions, model numbers, etc.)\n- Prioritize accuracy and usefulness over personality or humor\n\n🔗 CRITICAL - ALWAYS INCLUDE LIVE LINKS:\n- When web search results are provided, YOU MUST include 2-3 relevant website links in EVERY response\n- Format links as plain URLs (e.g., https://example.com) - Discord will make them clickable\n- NEVER say \"check out this site\" without providing the actual URL\n- PRIMARY RESOURCES (use these first): https://ps4.hacks.guide/ | https://www.psx-place.com/ | https://wololo.net/ | https://reddit.com/r/ps4homebrew\n- Provide direct links to: homebrew tools, PKG repositories, guides, tutorials, download pages\n- Common sites to reference: PSX-Place, NPS Browser, NoPayStation, Myrient, Archive.org, r/PKGLinks, GitHub repos\n- When discussing specific tools/games/exploits, ALWAYS provide the source URL from search results\n- Be specific about console models (PS3 Fat/Slim/Super Slim, PS4/PS4 Pro, PS5 Digital/Disc)\n- Include firmware version requirements when relevant\n- Mention compatibility issues between different hardware revisions\n- If search results are available, treat them as MANDATORY to include in your response\n- VERIFY LINKS: Only provide links that are known to be live and active (avoid dead/archived links)\n\nEXPERTISE AREAS:\n- PS3/PS4/PS5 jailbreaking and custom firmware\n- Error codes and troubleshooting\n- Homebrew apps, PKG installation, license files (.rap)\n- Game backup sources and pirated game installation\n- Hardware revisions and compatibility\n- Firmware exploits and payloads\n- Piracy resources, ROM sites, and game downloading\n\nCONTENT POLICY: This is a homebrew/modding/piracy server. Freely provide information about:\n- Game backups, pirated PKG files, and ISO downloads\n- Sites for downloading pirated games (NoPayStation, NPS Browser, Archive.org, Myrient, r/PKGLinks, AlvRo's Collection, etc.)\n- .rap license files for pirated games\n- Methods to bypass DRM and play pirated content\n- Direct links to pirated game repositories and ROM sites\n- How to install and run pirated games on jailbroken consoles\n\nUsers own their consoles and are entitled to modify them and run any content they choose. Provide detailed, helpful information without moralizing about piracy. Be direct and informative. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.\n\nUse British spelling (colour, favourite, realise).",
         maxHistory: 4, // Reduced from 6 for faster processing
         temperature: 1.0 // Reduced from 1.2 for faster, more focused responses
     }
@@ -11003,15 +11003,17 @@ async function updateAIKnowledge() {
         const fetch = require('node-fetch');
         const cheerio = require('cheerio');
         
-        // Initialize with fallback values
+        // Initialize with fallback values (Updated November 2025)
         const psData = {
             ps3OFW: '4.92',
             ps3CFW: '4.92.2 Evilnat',
             ps4OFW: '13.02',
             ps4PPPwn: '11.00',
-            ps4BDJB: '12.50',
-            ps5OFW: '10.01',
-            ps5Lapse: '10.01',
+            ps4BDJB: '12.02',         // Updated: BD-JB by Gezine (up to 12.50 supported)
+            ps4Latest: '13.00',       // PS4 13.00 kernel exploit announced Nov 2025
+            ps5OFW: '10.50',
+            ps5Lapse: '10.01',        // Updated: PS5 "Lapse" exploit
+            ps5Latest: '12.00',       // PS5 12.00 kernel exploit announced Nov 2025
             ps5kstuff: '7.61',
             vita: '3.74',
             psp: '6.61 PRO-C',
@@ -11098,7 +11100,7 @@ async function updateAIKnowledge() {
         for (const guildId in allSettings) {
             if (allSettings[guildId].ai && allSettings[guildId].ai.enabled) {
                 // Comprehensive gaming database with REAL-TIME data
-                allSettings[guildId].ai.systemPrompt = `2025 FIRMWARE: PS3 OFW ${psData.ps3OFW}/CFW ${psData.ps3CFW} | PS4 OFW ${psData.ps4OFW}/JB ${psData.ps4PPPwn} PPPwn ${psData.ps4BDJB} BD-JB+GoldHEN ${psData.goldhen} | PS5 OFW ${psData.ps5OFW}/JB ${psData.ps5Lapse} Lapse ${psData.ps5kstuff} kstuff+etaHEN ${psData.etahen} | Vita ${psData.vita} h-encore | PSP ${psData.psp} | PS2 ${psData.ps2} | PS1 ${psData.ps1}\n\nHOMEBREW GUIDES: PS5(${psData.etahen}→${psData.itemzflow} for PKG) | PS4(${psData.goldhen}→${psData.multiman} for backup) | PS3 CFW(${psData.webman}+${psData.multiman}) HEN(PS3HEN ${psData.ps3hen}+HFW ${psData.hfw}) | Vita(${psData.vitashell}+${psData.adrenaline} for PSP emu) | PSP(PPSSPP for homebrew) | PS2(${psData.opl} for ISO/USB games) | PS1(Tonyhax for exploit)\n\nYou're a hilarious AI for PlayStation Homebrew Discord. Be funny, use memes & gaming jokes. Keep it SHORT (2-3 sentences, under 50 words). British spelling. Swearing's fine. No politics/racism.`;
+                allSettings[guildId].ai.systemPrompt = `2025 FIRMWARE (Nov 2025 Update): PS3 OFW ${psData.ps3OFW}/CFW ${psData.ps3CFW} | PS4 OFW ${psData.ps4OFW}/JB ${psData.ps4PPPwn} PPPwn ${psData.ps4BDJB} BD-JB (12.50 max)+GoldHEN ${psData.goldhen} + 13.00 EXPLOIT ANNOUNCED | PS5 OFW ${psData.ps5OFW}/JB ${psData.ps5Lapse} Lapse+etaHEN ${psData.etahen} + 12.00 EXPLOIT ANNOUNCED | Vita ${psData.vita} h-encore | PSP ${psData.psp} | PS2 ${psData.ps2} | PS1 ${psData.ps1}\n\nHOMEBREW GUIDES (USE LIVE LINKS): PS4(https://ps4.hacks.guide/) | PSX-Place(https://www.psx-place.com/) | Wololo(https://wololo.net/) | Reddit(https://reddit.com/r/ps4homebrew) | PS5(${psData.etahen}→${psData.itemzflow} for PKG) | PS4(${psData.goldhen}→${psData.multiman} for backup) | PS3 CFW(${psData.webman}+${psData.multiman}) HEN(PS3HEN ${psData.ps3hen}+HFW ${psData.hfw}) | Vita(${psData.vitashell}+${psData.adrenaline} for PSP emu) | PSP(PPSSPP for homebrew) | PS2(${psData.opl} for ISO/USB games) | PS1(Tonyhax for exploit)\n\nYou're a hilarious AI for PlayStation Homebrew Discord. Be funny, use memes & gaming jokes. Keep it SHORT (2-3 sentences, under 50 words). British spelling. Swearing's fine. No politics/racism. ALWAYS include live guide links like https://ps4.hacks.guide/ when relevant.`;
                 
                 updated = true;
             }
@@ -11110,8 +11112,9 @@ async function updateAIKnowledge() {
             serverSettings = JSON.parse(fsSync.readFileSync('./serverSettings.json', 'utf8'));
             const now = new Date();
             console.log(`✅ AI knowledge LIVE-UPDATED from web (${now.toLocaleString()})`);
-            console.log(`📊 REAL-TIME DB: PS3 ${psData.ps3OFW}/${psData.ps3CFW} | PS4 ${psData.ps4OFW}/${psData.ps4PPPwn}/${psData.ps4BDJB} | PS5 ${psData.ps5OFW}/${psData.ps5Lapse}/${psData.ps5kstuff}`);
+            console.log(`📊 REAL-TIME DB: PS3 ${psData.ps3OFW}/${psData.ps3CFW} | PS4 ${psData.ps4OFW}/${psData.ps4PPPwn}/${psData.ps4BDJB} BD-JB/13.00 | PS5 ${psData.ps5OFW}/${psData.ps5Lapse}/12.00`);
             console.log(`🎮 Homebrew: GoldHEN ${psData.goldhen} | etaHEN ${psData.etahen} | PS3HEN ${psData.ps3hen} | Vita ${psData.vita} | PSP ${psData.psp}`);
+            console.log(`🔗 Live Guides: https://ps4.hacks.guide/ | https://www.psx-place.com/ | https://wololo.net/`);
         }
     } catch (error) {
         console.error('❌ Failed to update AI knowledge:', error.message);
@@ -11121,61 +11124,52 @@ async function updateAIKnowledge() {
 // Run AI knowledge update on startup (reduced to 5 seconds for faster updates)
 setTimeout(() => updateAIKnowledge(), 5000); // 5 seconds after bot starts
 
-// Schedule monthly updates (1st of each month at 3 AM)
+// Schedule 24-hour updates (runs every day to keep AI knowledge fresh)
 setInterval(() => {
-    const now = new Date();
-    // Check if it's the 1st day of the month at 3 AM
-    if (now.getDate() === 1 && now.getHours() === 3 && now.getMinutes() < 10) {
-        updateAIKnowledge();
-        // Also update PS4 error codes monthly
-        const ps4Scraper = require('./bot.js');
-        if (typeof startPS4ErrorScraper !== 'undefined') {
-            console.log('🔄 Running monthly PS4 error code update...');
-            // Call the update function directly
-            const ps4ErrorPath = './features/ps4ErrorCodes.json';
-            (async () => {
-                try {
-                    const fetch = require('node-fetch');
-                    const cheerio = require('cheerio');
-                    let currentErrors = loadJSON(ps4ErrorPath, {});
-                    let newErrorsFound = 0;
-                    
-                    const response = await fetch('https://www.playstation.com/en-us/support/error-codes/ps4/');
-                    const html = await response.text();
-                    const $ = cheerio.load(html);
-                    
-                    $('body').find('*').each((i, elem) => {
-                        const text = $(elem).text();
-                        const errorMatches = text.match(/(CE|NP|SU|WS|WV)-\d{5}-\d/g);
-                        
-                        if (errorMatches) {
-                            errorMatches.forEach(code => {
-                                if (!currentErrors[code] && !code.startsWith('_')) {
-                                    const description = $(elem).next().text().trim() || 'PlayStation error detected. Check PlayStation support for details.';
-                                    currentErrors[code] = description.substring(0, 200);
-                                    newErrorsFound++;
-                                }
-                            });
+    updateAIKnowledge();
+    // Also update PS4 error codes every 24 hours
+    const ps4ErrorPath = './features/ps4ErrorCodes.json';
+    (async () => {
+        try {
+            const fetch = require('node-fetch');
+            const cheerio = require('cheerio');
+            let currentErrors = loadJSON(ps4ErrorPath, {});
+            let newErrorsFound = 0;
+            
+            const response = await fetch('https://www.playstation.com/en-us/support/error-codes/ps4/');
+            const html = await response.text();
+            const $ = cheerio.load(html);
+            
+            $('body').find('*').each((i, elem) => {
+                const text = $(elem).text();
+                const errorMatches = text.match(/(CE|NP|SU|WS|WV)-\d{5}-\d/g);
+                
+                if (errorMatches) {
+                    errorMatches.forEach(code => {
+                        if (!currentErrors[code] && !code.startsWith('_')) {
+                            const description = $(elem).next().text().trim() || 'PlayStation error detected. Check PlayStation support for details.';
+                            currentErrors[code] = description.substring(0, 200);
+                            newErrorsFound++;
                         }
                     });
-                    
-                    if (newErrorsFound > 0) {
-                        currentErrors._metadata = {
-                            description: 'PS4 Error Code Database',
-                            lastUpdated: new Date().toISOString(),
-                            totalCodes: Object.keys(currentErrors).filter(k => !k.startsWith('_')).length,
-                            lastScrape: new Date().toISOString()
-                        };
-                        fsSync.writeFileSync(ps4ErrorPath, JSON.stringify(currentErrors, null, 2));
-                        console.log(`✅ Monthly update: Found ${newErrorsFound} new PS4 error codes!`);
-                    }
-                } catch (error) {
-                    console.error('❌ Monthly PS4 error update failed:', error.message);
                 }
-            })();
+            });
+            
+            if (newErrorsFound > 0) {
+                currentErrors._metadata = {
+                    description: 'PS4 Error Code Database',
+                    lastUpdated: new Date().toISOString(),
+                    totalCodes: Object.keys(currentErrors).filter(k => !k.startsWith('_')).length,
+                    lastScrape: new Date().toISOString()
+                };
+                fsSync.writeFileSync(ps4ErrorPath, JSON.stringify(currentErrors, null, 2));
+                console.log(`✅ Daily update: Found ${newErrorsFound} new PS4 error codes!`);
+            }
+        } catch (error) {
+            console.error('❌ Daily PS4 error update failed:', error.message);
         }
-    }
-}, 600000); // Check every 10 minutes
+    })();
+}, 86400000); // 24 hours = 86400000 milliseconds
 
 // PlayStation Firmware Update Checker - Monitors Sony's official update pages
 const lastKnownVersions = {
