@@ -11781,7 +11781,7 @@ sellhubApp.post('/sellhub-webhook', async (req, res) => {
 const WEBHOOK_PORT = process.env.WEBHOOK_PORT || 3000;
 sellhubApp.listen(WEBHOOK_PORT, () => {
     console.log(`✅ Webhook server running on port ${WEBHOOK_PORT}`);
-    console.log(`✅ SellHub webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/sellix-webhook`);
+    console.log(`✅ SellHub webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/sellhub-webhook`);
 });
 // ===== END WEBHOOK SYSTEM =====
 
