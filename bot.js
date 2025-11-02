@@ -185,16 +185,16 @@ let tokenQuota = {
     deepseek: {
         dailyUsed: 0,
         monthlyUsed: 0,
-        dailyLimit: null, // Set in config or leave null for unlimited
-        monthlyLimit: null,
+        dailyLimit: 50000, // 50k tokens per day globally
+        monthlyLimit: null, // Unlimited monthly
         lastResetDaily: new Date().toDateString(),
         lastResetMonthly: `${new Date().getFullYear()}-${new Date().getMonth() + 1}`
     },
     chatgpt: {
         dailyUsed: 0,
         monthlyUsed: 0,
-        dailyLimit: null,
-        monthlyLimit: null,
+        dailyLimit: 50000, // 50k tokens per day globally
+        monthlyLimit: null, // Unlimited monthly
         lastResetDaily: new Date().toDateString(),
         lastResetMonthly: `${new Date().getFullYear()}-${new Date().getMonth() + 1}`
     }
