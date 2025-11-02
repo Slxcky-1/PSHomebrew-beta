@@ -445,7 +445,6 @@ You should see:
 | `/games` | Play interactive games | Everyone |
 | `/setuptickets` | Configure ticket system | Administrator |
 | `/logs` | View ticket transcript | Staff |
-| `/setupname setup/view/reset` | Configure auto-nickname | Administrator |
 | `/setlogchannel channel:<#channel>` | Set error log channel | Administrator |
 | `/resetmessages type:<welcome/leave/keyword>` | Reset messages to default | Administrator |
 
@@ -1005,7 +1004,7 @@ Discord/
 ├── serverSettings.json          # Per-server settings (auto-generated)
 ├── ticketData.json              # Ticket system data (auto-generated)
 ├── moderationData.json          # Moderation data (auto-generated)
-├── ps3ErrorCodes.json           # PS3 error code database
+├── consoleErrorCodes.json       # Multi-console error code database (PS1-PS5, PSP, Vita)
 ├── DOCUMENTATION.md             # This file
 ├── features/                    # Feature command definitions
 │   ├── general.json            # General commands
@@ -1015,7 +1014,7 @@ Discord/
 │   ├── welcomeleave.json       # Welcome/leave commands
 │   ├── keywords.json           # Keyword detection commands
 │   ├── raidprotection.json     # Raid protection commands
-│   ├── autonickname.json       # Auto-nickname commands
+│   ├── (removed autonickname)  # Feature removed
 │   └── games.json              # Games command
 └── node_modules/                # Dependencies
 ```
