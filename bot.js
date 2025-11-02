@@ -25,9 +25,9 @@ for (const file of languageFiles) {
     try {
         const langData = require(`./languages/${file}`);
         languages[langData.code] = langData;
-        console.log(`? Loaded language: ${langData.name} (${langData.code})`);
+        console.log(`✅ Loaded language: ${langData.name} (${langData.code})`);
     } catch (error) {
-        console.error(`? Failed to load language file: ${file}`, error.message);
+        console.error(`❌ Failed to load language file: ${file}`, error.message);
     }
 }
 
@@ -1578,7 +1578,7 @@ function startServerStatsUpdates() {
 // Bot ready event - optimized for faster startup
 client.once('clientReady', async () => {
     console.log('\n' + '='.repeat(60));
-    console.log(`? ${client.user.tag} is online!`);
+    console.log(`🤖 ${client.user.tag} is online!`);
     console.log(`🌐 Servers: ${client.guilds.cache.size}`);
     console.log('='.repeat(60));
     
@@ -11724,7 +11724,7 @@ sellhubApp.post('/sellhub-webhook', async (req, res) => {
         if (config.sellhubWebhookSecret && config.sellhubWebhookSecret !== 'YOUR_WEBHOOK_SECRET') {
             const receivedSecret = req.headers['x-sellhub-signature'];
             if (receivedSecret !== config.sellhubWebhookSecret) {
-                console.log('? Invalid SellHub webhook signature');
+                console.log('❌ Invalid SellHub webhook signature');
                 return res.status(401).send('Unauthorized');
             }
         }
@@ -11754,7 +11754,7 @@ sellhubApp.post('/sellhub-webhook', async (req, res) => {
             // Get guild and member
             const guild = client.guilds.cache.get(config.sellhubGuildId);
             if (!guild) {
-                console.log('? Guild not found:', config.sellhubGuildId);
+                console.log('❌ Guild not found:', config.sellhubGuildId);
                 return res.status(200).send('Guild not found');
             }
             
