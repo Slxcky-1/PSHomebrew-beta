@@ -5372,30 +5372,102 @@ const now = Date.now();
 
     // ===== ECONOMY COMMANDS =====
     
-    // Balance command
-    if (interaction.commandName === 'balance') {
-        const targetUser = interaction.options.getUser('user') || interaction.user;
-        const profile = getEconomyProfile(targetUser.id, interaction.guild.id);
+    // Economy command - Interactive panel
+    if (interaction.commandName === 'economy') {
+        const profile = getEconomyProfile(interaction.user.id, interaction.guild.id);
         const totalMoney = profile.wallet + profile.bank;
         
+        // Calculate active effects
+        let activeEffects = [];
+        if (hasActiveEffect(interaction.user.id, interaction.guild.id, 'xp_boost')) {
+            activeEffects.push('⚡ XP Boost');
+        }
+        if (hasActiveEffect(interaction.user.id, interaction.guild.id, 'rob_protection')) {
+            activeEffects.push('🛡️ Rob Protection');
+        }
+        if (hasActiveEffect(interaction.user.id, interaction.guild.id, 'lucky_charm')) {
+            activeEffects.push('🍀 Lucky Charm');
+        }
+        
         const embed = new EmbedBuilder()
-            .setTitle(`💰 ${targetUser.username}'s Balance`)
+            .setTitle('💰 Economy System Control Panel')
             .setColor(0xFFD700)
-            .setThumbnail(targetUser.displayAvatarURL())
-            .addFields(
-                { name: '💵 Wallet', value: `$${profile.wallet.toLocaleString()}`, inline: true },
-                { name: '🏦 Bank', value: `$${profile.bank.toLocaleString()}`, inline: true },
-                { name: '💎 Total', value: `$${totalMoney.toLocaleString()}`, inline: true }
+            .setThumbnail(interaction.user.displayAvatarURL())
+            .setDescription(
+                `Welcome to the economy system! Earn money, gamble, and buy items.\n\n` +
+                `**Your Balance:**\n` +
+                `💵 Wallet: $${profile.wallet.toLocaleString()}\n` +
+                `🏦 Bank: $${profile.bank.toLocaleString()}\n` +
+                `💎 Total: $${totalMoney.toLocaleString()}\n\n` +
+                `${activeEffects.length > 0 ? `**Active Effects:** ${activeEffects.join(', ')}` : ''}`
             )
-            .setFooter({ text: `ID: ${targetUser.id}` })
+            .addFields(
+                { name: '🎁 Daily', value: 'Claim daily reward', inline: true },
+                { name: '💼 Work', value: 'Work for money', inline: true },
+                { name: '💰 Rob', value: 'Rob other users', inline: true },
+                { name: '💸 Pay', value: 'Send money to users', inline: true },
+                { name: '🎲 Gamble', value: 'Play casino games', inline: true },
+                { name: '🏪 Shop', value: 'Buy special items', inline: true },
+                { name: '🎒 Inventory', value: 'View your items', inline: true },
+                { name: '� Leaderboard', value: 'Top richest users', inline: true }
+            )
+            .setFooter({ text: 'Click buttons below to interact' })
             .setTimestamp();
         
-        await interaction.reply({ embeds: [embed] });
+        const row1 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('economy_daily')
+                    .setLabel('Daily')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji('🎁'),
+                new ButtonBuilder()
+                    .setCustomId('economy_work')
+                    .setLabel('Work')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('💼'),
+                new ButtonBuilder()
+                    .setCustomId('economy_balance')
+                    .setLabel('Balance')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('💰'),
+                new ButtonBuilder()
+                    .setCustomId('economy_inventory')
+                    .setLabel('Inventory')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🎒')
+            );
+        
+        const row2 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('economy_gamble')
+                    .setLabel('Gamble')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('🎲'),
+                new ButtonBuilder()
+                    .setCustomId('economy_shop')
+                    .setLabel('Shop')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🏪'),
+                new ButtonBuilder()
+                    .setCustomId('economy_leaderboard')
+                    .setLabel('Leaderboard')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('📊'),
+                new ButtonBuilder()
+                    .setCustomId('economy_rob')
+                    .setLabel('Rob')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('💰')
+            );
+        
+        await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
         return;
     }
-    
-    // Daily command
-    if (interaction.commandName === 'daily') {
+
+    // Leave Setup command - Interactive panel
+    if (interaction.commandName === 'leave') {
         const profile = getEconomyProfile(interaction.user.id, interaction.guild.id);
         const now = Date.now();
         const cooldown = 24 * 60 * 60 * 1000; // 24 hours
@@ -6198,6 +6270,280 @@ const now = Date.now();
                         .setRequired(true);
                     
                     modal.addComponents(new ActionRowBuilder().addComponents(messageIdInput));
+                    await interaction.showModal(modal);
+                    return;
+                }
+            }
+
+            // Economy button handlers
+            if (interaction.customId.startsWith('economy_')) {
+                const profile = getEconomyProfile(interaction.user.id, interaction.guild.id);
+                
+                if (interaction.customId === 'economy_balance') {
+                    const totalMoney = profile.wallet + profile.bank;
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle(`💰 ${interaction.user.username}'s Balance`)
+                        .setColor(0xFFD700)
+                        .setThumbnail(interaction.user.displayAvatarURL())
+                        .addFields(
+                            { name: '💵 Wallet', value: `$${profile.wallet.toLocaleString()}`, inline: true },
+                            { name: '🏦 Bank', value: `$${profile.bank.toLocaleString()}`, inline: true },
+                            { name: '💎 Total', value: `$${totalMoney.toLocaleString()}`, inline: true }
+                        )
+                        .setFooter({ text: `ID: ${interaction.user.id}` })
+                        .setTimestamp();
+                    
+                    await interaction.reply({ embeds: [embed], ephemeral: true });
+                    return;
+                }
+                
+                if (interaction.customId === 'economy_daily') {
+                    const now = Date.now();
+                    const cooldown = 24 * 60 * 60 * 1000;
+                    
+                    if (profile.lastDaily && (now - profile.lastDaily) < cooldown) {
+                        const timeLeft = cooldown - (now - profile.lastDaily);
+                        const hours = Math.floor(timeLeft / (60 * 60 * 1000));
+                        const minutes = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+                        
+                        const embed = new EmbedBuilder()
+                            .setTitle('⏰ Daily Reward Cooldown')
+                            .setDescription(`You already claimed your daily reward!\n\nCome back in **${hours}h ${minutes}m**`)
+                            .setColor(0xFF0000);
+                        
+                        await interaction.reply({ embeds: [embed], ephemeral: true });
+                        return;
+                    }
+                    
+                    const dailyAmount = Math.floor(Math.random() * 500) + 500;
+                    const bonusStreak = Math.floor((profile.dailyStreak || 0) / 7) * 100;
+                    const totalAmount = dailyAmount + bonusStreak;
+                    
+                    profile.lastDaily = now;
+                    profile.dailyStreak = (profile.dailyStreak || 0) + 1;
+                    addMoney(interaction.user.id, interaction.guild.id, totalAmount, 'wallet');
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle('🎁 Daily Reward Claimed!')
+                        .setColor(0x00FF00)
+                        .setDescription(`You received **$${totalAmount.toLocaleString()}**!`)
+                        .addFields(
+                            { name: '💵 Base Amount', value: `$${dailyAmount.toLocaleString()}`, inline: true },
+                            { name: '🔥 Streak Bonus', value: `$${bonusStreak.toLocaleString()}`, inline: true },
+                            { name: '📈 Current Streak', value: `${profile.dailyStreak} days`, inline: true }
+                        )
+                        .setFooter({ text: 'Come back tomorrow for another reward!' });
+                    
+                    await interaction.reply({ embeds: [embed], ephemeral: true });
+                    return;
+                }
+                
+                if (interaction.customId === 'economy_work') {
+                    const now = Date.now();
+                    const cooldown = 60 * 60 * 1000;
+                    
+                    if (profile.lastWork && (now - profile.lastWork) < cooldown) {
+                        const timeLeft = cooldown - (now - profile.lastWork);
+                        const minutes = Math.floor(timeLeft / (60 * 1000));
+                        
+                        const embed = new EmbedBuilder()
+                            .setTitle('⏰ Work Cooldown')
+                            .setDescription(`You're tired! Rest for **${minutes} minutes**`)
+                            .setColor(0xFF0000);
+                        
+                        await interaction.reply({ embeds: [embed], ephemeral: true });
+                        return;
+                    }
+                    
+                    const job = WORK_JOBS[Math.floor(Math.random() * WORK_JOBS.length)];
+                    const earnings = Math.floor(Math.random() * (job.max - job.min + 1)) + job.min;
+                    
+                    let multiplier = 1;
+                    if (hasActiveEffect(interaction.user.id, interaction.guild.id, 'xp_boost')) {
+                        multiplier = 1.5;
+                    }
+                    
+                    const totalEarnings = Math.floor(earnings * multiplier);
+                    
+                    profile.lastWork = now;
+                    addMoney(interaction.user.id, interaction.guild.id, totalEarnings, 'wallet');
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle(`${job.emoji} Work Completed!`)
+                        .setColor(0x00FF00)
+                        .setDescription(`You worked as a **${job.name}** and earned **$${totalEarnings.toLocaleString()}**!`)
+                        .setFooter({ text: 'You can work again in 1 hour' });
+                    
+                    if (multiplier > 1) {
+                        embed.addFields({ name: '⚡ XP Boost Active', value: '1.5x earnings!' });
+                    }
+                    
+                    await interaction.reply({ embeds: [embed], ephemeral: true });
+                    return;
+                }
+                
+                if (interaction.customId === 'economy_inventory') {
+                    if (!profile.inventory || Object.keys(profile.inventory).length === 0) {
+                        await interaction.reply({ content: `❌ Your inventory is empty!`, ephemeral: true });
+                        return;
+                    }
+                    
+                    let description = '';
+                    for (const [itemId, quantity] of Object.entries(profile.inventory)) {
+                        if (quantity > 0) {
+                            const item = SHOP_ITEMS[itemId];
+                            if (item) {
+                                description += `${item.name} x${quantity}\n`;
+                            }
+                        }
+                    }
+                    
+                    if (!description) {
+                        await interaction.reply({ content: `❌ Your inventory is empty!`, ephemeral: true });
+                        return;
+                    }
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle(`🎒 ${interaction.user.username}'s Inventory`)
+                        .setColor(0x00BFFF)
+                        .setDescription(description)
+                        .setThumbnail(interaction.user.displayAvatarURL())
+                        .setFooter({ text: 'Use modals to use items' });
+                    
+                    await interaction.reply({ embeds: [embed], ephemeral: true });
+                    return;
+                }
+                
+                if (interaction.customId === 'economy_shop') {
+                    let description = '';
+                    for (const [itemId, item] of Object.entries(SHOP_ITEMS)) {
+                        description += `**${item.name}** - $${item.price.toLocaleString()}\n${item.description}\nID: \`${itemId}\`\n\n`;
+                    }
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle('🏪 Item Shop')
+                        .setColor(0x00BFFF)
+                        .setDescription(description)
+                        .setFooter({ text: 'Use the Buy button to purchase items' });
+                    
+                    const row = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setCustomId('economy_buy_modal')
+                                .setLabel('Buy Item')
+                                .setStyle(ButtonStyle.Success)
+                                .setEmoji('🛒')
+                        );
+                    
+                    await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+                    return;
+                }
+                
+                if (interaction.customId === 'economy_leaderboard') {
+                    const guildData = economyData[interaction.guild.id] || {};
+                    const users = Object.entries(guildData)
+                        .map(([userId, data]) => ({
+                            userId,
+                            total: data.wallet + data.bank
+                        }))
+                        .sort((a, b) => b.total - a.total)
+                        .slice(0, 10);
+                    
+                    if (users.length === 0) {
+                        await interaction.reply({ content: '❌ No economy data found for this server!', ephemeral: true });
+                        return;
+                    }
+                    
+                    let description = '';
+                    for (let i = 0; i < users.length; i++) {
+                        const user = await client.users.fetch(users[i].userId).catch(() => null);
+                        const username = user ? user.username : 'Unknown User';
+                        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+                        description += `${medal} **${username}** - $${users[i].total.toLocaleString()}\n`;
+                    }
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle('💰 Server Leaderboard')
+                        .setColor(0xFFD700)
+                        .setDescription(description)
+                        .setFooter({ text: `Total users: ${Object.keys(guildData).length}` })
+                        .setTimestamp();
+                    
+                    await interaction.reply({ embeds: [embed], ephemeral: true });
+                    return;
+                }
+                
+                if (interaction.customId === 'economy_gamble') {
+                    const modal = new ModalBuilder()
+                        .setCustomId('economy_gamble_modal')
+                        .setTitle('Gamble Money');
+                    
+                    const gameInput = new TextInputBuilder()
+                        .setCustomId('game')
+                        .setLabel('Game (coinflip, dice, slots)')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('coinflip')
+                        .setRequired(true);
+                    
+                    const amountInput = new TextInputBuilder()
+                        .setCustomId('amount')
+                        .setLabel('Amount to Bet (minimum $10)')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('100')
+                        .setRequired(true);
+                    
+                    modal.addComponents(
+                        new ActionRowBuilder().addComponents(gameInput),
+                        new ActionRowBuilder().addComponents(amountInput)
+                    );
+                    
+                    await interaction.showModal(modal);
+                    return;
+                }
+                
+                if (interaction.customId === 'economy_rob') {
+                    const modal = new ModalBuilder()
+                        .setCustomId('economy_rob_modal')
+                        .setTitle('Rob User');
+                    
+                    const userInput = new TextInputBuilder()
+                        .setCustomId('user_id')
+                        .setLabel('User ID to Rob')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('User ID')
+                        .setRequired(true);
+                    
+                    modal.addComponents(new ActionRowBuilder().addComponents(userInput));
+                    await interaction.showModal(modal);
+                    return;
+                }
+                
+                if (interaction.customId === 'economy_buy_modal') {
+                    const modal = new ModalBuilder()
+                        .setCustomId('economy_buy_item_modal')
+                        .setTitle('Buy Item');
+                    
+                    const itemInput = new TextInputBuilder()
+                        .setCustomId('item_id')
+                        .setLabel('Item ID')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('e.g., xp_boost')
+                        .setRequired(true);
+                    
+                    const quantityInput = new TextInputBuilder()
+                        .setCustomId('quantity')
+                        .setLabel('Quantity')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('1')
+                        .setValue('1')
+                        .setRequired(false);
+                    
+                    modal.addComponents(
+                        new ActionRowBuilder().addComponents(itemInput),
+                        new ActionRowBuilder().addComponents(quantityInput)
+                    );
+                    
                     await interaction.showModal(modal);
                     return;
                 }
@@ -10033,6 +10379,233 @@ const now = Date.now();
                 }
             }
             
+            // Economy modal handlers
+            if (interaction.customId === 'economy_gamble_modal') {
+                const game = interaction.fields.getTextInputValue('game').toLowerCase();
+                const amount = parseInt(interaction.fields.getTextInputValue('amount'));
+                
+                if (isNaN(amount) || amount < 10) {
+                    await interaction.reply({ content: '❌ Invalid amount! Minimum bet is $10.', ephemeral: true });
+                    return;
+                }
+                
+                if (!['coinflip', 'dice', 'slots'].includes(game)) {
+                    await interaction.reply({ content: '❌ Invalid game! Choose: coinflip, dice, or slots', ephemeral: true });
+                    return;
+                }
+                
+                const profile = getEconomyProfile(interaction.user.id, interaction.guild.id);
+                
+                if (profile.wallet < amount) {
+                    await interaction.reply({ 
+                        content: `❌ You don't have enough money! You only have **$${profile.wallet.toLocaleString()}**`, 
+                        ephemeral: true 
+                    });
+                    return;
+                }
+                
+                let won = false;
+                let multiplier = 0;
+                let gameResult = '';
+                
+                let luckBoost = hasActiveEffect(interaction.user.id, interaction.guild.id, 'lucky_charm') ? 0.1 : 0;
+                
+                if (game === 'coinflip') {
+                    const userChoice = Math.random() < 0.5 ? 'Heads' : 'Tails';
+                    const result = Math.random() < (0.5 + luckBoost) ? userChoice : (userChoice === 'Heads' ? 'Tails' : 'Heads');
+                    won = result === userChoice;
+                    multiplier = 2;
+                    gameResult = `🪙 Coin landed on: **${result}**\nYou chose: **${userChoice}**`;
+                } else if (game === 'dice') {
+                    const userRoll = Math.floor(Math.random() * 6) + 1;
+                    const botRoll = Math.floor(Math.random() * 6) + 1;
+                    won = userRoll > botRoll || (luckBoost > 0 && userRoll === botRoll);
+                    multiplier = 2.5;
+                    gameResult = `🎲 Your roll: **${userRoll}**\nBot roll: **${botRoll}**`;
+                } else if (game === 'slots') {
+                    const emojis = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣'];
+                    const slot1 = emojis[Math.floor(Math.random() * emojis.length)];
+                    const slot2 = emojis[Math.floor(Math.random() * emojis.length)];
+                    const slot3 = emojis[Math.floor(Math.random() * emojis.length)];
+                    
+                    if (slot1 === slot2 && slot2 === slot3) {
+                        won = true;
+                        multiplier = slot1 === '💎' ? 10 : slot1 === '7️⃣' ? 7 : 5;
+                    } else if (slot1 === slot2 || slot2 === slot3 || slot1 === slot3) {
+                        won = true;
+                        multiplier = 2;
+                    }
+                    
+                    gameResult = `🎰 **[ ${slot1} | ${slot2} | ${slot3} ]**`;
+                }
+                
+                if (won) {
+                    const winnings = Math.floor(amount * multiplier);
+                    addMoney(interaction.user.id, interaction.guild.id, winnings, 'wallet');
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle('🎉 You Won!')
+                        .setColor(0x00FF00)
+                        .setDescription(gameResult)
+                        .addFields(
+                            { name: '💵 Bet', value: `$${amount.toLocaleString()}`, inline: true },
+                            { name: '💰 Winnings', value: `$${winnings.toLocaleString()}`, inline: true },
+                            { name: '📊 Multiplier', value: `${multiplier}x`, inline: true }
+                        );
+                    
+                    if (luckBoost > 0) {
+                        embed.setFooter({ text: '🍀 Lucky Charm active!' });
+                    }
+                    
+                    await interaction.reply({ embeds: [embed], ephemeral: true });
+                } else {
+                    removeMoney(interaction.user.id, interaction.guild.id, amount, 'wallet');
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle('💔 You Lost!')
+                        .setColor(0xFF0000)
+                        .setDescription(gameResult)
+                        .addFields(
+                            { name: '💸 Lost', value: `$${amount.toLocaleString()}`, inline: true }
+                        )
+                        .setFooter({ text: 'Better luck next time!' });
+                    
+                    await interaction.reply({ embeds: [embed], ephemeral: true });
+                }
+                
+                return;
+            }
+            
+            if (interaction.customId === 'economy_rob_modal') {
+                const targetId = interaction.fields.getTextInputValue('user_id');
+                const target = await client.users.fetch(targetId).catch(() => null);
+                
+                if (!target) {
+                    await interaction.reply({ content: '❌ User not found!', ephemeral: true });
+                    return;
+                }
+                
+                if (target.id === interaction.user.id) {
+                    await interaction.reply({ content: '❌ You cannot rob yourself!', ephemeral: true });
+                    return;
+                }
+                
+                if (target.bot) {
+                    await interaction.reply({ content: '❌ You cannot rob bots!', ephemeral: true });
+                    return;
+                }
+                
+                const robberProfile = getEconomyProfile(interaction.user.id, interaction.guild.id);
+                const victimProfile = getEconomyProfile(target.id, interaction.guild.id);
+                const now = Date.now();
+                const cooldown = 2 * 60 * 60 * 1000;
+                
+                if (robberProfile.lastRob && (now - robberProfile.lastRob) < cooldown) {
+                    const timeLeft = cooldown - (now - robberProfile.lastRob);
+                    const hours = Math.floor(timeLeft / (60 * 60 * 1000));
+                    const minutes = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+                    
+                    await interaction.reply({ 
+                        content: `⏰ You're too tired to rob! Wait **${hours}h ${minutes}m**`, 
+                        ephemeral: true 
+                    });
+                    return;
+                }
+                
+                if (hasActiveEffect(target.id, interaction.guild.id, 'rob_protection')) {
+                    await interaction.reply({ 
+                        content: `🛡️ ${target.username} has rob protection active!`, 
+                        ephemeral: true 
+                    });
+                    return;
+                }
+                
+                if (victimProfile.wallet < 100) {
+                    await interaction.reply({ 
+                        content: `❌ ${target.username} doesn't have enough money to rob! (minimum $100)`, 
+                        ephemeral: true 
+                    });
+                    return;
+                }
+                
+                robberProfile.lastRob = now;
+                
+                let successRate = 0.45;
+                if (hasActiveEffect(interaction.user.id, interaction.guild.id, 'lucky_charm')) {
+                    successRate = 0.55;
+                }
+                
+                const success = Math.random() < successRate;
+                
+                if (success) {
+                    const stolenAmount = Math.floor(victimProfile.wallet * (Math.random() * 0.3 + 0.2));
+                    removeMoney(target.id, interaction.guild.id, stolenAmount, 'wallet');
+                    addMoney(interaction.user.id, interaction.guild.id, stolenAmount, 'wallet');
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle('💰 Robbery Successful!')
+                        .setColor(0x00FF00)
+                        .setDescription(`You successfully robbed **${target.username}** and stole **$${stolenAmount.toLocaleString()}**!`)
+                        .setFooter({ text: 'Spend it wisely!' });
+                    
+                    await interaction.reply({ embeds: [embed], ephemeral: true });
+                } else {
+                    const fine = Math.floor(robberProfile.wallet * 0.3);
+                    removeMoney(interaction.user.id, interaction.guild.id, fine, 'wallet');
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle('🚨 Robbery Failed!')
+                        .setColor(0xFF0000)
+                        .setDescription(`You got caught trying to rob **${target.username}**!\n\nYou paid a fine of **$${fine.toLocaleString()}**!`)
+                        .setFooter({ text: 'Better luck next time!' });
+                    
+                    await interaction.reply({ embeds: [embed], ephemeral: true });
+                }
+                
+                saveEconomyData();
+                return;
+            }
+            
+            if (interaction.customId === 'economy_buy_item_modal') {
+                const itemId = interaction.fields.getTextInputValue('item_id');
+                const quantityStr = interaction.fields.getTextInputValue('quantity') || '1';
+                const quantity = parseInt(quantityStr);
+                const item = SHOP_ITEMS[itemId];
+                
+                if (!item) {
+                    await interaction.reply({ content: '❌ Invalid item ID! Use the shop button to see available items.', ephemeral: true });
+                    return;
+                }
+                
+                if (isNaN(quantity) || quantity < 1) {
+                    await interaction.reply({ content: '❌ Invalid quantity!', ephemeral: true });
+                    return;
+                }
+                
+                const profile = getEconomyProfile(interaction.user.id, interaction.guild.id);
+                const totalCost = item.price * quantity;
+                
+                if (profile.wallet < totalCost) {
+                    await interaction.reply({ 
+                        content: `❌ You don't have enough money! You need **$${totalCost.toLocaleString()}** but only have **$${profile.wallet.toLocaleString()}**`, 
+                        ephemeral: true 
+                    });
+                    return;
+                }
+                
+                removeMoney(interaction.user.id, interaction.guild.id, totalCost, 'wallet');
+                addToInventory(interaction.user.id, interaction.guild.id, itemId, quantity);
+                
+                const embed = new EmbedBuilder()
+                    .setTitle('✅ Purchase Successful!')
+                    .setColor(0x00FF00)
+                    .setDescription(`You bought **${quantity}x ${item.name}** for **$${totalCost.toLocaleString()}**!`)
+                    .setFooter({ text: 'Check your inventory!' });
+                
+                await interaction.reply({ embeds: [embed], ephemeral: true });
+                return;
+            }
+
             // Logging system modal handlers
             if (interaction.customId.startsWith('log_modal_')) {
                 const guildId = interaction.guild.id;
