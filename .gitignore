@@ -11,10 +11,6 @@ userData.json
 ticketData.json
 moderationData.json
 
-# Auto-generated error code files (scraped dynamically)
-features/ps4ErrorCodes.json
-features/ps4ErrorCodes.backup.json
-
 # Obfuscated code directory (don't commit - manually push separately)
 obfuscated/
 
