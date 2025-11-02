@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "giveaways": {},
+  "commands": [
+    {
+      "name": "giveaway",
+      "description": "Manage giveaways (Admin only)"
+    }
+  ]
+}

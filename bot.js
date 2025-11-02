@@ -170,6 +170,10 @@ const moderationDataFile = './moderationData.json';
 let pendingPurchases = {};
 const pendingPurchasesFile = './pendingPurchases.json';
 
+// Giveaways data
+let giveawayData = {};
+const giveawayDataFile = './giveawayData.json';
+
 // AI conversation history (stored in memory only, not persisted)
 let aiConversations = {}; // { channelId: [ { role: 'user'|'assistant', content: 'message', userId?: string } ] }
 let aiCooldowns = {}; // { userId: timestamp} - Track cooldowns per user
@@ -697,6 +701,7 @@ const saveTicketData = createDebouncedSave(ticketDataFile, () => ticketData, 300
 const saveModerationData = createDebouncedSave(moderationDataFile, () => moderationData, 3000); // 3s (was 1s)
 // Analytics system removed (unused feature)
 const savePendingPurchases = createDebouncedSave(pendingPurchasesFile, () => pendingPurchases, 3000); // 3s
+const saveGiveawayData = createDebouncedSave(giveawayDataFile, () => giveawayData, 3000); // 3s
 
 // Load pending purchases
 async function loadPendingPurchases() {
@@ -709,6 +714,20 @@ async function loadPendingPurchases() {
             console.error('Error loading pending purchases:', error);
         }
         pendingPurchases = {};
+    }
+}
+
+// Load giveaway data
+async function loadGiveawayData() {
+    try {
+        await fs.access(giveawayDataFile);
+        const data = await fs.readFile(giveawayDataFile, 'utf8');
+        giveawayData = JSON.parse(data);
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            console.error('Error loading giveaway data:', error);
+        }
+        giveawayData = {};
     }
 }
 
@@ -1555,6 +1574,7 @@ client.once('clientReady', async () => {
     loadTicketData();
     loadModerationData();
     loadPendingPurchases();
+    loadGiveawayData();
     
     // Defer detailed feature counting to after bot is ready (non-blocking)
     setTimeout(() => {
@@ -1659,6 +1679,7 @@ client.once('clientReady', async () => {
         startMemoryCleanup();
         startCFWKnowledgeScraper();
         startAutomatedMessages();
+        checkGiveaways(); // Start giveaway checker
     }, 3000);
 });
 
@@ -5272,6 +5293,63 @@ const now = Date.now();
         return;
     }
 
+    // Giveaway command - Interactive panel
+    if (interaction.commandName === 'giveaway') {
+        if (!requireAdmin(interaction)) return;
+        
+        const guildId = interaction.guild.id;
+        
+        // Count active and ended giveaways
+        const giveaways = Object.values(giveawayData).filter(g => g.guildId === guildId);
+        const activeGiveaways = giveaways.filter(g => !g.ended).length;
+        const totalGiveaways = giveaways.length;
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🎉 Giveaway System Control Panel')
+            .setColor(0xFFD700)
+            .setDescription(
+                `Manage server giveaways with automatic winner selection!\n\n` +
+                `📊 **Statistics:**\n` +
+                `Active: ${activeGiveaways} | Total: ${totalGiveaways}\n\n` +
+                `Click the buttons below to manage giveaways.`
+            )
+            .addFields(
+                { name: '✅ Create Giveaway', value: 'Start a new giveaway', inline: true },
+                { name: '📋 List Active', value: 'View all active giveaways', inline: true },
+                { name: '🔴 End Early', value: 'End a giveaway before time', inline: true },
+                { name: '📌 Features', value: '• Automatic winner selection\n• Role requirements\n• Level requirements\n• Multiple winners\n• Auto-DM winners', inline: false }
+            )
+            .setFooter({ text: 'Click buttons below to manage giveaways' })
+            .setTimestamp();
+        
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('giveaway_create')
+                    .setLabel('Create Giveaway')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji('🎉'),
+                new ButtonBuilder()
+                    .setCustomId('giveaway_list')
+                    .setLabel('List Active')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('📋'),
+                new ButtonBuilder()
+                    .setCustomId('giveaway_end')
+                    .setLabel('End Early')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('🔴'),
+                new ButtonBuilder()
+                    .setCustomId('giveaway_reroll')
+                    .setLabel('Reroll Winner')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🔄')
+            );
+        
+        await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+        return;
+    }
+
     // Leave Setup command - Interactive panel
     if (interaction.commandName === 'leave') {
         const leaveCommand = require('./commands/leave.js');
@@ -5503,6 +5581,135 @@ const now = Date.now();
         else if (interaction.isButton()) {
             const guildId = interaction.guild.id;
 
+            // Giveaway button handlers
+            if (interaction.customId.startsWith('giveaway_')) {
+                if (!requireAdmin(interaction)) return;
+                
+                if (interaction.customId === 'giveaway_create') {
+                    const modal = new ModalBuilder()
+                        .setCustomId('giveaway_create_modal')
+                        .setTitle('Create Giveaway');
+                    
+                    const prizeInput = new TextInputBuilder()
+                        .setCustomId('prize')
+                        .setLabel('Prize')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('e.g., Discord Nitro')
+                        .setRequired(true);
+                    
+                    const durationInput = new TextInputBuilder()
+                        .setCustomId('duration')
+                        .setLabel('Duration (e.g., 1h, 30m, 1d)')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('1h = 1 hour, 30m = 30 minutes, 1d = 1 day')
+                        .setRequired(true);
+                    
+                    const winnersInput = new TextInputBuilder()
+                        .setCustomId('winners')
+                        .setLabel('Number of Winners')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('1')
+                        .setValue('1')
+                        .setRequired(true);
+                    
+                    const roleInput = new TextInputBuilder()
+                        .setCustomId('role_requirement')
+                        .setLabel('Required Role ID (optional)')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('Leave empty for no requirement')
+                        .setRequired(false);
+                    
+                    const levelInput = new TextInputBuilder()
+                        .setCustomId('level_requirement')
+                        .setLabel('Required Level (optional)')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('Leave empty for no requirement')
+                        .setRequired(false);
+                    
+                    modal.addComponents(
+                        new ActionRowBuilder().addComponents(prizeInput),
+                        new ActionRowBuilder().addComponents(durationInput),
+                        new ActionRowBuilder().addComponents(winnersInput),
+                        new ActionRowBuilder().addComponents(roleInput),
+                        new ActionRowBuilder().addComponents(levelInput)
+                    );
+                    
+                    await interaction.showModal(modal);
+                    return;
+                }
+                
+                else if (interaction.customId === 'giveaway_list') {
+                    const giveaways = Object.entries(giveawayData)
+                        .filter(([_, g]) => g.guildId === guildId && !g.ended);
+                    
+                    if (giveaways.length === 0) {
+                        await interaction.reply({ content: '❌ No active giveaways!', ephemeral: true });
+                        return;
+                    }
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle('📋 Active Giveaways')
+                        .setColor(0xFFD700)
+                        .setTimestamp();
+                    
+                    for (const [messageId, giveaway] of giveaways) {
+                        const endsIn = Math.floor((giveaway.endTime - Date.now()) / 1000);
+                        const hours = Math.floor(endsIn / 3600);
+                        const minutes = Math.floor((endsIn % 3600) / 60);
+                        
+                        embed.addFields({
+                            name: `🎉 ${giveaway.prize}`,
+                            value: `Channel: <#${giveaway.channelId}>\nEnds in: ${hours}h ${minutes}m\nWinners: ${giveaway.winners}\nMessage ID: \`${messageId}\``,
+                            inline: false
+                        });
+                    }
+                    
+                    await interaction.reply({ embeds: [embed], ephemeral: true });
+                    return;
+                }
+                
+                else if (interaction.customId === 'giveaway_end') {
+                    const giveaways = Object.entries(giveawayData)
+                        .filter(([_, g]) => g.guildId === guildId && !g.ended);
+                    
+                    if (giveaways.length === 0) {
+                        await interaction.reply({ content: '❌ No active giveaways to end!', ephemeral: true });
+                        return;
+                    }
+                    
+                    const modal = new ModalBuilder()
+                        .setCustomId('giveaway_end_modal')
+                        .setTitle('End Giveaway Early');
+                    
+                    const messageIdInput = new TextInputBuilder()
+                        .setCustomId('message_id')
+                        .setLabel('Giveaway Message ID')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('Use /giveaway list to see message IDs')
+                        .setRequired(true);
+                    
+                    modal.addComponents(new ActionRowBuilder().addComponents(messageIdInput));
+                    await interaction.showModal(modal);
+                    return;
+                }
+                
+                else if (interaction.customId === 'giveaway_reroll') {
+                    const modal = new ModalBuilder()
+                        .setCustomId('giveaway_reroll_modal')
+                        .setTitle('Reroll Giveaway Winner');
+                    
+                    const messageIdInput = new TextInputBuilder()
+                        .setCustomId('message_id')
+                        .setLabel('Giveaway Message ID')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('Message ID of ended giveaway')
+                        .setRequired(true);
+                    
+                    modal.addComponents(new ActionRowBuilder().addComponents(messageIdInput));
+                    await interaction.showModal(modal);
+                    return;
+                }
+            }
 
             // Leveling setup button handlers
             if (interaction.customId.startsWith('lvl_')) {
@@ -9098,6 +9305,186 @@ const now = Date.now();
     
         // Handle modal submissions
         else if (interaction.isModalSubmit()) {
+            // Giveaway modal handlers
+            if (interaction.customId === 'giveaway_create_modal') {
+                const prize = interaction.fields.getTextInputValue('prize');
+                const durationInput = interaction.fields.getTextInputValue('duration');
+                const winnersCount = parseInt(interaction.fields.getTextInputValue('winners')) || 1;
+                const roleRequirement = interaction.fields.getTextInputValue('role_requirement') || null;
+                const levelRequirement = parseInt(interaction.fields.getTextInputValue('level_requirement')) || null;
+                
+                // Parse duration
+                const durationMatch = durationInput.match(/^(\d+)([mhd])$/i);
+                if (!durationMatch) {
+                    await interaction.reply({ content: '❌ Invalid duration format! Use: 30m, 1h, or 1d', ephemeral: true });
+                    return;
+                }
+                
+                const amount = parseInt(durationMatch[1]);
+                const unit = durationMatch[2].toLowerCase();
+                
+                let duration;
+                if (unit === 'm') duration = amount * 60 * 1000;
+                else if (unit === 'h') duration = amount * 60 * 60 * 1000;
+                else if (unit === 'd') duration = amount * 24 * 60 * 60 * 1000;
+                
+                const endTime = Date.now() + duration;
+                
+                // Validate role if provided
+                if (roleRequirement) {
+                    const role = interaction.guild.roles.cache.get(roleRequirement);
+                    if (!role) {
+                        await interaction.reply({ content: '❌ Invalid role ID!', ephemeral: true });
+                        return;
+                    }
+                }
+                
+                // Create giveaway embed
+                const endsAt = Math.floor(endTime / 1000);
+                let requirementsText = '';
+                if (roleRequirement) {
+                    requirementsText += `• Role: <@&${roleRequirement}>\n`;
+                }
+                if (levelRequirement) {
+                    requirementsText += `• Level ${levelRequirement} or higher\n`;
+                }
+                
+                const giveawayEmbed = new EmbedBuilder()
+                    .setTitle('🎉 GIVEAWAY 🎉')
+                    .setDescription(
+                        `**Prize:** ${prize}\n\n` +
+                        `**Winners:** ${winnersCount}\n` +
+                        `**Ends:** <t:${endsAt}:R> (<t:${endsAt}:F>)\n` +
+                        `**Hosted by:** ${interaction.user}\n\n` +
+                        (requirementsText ? `**Requirements:**\n${requirementsText}\n` : '') +
+                        `React with 🎉 to enter!`
+                    )
+                    .setColor(0xFFD700)
+                    .setFooter({ text: `${winnersCount} winner${winnersCount > 1 ? 's' : ''}` })
+                    .setTimestamp(endTime);
+                
+                const message = await interaction.channel.send({ embeds: [giveawayEmbed] });
+                await message.react('🎉');
+                
+                // Store giveaway data
+                giveawayData[message.id] = {
+                    messageId: message.id,
+                    guildId: interaction.guild.id,
+                    channelId: interaction.channel.id,
+                    hostId: interaction.user.id,
+                    prize,
+                    winners: winnersCount,
+                    endTime,
+                    ended: false,
+                    requirements: {
+                        roleId: roleRequirement,
+                        level: levelRequirement
+                    },
+                    winnerIds: []
+                };
+                saveGiveawayData();
+                
+                await interaction.reply({ content: '✅ Giveaway created successfully!', ephemeral: true });
+                console.log(`🎉 Giveaway created: ${prize} by ${interaction.user.tag}`);
+                return;
+            }
+            
+            else if (interaction.customId === 'giveaway_end_modal') {
+                const messageId = interaction.fields.getTextInputValue('message_id');
+                const giveaway = giveawayData[messageId];
+                
+                if (!giveaway) {
+                    await interaction.reply({ content: '❌ Giveaway not found!', ephemeral: true });
+                    return;
+                }
+                
+                if (giveaway.guildId !== interaction.guild.id) {
+                    await interaction.reply({ content: '❌ This giveaway is not in this server!', ephemeral: true });
+                    return;
+                }
+                
+                if (giveaway.ended) {
+                    await interaction.reply({ content: '❌ This giveaway has already ended!', ephemeral: true });
+                    return;
+                }
+                
+                await interaction.deferReply({ ephemeral: true });
+                await endGiveaway(messageId, giveaway);
+                await interaction.editReply({ content: '✅ Giveaway ended successfully!' });
+                return;
+            }
+            
+            else if (interaction.customId === 'giveaway_reroll_modal') {
+                const messageId = interaction.fields.getTextInputValue('message_id');
+                const giveaway = giveawayData[messageId];
+                
+                if (!giveaway) {
+                    await interaction.reply({ content: '❌ Giveaway not found!', ephemeral: true });
+                    return;
+                }
+                
+                if (giveaway.guildId !== interaction.guild.id) {
+                    await interaction.reply({ content: '❌ This giveaway is not in this server!', ephemeral: true });
+                    return;
+                }
+                
+                if (!giveaway.ended) {
+                    await interaction.reply({ content: '❌ This giveaway hasn\'t ended yet!', ephemeral: true });
+                    return;
+                }
+                
+                await interaction.deferReply({ ephemeral: true });
+                
+                try {
+                    const channel = interaction.guild.channels.cache.get(giveaway.channelId);
+                    if (!channel) {
+                        await interaction.editReply({ content: '❌ Giveaway channel not found!' });
+                        return;
+                    }
+                    
+                    const message = await channel.messages.fetch(messageId).catch(() => null);
+                    if (!message) {
+                        await interaction.editReply({ content: '❌ Giveaway message not found!' });
+                        return;
+                    }
+                    
+                    const reaction = message.reactions.cache.get('🎉');
+                    if (!reaction) {
+                        await interaction.editReply({ content: '❌ No reactions found on this giveaway!' });
+                        return;
+                    }
+                    
+                    const users = await reaction.users.fetch();
+                    const participants = users.filter(u => !u.bot && u.id !== client.user.id);
+                    
+                    if (participants.size === 0) {
+                        await interaction.editReply({ content: '❌ No participants found!' });
+                        return;
+                    }
+                    
+                    // Pick new winner
+                    const participantsArray = Array.from(participants.values());
+                    const newWinner = participantsArray[Math.floor(Math.random() * participantsArray.length)];
+                    
+                    const rerollEmbed = new EmbedBuilder()
+                        .setTitle('🔄 Giveaway Rerolled!')
+                        .setDescription(`**Prize:** ${giveaway.prize}\n\n**New Winner:** <@${newWinner.id}>\n\nCongratulations! 🎊`)
+                        .setColor(0x00FF00)
+                        .setTimestamp();
+                    
+                    await channel.send({ embeds: [rerollEmbed] });
+                    await channel.send(`🎉 Congratulations <@${newWinner.id}>! You won **${giveaway.prize}**!`);
+                    
+                    await interaction.editReply({ content: '✅ Giveaway rerolled successfully!' });
+                    console.log(`🔄 Giveaway rerolled: ${giveaway.prize} - New winner: ${newWinner.tag}`);
+                    
+                } catch (error) {
+                    console.error('Error rerolling giveaway:', error);
+                    await interaction.editReply({ content: '❌ An error occurred while rerolling!' });
+                }
+                return;
+            }
+            
             // Leveling setup modal handlers
             if (interaction.customId.includes('lvl_modal_')) {
                 try {
@@ -11533,6 +11920,180 @@ function startCFWKnowledgeScraper() {
 
 // PS4 Error Code Scraper - Updates error database from online sources (runs on startup only, monthly via updateAIKnowledge)
 // Automated channel messages - Daily 7 PM reminder only
+// ===== GIVEAWAY SYSTEM =====
+function checkGiveaways() {
+    setInterval(async () => {
+        const now = Date.now();
+        
+        for (const [messageId, giveaway] of Object.entries(giveawayData)) {
+            if (giveaway.ended) continue;
+            
+            if (now >= giveaway.endTime) {
+                try {
+                    await endGiveaway(messageId, giveaway);
+                } catch (error) {
+                    console.error(`❌ Error ending giveaway ${messageId}:`, error);
+                }
+            }
+        }
+    }, 10000); // Check every 10 seconds
+}
+
+async function endGiveaway(messageId, giveaway) {
+    try {
+        const guild = client.guilds.cache.get(giveaway.guildId);
+        if (!guild) return;
+        
+        const channel = guild.channels.cache.get(giveaway.channelId);
+        if (!channel) return;
+        
+        const message = await channel.messages.fetch(messageId).catch(() => null);
+        if (!message) return;
+        
+        // Get all users who reacted with 🎉
+        const reaction = message.reactions.cache.get('🎉');
+        if (!reaction) {
+            giveaway.ended = true;
+            giveaway.winners = [];
+            saveGiveawayData();
+            
+            const endEmbed = new EmbedBuilder()
+                .setTitle('🎉 Giveaway Ended')
+                .setDescription(`**Prize:** ${giveaway.prize}\n\n❌ No valid entries!`)
+                .setColor(0xFF0000)
+                .setTimestamp();
+            
+            await message.edit({ embeds: [endEmbed], components: [] });
+            return;
+        }
+        
+        // Fetch all users who reacted
+        const users = await reaction.users.fetch();
+        const participants = users.filter(u => !u.bot && u.id !== client.user.id);
+        
+        if (participants.size === 0) {
+            giveaway.ended = true;
+            giveaway.winners = [];
+            saveGiveawayData();
+            
+            const endEmbed = new EmbedBuilder()
+                .setTitle('🎉 Giveaway Ended')
+                .setDescription(`**Prize:** ${giveaway.prize}\n\n❌ No valid entries!`)
+                .setColor(0xFF0000)
+                .setTimestamp();
+            
+            await message.edit({ embeds: [endEmbed], components: [] });
+            return;
+        }
+        
+        // Filter participants by requirements
+        let eligibleUsers = [];
+        for (const [userId, user] of participants) {
+            const member = await guild.members.fetch(userId).catch(() => null);
+            if (!member) continue;
+            
+            let eligible = true;
+            
+            // Check role requirement
+            if (giveaway.requirements.roleId) {
+                if (!member.roles.cache.has(giveaway.requirements.roleId)) {
+                    eligible = false;
+                }
+            }
+            
+            // Check level requirement
+            if (giveaway.requirements.level) {
+                if (!userData[giveaway.guildId] || !userData[giveaway.guildId][userId]) {
+                    eligible = false;
+                } else {
+                    const userLevel = getLevelFromXP(userData[giveaway.guildId][userId].xp);
+                    if (userLevel < giveaway.requirements.level) {
+                        eligible = false;
+                    }
+                }
+            }
+            
+            if (eligible) {
+                eligibleUsers.push(user);
+            }
+        }
+        
+        if (eligibleUsers.length === 0) {
+            giveaway.ended = true;
+            giveaway.winners = [];
+            saveGiveawayData();
+            
+            const endEmbed = new EmbedBuilder()
+                .setTitle('🎉 Giveaway Ended')
+                .setDescription(`**Prize:** ${giveaway.prize}\n\n❌ No eligible entries! (Requirements not met)`)
+                .setColor(0xFF0000)
+                .setTimestamp();
+            
+            await message.edit({ embeds: [endEmbed], components: [] });
+            return;
+        }
+        
+        // Select winners
+        const winnersCount = Math.min(giveaway.winners, eligibleUsers.length);
+        const selectedWinners = [];
+        const usersCopy = [...eligibleUsers];
+        
+        for (let i = 0; i < winnersCount; i++) {
+            const randomIndex = Math.floor(Math.random() * usersCopy.length);
+            selectedWinners.push(usersCopy[randomIndex]);
+            usersCopy.splice(randomIndex, 1);
+        }
+        
+        // Update giveaway data
+        giveaway.ended = true;
+        giveaway.winnerIds = selectedWinners.map(w => w.id);
+        saveGiveawayData();
+        
+        // Create winner announcement
+        const winnerMentions = selectedWinners.map(w => `<@${w.id}>`).join(', ');
+        
+        const endEmbed = new EmbedBuilder()
+            .setTitle('🎉 Giveaway Ended!')
+            .setDescription(
+                `**Prize:** ${giveaway.prize}\n\n` +
+                `**Winner${selectedWinners.length > 1 ? 's' : ''}:** ${winnerMentions}\n\n` +
+                `Congratulations! 🎊`
+            )
+            .setColor(0x00FF00)
+            .setFooter({ text: `${eligibleUsers.length} participant(s)` })
+            .setTimestamp();
+        
+        await message.edit({ embeds: [endEmbed], components: [] });
+        
+        // Send separate message to ping winners
+        await channel.send(`🎉 Congratulations ${winnerMentions}! You won **${giveaway.prize}**!`);
+        
+        // Try to DM winners
+        for (const winner of selectedWinners) {
+            try {
+                const dmEmbed = new EmbedBuilder()
+                    .setTitle('🎉 You Won a Giveaway!')
+                    .setDescription(
+                        `Congratulations! You won **${giveaway.prize}**!\n\n` +
+                        `**Server:** ${guild.name}\n` +
+                        `**Channel:** ${channel.name}`
+                    )
+                    .setColor(0x00FF00)
+                    .setTimestamp();
+                
+                await winner.send({ embeds: [dmEmbed] });
+            } catch (error) {
+                console.log(`Could not DM winner ${winner.tag}`);
+            }
+        }
+        
+        console.log(`🎉 Giveaway ended: ${giveaway.prize} - Winners: ${selectedWinners.map(w => w.tag).join(', ')}`);
+        
+    } catch (error) {
+        console.error('Error in endGiveaway:', error);
+    }
+}
+
 function startAutomatedMessages() {
     const CHANNEL_ID = '920750934085222470';
     
