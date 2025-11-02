@@ -11109,7 +11109,7 @@ async function updateAIKnowledge() {
             const pspMatch = firmwareSection.match(/PSP\s*[>:]\s*(\d\.\d{2})/i);
             if (pspMatch) psData.psp = `${pspMatch[1]} PRO-C`;
             
-            console.log('? Scraped PSX-Place for real-time firmware data');
+            console.log('📡 Scraped PSX-Place for real-time firmware data');
         } catch (scrapeError) {
             console.log('✅ PSX-Place scrape failed, using cached values:', scrapeError.message);
         }
@@ -11131,7 +11131,7 @@ async function updateAIKnowledge() {
             const etahenMatch = wololoHTML.match(/etaHEN\s*v?([\d.]+[a-z]*)/i);
             if (etahenMatch) psData.etahen = etahenMatch[1];
             
-            console.log('? Scraped Wololo for real-time homebrew tool versions');
+            console.log('📡 Scraped Wololo for real-time homebrew tool versions');
         } catch (scrapeError) {
             console.log('✅ Wololo scrape failed, using cached values:', scrapeError.message);
         }
@@ -11157,7 +11157,7 @@ async function updateAIKnowledge() {
             // Reload settings into memory to ensure AI uses the new data immediately
             serverSettings = JSON.parse(fsSync.readFileSync('./serverSettings.json', 'utf8'));
             const now = new Date();
-            console.log(`? AI knowledge LIVE-UPDATED from web (${now.toLocaleString()})`);
+            console.log(`📡 AI knowledge LIVE-UPDATED from web (${now.toLocaleString()})`);
             console.log(`✅ REAL-TIME DB: PS3 ${psData.ps3OFW}/${psData.ps3CFW} | PS4 ${psData.ps4OFW}/${psData.ps4PPPwn}/${psData.ps4BDJB} BD-JB/13.00 | PS5 ${psData.ps5OFW}/${psData.ps5Lapse}/12.00`);
             console.log(`✅ Homebrew: GoldHEN ${psData.goldhen} (MAX 12.02) | etaHEN ${psData.etahen} | PS3HEN ${psData.ps3hen} | Vita ${psData.vita} | PSP ${psData.psp}`);
             console.log(`✅ Live Sources: Google | PSX-Place | Wololo | Reddit r/ps4homebrew`);
@@ -11408,7 +11408,7 @@ async function checkPlayStationUpdates() {
             // Save updated settings if PS4 firmware changed
             fsSync.writeFileSync('./serverSettings.json', JSON.stringify(allSettings, null, 2));
         } else {
-            console.log('? No new PlayStation firmware updates detected');
+            console.log('✅ No new PlayStation firmware updates detected');
         }
     } catch (error) {
         console.error('? Failed to check PlayStation updates:', error.message);
@@ -11645,7 +11645,7 @@ function startCFWKnowledgeScraper() {
                 fsSync.writeFileSync(cfwKnowledgePath, JSON.stringify(knowledge, null, 2));
                 console.log('✅ CFW knowledge updated!');
             } else {
-                console.log(`? CFW knowledge up to date (Evilnat ${latestVersion})`);
+                console.log(`✅ CFW knowledge up to date (Evilnat ${latestVersion})`);
             }
         } catch (error) {
             console.error('? Failed to update CFW knowledge:', error.message);
@@ -11657,7 +11657,7 @@ function startCFWKnowledgeScraper() {
     
     // Check every 24 hours
     setInterval(updateCFWKnowledge, 24 * 60 * 60 * 1000);
-    console.log('? CFW knowledge scraper started (checks every 24 hours)');
+    console.log('📡 CFW knowledge scraper started (checks every 24 hours)');
 }
 
 // PS4 Error Code Scraper - Updates error database from online sources (runs on startup only, monthly via updateAIKnowledge)
@@ -11703,12 +11703,12 @@ function startAutomatedMessages() {
             scheduleDailyReminder();
         }, msUntil7PM);
         
-        console.log(`? Daily reminder scheduled for ${next7PM.toLocaleString()}`);
+        console.log(`📅 Daily reminder scheduled for ${next7PM.toLocaleString()}`);
     }
     
     // Start daily reminder only
     scheduleDailyReminder();
-    console.log('? Daily 7 PM reminder started for channel ' + CHANNEL_ID);
+    console.log('⏰ Daily 7 PM reminder started for channel ' + CHANNEL_ID);
 }
 
 // ===== SELLHUB WEBHOOK SYSTEM =====
