@@ -6927,19 +6927,19 @@ const now = Date.now();
                         const correctAnswer = parseInt(parts[4]);
 
                         if (!global.activeTrivia?.[triviaId]) {
-                            await interaction.reply({ content: '❌ This trivia question has expired!', ephemeral: true });
+                            await interaction.followUp({ content: '❌ This trivia question has expired!', ephemeral: true });
                             return;
                         }
 
                     const trivia = global.activeTrivia[triviaId];
 
                     if (trivia.answered) {
-                        await interaction.reply({ content: '❌ This question has already been answered!', ephemeral: true });
+                        await interaction.followUp({ content: '❌ This question has already been answered!', ephemeral: true });
                         return;
                     }
 
                     if (Date.now() > trivia.expires) {
-                        await interaction.reply({ content: '⏰ Time\'s up!', ephemeral: true });
+                        await interaction.followUp({ content: '⏰ Time\'s up!', ephemeral: true });
                         delete global.activeTrivia[triviaId];
                         return;
                     }
