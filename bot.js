@@ -123,7 +123,7 @@ if (!consoleErrorCodes || Object.keys(consoleErrorCodes).length === 0) {
     console.warn('⚠️ WARNING: No console error codes loaded. Error detection will not work.');
 }
 
-// Initialize analytics tracking
+// Initialize lightweight analytics (bounded growth)
 const analytics = {
     startDate: Date.now(),
     lastReset: Date.now(),
@@ -133,17 +133,28 @@ const analytics = {
         byChannel: {},
         byHour: new Array(24).fill(0),
         byDay: new Array(7).fill(0)
+    },
+    members: {
+        joins: [],
+        leaves: []
+    },
+    commands: {
+        total: 0,
+        byCommand: {}
     }
 };
 
 // Initialize Discord client with optimized settings for low-end PCs
+const LOW_INTENTS = process.env.LOW_INTENTS === '1';
+const baseIntents = [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
+];
+if (!LOW_INTENTS) baseIntents.push(GatewayIntentBits.GuildMembers);
+
 const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildMembers
-    ],
+    intents: baseIntents,
     // Performance optimizations
     makeCache: require('discord.js').Options.cacheWithLimits({
         MessageManager: 25, // Reduced from 50 - keep fewer messages
@@ -2553,12 +2564,15 @@ client.on('guildMemberAdd', async (member) => {
         }
     }
     
-    // Track member join in analytics
-analytics.members.joins.push({
+    // Track member join in analytics (prune older than 30 days)
+    const nowTs = Date.now();
+    analytics.members.joins.push({
         userId: member.id,
         username: member.user.tag,
-        timestamp: Date.now()
+        timestamp: nowTs
     });
+    const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+    analytics.members.joins = analytics.members.joins.filter(j => nowTs - j.timestamp < THIRTY_DAYS);
 // Log member join
     await logEvent(member.guild, 'memberJoin', {
         user: member.user.tag,
@@ -2655,12 +2669,15 @@ analytics.members.joins.push({
 client.on('guildMemberRemove', (member) => {
     const settings = getGuildSettings(member.guild.id);
     
-    // Track member leave in analytics
-analytics.members.leaves.push({
+    // Track member leave in analytics (prune older than 30 days)
+    const nowTs = Date.now();
+    analytics.members.leaves.push({
         userId: member.id,
         username: member.user.tag,
-        timestamp: Date.now()
+        timestamp: nowTs
     });
+    const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+    analytics.members.leaves = analytics.members.leaves.filter(l => nowTs - l.timestamp < THIRTY_DAYS);
 // Log member leave
     const roles = member.roles.cache.filter(r => r.id !== member.guild.id).map(r => r.name).join(', ') || 'None';
     logEvent(member.guild, 'memberLeave', {
