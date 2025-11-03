@@ -2444,11 +2444,13 @@ async function checkKeywords(message, settings) {
     try {
         const messageContent = message.content.toUpperCase();
         
-        // Only trigger on questions or help requests, not casual mentions
-        const isQuestion = messageContent.includes('?') || 
-                          messageContent.match(/\b(what|why|how|help|fix|error|issue|problem|getting)\b/i);
-        
-        if (!isQuestion) return; // Don't trigger on casual error code mentions
+        // Trigger when the user asks a question OR when the message looks like an error code
+        const isQuestion = messageContent.includes('?') ||
+                           messageContent.match(/\b(WHAT|WHY|HOW|HELP|FIX|ERROR|ISSUE|PROBLEM|GETTING)\b/);
+        // Broad patterns for PS-family error codes (PS3 numeric, SYSCON hex, PS4/PS5 prefixes, Vita/PSP)
+        const looksLikeErrorCode = /(\b8[0-9]{7}\b)|(\b[A-F0-9]{8}\b)|(\b(C[0-3]-\d{4}-\d{4})\b)|(\b(CE-|NP-|WS-|SU-|WV-|NW-|E2-)\d[0-9\-]*\b)|(\bFFFF[0-9A-F]{4}\b)/i.test(message.content);
+
+        if (!isQuestion && !looksLikeErrorCode) return; // Skip if it doesn't look like an error code or a help request
         
         // Search all console error codes
         let foundErrorCode = null;
