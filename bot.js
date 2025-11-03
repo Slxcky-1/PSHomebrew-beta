@@ -6917,11 +6917,13 @@ const now = Date.now();
 
                 // Trivia answer handlers
                 if (interaction.customId.startsWith('trivia_answer_')) {
+                    console.log('🎮 TRIVIA BUTTON CLICKED:', interaction.customId);
                     try {
                         const parts = interaction.customId.split('_');
                         const triviaId = parts[2];
                         const selectedAnswer = parseInt(parts[3]);
                         const correctAnswer = parseInt(parts[4]);
+                        console.log('🎮 Parsed:', { triviaId, selectedAnswer, correctAnswer });
 
                         if (!global.activeTrivia?.[triviaId]) {
                             await interaction.reply({ content: '❌ This trivia question has expired!', ephemeral: true });
