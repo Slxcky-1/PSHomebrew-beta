@@ -109,6 +109,19 @@ if (!consoleErrorCodes || Object.keys(consoleErrorCodes).length === 0) {
     console.warn('⚠️ WARNING: No console error codes loaded. Error detection will not work.');
 }
 
+// Initialize analytics tracking
+const analytics = {
+    startDate: Date.now(),
+    lastReset: Date.now(),
+    messages: {
+        total: 0,
+        byUser: {},
+        byChannel: {},
+        byHour: new Array(24).fill(0),
+        byDay: new Array(7).fill(0)
+    }
+};
+
 // Initialize Discord client with optimized settings for low-end PCs
 const client = new Client({
     intents: [
@@ -1975,8 +1988,10 @@ client.on('messageCreate', async (message) => {
     const now = Date.now();
     
     // Track message analytics
-analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1;
-// Track by hour (0-23) and day (0-6)
+    analytics.messages.total++;
+    analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1;
+    analytics.messages.byChannel[message.channel.id] = (analytics.messages.byChannel[message.channel.id] || 0) + 1;
+    // Track by hour (0-23) and day (0-6)
     const messageDate = new Date(now);
     const hour = messageDate.getHours();
     const day = messageDate.getDay(); // 0 = Sunday, 6 = Saturday
