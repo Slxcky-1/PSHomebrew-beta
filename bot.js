@@ -5380,6 +5380,16 @@ const now = Date.now();
         const row3 = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
+                    .setCustomId('leveling_view')
+                    .setLabel('View Your Level')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('📈'),
+                new ButtonBuilder()
+                    .setCustomId('leveling_view_user')
+                    .setLabel('View User Level')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('👤'),
+                new ButtonBuilder()
                     .setCustomId('leveling_cleardata')
                     .setLabel('Clear All Leveling Data')
                     .setStyle(ButtonStyle.Danger)
@@ -8119,6 +8129,23 @@ const now = Date.now();
                 await interaction.showModal(modal);
             }
             
+            // Optional: modal to view a specific user's level from the panel
+            else if (interaction.customId === 'leveling_view_user') {
+                const modal = new ModalBuilder()
+                    .setCustomId('leveling_view_user_modal')
+                    .setTitle('View User Level');
+
+                const userInput = new TextInputBuilder()
+                    .setCustomId('user_id')
+                    .setLabel('User ID or mention')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('@user or ID')
+                    .setRequired(true);
+
+                modal.addComponents(new ActionRowBuilder().addComponents(userInput));
+                await interaction.showModal(modal);
+            }
+            
             else if (interaction.customId === 'leveling_viewroles') {
                 const roles = settings.leveling.levelRoles;
                 
@@ -8141,6 +8168,29 @@ const now = Date.now();
                     components: [],
                     embeds: []
                 });
+            }
+            
+            else if (interaction.customId === 'leveling_view') {
+                // Show the admin's current level in this server
+                const uid = interaction.user.id;
+                initializeUser(guildId, uid);
+                const userEntry = userData[guildId][uid];
+                const progress = getXPProgress(userEntry.xp);
+                const percent = Math.floor((progress.currentLevelXP / progress.xpRequiredForCurrentLevel) * 100);
+                const barLen = 20;
+                const filled = Math.min(barLen, Math.max(0, Math.round((percent / 100) * barLen)));
+                const bar = '█'.repeat(filled) + '░'.repeat(barLen - filled);
+                const embed = new EmbedBuilder()
+                    .setTitle('📈 Your Level')
+                    .setColor(0x5865F2)
+                    .setThumbnail(interaction.user.displayAvatarURL())
+                    .addFields(
+                        { name: 'Level', value: progress.level.toString(), inline: true },
+                        { name: 'XP', value: `${userEntry.xp.toLocaleString()} XP`, inline: true },
+                        { name: 'Progress', value: `${bar} ${percent}%\n${progress.currentLevelXP}/${progress.xpRequiredForCurrentLevel} XP`, inline: false }
+                    )
+                    .setTimestamp();
+                await interaction.reply({ embeds: [embed], ephemeral: true });
             }
             
             else if (interaction.customId === 'leveling_cleardata') {
@@ -11770,6 +11820,32 @@ const now = Date.now();
                         delete settings.leveling.levelRoles[level];
                         saveSettings();
                         await interaction.reply({ content: `? Removed role for level ${level}!`, ephemeral: true });
+                    } else if (interaction.customId === 'leveling_view_user_modal') {
+                        const userInput = interaction.fields.getTextInputValue('user_id')?.trim();
+                        const match = userInput ? userInput.match(/(\d{17,19})/) : null;
+                        const userId = match ? match[1] : null;
+                        const member = userId ? await interaction.guild.members.fetch(userId).catch(() => null) : null;
+                        if (!member) {
+                            return interaction.reply({ content: '❌ User not found! Please provide a valid mention or ID.', ephemeral: true });
+                        }
+                        initializeUser(guildId, member.id);
+                        const entry = userData[guildId][member.id];
+                        const p = getXPProgress(entry.xp);
+                        const percent = Math.floor((p.currentLevelXP / p.xpRequiredForCurrentLevel) * 100);
+                        const barLen = 20;
+                        const filled = Math.min(barLen, Math.max(0, Math.round((percent / 100) * barLen)));
+                        const bar = '█'.repeat(filled) + '░'.repeat(barLen - filled);
+                        const embed = new EmbedBuilder()
+                            .setTitle(`📈 Level for ${member.user.tag}`)
+                            .setColor(0x5865F2)
+                            .setThumbnail(member.user.displayAvatarURL())
+                            .addFields(
+                                { name: 'Level', value: p.level.toString(), inline: true },
+                                { name: 'XP', value: `${entry.xp.toLocaleString()} XP`, inline: true },
+                                { name: 'Progress', value: `${bar} ${percent}%\n${p.currentLevelXP}/${p.xpRequiredForCurrentLevel} XP`, inline: false }
+                            )
+                            .setTimestamp();
+                        await interaction.reply({ embeds: [embed], ephemeral: true });
                     }
                 } catch (error) {
                     console.error('❌ Leveling modal error:', error);
