@@ -3321,11 +3321,6 @@ client.on('interactionCreate', async (interaction) => {
                     name: '📝 Embed Builder',
                     value: `• **Custom embed creator**\n\nInteractive visual builder\nColors, images, fields\nProfessional announcements`,
                     inline: true
-                },
-                {
-                    name: '🔗 Webhook Manager',
-                    value: `• **Advanced webhook control**\n\nCreate & manage webhooks\nCustom avatars & names\nCross-server messaging`,
-                    inline: true
                 }
             )
             .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for AI token tracking' })
