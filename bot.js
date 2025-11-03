@@ -6868,9 +6868,10 @@ const now = Date.now();
 
                     return;
                 }
+            }
 
-                // Poll vote handlers
-                if (interaction.customId.startsWith('poll_vote_')) {
+            // Poll vote handlers
+            if (interaction.customId.startsWith('poll_vote_')) {
                     const [_, __, pollId, optionIndex] = interaction.customId.split('_');
                     
                     if (!global.activePolls?.[pollId]) {
@@ -6921,10 +6922,10 @@ const now = Date.now();
 
                     await interaction.update({ embeds: [updatedEmbed] });
                     return;
-                }
+            }
 
-                // Trivia answer handlers
-                if (interaction.customId.startsWith('trivia_answer_')) {
+            // Trivia answer handlers
+            if (interaction.customId.startsWith('trivia_answer_')) {
                     const parts = interaction.customId.split('_');
                     const triviaId = parts[2];
                     const selectedAnswer = parseInt(parts[3]);
@@ -10563,7 +10564,6 @@ const now = Date.now();
                 ephemeral: true 
             });
         }
-    }
         } // End button handling
     
         // Handle modal submissions
