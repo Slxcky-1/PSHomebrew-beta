@@ -6060,10 +6060,49 @@ const now = Date.now();
         return;
     }
 
-    // Keyword Setup command - Interactive panel
+    // Keyword Setup command - Interactive panel (inline)
     if (interaction.commandName === 'keyword') {
-        const keywordCommand = require('./commands/keyword.js');
-        await keywordCommand.execute(interaction);
+        if (!requireAdmin(interaction)) return;
+        const settings = getGuildSettings(interaction.guild.id);
+
+        const status = settings.keywords?.enabled ? '✅ Enabled' : '❌ Disabled';
+        const totalCodes = Object.keys(consoleErrorCodes).filter(k => !k.startsWith('_')).length;
+        const hasCustom = settings.keywords?.customResponse ? '✅ Set' : '📝 Default';
+
+        const embed = new EmbedBuilder()
+            .setTitle('⚙️ Keyword Detection (Errors)')
+            .setColor(settings.keywords?.enabled ? 0x00FF00 : 0xFF0000)
+            .setDescription('Manage automatic error code detection and responses for PS1–PS5, PSP, Vita.')
+            .addFields(
+                { name: 'Status', value: status, inline: true },
+                { name: 'Database', value: `${totalCodes} codes`, inline: true },
+                { name: 'Custom Response', value: hasCustom, inline: true }
+            )
+            .setFooter({ text: 'Use the buttons below to configure' })
+            .setTimestamp();
+
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('keyword_toggle')
+                    .setLabel(settings.keywords?.enabled ? 'Disable' : 'Enable')
+                    .setStyle(settings.keywords?.enabled ? ButtonStyle.Danger : ButtonStyle.Success),
+                new ButtonBuilder()
+                    .setCustomId('keyword_set_response')
+                    .setLabel('Set Custom Response')
+                    .setStyle(ButtonStyle.Primary),
+                new ButtonBuilder()
+                    .setCustomId('keyword_clear_response')
+                    .setLabel('Clear Response')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(!settings.keywords?.customResponse),
+                new ButtonBuilder()
+                    .setCustomId('keyword_refresh')
+                    .setLabel('Refresh')
+                    .setStyle(ButtonStyle.Secondary)
+            );
+
+        await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
         return;
     }
 
@@ -7119,16 +7158,92 @@ const now = Date.now();
                 }
             }
 
-            // Keyword setup button handlers
+            // Keyword setup button handlers (inline)
             if (interaction.customId.startsWith('keyword_')) {
                 try {
-                    delete require.cache[require.resolve('./commands/keywordsetup.js')];
-                    const keywordCommand = require('./commands/keywordsetup.js');
-                    await keywordCommand.handleButton(interaction);
+                    if (!requireAdmin(interaction)) return;
+                    const settings = getGuildSettings(interaction.guild.id);
+
+                    if (interaction.customId === 'keyword_toggle') {
+                        settings.keywords.enabled = !settings.keywords.enabled;
+                        saveSettings();
+                    }
+
+                    if (interaction.customId === 'keyword_clear_response') {
+                        settings.keywords.customResponse = null;
+                        saveSettings();
+                    }
+
+                    if (interaction.customId === 'keyword_set_response') {
+                        const modal = new ModalBuilder()
+                            .setCustomId('keyword_modal_response')
+                            .setTitle('Set Custom Response');
+
+                        const field = new TextInputBuilder()
+                            .setCustomId('keyword_response_text')
+                            .setLabel('Custom reply when a code is detected')
+                            .setStyle(TextInputStyle.Paragraph)
+                            .setPlaceholder('Leave helpful guidance or links...')
+                            .setRequired(true);
+
+                        const row = new ActionRowBuilder().addComponents(field);
+                        modal.addComponents(row);
+                        await interaction.showModal(modal);
+                        return;
+                    }
+
+                    // Refresh/update panel
+                    const status = settings.keywords?.enabled ? '✅ Enabled' : '❌ Disabled';
+                    const totalCodes = Object.keys(consoleErrorCodes).filter(k => !k.startsWith('_')).length;
+                    const hasCustom = settings.keywords?.customResponse ? '✅ Set' : '📝 Default';
+                    const embed = new EmbedBuilder()
+                        .setTitle('⚙️ Keyword Detection (Errors)')
+                        .setColor(settings.keywords?.enabled ? 0x00FF00 : 0xFF0000)
+                        .setDescription('Manage automatic error code detection and responses for PS1–PS5, PSP, Vita.')
+                        .addFields(
+                            { name: 'Status', value: status, inline: true },
+                            { name: 'Database', value: `${totalCodes} codes`, inline: true },
+                            { name: 'Custom Response', value: hasCustom, inline: true }
+                        )
+                        .setFooter({ text: 'Use the buttons below to configure' })
+                        .setTimestamp();
+
+                    const row = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setCustomId('keyword_toggle')
+                                .setLabel(settings.keywords?.enabled ? 'Disable' : 'Enable')
+                                .setStyle(settings.keywords?.enabled ? ButtonStyle.Danger : ButtonStyle.Success),
+                            new ButtonBuilder()
+                                .setCustomId('keyword_set_response')
+                                .setLabel('Set Custom Response')
+                                .setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder()
+                                .setCustomId('keyword_clear_response')
+                                .setLabel('Clear Response')
+                                .setStyle(ButtonStyle.Secondary)
+                                .setDisabled(!settings.keywords?.customResponse),
+                            new ButtonBuilder()
+                                .setCustomId('keyword_refresh')
+                                .setLabel('Refresh')
+                                .setStyle(ButtonStyle.Secondary)
+                        );
+
+                    if (interaction.deferred || interaction.replied) {
+                        await interaction.editReply({ embeds: [embed], components: [row] }).catch(() => {});
+                    } else {
+                        await interaction.update({ embeds: [embed], components: [row] }).catch(async () => {
+                            await interaction.reply({ embeds: [embed], components: [row], ephemeral: true }).catch(() => {});
+                        });
+                    }
                     return;
                 } catch (error) {
                     console.error('❌ Keyword button error:', error);
-                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    try {
+                        if (!interaction.replied && !interaction.deferred) {
+                            await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true });
+                        }
+                    } catch {}
                     return;
                 }
             }
@@ -10977,20 +11092,19 @@ const now = Date.now();
                 }
             }
 
-            // Keyword setup modal handlers
-            if (interaction.customId.includes('keyword_modal_')) {
+            // Keyword setup modal handlers (inline)
+            if (interaction.customId === 'keyword_modal_response') {
                 try {
-                    const modulePath = require('path').join(__dirname, 'commands', 'keywordsetup.js');
-                    if (!require('fs').existsSync(modulePath)) {
-                        return interaction.reply({ content: '❌ This legacy keyword setup is not available in this build.', ephemeral: true });
-                    }
-                    delete require.cache[require.resolve('./commands/keywordsetup.js')];
-                    const keywordCommand = require('./commands/keywordsetup.js');
-                    await keywordCommand.handleModal(interaction);
+                    if (!requireAdmin(interaction)) return;
+                    const value = interaction.fields.getTextInputValue('keyword_response_text');
+                    const settings = getGuildSettings(interaction.guild.id);
+                    settings.keywords.customResponse = value;
+                    saveSettings();
+                    await interaction.reply({ content: '✅ Custom keyword response saved!', ephemeral: true });
                     return;
                 } catch (error) {
                     console.error('❌ Keyword modal error:', error);
-                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
             }
