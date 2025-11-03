@@ -803,6 +803,30 @@ async function loadSettings() {
     }
 }
 
+// One-time migration: move legacy `levelUpChannel` IDs/mentions into `levelUpChannelId`
+function migrateLegacyLevelUpChannels() {
+    try {
+        let changed = false;
+        for (const [guildId, settings] of Object.entries(serverSettings)) {
+            if (!settings?.leveling) continue;
+            const legacy = settings.leveling.levelUpChannel;
+            if (!settings.leveling.levelUpChannelId && legacy) {
+                const match = String(legacy).match(/(\d{17,19})/);
+                if (match) {
+                    settings.leveling.levelUpChannelId = match[1];
+                    // Clear the legacy field to avoid confusion if it contained an ID/mention
+                    settings.leveling.levelUpChannel = null;
+                    console.log(`🔧 Migrated legacy levelUpChannel → levelUpChannelId for guild ${guildId}: ${match[1]}`);
+                    changed = true;
+                }
+            }
+        }
+        if (changed) saveSettings();
+    } catch (e) {
+        console.error('Migration error (levelUpChannel → levelUpChannelId):', e);
+    }
+}
+
 // Get settings for a guild (with defaults)
 function getGuildSettings(guildId) {
     if (!serverSettings[guildId]) {
@@ -1631,6 +1655,8 @@ client.once('clientReady', async () => {
     // Load critical data immediately
     loadUserData();
     loadSettings();
+    // Migrate legacy settings once settings are loaded
+    migrateLegacyLevelUpChannels();
     loadTicketData();
     loadModerationData();
     loadPendingPurchases();
