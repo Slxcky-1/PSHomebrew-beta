@@ -2170,18 +2170,32 @@ client.on('messageCreate', async (message) => {
                 const levelUpChannelName = settings.leveling.levelUpChannel; // legacy support (name or ID)
                 let targetChannel = null;
                 if (levelUpChannelId) {
-                    targetChannel = message.guild.channels.cache.get(levelUpChannelId);
+                    targetChannel = message.guild.channels.cache.get(levelUpChannelId) 
+                        || await message.guild.channels.fetch(levelUpChannelId).catch(() => null);
                 } else if (levelUpChannelName) {
                     // If the legacy field accidentally holds an ID or mention, resolve it; otherwise treat as name
                     const idMatch = String(levelUpChannelName).match(/(\d{17,19})/);
                     if (idMatch) {
-                        targetChannel = message.guild.channels.cache.get(idMatch[1]) || null;
+                        const id = idMatch[1];
+                        targetChannel = message.guild.channels.cache.get(id) 
+                            || await message.guild.channels.fetch(id).catch(() => null);
                     }
                     if (!targetChannel) {
                         targetChannel = findChannel(message.guild, levelUpChannelName);
                     }
                 }
-                (targetChannel || message.channel).send({ embeds: [embed] });
+                try {
+                    if (targetChannel) {
+                        await targetChannel.send({ embeds: [embed] });
+                    } else {
+                        await message.channel.send({ embeds: [embed] });
+                    }
+                } catch (err) {
+                    console.error('Level up message send failed, falling back to current channel:', err?.message || err);
+                    if (message.channel) {
+                        await message.channel.send({ embeds: [embed] }).catch(() => {});
+                    }
+                }
             }
         }
     }
