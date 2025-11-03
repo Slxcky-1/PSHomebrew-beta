@@ -5298,15 +5298,16 @@ const now = Date.now();
 
     // Leveling Setup command - Interactive panel
     if (interaction.commandName === 'leveling') {
-        if (!requireAdmin(interaction)) return;
-        
-        const guildId = interaction.guild.id;
-        const settings = getGuildSettings(guildId);
-        
-        // Create interactive panel
-        const embed = new EmbedBuilder()
-            .setTitle('⚙️ Leveling System Control Panel')
-            .setColor(settings.leveling.enabled ? 0x00FF00 : 0xFF0000)
+        try {
+            if (!requireAdmin(interaction)) return;
+            
+            const guildId = interaction.guild.id;
+            const settings = getGuildSettings(guildId);
+            
+            // Create interactive panel
+            const embed = new EmbedBuilder()
+                .setTitle('⚙️ Leveling System Control Panel')
+                .setColor(settings.leveling.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
                 `System is currently **${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
                 `Manage your server's leveling system.\n\n` +
@@ -5371,8 +5372,13 @@ const now = Date.now();
                     .setEmoji('✅')
             );
         
-        await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
-        return;
+            await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
+            return;
+        } catch (error) {
+            console.error('Leveling command error:', error);
+            await interaction.reply({ content: `❌ Error: ${error.message}`, ephemeral: true }).catch(() => {});
+            return;
+        }
     }
 
     // Giveaway command - Interactive panel
