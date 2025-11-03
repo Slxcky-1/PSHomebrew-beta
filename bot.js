@@ -6930,7 +6930,49 @@ const now = Date.now();
                     return;
                 }
             }
+        }
 
+        // ===== TRIVIA, POLL, GAMELOOKUP COMMANDS =====
+        
+        if (interaction.commandName === 'trivia') {
+            try {
+                delete require.cache[require.resolve('./commands/trivia.js')];
+                const triviaCommand = require('./commands/trivia.js');
+                await triviaCommand.execute(interaction);
+            } catch (error) {
+                console.error('❌ Trivia command error:', error);
+                await interaction.reply({ content: '❌ An error occurred!', ephemeral: true }).catch(() => {});
+            }
+            return;
+        }
+
+        if (interaction.commandName === 'poll') {
+            try {
+                delete require.cache[require.resolve('./commands/poll.js')];
+                const pollCommand = require('./commands/poll.js');
+                await pollCommand.execute(interaction);
+            } catch (error) {
+                console.error('❌ Poll command error:', error);
+                await interaction.reply({ content: '❌ An error occurred!', ephemeral: true }).catch(() => {});
+            }
+            return;
+        }
+
+        if (interaction.commandName === 'gamelookup') {
+            try {
+                delete require.cache[require.resolve('./commands/gamelookup.js')];
+                const gamelookupCommand = require('./commands/gamelookup.js');
+                await gamelookupCommand.execute(interaction);
+            } catch (error) {
+                console.error('❌ Gamelookup command error:', error);
+                await interaction.reply({ content: '❌ An error occurred!', ephemeral: true }).catch(() => {});
+            }
+            return;
+        }
+
+        // ===== END NEW COMMANDS =====
+
+        if (interaction.isButton()) {
             // Leveling setup button handlers
             if (interaction.customId.startsWith('lvl_')) {
                 try {
