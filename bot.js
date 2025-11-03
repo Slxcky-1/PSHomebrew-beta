@@ -6941,8 +6941,6 @@ const now = Date.now();
                     const isCorrect = selectedAnswer === correctAnswer;
 
                     if (isCorrect) {
-                        addMoney(interaction.user.id, interaction.guild.id, 100, 'wallet');
-
                         const correctEmbed = new EmbedBuilder()
                             .setTitle('✅ Correct!')
                             .setDescription(`Great job! You earned **$100**!`)
@@ -6950,6 +6948,13 @@ const now = Date.now();
                             .setFooter({ text: `Answered by ${interaction.user.username}` });
 
                         await interaction.update({ embeds: [correctEmbed], components: [] });
+                        
+                        // Award money after responding
+                        try {
+                            addMoney(interaction.user.id, interaction.guild.id, 100, 'wallet');
+                        } catch (e) {
+                            console.error('Failed to award trivia money:', e);
+                        }
                     } else {
                         const wrongEmbed = new EmbedBuilder()
                             .setTitle('❌ Wrong!')
