@@ -6918,6 +6918,9 @@ const now = Date.now();
                 // Trivia answer handlers
                 if (interaction.customId.startsWith('trivia_answer_')) {
                     try {
+                        // Defer immediately to prevent timeout
+                        await interaction.deferUpdate();
+                        
                         const parts = interaction.customId.split('_');
                         const triviaId = parts[2];
                         const selectedAnswer = parseInt(parts[3]);
@@ -6954,7 +6957,7 @@ const now = Date.now();
                             .setColor(0x00FF00)
                             .setFooter({ text: `Answered by ${interaction.user.username}` });
 
-                        await interaction.update({ embeds: [correctEmbed], components: [] });
+                        await interaction.editReply({ embeds: [correctEmbed], components: [] });
                     } else {
                         const wrongEmbed = new EmbedBuilder()
                             .setTitle('❌ Wrong!')
@@ -6962,14 +6965,14 @@ const now = Date.now();
                             .setColor(0xFF0000)
                             .setFooter({ text: `Better luck next time!` });
 
-                        await interaction.update({ embeds: [wrongEmbed], components: [] });
+                        await interaction.editReply({ embeds: [wrongEmbed], components: [] });
                     }
 
                         delete global.activeTrivia[triviaId];
                         return;
                     } catch (error) {
                         console.error('Trivia answer error:', error);
-                        await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                        await interaction.followUp({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                         return;
                     }
                 }
