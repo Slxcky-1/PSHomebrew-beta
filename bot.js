@@ -10651,7 +10651,6 @@ const now = Date.now();
         // Handle modal submissions
         else if (interaction.isModalSubmit()) {
             const guildId = interaction.guild.id;
-            const settings = getGuildSettings(guildId);
             
             // Giveaway modal handlers
             if (interaction.customId === 'giveaway_create_modal') {
@@ -11676,44 +11675,67 @@ const now = Date.now();
                     
                     else if (interaction.customId === 'leveling_channel_modal') {
                         try {
-                            const channelInput = interaction.fields.getTextInputValue('channel_id').trim();
+                            // Acknowledge immediately to avoid 3s timeout
+                            await interaction.deferReply({ ephemeral: true });
+
+                            console.log('📝 Leveling channel modal submitted');
+                            console.log('Guild ID:', guildId);
+                            console.log('User:', interaction.user.tag);
                             
+                            const channelInput = interaction.fields.getTextInputValue('channel_id').trim();
+                            console.log('Channel input:', channelInput);
+                            
+                            const settings = getGuildSettings(guildId);
+
                             if (!channelInput) {
                                 settings.leveling.levelUpChannelId = null;
                                 saveSettings();
-                                await interaction.reply({ 
-                                    content: '✅ Level up messages will be sent in the current channel!', 
-                                    ephemeral: true 
-                                });
+                                console.log('✅ Cleared level up channel (will use current channel)');
+                                await interaction.editReply('✅ Level up messages will be sent in the current channel!');
                                 return;
                             }
                             
                             const channelMatch = channelInput.match(/(\d{17,19})/);
+                            console.log('Channel match:', channelMatch);
                             
                             if (!channelMatch) {
-                                return interaction.reply({ content: '❌ Invalid channel ID or mention!', ephemeral: true });
+                                console.log('❌ Invalid channel format');
+                                await interaction.editReply('❌ Invalid channel ID or mention!');
+                                return;
                             }
                             
                             const channelId = channelMatch[1];
-                            const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
+                            console.log('Fetching channel:', channelId);
+                            const channel = await interaction.guild.channels.fetch(channelId).catch(err => {
+                                console.error('❌ Failed to fetch channel:', err);
+                                return null;
+                            });
                             
                             if (!channel) {
-                                return interaction.reply({ content: '❌ Channel not found!', ephemeral: true });
+                                console.log('❌ Channel not found in guild');
+                                await interaction.editReply('❌ Channel not found!');
+                                return;
                             }
                             
+                            console.log('✅ Channel found:', channel.name);
                             settings.leveling.levelUpChannelId = channelId;
                             saveSettings();
+                            console.log('✅ Saved settings');
                             
-                            await interaction.reply({ 
-                                content: `✅ Level up channel set to ${channel}!`, 
-                                ephemeral: true 
-                            });
+                            await interaction.editReply(`✅ Level up channel set to ${channel}!`);
+                            console.log('✅ Reply sent successfully');
                         } catch (error) {
-                            console.error('Leveling channel modal error:', error);
-                            await interaction.reply({ 
-                                content: `❌ Error: ${error.message}`, 
-                                ephemeral: true 
-                            }).catch(() => {});
+                            console.error('❌ Leveling channel modal error:', error);
+                            console.error('Stack trace:', error.stack);
+                            try {
+                                if (interaction.deferred || interaction.replied) {
+                                    await interaction.editReply(`❌ Error: ${error.message}`);
+                                } else {
+                                    await interaction.reply({ content: `❌ Error: ${error.message}`, ephemeral: true });
+                                }
+                            } catch (err) {
+                                console.error('❌ Failed to send error reply:', err);
+                            }
                         }
                     }
                     
