@@ -6323,7 +6323,11 @@ const now = Date.now();
                         .filter(([_, g]) => g.guildId === guildId && !g.ended);
                     
                     if (giveaways.length === 0) {
-                        await interaction.reply({ content: '❌ No active giveaways!', ephemeral: true });
+                        await interaction.update({ 
+                            content: '❌ No active giveaways!', 
+                            components: [],
+                            embeds: []
+                        });
                         return;
                     }
                     
@@ -6344,7 +6348,10 @@ const now = Date.now();
                         });
                     }
                     
-                    await interaction.reply({ embeds: [embed], ephemeral: true });
+                    await interaction.update({ 
+                        embeds: [embed], 
+                        components: []
+                    });
                     return;
                 }
                 
@@ -6353,7 +6360,11 @@ const now = Date.now();
                         .filter(([_, g]) => g.guildId === guildId && !g.ended);
                     
                     if (giveaways.length === 0) {
-                        await interaction.reply({ content: '❌ No active giveaways to end!', ephemeral: true });
+                        await interaction.update({ 
+                            content: '❌ No active giveaways to end!', 
+                            components: [],
+                            embeds: []
+                        });
                         return;
                     }
                     
@@ -7943,9 +7954,10 @@ const now = Date.now();
             if (interaction.customId === 'leveling_toggle') {
                 settings.leveling.enabled = !settings.leveling.enabled;
                 saveSettings();
-                await interaction.reply({ 
-                    content: `? Leveling system ${settings.leveling.enabled ? 'enabled' : 'disabled'}!`, 
-                    ephemeral: true 
+                await interaction.update({ 
+                    content: `✅ Leveling system ${settings.leveling.enabled ? 'enabled' : 'disabled'}!`, 
+                    components: [],
+                    embeds: []
                 });
             }
             
@@ -8073,9 +8085,10 @@ const now = Date.now();
                 const roles = settings.leveling.levelRoles;
                 
                 if (Object.keys(roles).length === 0) {
-                    await interaction.reply({ 
-                        content: '? No level roles configured!', 
-                        ephemeral: true 
+                    await interaction.update({ 
+                        content: '❌ No level roles configured!', 
+                        components: [],
+                        embeds: []
                     });
                     return;
                 }
@@ -8085,7 +8098,11 @@ const now = Date.now();
                     rolesList += `Level ${level}: <@&${roleId}>\n`;
                 }
                 
-                await interaction.reply({ content: rolesList, ephemeral: true });
+                await interaction.update({ 
+                    content: rolesList, 
+                    components: [],
+                    embeds: []
+                });
             }
         }
         
@@ -8100,9 +8117,10 @@ const now = Date.now();
             if (interaction.customId === 'ticket_toggle') {
                 settings.enabled = !settings.enabled;
                 saveTicketData();
-                await interaction.reply({ 
-                    content: `? Ticket system ${settings.enabled ? 'enabled' : 'disabled'}!`, 
-                    ephemeral: true 
+                await interaction.update({ 
+                    content: `✅ Ticket system ${settings.enabled ? 'enabled' : 'disabled'}!`, 
+                    components: [],
+                    embeds: []
                 });
             }
             
