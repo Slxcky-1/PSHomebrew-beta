@@ -1627,17 +1627,17 @@ client.once('clientReady', async () => {
                     
                     // Build feature checklist
                     const features = [];
-                    features.push(`? Config: Loaded`);
-                    features.push(`? DeepSeek API: ${config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
-                    features.push(`? ChatGPT API: ${config.openaiApiKey && config.openaiApiKey !== 'YOUR_OPENAI_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
-                    features.push(`? User Data: ${fsSync.existsSync('./userData.json') ? 'Loaded' : 'Missing'}`);
-                    features.push(`? Console Error Codes (PS1-PS5, PSP, Vita): ${Object.keys(consoleErrorCodes).filter(k => !k.startsWith('_')).length} loaded`);
+                    features.push(`Config: Loaded`);
+                    features.push(`DeepSeek API: ${config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
+                    features.push(`ChatGPT API: ${config.openaiApiKey && config.openaiApiKey !== 'YOUR_OPENAI_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
+                    features.push(`User Data: ${fsSync.existsSync('./userData.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`Console Error Codes (PS1-PS5, PSP, Vita): ${Object.keys(consoleErrorCodes).filter(k => !k.startsWith('_')).length} loaded`);
                     
                     // Additional data file checks
-                    features.push(`${fsSync.existsSync('./ticketData.json') ? '?' : '?'} Ticket System: ${fsSync.existsSync('./ticketData.json') ? 'Loaded' : 'Missing'}`);
-                    features.push(`${fsSync.existsSync('./moderationData.json') ? '?' : '?'} Moderation Data: ${fsSync.existsSync('./moderationData.json') ? 'Loaded' : 'Missing'}`);
-                    features.push(`${fsSync.existsSync('./serverSettings.json') ? '?' : '?'} Server Settings: ${fsSync.existsSync('./serverSettings.json') ? 'Loaded' : 'Missing'}`);
-                    features.push(`${fsSync.existsSync('./cfwKnowledge.json') ? '?' : '?'} CFW Knowledge: ${fsSync.existsSync('./cfwKnowledge.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`Ticket System: ${fsSync.existsSync('./ticketData.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`Moderation Data: ${fsSync.existsSync('./moderationData.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`Server Settings: ${fsSync.existsSync('./serverSettings.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`CFW Knowledge: ${fsSync.existsSync('./cfwKnowledge.json') ? 'Loaded' : 'Missing'}`);
                     
                     // Count registered commands from feature files
                     let totalCommands = 0;
@@ -1653,7 +1653,7 @@ client.once('clientReady', async () => {
                     } catch (e) {
                         totalCommands = 'Unknown';
                     }
-                    features.push(`? Commands: ${totalCommands} loaded`);
+                    features.push(`Commands: ${totalCommands} loaded`);
                     
                     const onlineEmbed = new EmbedBuilder()
                         .setTitle('Bot Online - Update Complete')
