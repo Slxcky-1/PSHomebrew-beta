@@ -1967,6 +1967,9 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (!message.guild) return;
     
+    // DEBUG: Log all messages
+    console.log(`📨 Message received in channel: ${message.channel.name} (ID: ${message.channel.id}) by ${message.author.username}`);
+    
     const settings = getGuildSettings(message.guild.id);
     const userId = message.author.id;
     const now = Date.now();
@@ -2135,6 +2138,10 @@ analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1
     
     // AI Chat in designated channel - Optimized (includes ChatGPT channel)
     const isChatGPTChannel = message.channel.id === '1433480720776433664';
+    
+    // DEBUG: Check AI settings
+    console.log(`🔍 AI Check: enabled=${settings.ai?.enabled}, channelName=${settings.ai?.channelName}, channelId=${settings.ai?.channelId}, isChatGPT=${isChatGPTChannel}`);
+    
     if (settings.ai?.enabled && (message.channel.name === settings.ai.channelName || message.channel.id === settings.ai.channelId || isChatGPTChannel)) {
         console.log(`🤖 AI triggered in channel: ${message.channel.name} (${message.channel.id})`);
         if (message.author.bot || !config.deepseekApiKey || config.deepseekApiKey === 'YOUR_DEEPSEEK_API_KEY_HERE') {
