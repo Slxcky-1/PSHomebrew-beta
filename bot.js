@@ -600,7 +600,8 @@ const defaultSettings = {
         cooldown: 60000,
         maxLevel: 100,
         showLevelUpMessages: true,
-        levelUpChannel: null, // null means use current channel
+        levelUpChannel: null, // legacy: channel name; prefer levelUpChannelId below
+        levelUpChannelId: null, // preferred: channel ID; null means use current channel
         levelRoles: {} // { level: roleId } - maps level numbers to role IDs
     },
     welcome: {
@@ -2137,16 +2138,15 @@ client.on('messageCreate', async (message) => {
                     .setTimestamp();
                 
                 // Send to dedicated channel if set, otherwise use current channel
-                if (settings.leveling.levelUpChannel) {
-                    const levelUpChannel = findChannel(message.guild, settings.leveling.levelUpChannel);
-                    if (levelUpChannel) {
-                        levelUpChannel.send({ embeds: [embed] });
-                    } else {
-                        message.channel.send({ embeds: [embed] });
-                    }
-                } else {
-                    message.channel.send({ embeds: [embed] });
+                const levelUpChannelId = settings.leveling.levelUpChannelId;
+                const levelUpChannelName = settings.leveling.levelUpChannel; // legacy support
+                let targetChannel = null;
+                if (levelUpChannelId) {
+                    targetChannel = message.guild.channels.cache.get(levelUpChannelId);
+                } else if (levelUpChannelName) {
+                    targetChannel = findChannel(message.guild, levelUpChannelName);
                 }
+                (targetChannel || message.channel).send({ embeds: [embed] });
             }
         }
     }
@@ -2993,7 +2993,12 @@ client.on('interactionCreate', async (interaction) => {
             .addFields(
                 {
                     name: '📌 Leveling System',
-                    value: `**Status:** ${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n**XP Range:** ${settings.leveling.minXP}-${settings.leveling.maxXP}\n**Cooldown:** ${settings.leveling.cooldown / 1000}s\n**Max Level:** ${settings.leveling.maxLevel}\n**Level Up Messages:** ${settings.leveling.showLevelUpMessages ? '?' : '?'}\n**Level Up Channel:** ${settings.leveling.levelUpChannel ? `#${settings.leveling.levelUpChannel}` : 'Current channel'}`,
+                    value: (() => { 
+                        const lvlChannel = settings.leveling.levelUpChannelId 
+                            ? `<#${settings.leveling.levelUpChannelId}>` 
+                            : (settings.leveling.levelUpChannel ? `#${settings.leveling.levelUpChannel}` : 'Current channel');
+                        return `**Status:** ${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n**XP Range:** ${settings.leveling.minXP}-${settings.leveling.maxXP}\n**Cooldown:** ${settings.leveling.cooldown / 1000}s\n**Max Level:** ${settings.leveling.maxLevel}\n**Level Up Messages:** ${settings.leveling.showLevelUpMessages ? '?' : '?'}\n**Level Up Channel:** ${lvlChannel}`;
+                    })(),
                     inline: false
                 },
                 {
