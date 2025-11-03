@@ -2218,6 +2218,9 @@ analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1
         aiCooldowns[userId] = now;
         if (!aiConversations[channelId]) aiConversations[channelId] = [];
         
+        // Show typing indicator so user knows bot is processing
+        await message.channel.sendTyping();
+        
         // Check response cache first
         const cachedResponse = getCachedResponse(message.content);
         if (cachedResponse) {
