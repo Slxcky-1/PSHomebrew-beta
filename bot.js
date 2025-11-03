@@ -7818,15 +7818,13 @@ const now = Date.now();
             }
             
             if (interaction.customId === 'power_shutdown') {
-                await interaction.deferUpdate();
-                
                 const shutdownEmbed = new EmbedBuilder()
                     .setTitle('⚙️ Bot Shutting Down')
                     .setDescription('Initiating graceful shutdown sequence...\n\n📤 Sending offline notifications\n💾 Saving all data\n👋 Goodbye!')
                     .setColor(0xFF0000)
                     .setTimestamp();
                 
-                await interaction.editReply({ embeds: [shutdownEmbed], components: [] });
+                await interaction.update({ embeds: [shutdownEmbed], components: [] });
                 
                 setTimeout(() => {
                     gracefulShutdown('Discord power panel shutdown');
@@ -7834,15 +7832,13 @@ const now = Date.now();
             }
             
             else if (interaction.customId === 'power_restart') {
-                await interaction.deferUpdate();
-                
                 const restartEmbed = new EmbedBuilder()
                     .setTitle('⚙️ Restarting Bot')
                     .setDescription('Performing manual restart...\n\nThe bot will be back online in a few seconds.')
                     .setColor(0x00BFFF)
                     .setTimestamp();
                 
-                await interaction.editReply({ embeds: [restartEmbed], components: [] });
+                await interaction.update({ embeds: [restartEmbed], components: [] });
                 
                 fsSync.writeFileSync('./update-marker.json', JSON.stringify({
                     channelId: interaction.channel.id,
@@ -7856,15 +7852,13 @@ const now = Date.now();
             }
             
             else if (interaction.customId === 'power_update') {
-                await interaction.deferUpdate();
-                
                 const updateEmbed = new EmbedBuilder()
                     .setTitle('⚙️ Updating Bot')
                     .setDescription('Pulling latest code from GitHub...')
                     .setColor(0xFFAA00)
                     .setTimestamp();
                 
-                await interaction.editReply({ embeds: [updateEmbed], components: [] });
+                await interaction.update({ embeds: [updateEmbed], components: [] });
                 
                 const { exec } = require('child_process');
                 const startTime = Date.now();
@@ -7885,12 +7879,13 @@ const now = Date.now();
                     
                     if (error) {
                         console.error(`Update error: ${error}`);
-                        return interaction.editReply({ 
+                        return interaction.followUp({ 
                             embeds: [new EmbedBuilder()
                                 .setTitle('❌ Update Failed')
                                 .setDescription(`\`\`\`${error.message}\`\`\`\n\n**Tip:** Check if there are local file conflicts`)
                                 .setColor(0xFF0000)
-                                .setTimestamp()]
+                                .setTimestamp()],
+                            ephemeral: true
                         });
                     }
                     
@@ -7907,7 +7902,7 @@ const now = Date.now();
                         .setColor(0x00FF00)
                         .setTimestamp();
                     
-                    interaction.editReply({ embeds: [successEmbed] }).then(() => {
+                    interaction.followUp({ embeds: [successEmbed] }).then(() => {
                         fsSync.writeFileSync('./update-marker.json', JSON.stringify({
                             channelId: interaction.channel.id,
                             guildId: interaction.guild.id,
