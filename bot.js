@@ -11606,90 +11606,58 @@ const now = Date.now();
                 return;
             }
             
-            // Ticket system modal handlers
-            if (interaction.customId.startsWith('ticket_')) {
+            // Leveling modal handlers (moved out of ticket block)
+            if (
+                interaction.customId === 'leveling_xprange_modal' ||
+                interaction.customId === 'leveling_cooldown_modal' ||
+                interaction.customId === 'leveling_maxlevel_modal' ||
+                interaction.customId === 'leveling_channel_modal' ||
+                interaction.customId === 'leveling_addrole_modal' ||
+                interaction.customId === 'leveling_removerole_modal'
+            ) {
                 const guildId = interaction.guild.id;
-                
-                if (!interaction.member.permissions.has('Administrator')) {
-                    return interaction.reply({ 
-                        content: '? You need Administrator permissions!', 
-                        ephemeral: true 
-                    });
-                }
-                
                 try {
-                    // Leveling modal handlers
                     if (interaction.customId === 'leveling_xprange_modal') {
                         const settings = getGuildSettings(guildId);
                         const minXP = parseInt(interaction.fields.getTextInputValue('min_xp'));
                         const maxXP = parseInt(interaction.fields.getTextInputValue('max_xp'));
-                        
                         if (isNaN(minXP) || isNaN(maxXP)) {
                             return interaction.reply({ content: '? Please enter valid numbers!', ephemeral: true });
                         }
-                        
                         if (minXP > maxXP) {
                             return interaction.reply({ content: '? Min XP cannot be greater than Max XP!', ephemeral: true });
                         }
-                        
                         settings.leveling.minXP = minXP;
                         settings.leveling.maxXP = maxXP;
                         saveSettings();
-                        
-                        await interaction.reply({ 
-                            content: `? XP range set to **${minXP}-${maxXP}** per message!`, 
-                            ephemeral: true 
-                        });
-                    }
-                    
-                    else if (interaction.customId === 'leveling_cooldown_modal') {
+                        await interaction.reply({ content: `? XP range set to **${minXP}-${maxXP}** per message!`, ephemeral: true });
+                    } else if (interaction.customId === 'leveling_cooldown_modal') {
                         const settings = getGuildSettings(guildId);
                         const seconds = parseInt(interaction.fields.getTextInputValue('cooldown_seconds'));
-                        
                         if (isNaN(seconds) || seconds < 0) {
                             return interaction.reply({ content: '? Please enter a valid number of seconds!', ephemeral: true });
                         }
-                        
                         settings.leveling.cooldown = seconds * 1000;
                         saveSettings();
-                        
-                        await interaction.reply({ 
-                            content: `? XP cooldown set to **${seconds} seconds**!`, 
-                            ephemeral: true 
-                        });
-                    }
-                    
-                    else if (interaction.customId === 'leveling_maxlevel_modal') {
+                        await interaction.reply({ content: `? XP cooldown set to **${seconds} seconds**!`, ephemeral: true });
+                    } else if (interaction.customId === 'leveling_maxlevel_modal') {
                         const settings = getGuildSettings(guildId);
                         const level = parseInt(interaction.fields.getTextInputValue('max_level'));
-                        
                         if (isNaN(level) || level < 1 || level > 1000) {
                             return interaction.reply({ content: '? Max level must be between 1 and 1000!', ephemeral: true });
                         }
-                        
                         settings.leveling.maxLevel = level;
                         saveSettings();
-                        
-                        await interaction.reply({ 
-                            content: `? Max level set to **${level}**!`, 
-                            ephemeral: true 
-                        });
-                    }
-                    
-                    else if (interaction.customId === 'leveling_channel_modal') {
+                        await interaction.reply({ content: `? Max level set to **${level}**!`, ephemeral: true });
+                    } else if (interaction.customId === 'leveling_channel_modal') {
                         try {
-                            // Acknowledge immediately to avoid 3s timeout
                             await interaction.deferReply({ ephemeral: true });
-
                             console.log('📝 Leveling channel modal submitted');
                             console.log('Guild ID:', guildId);
                             console.log('User:', interaction.user.tag);
-                            
                             const channelInput = interaction.fields.getTextInputValue('channel_id').trim();
                             console.log('Channel input:', channelInput);
-                            
                             const settings = getGuildSettings(guildId);
-
                             if (!channelInput) {
                                 settings.leveling.levelUpChannelId = null;
                                 saveSettings();
@@ -11697,34 +11665,28 @@ const now = Date.now();
                                 await interaction.editReply('✅ Level up messages will be sent in the current channel!');
                                 return;
                             }
-                            
                             const channelMatch = channelInput.match(/(\d{17,19})/);
                             console.log('Channel match:', channelMatch);
-                            
                             if (!channelMatch) {
                                 console.log('❌ Invalid channel format');
                                 await interaction.editReply('❌ Invalid channel ID or mention!');
                                 return;
                             }
-                            
                             const channelId = channelMatch[1];
                             console.log('Fetching channel:', channelId);
                             const channel = await interaction.guild.channels.fetch(channelId).catch(err => {
                                 console.error('❌ Failed to fetch channel:', err);
                                 return null;
                             });
-                            
                             if (!channel) {
                                 console.log('❌ Channel not found in guild');
                                 await interaction.editReply('❌ Channel not found!');
                                 return;
                             }
-                            
                             console.log('✅ Channel found:', channel.name);
                             settings.leveling.levelUpChannelId = channelId;
                             saveSettings();
                             console.log('✅ Saved settings');
-                            
                             await interaction.editReply(`✅ Level up channel set to ${channel}!`);
                             console.log('✅ Reply sent successfully');
                         } catch (error) {
@@ -11740,60 +11702,57 @@ const now = Date.now();
                                 console.error('❌ Failed to send error reply:', err);
                             }
                         }
-                    }
-                    
-                    else if (interaction.customId === 'leveling_addrole_modal') {
+                    } else if (interaction.customId === 'leveling_addrole_modal') {
                         const settings = getGuildSettings(guildId);
                         const level = parseInt(interaction.fields.getTextInputValue('role_level'));
                         const roleInput = interaction.fields.getTextInputValue('role_id').trim();
-                        
                         if (isNaN(level) || level < 1) {
                             return interaction.reply({ content: '? Please enter a valid level!', ephemeral: true });
                         }
-                        
                         const roleMatch = roleInput.match(/(\d{17,19})/);
-                        
                         if (!roleMatch) {
                             return interaction.reply({ content: '? Invalid role ID or mention!', ephemeral: true });
                         }
-                        
                         const roleId = roleMatch[1];
                         const role = await interaction.guild.roles.fetch(roleId).catch(() => null);
-                        
                         if (!role) {
                             return interaction.reply({ content: '? Role not found!', ephemeral: true });
                         }
-                        
                         settings.leveling.levelRoles[level] = roleId;
                         saveSettings();
-                        
-                        await interaction.reply({ 
-                            content: `? Level ${level} role set to ${role}!`, 
-                            ephemeral: true 
-                        });
-                    }
-                    
-                    else if (interaction.customId === 'leveling_removerole_modal') {
+                        await interaction.reply({ content: `? Level ${level} role set to ${role}!`, ephemeral: true });
+                    } else if (interaction.customId === 'leveling_removerole_modal') {
                         const settings = getGuildSettings(guildId);
                         const level = parseInt(interaction.fields.getTextInputValue('role_level'));
-                        
                         if (isNaN(level)) {
                             return interaction.reply({ content: '? Please enter a valid level!', ephemeral: true });
                         }
-                        
                         if (!settings.leveling.levelRoles[level]) {
                             return interaction.reply({ content: '? No role configured for that level!', ephemeral: true });
                         }
-                        
                         delete settings.leveling.levelRoles[level];
                         saveSettings();
-                        
-                        await interaction.reply({ 
-                            content: `? Removed role for level ${level}!`, 
-                            ephemeral: true 
-                        });
+                        await interaction.reply({ content: `? Removed role for level ${level}!`, ephemeral: true });
                     }
-                    
+                } catch (error) {
+                    console.error('❌ Leveling modal error:', error);
+                    await interaction.reply({ content: '? An error occurred!', ephemeral: true }).catch(() => {});
+                }
+                return;
+            }
+
+            // Ticket system modal handlers
+            if (interaction.customId.startsWith('ticket_')) {
+                const guildId = interaction.guild.id;
+                
+                if (!interaction.member.permissions.has('Administrator')) {
+                    return interaction.reply({ 
+                        content: '? You need Administrator permissions!', 
+                        ephemeral: true 
+                    });
+                }
+                
+                try {
                     initializeTicketSystem(guildId);
                     const settings = ticketData[guildId].settings;
                     
