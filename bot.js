@@ -6879,15 +6879,16 @@ const now = Date.now();
 
                 // Trivia answer handlers
                 if (interaction.customId.startsWith('trivia_answer_')) {
-                    const parts = interaction.customId.split('_');
-                    const triviaId = parts[2];
-                    const selectedAnswer = parseInt(parts[3]);
-                    const correctAnswer = parseInt(parts[4]);
+                    try {
+                        const parts = interaction.customId.split('_');
+                        const triviaId = parts[2];
+                        const selectedAnswer = parseInt(parts[3]);
+                        const correctAnswer = parseInt(parts[4]);
 
-                    if (!global.activeTrivia?.[triviaId]) {
-                        await interaction.reply({ content: '❌ This trivia question has expired!', ephemeral: true });
-                        return;
-                    }
+                        if (!global.activeTrivia?.[triviaId]) {
+                            await interaction.reply({ content: '❌ This trivia question has expired!', ephemeral: true });
+                            return;
+                        }
 
                     const trivia = global.activeTrivia[triviaId];
 
@@ -6926,8 +6927,13 @@ const now = Date.now();
                         await interaction.update({ embeds: [wrongEmbed], components: [] });
                     }
 
-                    delete global.activeTrivia[triviaId];
-                    return;
+                        delete global.activeTrivia[triviaId];
+                        return;
+                    } catch (error) {
+                        console.error('Trivia answer error:', error);
+                        await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                        return;
+                    }
                 }
             }
         }
