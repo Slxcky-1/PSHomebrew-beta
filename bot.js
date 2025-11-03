@@ -6748,7 +6748,8 @@ const now = Date.now();
                     removeMoney(interaction.user.id, interaction.guild.id, ticketPrice, 'wallet');
                     lottery.pot += ticketPrice;
                     lottery.tickets.push(interaction.user.id);
-                    saveEconomy();
+                    // Persist lottery state within economy data
+                    saveEconomyData();
                     
                     const embed = new EmbedBuilder()
                         .setTitle('🎟️ Lottery Ticket Purchased!')
@@ -6771,9 +6772,26 @@ const now = Date.now();
                         return;
                     }
 
-                    const tradeKey = Object.keys(global.pendingTrades).find(key => 
-                        interaction.customId.includes(key.split('_').slice(0, 2).join('_'))
-                    );
+                    // Parse trade key exactly from customId: trade_accept_sender_target_nonce
+                    let tradeKey = null;
+                    try {
+                        const parts = interaction.customId.split('_');
+                        // ['trade', 'accept'|'decline', sender, target, nonce]
+                        if (parts.length >= 5) {
+                            const sender = parts[2];
+                            const target = parts[3];
+                            const nonce = parts.slice(4).join('_'); // nonce may contain underscores (unlikely)
+                            const candidate = `${sender}_${target}_${nonce}`;
+                            if (global.pendingTrades[candidate]) tradeKey = candidate;
+                        }
+                    } catch {}
+
+                    // Fallback to old loose matching if parsing failed
+                    if (!tradeKey) {
+                        tradeKey = Object.keys(global.pendingTrades).find(key =>
+                            interaction.customId.includes(key)
+                        );
+                    }
 
                     if (!tradeKey) {
                         await interaction.reply({ content: '❌ This trade has expired!', ephemeral: true });
@@ -11228,14 +11246,16 @@ const now = Date.now();
                 }
 
                 // Create trade confirmation buttons
+                const nonce = Date.now().toString();
+
                 const acceptBtn = new ButtonBuilder()
-                    .setCustomId(`trade_accept_${interaction.user.id}_${targetUserId}_${Date.now()}`)
+                    .setCustomId(`trade_accept_${interaction.user.id}_${targetUserId}_${nonce}`)
                     .setLabel('Accept Trade')
                     .setStyle(ButtonStyle.Success)
                     .setEmoji('✅');
 
                 const declineBtn = new ButtonBuilder()
-                    .setCustomId(`trade_decline_${interaction.user.id}_${targetUserId}_${Date.now()}`)
+                    .setCustomId(`trade_decline_${interaction.user.id}_${targetUserId}_${nonce}`)
                     .setLabel('Decline Trade')
                     .setStyle(ButtonStyle.Danger)
                     .setEmoji('❌');
@@ -11261,7 +11281,7 @@ const now = Date.now();
 
                 // Store trade data temporarily (will be validated on accept)
                 if (!global.pendingTrades) global.pendingTrades = {};
-                global.pendingTrades[`${interaction.user.id}_${targetUserId}_${Date.now()}`] = {
+                global.pendingTrades[`${interaction.user.id}_${targetUserId}_${nonce}`] = {
                     sender: interaction.user.id,
                     target: targetUserId,
                     offerMoney,
