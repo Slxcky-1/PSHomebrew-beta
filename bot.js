@@ -1686,11 +1686,11 @@ client.once('clientReady', async () => {
                     
                     const message = await targetChannel.send({ embeds: [onlineEmbed] });
                     
-                    // Delete after 45 seconds
-                    setTimeout(() => {
-                        message.delete().catch(err => console.log('Failed to delete update message:', err));
-                        console.log('🗑️ Update notification deleted');
-                    }, 45000);
+                    // Don't auto-delete - keep update notification visible
+                    // setTimeout(() => {
+                    //     message.delete().catch(err => console.log('Failed to delete update message:', err));
+                    //     console.log('🗑️ Update notification deleted');
+                    // }, 45000);
                 } else {
                     console.log('❌ Channel not found');
                 }
