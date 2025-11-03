@@ -134,16 +134,17 @@ module.exports = {
                     { name: 'Random', value: 'random' }
                 )),
     async execute(interaction) {
-        let category = interaction.options.getString('category') || 'random';
-        
-        // Pick random category if random selected
-        if (category === 'random') {
-            const categories = ['ps3', 'ps4', 'ps5', 'psp', 'vita', 'general'];
-            category = categories[Math.floor(Math.random() * categories.length)];
-        }
+        try {
+            let category = interaction.options.getString('category') || 'random';
+            
+            // Pick random category if random selected
+            if (category === 'random') {
+                const categories = ['ps3', 'ps4', 'ps5', 'psp', 'vita', 'general'];
+                category = categories[Math.floor(Math.random() * categories.length)];
+            }
 
-        const questions = TRIVIA_QUESTIONS[category];
-        const question = questions[Math.floor(Math.random() * questions.length)];
+            const questions = TRIVIA_QUESTIONS[category];
+            const question = questions[Math.floor(Math.random() * questions.length)];
 
         // Create answer buttons
         const buttons = question.answers.map((answer, index) => 
@@ -194,5 +195,12 @@ module.exports = {
                 delete global.activeTrivia[interaction.id];
             }
         }, 30000);
+        } catch (error) {
+            console.error('Trivia error:', error);
+            await interaction.reply({ 
+                content: '❌ An error occurred while starting the trivia game. Please try again!', 
+                ephemeral: true 
+            }).catch(() => {});
+        }
     }
 };
