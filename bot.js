@@ -14453,8 +14453,8 @@ function startAutomatedMessages() {
 }
 
 // ===== SELLHUB WEBHOOK SYSTEM =====
-// Initialize webhook server only if SellHub is configured
-if (config.sellhubApiKey && config.sellhubGuildId && config.sellhubRoleId) {
+// Initialize webhook server only if SellHub is configured (and not explicitly disabled)
+if (config.sellhubApiKey && config.sellhubGuildId && config.sellhubRoleId && process.env.SELLHUB_DISABLE !== '1') {
     const express = require('express');
     const sellhubApp = express();
     sellhubApp.use(express.json());
@@ -14596,15 +14596,27 @@ if (config.sellhubApiKey && config.sellhubGuildId && config.sellhubRoleId) {
     }
     });
 
-    // Start webhook server on port 3000
-    const WEBHOOK_PORT = process.env.WEBHOOK_PORT || 3000;
-    sellhubApp.listen(WEBHOOK_PORT, () => {
-        console.log(`✅ Webhook server running on port ${WEBHOOK_PORT}`);
-        console.log(`✅ SellHub webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/sellhub-webhook`);
-    });
+    // Start webhook server with graceful port fallback
+    const START_PORT = parseInt(process.env.WEBHOOK_PORT, 10) || 3000;
+    const MAX_TRIES = parseInt(process.env.WEBHOOK_MAX_TRIES, 10) || 5;
+    function startWebhook(port, triesLeft) {
+        const server = sellhubApp.listen(port, '0.0.0.0', () => {
+            console.log(`✅ Webhook server running on port ${port}`);
+            console.log(`✅ SellHub webhook URL: http://YOUR_SERVER_IP:${port}/sellhub-webhook`);
+        });
+        server.on('error', (err) => {
+            if (err && err.code === 'EADDRINUSE' && triesLeft > 0) {
+                console.warn(`⚠️ Port ${port} in use. Trying ${port + 1}...`);
+                setTimeout(() => startWebhook(port + 1, triesLeft - 1), 500);
+            } else {
+                console.error('❌ SellHub webhook failed to start:', err?.message || err);
+            }
+        });
+    }
+    startWebhook(START_PORT, MAX_TRIES);
     console.log('🧩 SellHub webhook system enabled');
 } else {
-    console.log('🧩 SellHub webhook system disabled (missing config)');
+    console.log('🧩 SellHub webhook system disabled (missing config or SELLHUB_DISABLE=1)');
 }
 // ===== END WEBHOOK SYSTEM =====
 
