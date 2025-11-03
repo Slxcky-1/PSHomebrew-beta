@@ -6945,32 +6945,29 @@ const now = Date.now();
                         return await interaction.reply({ content: '⏰ Time\'s up!', ephemeral: true });
                     }
 
+                    // Mark as answered immediately
                     trivia.answered = true;
                     const isCorrect = selectedAnswer === correctAnswer;
 
-                    if (isCorrect) {
-                        const correctEmbed = new EmbedBuilder()
-                            .setTitle('✅ Correct!')
-                            .setDescription(`Great job! You earned **$100**!`)
-                            .setColor(0x00FF00)
-                            .setFooter({ text: `Answered by ${interaction.user.username}` });
+                    // Build embed immediately
+                    const resultEmbed = new EmbedBuilder()
+                        .setTitle(isCorrect ? '✅ Correct!' : '❌ Wrong!')
+                        .setDescription(isCorrect 
+                            ? `Great job! You earned **$100**!` 
+                            : `The correct answer was option ${correctAnswer + 1}.`)
+                        .setColor(isCorrect ? 0x00FF00 : 0xFF0000)
+                        .setFooter({ text: isCorrect ? `Answered by ${interaction.user.username}` : `Better luck next time!` });
 
-                        await interaction.update({ embeds: [correctEmbed], components: [] });
-                        
-                        // Award money after responding
+                    // Update interaction synchronously
+                    interaction.update({ embeds: [resultEmbed], components: [] }).catch(console.error);
+                    
+                    // Award money asynchronously if correct
+                    if (isCorrect) {
                         try {
                             addMoney(interaction.user.id, interaction.guild.id, 100, 'wallet');
                         } catch (e) {
                             console.error('Failed to award trivia money:', e);
                         }
-                    } else {
-                        const wrongEmbed = new EmbedBuilder()
-                            .setTitle('❌ Wrong!')
-                            .setDescription(`The correct answer was option ${correctAnswer + 1}.`)
-                            .setColor(0xFF0000)
-                            .setFooter({ text: `Better luck next time!` });
-
-                        await interaction.update({ embeds: [wrongEmbed], components: [] });
                     }
 
                     delete global.activeTrivia[triviaId];
