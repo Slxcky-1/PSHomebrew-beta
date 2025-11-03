@@ -4522,7 +4522,7 @@ const now = Date.now();
                     .setCustomId('raid_set_action')
                     .setLabel('Set Action')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('?')
+                    .setEmoji('⚙️')
             );
         
         const row2 = new ActionRowBuilder()
@@ -4541,7 +4541,7 @@ const now = Date.now();
                     .setCustomId('raid_whitelist')
                     .setLabel('Manage Whitelist')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('?'),
+                    .setEmoji('📋'),
                 new ButtonBuilder()
                     .setCustomId('raid_refresh')
                     .setLabel('Refresh')
@@ -4640,7 +4640,7 @@ const now = Date.now();
                     .setCustomId('mod_autoaction')
                     .setLabel('Set Auto-Action')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('?'),
+                    .setEmoji('⚙️'),
                 new ButtonBuilder()
                     .setCustomId('mod_timeout')
                     .setLabel('Timeout Duration')
@@ -4678,12 +4678,12 @@ const now = Date.now();
                     .setCustomId('mod_addrole')
                     .setLabel('Add Mod Role')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('?'),
+                    .setEmoji('➕'),
                 new ButtonBuilder()
                     .setCustomId('mod_removerole')
                     .setLabel('Remove Mod Role')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('?'),
+                    .setEmoji('➖'),
                 new ButtonBuilder()
                     .setCustomId('mod_refresh')
                     .setLabel('Refresh')
@@ -5214,7 +5214,7 @@ const now = Date.now();
                             .setCustomId('ticket_toggle')
                             .setLabel('Enable System')
                             .setStyle(ButtonStyle.Success)
-                            .setEmoji('?'),
+                            .setEmoji('✅'),
                         new ButtonBuilder()
                             .setCustomId('ticket_staffrole')
                             .setLabel('Set Staff Role')
@@ -9004,7 +9004,7 @@ const now = Date.now();
                         .setCustomId('mod_autoaction')
                         .setLabel('Set Auto-Action')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('?'),
+                        .setEmoji('⚙️'),
                     new ButtonBuilder()
                         .setCustomId('mod_timeout')
                         .setLabel('Timeout Duration')
@@ -9042,12 +9042,12 @@ const now = Date.now();
                         .setCustomId('mod_addrole')
                         .setLabel('Add Mod Role')
                         .setStyle(ButtonStyle.Success)
-                        .setEmoji('?'),
+                        .setEmoji('➕'),
                     new ButtonBuilder()
                         .setCustomId('mod_removerole')
                         .setLabel('Remove Mod Role')
                         .setStyle(ButtonStyle.Danger)
-                        .setEmoji('?'),
+                        .setEmoji('➖'),
                     new ButtonBuilder()
                         .setCustomId('mod_refresh')
                         .setLabel('Refresh')
@@ -9590,7 +9590,7 @@ const now = Date.now();
                         .setCustomId('raid_set_action')
                         .setLabel('Set Action')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('?')
+                        .setEmoji('⚙️')
                 );
             
             const row2 = new ActionRowBuilder()
@@ -9609,7 +9609,7 @@ const now = Date.now();
                         .setCustomId('raid_whitelist')
                         .setLabel('Manage Whitelist')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('?'),
+                        .setEmoji('📋'),
                     new ButtonBuilder()
                         .setCustomId('raid_refresh')
                         .setLabel('Refresh')
@@ -10562,7 +10562,7 @@ const now = Date.now();
                         .setCustomId(`claim_ticket_${ticketChannel.id}`)
                         .setLabel('Claim Ticket')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('?'),
+                        .setEmoji('✋'),
                     new ButtonBuilder()
                         .setCustomId(`transcript_ticket_${ticketChannel.id}`)
                         .setLabel('View Transcript')
@@ -12041,7 +12041,7 @@ const now = Date.now();
                                     .setCustomId('webhook_cancel')
                                     .setLabel('Cancel')
                                     .setStyle(ButtonStyle.Danger)
-                                    .setEmoji('?')
+                                    .setEmoji('❌')
                             );
                         
                         await interaction.reply({ 
