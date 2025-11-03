@@ -2164,12 +2164,19 @@ client.on('messageCreate', async (message) => {
                 
                 // Send to dedicated channel if set, otherwise use current channel
                 const levelUpChannelId = settings.leveling.levelUpChannelId;
-                const levelUpChannelName = settings.leveling.levelUpChannel; // legacy support
+                const levelUpChannelName = settings.leveling.levelUpChannel; // legacy support (name or ID)
                 let targetChannel = null;
                 if (levelUpChannelId) {
                     targetChannel = message.guild.channels.cache.get(levelUpChannelId);
                 } else if (levelUpChannelName) {
-                    targetChannel = findChannel(message.guild, levelUpChannelName);
+                    // If the legacy field accidentally holds an ID or mention, resolve it; otherwise treat as name
+                    const idMatch = String(levelUpChannelName).match(/(\d{17,19})/);
+                    if (idMatch) {
+                        targetChannel = message.guild.channels.cache.get(idMatch[1]) || null;
+                    }
+                    if (!targetChannel) {
+                        targetChannel = findChannel(message.guild, levelUpChannelName);
+                    }
                 }
                 (targetChannel || message.channel).send({ embeds: [embed] });
             }
