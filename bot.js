@@ -3316,11 +3316,6 @@ client.on('interactionCreate', async (interaction) => {
                     name: '🧹 Message Cleanup',
                     value: `• **Bulk message deletion**\n\nDelete 1-100 messages\nFilter by specific user\nRequires Manage Messages`,
                     inline: true
-                },
-                {
-                    name: '📝 Embed Builder',
-                    value: `• **Custom embed creator**\n\nInteractive visual builder\nColors, images, fields\nProfessional announcements`,
-                    inline: true
                 }
             )
             .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for AI token tracking' })
