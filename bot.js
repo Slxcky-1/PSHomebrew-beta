@@ -11,24 +11,38 @@ const fsSync = require('fs');
 const fs = require('fs').promises;
 const path = require('path');
 const consoleErrorCodes = require('./features/consoleErrorCodes.json');
-const { Snake, TicTacToe, Connect4, Wordle, Minesweeper, TwoZeroFourEight, MatchPairs, FastType, FindEmoji, GuessThePokemon, RockPaperScissors, Hangman, Trivia, Slots, WouldYouRather } = require('discord-gamecord');
+// Lazy loader for discord-gamecord to reduce startup memory/CPU
+let __gamecord;
+function getGamecord() {
+    if (!__gamecord) {
+        __gamecord = require('discord-gamecord');
+    }
+    return __gamecord;
+}
 const { search } = require('duck-duck-scrape');
 const Parser = require('rss-parser');
 const rssParser = new Parser();
-const express = require('express');
-const sellhubApp = express();
 
 // --- Language System ---
 const languages = {};
-const languageFiles = ['en.json', 'es.json', 'fr.json', 'de.json', 'pt.json', 'ja.json'];
-for (const file of languageFiles) {
-    try {
-        const langData = require(`./languages/${file}`);
-        languages[langData.code] = langData;
-        console.log(`✅ Loaded language: ${langData.name} (${langData.code})`);
-    } catch (error) {
-        console.error(`❌ Failed to load language file: ${file}`, error.message);
+try {
+    const languagesDir = path.join(__dirname, 'languages');
+    if (fsSync.existsSync(languagesDir)) {
+        const files = fsSync.readdirSync(languagesDir).filter(f => f.endsWith('.json'));
+        for (const file of files) {
+            try {
+                const langData = require(path.join(languagesDir, file));
+                if (langData && langData.code && langData.translations) {
+                    languages[langData.code] = langData;
+                    console.log(`✅ Loaded language: ${langData.name || file} (${langData.code})`);
+                }
+            } catch (e) {
+                console.warn(`⚠️ Skipping invalid language file: ${file} (${e.message})`);
+            }
+        }
     }
+} catch (e) {
+    console.warn('⚠️ Language loader encountered an issue, defaulting to English only:', e.message);
 }
 
 // Translation helper function
@@ -1445,11 +1459,10 @@ async function updateServerStats(guild) {
     if (!settings.serverStats || !settings.serverStats.enabled) return;
     
     try {
-        await guild.members.fetch(); // Fetch all members
-        
-        const members = guild.members.cache.filter(m => !m.user.bot).size;
-        const bots = guild.members.cache.filter(m => m.user.bot).size;
+        // Avoid fetching all members to reduce memory/CPU; use available counts
         const total = guild.memberCount;
+        const bots = guild.members.cache.filter(m => m.user.bot).size; // approximate
+        const members = Math.max(total - bots, 0);
         
         // Track last update time to prevent rate limiting (Discord allows ~2 name changes per 10 minutes)
         if (!settings.serverStats.lastUpdate) {
@@ -1946,28 +1959,7 @@ client.on('guildCreate', async (guild) => {
         saveModerationData();
     }
     
-    // Analytics data
-    if (!analyticsData[guildId]) {
-        analyticsData[guildId] = {
-            startDate: Date.now(),
-            lastReset: Date.now(),
-            messages: {
-                total: 0,
-                byUser: {},
-                byChannel: {},
-                byHour: Array(24).fill(0),
-                byDay: Array(7).fill(0)
-            },
-            members: {
-                joined: 0,
-                left: 0
-            },
-            commands: {
-                total: 0,
-                byCommand: {}
-            }
-        };
-}
+    // (Removed legacy analyticsData initializer to reduce memory and fix ReferenceError)
     
     console.log(`✨ Initialized fresh data for: ${guild.name}`);
     
@@ -1981,8 +1973,10 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (!message.guild) return;
     
-    // DEBUG: Log all messages
-    console.log(`📨 Message received in channel: ${message.channel.name} (ID: ${message.channel.id}) by ${message.author.username}`);
+    // Optional debug logging (enable with DEBUG_MESSAGES=1)
+    if (process.env.DEBUG_MESSAGES === '1') {
+        console.log(`📨 Message in #${message.channel.name} (${message.channel.id}) by ${message.author.tag}`);
+    }
     
     const settings = getGuildSettings(message.guild.id);
     const userId = message.author.id;
@@ -9775,7 +9769,7 @@ const now = Date.now();
         
         try {
             if (gameType === 'snake') {
-                const game = new Snake({
+                const game = new (getGamecord().Snake)({
                     message: interaction,
                     isSlashGame: false,
                     embed: {
@@ -9835,7 +9829,7 @@ const now = Date.now();
                 
                 await collected.first().delete().catch(() => {});
                 
-                const game = new TicTacToe({
+                const game = new (getGamecord().TicTacToe)({
                     message: collected.first(),
                     isSlashGame: false,
                     opponent: opponent,
@@ -9898,7 +9892,7 @@ const now = Date.now();
                 
                 await collected.first().delete().catch(() => {});
                 
-                const game = new Connect4({
+                const game = new (getGamecord().Connect4)({
                     message: collected.first(),
                     isSlashGame: false,
                     opponent: opponent,
@@ -9931,7 +9925,7 @@ const now = Date.now();
             }
             
             else if (gameType === 'wordle') {
-                const game = new Wordle({
+                const game = new (getGamecord().Wordle)({
                     message: interaction,
                     isSlashGame: false,
                     embed: {
@@ -9954,7 +9948,7 @@ const now = Date.now();
             }
             
             else if (gameType === 'minesweeper') {
-                const game = new Minesweeper({
+                const game = new (getGamecord().Minesweeper)({
                     message: interaction,
                     isSlashGame: false,
                     embed: {
@@ -9979,7 +9973,7 @@ const now = Date.now();
             }
             
             else if (gameType === '2048') {
-                const game = new TwoZeroFourEight({
+                const game = new (getGamecord().TwoZeroFourEight)({
                     message: interaction,
                     isSlashGame: false,
                     embed: {
@@ -10006,7 +10000,7 @@ const now = Date.now();
             }
             
             else if (gameType === 'memory') {
-                const game = new MatchPairs({
+                const game = new (getGamecord().MatchPairs)({
                     message: interaction,
                     isSlashGame: false,
                     embed: {
@@ -10030,7 +10024,7 @@ const now = Date.now();
             }
             
             else if (gameType === 'fasttype') {
-                const game = new FastType({
+                const game = new (getGamecord().FastType)({
                     message: interaction,
                     isSlashGame: false,
                     embed: {
@@ -10053,7 +10047,7 @@ const now = Date.now();
             }
             
             else if (gameType === 'findemoji') {
-                const game = new FindEmoji({
+                const game = new (getGamecord().FindEmoji)({
                     message: interaction,
                     isSlashGame: false,
                     embed: {
@@ -10080,7 +10074,7 @@ const now = Date.now();
             }
             
             else if (gameType === 'guesspokemon') {
-                const game = new GuessThePokemon({
+                const game = new (getGamecord().GuessThePokemon)({
                     message: interaction,
                     isSlashGame: false,
                     embed: {
@@ -10103,7 +10097,7 @@ const now = Date.now();
             }
             
             else if (gameType === 'rps') {
-                const game = new RockPaperScissors({
+                const game = new (getGamecord().RockPaperScissors)({
                     message: interaction,
                     isSlashGame: false,
                     opponent: interaction.user,
@@ -10141,7 +10135,7 @@ const now = Date.now();
             }
             
             else if (gameType === 'hangman') {
-                const game = new Hangman({
+                const game = new (getGamecord().Hangman)({
                     message: interaction,
                     isSlashGame: false,
                     embed: {
@@ -10166,7 +10160,7 @@ const now = Date.now();
             }
             
             else if (gameType === 'trivia') {
-                const game = new Trivia({
+                const game = new (getGamecord().Trivia)({
                     message: interaction,
                     isSlashGame: false,
                     embed: {
@@ -10193,7 +10187,7 @@ const now = Date.now();
             }
             
             else if (gameType === 'slots') {
-                const game = new Slots({
+                const game = new (getGamecord().Slots)({
                     message: interaction,
                     isSlashGame: false,
                     embed: {
@@ -10212,7 +10206,7 @@ const now = Date.now();
             }
             
             else if (gameType === 'wouldyourather') {
-                const game = new WouldYouRather({
+                const game = new (getGamecord().WouldYouRather)({
                     message: interaction,
                     isSlashGame: false,
                     embed: {
@@ -14442,9 +14436,13 @@ function startAutomatedMessages() {
 }
 
 // ===== SELLHUB WEBHOOK SYSTEM =====
-sellhubApp.use(express.json());
+// Initialize webhook server only if SellHub is configured
+if (config.sellhubApiKey && config.sellhubGuildId && config.sellhubRoleId) {
+    const express = require('express');
+    const sellhubApp = express();
+    sellhubApp.use(express.json());
 
-sellhubApp.post('/sellhub-webhook', async (req, res) => {
+    sellhubApp.post('/sellhub-webhook', async (req, res) => {
     try {
         const event = req.body;
         
@@ -14579,14 +14577,18 @@ sellhubApp.post('/sellhub-webhook', async (req, res) => {
         console.error('❌ SellHub webhook error:', error);
         res.status(500).send('Internal Server Error');
     }
-});
+    });
 
-// Start webhook server on port 3000
-const WEBHOOK_PORT = process.env.WEBHOOK_PORT || 3000;
-sellhubApp.listen(WEBHOOK_PORT, () => {
-    console.log(`✅ Webhook server running on port ${WEBHOOK_PORT}`);
-    console.log(`✅ SellHub webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/sellhub-webhook`);
-});
+    // Start webhook server on port 3000
+    const WEBHOOK_PORT = process.env.WEBHOOK_PORT || 3000;
+    sellhubApp.listen(WEBHOOK_PORT, () => {
+        console.log(`✅ Webhook server running on port ${WEBHOOK_PORT}`);
+        console.log(`✅ SellHub webhook URL: http://YOUR_SERVER_IP:${WEBHOOK_PORT}/sellhub-webhook`);
+    });
+    console.log('🧩 SellHub webhook system enabled');
+} else {
+    console.log('🧩 SellHub webhook system disabled (missing config)');
+}
 // ===== END WEBHOOK SYSTEM =====
 
 // Login to Discord with error handling
