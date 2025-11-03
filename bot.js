@@ -2953,7 +2953,7 @@ client.on('interactionCreate', async (interaction) => {
             .addFields(
                 { name: '⏱️ Uptime', value: uptimeStr, inline: true },
                 { name: '💾 Memory', value: `${memoryUsage} MB`, inline: true },
-                { name: '📊 Status', value: '✅ Online', inline: true }
+                { name: '📊 Status', value: '🟢 Online', inline: true }
             )
             .setFooter({ text: 'Choose an option below • Today at ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) })
             .setTimestamp();
