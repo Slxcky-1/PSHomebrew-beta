@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node bot.js",
     "start:lowend": "node --max-old-space-size=512 --expose-gc bot.js",
-    "dev": "node bot.js"
+    "dev": "node bot.js",
+    "remove:cmd": "node remove-command.js"
   },
   "keywords": [
     "discord",
