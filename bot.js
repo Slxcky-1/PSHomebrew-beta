@@ -13241,8 +13241,36 @@ async function updateAIKnowledge() {
             console.log('✅ Wololo scrape failed, using cached values:', scrapeError.message);
         }
         
-        // GoldHEN version - using manual version (scraping disabled for accuracy)
-        console.log(`✅ Using manual GoldHEN version: ${psData.goldhen}`);
+        // REAL-TIME: Scrape SiSTRo's Ko-fi shop for OFFICIAL GoldHEN version
+        try {
+            const kofiResponse = await fetch('https://ko-fi.com/sistro/shop', {
+                headers: { 
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+                },
+                timeout: 10000
+            });
+            const kofiHTML = await kofiResponse.text();
+            
+            // Look for GoldHEN version in Ko-fi shop (e.g., "GoldHEN 2.4b18.6", "GoldHEN v2.4b18.6")
+            const goldhenKofiMatch = kofiHTML.match(/GoldHEN\s*v?(2\.4b[\d.]+)/i);
+            if (goldhenKofiMatch) {
+                psData.goldhen = goldhenKofiMatch[1];
+                console.log(`📡 Scraped SiSTRo Ko-fi shop - GoldHEN ${psData.goldhen}`);
+            }
+            
+            // Also look for supported firmware (e.g., "12.02", "Firmware 12.02")
+            const fwMatch = kofiHTML.match(/(?:Firmware|FW|supports?)\s*(1[2-3]\.\d{2})/i);
+            if (fwMatch) {
+                psData.ps4BDJB = fwMatch[1];
+                console.log(`📡 Scraped Ko-fi - Latest supported FW: ${psData.ps4BDJB}`);
+            }
+        } catch (scrapeError) {
+            console.log('✅ Ko-fi scrape failed, using cached GoldHEN version:', scrapeError.message);
+        }
+        
+        // GoldHEN version - now using Ko-fi scrape for accuracy
+        console.log(`✅ Using GoldHEN version: ${psData.goldhen}`);
         
         // Update all server settings with REAL-TIME knowledge
         const allSettings = JSON.parse(fsSync.readFileSync('./serverSettings.json', 'utf8'));
@@ -13251,7 +13279,7 @@ async function updateAIKnowledge() {
         for (const guildId in allSettings) {
             if (allSettings[guildId].ai && allSettings[guildId].ai.enabled) {
                 // Comprehensive gaming database with REAL-TIME data
-                allSettings[guildId].ai.systemPrompt = `2025 FIRMWARE (Nov 2025 Update): PS3 OFW ${psData.ps3OFW}/CFW ${psData.ps3CFW} | PS4 OFW ${psData.ps4OFW}/JB ${psData.ps4PPPwn} PPPwn ${psData.ps4BDJB} BD-JB+GoldHEN ${psData.goldhen} (MAX 12.02, NOT 12.50) + 13.00 EXPLOIT ANNOUNCED | PS5 OFW ${psData.ps5OFW}/JB ${psData.ps5Lapse} Lapse+etaHEN ${psData.etahen} + 12.00 EXPLOIT ANNOUNCED | Vita ${psData.vita} h-encore | PSP ${psData.psp} | PS2 ${psData.ps2} | PS1 ${psData.ps1}\n\nIMPORTANT: GoldHEN ${psData.goldhen} supports FW 12.00, 12.02, and EARLIER. NOT 12.50 or higher!\n\nHOMEBREW GUIDES (LIVE VERIFIED LINKS): PS4 Guide(https://www.psx-place.com/threads/hacking-the-ps4.10717/) | PSX-Place(https://www.psx-place.com/) | Wololo(https://wololo.net/) | Reddit(https://reddit.com/r/ps4homebrew) | Google Search(https://google.com) | PS5(${psData.etahen}?${psData.itemzflow} for PKG) | PS4(${psData.goldhen}?${psData.multiman} for backup) | PS3 CFW(${psData.webman}+${psData.multiman}) HEN(PS3HEN ${psData.ps3hen}+HFW ${psData.hfw}) | Vita(${psData.vitashell}+${psData.adrenaline} for PSP emu) | PSP(PPSSPP for homebrew) | PS2(${psData.opl} for ISO/USB games) | PS1(Tonyhax for exploit)\n\nYou're a hilarious AI for PlayStation Homebrew Discord. Be funny, use memes & gaming jokes. Keep it SHORT (2-3 sentences, under 50 words). British spelling. Swearing's fine. No politics/racism. ALWAYS include verified live links when relevant. Use Google for latest info.`;
+                allSettings[guildId].ai.systemPrompt = `2025 FIRMWARE (Nov 2025 Update): PS3 OFW ${psData.ps3OFW}/CFW ${psData.ps3CFW} | PS4 OFW ${psData.ps4OFW}/JB ${psData.ps4PPPwn} PPPwn ${psData.ps4BDJB} BD-JB+GoldHEN ${psData.goldhen} (MAX 12.02, NOT 12.50) + 13.00 EXPLOIT ANNOUNCED | PS5 OFW ${psData.ps5OFW}/JB ${psData.ps5Lapse} Lapse+etaHEN ${psData.etahen} + 12.00 EXPLOIT ANNOUNCED | Vita ${psData.vita} h-encore | PSP ${psData.psp} | PS2 ${psData.ps2} | PS1 ${psData.ps1}\n\n⚠️ CRITICAL: GoldHEN ${psData.goldhen} by SiSTRo supports PS4 FW 12.00, 12.02 MAX. NOT 12.50 or higher! Official source: https://ko-fi.com/sistro/shop\n\nHOMEBREW GUIDES (LIVE VERIFIED LINKS): PS4 Guide(https://www.psx-place.com/threads/hacking-the-ps4.10717/) | PSX-Place(https://www.psx-place.com/) | Wololo(https://wololo.net/) | SiSTRo Ko-fi(https://ko-fi.com/sistro/shop) | Reddit(https://reddit.com/r/ps4homebrew) | Google Search(https://google.com) | PS5(${psData.etahen}?${psData.itemzflow} for PKG) | PS4(${psData.goldhen}?${psData.multiman} for backup) | PS3 CFW(${psData.webman}+${psData.multiman}) HEN(PS3HEN ${psData.ps3hen}+HFW ${psData.hfw}) | Vita(${psData.vitashell}+${psData.adrenaline} for PSP emu) | PSP(PPSSPP for homebrew) | PS2(${psData.opl} for ISO/USB games) | PS1(Tonyhax for exploit)\n\nYou're a hilarious AI for PlayStation Homebrew Discord. Be funny, use memes & gaming jokes. Keep it SHORT (2-3 sentences, under 50 words). British spelling. Swearing's fine. No politics/racism. ALWAYS include verified live links when relevant. Use Google for latest info. NEVER give outdated GoldHEN versions - always use the scraped real-time data.`;
                 
                 updated = true;
             }
