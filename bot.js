@@ -1711,11 +1711,31 @@ client.once('clientReady', async () => {
                     
                     const message = await targetChannel.send({ embeds: [onlineEmbed] });
                     
-                    // Auto-delete after 45 seconds
+                    // Auto-delete new "online" message after 45 seconds
                     setTimeout(() => {
                         message.delete().catch(err => console.log('Failed to delete update message:', err));
                         console.log('🗑️ Update notification deleted');
                     }, 45000);
+
+                    // Also delete the pre-restart "Update Complete - Restarting" message
+                    if (updateData.messageId && updateData.channelId) {
+                        const prevChannel = client.channels.cache.get(updateData.channelId) || await client.channels.fetch(updateData.channelId).catch(() => null);
+                        if (prevChannel && prevChannel.isTextBased()) {
+                            const elapsed = Date.now() - (updateData.timestamp || Date.now());
+                            const remaining = Math.max(0, 45000 - elapsed);
+                            setTimeout(async () => {
+                                try {
+                                    const oldMsg = await prevChannel.messages.fetch(updateData.messageId).catch(() => null);
+                                    if (oldMsg) {
+                                        await oldMsg.delete().catch(() => {});
+                                        console.log('🗑️ Pre-restart update message deleted');
+                                    }
+                                } catch (e) {
+                                    // ignore
+                                }
+                            }, remaining);
+                        }
+                    }
                 } else {
                     console.log('❌ Channel not found');
                 }
@@ -7990,13 +8010,15 @@ const now = Date.now();
                         .setColor(0x00FF00)
                         .setTimestamp();
                     
-                    interaction.followUp({ embeds: [successEmbed] }).then(() => {
+                    interaction.followUp({ embeds: [successEmbed] }).then((msg) => {
                         fsSync.writeFileSync('./update-marker.json', JSON.stringify({
                             channelId: interaction.channel.id,
                             guildId: interaction.guild.id,
+                            messageId: msg.id,
                             timestamp: Date.now(),
                             gitOutput: stdout.substring(0, 500)
                         }));
+                        // Exit shortly after writing marker; deletion of this message will be handled on next boot
                         setTimeout(() => process.exit(0), 500);
                     });
                 });
