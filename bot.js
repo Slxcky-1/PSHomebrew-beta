@@ -2136,7 +2136,11 @@ analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1
     // AI Chat in designated channel - Optimized (includes ChatGPT channel)
     const isChatGPTChannel = message.channel.id === '1433480720776433664';
     if (settings.ai?.enabled && (message.channel.name === settings.ai.channelName || message.channel.id === settings.ai.channelId || isChatGPTChannel)) {
-        if (message.author.bot || !config.deepseekApiKey || config.deepseekApiKey === 'YOUR_DEEPSEEK_API_KEY_HERE') return;
+        console.log(`🤖 AI triggered in channel: ${message.channel.name} (${message.channel.id})`);
+        if (message.author.bot || !config.deepseekApiKey || config.deepseekApiKey === 'YOUR_DEEPSEEK_API_KEY_HERE') {
+            console.log(`❌ AI blocked: bot=${message.author.bot}, hasKey=${!!config.deepseekApiKey}`);
+            return;
+        }
         
         // Don't respond to users in automated message channel
         if (message.channel.id === '920750934085222470') return;
@@ -2298,7 +2302,7 @@ analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1
                     });
                 } else {
                     // Use DeepSeek for all other channels (or fallback if OpenAI key missing)
-                    aiProvider = '✅ ChatGPT';
+                    aiProvider = '🤖 DeepSeek';
                     const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
                     modelName = settings.ai.model;
                     
