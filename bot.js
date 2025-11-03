@@ -3307,16 +3307,6 @@ client.on('interactionCreate', async (interaction) => {
                     value: `• **PlayStation game lookup**\n\n14 games in database\nSearch by title or ID\nCFW compatibility info`,
                     inline: true
                 },
-                {
-                    name: '\u200B',
-                    value: '\u200B',
-                    inline: false
-                },
-                {
-                    name: '🧹 Message Cleanup',
-                    value: `• **Bulk message deletion**\n\nDelete 1-100 messages\nFilter by specific user\nRequires Manage Messages`,
-                    inline: true
-                }
             )
             .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for AI token tracking' })
             .setTimestamp();
