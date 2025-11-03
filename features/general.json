@@ -40,6 +40,18 @@
         {
             "name": "embedbuilder",
             "description": "Create custom embeds with an interactive builder (Manage Messages required)"
+        },
+        {
+            "name": "poll",
+            "description": "Create interactive polls with multiple options and durations"
+        },
+        {
+            "name": "trivia",
+            "description": "Play PlayStation trivia and earn economy points (categories: PS3, PS4, PS5, PSP, Vita)"
+        },
+        {
+            "name": "gamelookup",
+            "description": "Look up PlayStation game information, IDs, and CFW compatibility"
         }
     ]
 }

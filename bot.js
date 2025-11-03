@@ -5451,7 +5451,9 @@ const now = Date.now();
                 { name: '🎲 Gamble', value: 'Play casino games', inline: true },
                 { name: '🏪 Shop', value: 'Buy special items', inline: true },
                 { name: '🎒 Inventory', value: 'View your items', inline: true },
-                { name: '� Leaderboard', value: 'Top richest users', inline: true }
+                { name: '📊 Leaderboard', value: 'Top richest users', inline: true },
+                { name: '🔄 Trade', value: 'Trade with users', inline: true },
+                { name: '🎟️ Lottery', value: 'Buy lottery tickets', inline: true }
             )
             .setFooter({ text: 'Click buttons below to interact' })
             .setTimestamp();
@@ -5501,10 +5503,24 @@ const now = Date.now();
                     .setCustomId('economy_rob')
                     .setLabel('Rob')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('💰')
+                    .setEmoji('💰'),
+                new ButtonBuilder()
+                    .setCustomId('economy_trade')
+                    .setLabel('Trade')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🔄')
             );
         
-        await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
+        const row3 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('economy_lottery')
+                    .setLabel('Lottery')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji('🎟️')
+            );
+        
+        await interaction.reply({ embeds: [embed], components: [row1, row2, row3], ephemeral: true });
         return;
     }
 
@@ -6587,6 +6603,330 @@ const now = Date.now();
                     );
                     
                     await interaction.showModal(modal);
+                    return;
+                }
+                
+                if (interaction.customId === 'economy_trade') {
+                    const modal = new ModalBuilder()
+                        .setCustomId('economy_trade_modal')
+                        .setTitle('Trade with User');
+                    
+                    const userInput = new TextInputBuilder()
+                        .setCustomId('trade_user')
+                        .setLabel('User ID to Trade With')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('User ID')
+                        .setRequired(true);
+                    
+                    const offerInput = new TextInputBuilder()
+                        .setCustomId('trade_offer')
+                        .setLabel('Your Offer (money OR item_id)')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('e.g., 1000 or xp_boost')
+                        .setRequired(true);
+                    
+                    const requestInput = new TextInputBuilder()
+                        .setCustomId('trade_request')
+                        .setLabel('What You Want (money OR item_id)')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('e.g., 500 or lucky_charm')
+                        .setRequired(true);
+                    
+                    modal.addComponents(
+                        new ActionRowBuilder().addComponents(userInput),
+                        new ActionRowBuilder().addComponents(offerInput),
+                        new ActionRowBuilder().addComponents(requestInput)
+                    );
+                    
+                    await interaction.showModal(modal);
+                    return;
+                }
+                
+                if (interaction.customId === 'economy_lottery') {
+                    const ticketPrice = 100;
+                    const profile = getEconomyProfile(interaction.user.id, interaction.guild.id);
+                    
+                    if (profile.wallet < ticketPrice) {
+                        await interaction.reply({ content: `❌ You need $${ticketPrice} to buy a lottery ticket!`, ephemeral: true });
+                        return;
+                    }
+                    
+                    // Initialize lottery data
+                    if (!economyData[interaction.guild.id].lottery) {
+                        economyData[interaction.guild.id].lottery = {
+                            pot: 0,
+                            tickets: [],
+                            lastDraw: 0
+                        };
+                    }
+                    
+                    const lottery = economyData[interaction.guild.id].lottery;
+                    removeMoney(interaction.user.id, interaction.guild.id, ticketPrice, 'wallet');
+                    lottery.pot += ticketPrice;
+                    lottery.tickets.push(interaction.user.id);
+                    saveEconomy();
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle('🎟️ Lottery Ticket Purchased!')
+                        .setColor(0xFFD700)
+                        .setDescription(`You bought a lottery ticket for **$${ticketPrice}**!\n\n` +
+                            `🏆 Current Pot: **$${lottery.pot.toLocaleString()}**\n` +
+                            `🎫 Total Tickets: **${lottery.tickets.length}**\n` +
+                            `📊 Your Tickets: **${lottery.tickets.filter(id => id === interaction.user.id).length}**\n\n` +
+                            `*Next draw: Daily at midnight*`)
+                        .setTimestamp();
+                    
+                    await interaction.reply({ embeds: [embed], ephemeral: true });
+                    return;
+                }
+
+                // Trade accept/decline handlers
+                if (interaction.customId.startsWith('trade_accept_') || interaction.customId.startsWith('trade_decline_')) {
+                    if (!global.pendingTrades) {
+                        await interaction.reply({ content: '❌ This trade has expired!', ephemeral: true });
+                        return;
+                    }
+
+                    const tradeKey = Object.keys(global.pendingTrades).find(key => 
+                        interaction.customId.includes(key.split('_').slice(0, 2).join('_'))
+                    );
+
+                    if (!tradeKey) {
+                        await interaction.reply({ content: '❌ This trade has expired!', ephemeral: true });
+                        return;
+                    }
+
+                    const trade = global.pendingTrades[tradeKey];
+
+                    // Check if trade expired
+                    if (Date.now() > trade.expires) {
+                        delete global.pendingTrades[tradeKey];
+                        await interaction.update({ content: '❌ This trade has expired!', embeds: [], components: [] });
+                        return;
+                    }
+
+                    // Only target user can accept/decline
+                    if (interaction.user.id !== trade.target) {
+                        await interaction.reply({ content: '❌ Only the recipient can accept or decline this trade!', ephemeral: true });
+                        return;
+                    }
+
+                    if (interaction.customId.startsWith('trade_decline_')) {
+                        delete global.pendingTrades[tradeKey];
+                        await interaction.update({ 
+                            content: '❌ Trade declined!', 
+                            embeds: [], 
+                            components: [] 
+                        });
+                        return;
+                    }
+
+                    // Verify both parties still have the items/money
+                    const senderProfile = getEconomyProfile(trade.sender, interaction.guild.id);
+                    const targetProfile = getEconomyProfile(trade.target, interaction.guild.id);
+
+                    if (trade.offerMoney > 0 && senderProfile.wallet < trade.offerMoney) {
+                        delete global.pendingTrades[tradeKey];
+                        await interaction.update({ 
+                            content: '❌ Trade failed! Sender no longer has the offered money.', 
+                            embeds: [], 
+                            components: [] 
+                        });
+                        return;
+                    }
+
+                    if (trade.offerItem) {
+                        const senderInv = senderProfile.inventory || {};
+                        if (!senderInv[trade.offerItem] || senderInv[trade.offerItem] < trade.offerQuantity) {
+                            delete global.pendingTrades[tradeKey];
+                            await interaction.update({ 
+                                content: '❌ Trade failed! Sender no longer has the offered item.', 
+                                embeds: [], 
+                                components: [] 
+                            });
+                            return;
+                        }
+                    }
+
+                    if (trade.requestMoney > 0 && targetProfile.wallet < trade.requestMoney) {
+                        delete global.pendingTrades[tradeKey];
+                        await interaction.update({ 
+                            content: '❌ Trade failed! You no longer have the requested money.', 
+                            embeds: [], 
+                            components: [] 
+                        });
+                        return;
+                    }
+
+                    if (trade.requestItem) {
+                        const targetInv = targetProfile.inventory || {};
+                        if (!targetInv[trade.requestItem] || targetInv[trade.requestItem] < trade.requestQuantity) {
+                            delete global.pendingTrades[tradeKey];
+                            await interaction.update({ 
+                                content: '❌ Trade failed! You no longer have the requested item.', 
+                                embeds: [], 
+                                components: [] 
+                            });
+                            return;
+                        }
+                    }
+
+                    // Execute trade atomically
+                    if (trade.offerMoney > 0) {
+                        removeMoney(trade.sender, interaction.guild.id, trade.offerMoney, 'wallet');
+                        addMoney(trade.target, interaction.guild.id, trade.offerMoney, 'wallet');
+                    }
+
+                    if (trade.offerItem) {
+                        removeFromInventory(trade.sender, interaction.guild.id, trade.offerItem, trade.offerQuantity);
+                        addToInventory(trade.target, interaction.guild.id, trade.offerItem, trade.offerQuantity);
+                    }
+
+                    if (trade.requestMoney > 0) {
+                        removeMoney(trade.target, interaction.guild.id, trade.requestMoney, 'wallet');
+                        addMoney(trade.sender, interaction.guild.id, trade.requestMoney, 'wallet');
+                    }
+
+                    if (trade.requestItem) {
+                        removeFromInventory(trade.target, interaction.guild.id, trade.requestItem, trade.requestQuantity);
+                        addToInventory(trade.sender, interaction.guild.id, trade.requestItem, trade.requestQuantity);
+                    }
+
+                    // Build trade summary
+                    let offerDesc = trade.offerMoney > 0 ? `**$${trade.offerMoney.toLocaleString()}**` : `**${trade.offerQuantity}x ${SHOP_ITEMS[trade.offerItem].name}**`;
+                    let requestDesc = trade.requestMoney > 0 ? `**$${trade.requestMoney.toLocaleString()}**` : `**${trade.requestQuantity}x ${SHOP_ITEMS[trade.requestItem].name}**`;
+
+                    const tradeCompleteEmbed = new EmbedBuilder()
+                        .setTitle('✅ Trade Complete!')
+                        .setColor(0x00FF00)
+                        .setDescription(`Trade between <@${trade.sender}> and <@${trade.target}> has been completed!`)
+                        .addFields(
+                            { name: '📤 Traded', value: offerDesc, inline: true },
+                            { name: '📥 Received', value: requestDesc, inline: true }
+                        )
+                        .setTimestamp();
+
+                    delete global.pendingTrades[tradeKey];
+                    await interaction.update({ content: '', embeds: [tradeCompleteEmbed], components: [] });
+
+                    // Notify sender
+                    try {
+                        const sender = await interaction.client.users.fetch(trade.sender);
+                        await sender.send({ 
+                            content: `✅ Your trade with <@${trade.target}> was accepted!`, 
+                            embeds: [tradeCompleteEmbed] 
+                        });
+                    } catch (e) {
+                        // DMs disabled
+                    }
+
+                    return;
+                }
+
+                // Poll vote handlers
+                if (interaction.customId.startsWith('poll_vote_')) {
+                    const [_, __, pollId, optionIndex] = interaction.customId.split('_');
+                    
+                    if (!global.activePolls?.[pollId]) {
+                        await interaction.reply({ content: '❌ This poll has ended or is invalid!', ephemeral: true });
+                        return;
+                    }
+
+                    const poll = global.activePolls[pollId];
+                    const userId = interaction.user.id;
+                    const option = parseInt(optionIndex);
+
+                    // Check if poll has ended
+                    if (Date.now() > poll.endTime) {
+                        await interaction.reply({ content: '❌ This poll has ended!', ephemeral: true });
+                        endPoll(pollId, client);
+                        return;
+                    }
+
+                    // Remove previous vote if exists
+                    if (poll.votes[userId] !== undefined) {
+                        const prevOption = poll.votes[userId];
+                        delete poll.votes[userId];
+                    }
+
+                    // Add new vote
+                    poll.votes[userId] = option;
+
+                    // Count votes for each option
+                    const voteCounts = Array(poll.options.length).fill(0);
+                    Object.values(poll.votes).forEach(vote => {
+                        voteCounts[vote]++;
+                    });
+
+                    // Update embed
+                    const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+                    const updatedEmbed = new EmbedBuilder()
+                        .setTitle('📊 ' + poll.question)
+                        .setColor(0x5865F2)
+                        .setDescription(poll.options.map((opt, i) => {
+                            const votes = voteCounts[i];
+                            const percentage = Object.keys(poll.votes).length > 0 
+                                ? Math.round((votes / Object.keys(poll.votes).length) * 100)
+                                : 0;
+                            return `${emojis[i]} ${opt} - **${votes} votes** (${percentage}%)`;
+                        }).join('\n\n'))
+                        .setFooter({ text: `Poll ends` })
+                        .setTimestamp(poll.endTime);
+
+                    await interaction.update({ embeds: [updatedEmbed] });
+                    return;
+                }
+
+                // Trivia answer handlers
+                if (interaction.customId.startsWith('trivia_answer_')) {
+                    const parts = interaction.customId.split('_');
+                    const triviaId = parts[2];
+                    const selectedAnswer = parseInt(parts[3]);
+                    const correctAnswer = parseInt(parts[4]);
+
+                    if (!global.activeTrivia?.[triviaId]) {
+                        await interaction.reply({ content: '❌ This trivia question has expired!', ephemeral: true });
+                        return;
+                    }
+
+                    const trivia = global.activeTrivia[triviaId];
+
+                    if (trivia.answered) {
+                        await interaction.reply({ content: '❌ This question has already been answered!', ephemeral: true });
+                        return;
+                    }
+
+                    if (Date.now() > trivia.expires) {
+                        await interaction.reply({ content: '⏰ Time\'s up!', ephemeral: true });
+                        delete global.activeTrivia[triviaId];
+                        return;
+                    }
+
+                    trivia.answered = true;
+                    const isCorrect = selectedAnswer === correctAnswer;
+
+                    if (isCorrect) {
+                        // Award economy points
+                        addMoney(interaction.user.id, interaction.guild.id, 100, 'wallet');
+
+                        const correctEmbed = new EmbedBuilder()
+                            .setTitle('✅ Correct!')
+                            .setDescription(`Great job! You earned **$100**!`)
+                            .setColor(0x00FF00)
+                            .setFooter({ text: `Answered by ${interaction.user.username}` });
+
+                        await interaction.update({ embeds: [correctEmbed], components: [] });
+                    } else {
+                        const wrongEmbed = new EmbedBuilder()
+                            .setTitle('❌ Wrong!')
+                            .setDescription(`The correct answer was option ${correctAnswer + 1}.`)
+                            .setColor(0xFF0000)
+                            .setFooter({ text: `Better luck next time!` });
+
+                        await interaction.update({ embeds: [wrongEmbed], components: [] });
+                    }
+
+                    delete global.activeTrivia[triviaId];
                     return;
                 }
             }
@@ -10648,6 +10988,252 @@ const now = Date.now();
                 return;
             }
 
+            // Trade modal handler
+            if (interaction.customId === 'economy_trade_modal') {
+                const targetUserId = interaction.fields.getTextInputValue('trade_user').replace(/[<@!>]/g, '');
+                const offerStr = interaction.fields.getTextInputValue('trade_offer');
+                const requestStr = interaction.fields.getTextInputValue('trade_request');
+
+                // Validate target user
+                if (!targetUserId || targetUserId === interaction.user.id) {
+                    await interaction.reply({ content: '❌ Invalid user! You cannot trade with yourself.', ephemeral: true });
+                    return;
+                }
+
+                const targetMember = await interaction.guild.members.fetch(targetUserId).catch(() => null);
+                if (!targetMember) {
+                    await interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+                    return;
+                }
+
+                if (targetMember.user.bot) {
+                    await interaction.reply({ content: '❌ You cannot trade with bots!', ephemeral: true });
+                    return;
+                }
+
+                // Parse offer (money or item)
+                let offerMoney = 0;
+                let offerItem = null;
+                let offerQuantity = 1;
+
+                if (offerStr.startsWith('$')) {
+                    offerMoney = parseInt(offerStr.replace(/[$,]/g, ''));
+                    if (isNaN(offerMoney) || offerMoney < 1) {
+                        await interaction.reply({ content: '❌ Invalid offer amount!', ephemeral: true });
+                        return;
+                    }
+                } else {
+                    const offerParts = offerStr.split(' x');
+                    offerItem = offerParts[0].trim().toLowerCase();
+                    offerQuantity = offerParts[1] ? parseInt(offerParts[1]) : 1;
+
+                    if (!SHOP_ITEMS[offerItem]) {
+                        await interaction.reply({ content: '❌ Invalid item ID in offer!', ephemeral: true });
+                        return;
+                    }
+                }
+
+                // Parse request (money or item)
+                let requestMoney = 0;
+                let requestItem = null;
+                let requestQuantity = 1;
+
+                if (requestStr.startsWith('$')) {
+                    requestMoney = parseInt(requestStr.replace(/[$,]/g, ''));
+                    if (isNaN(requestMoney) || requestMoney < 1) {
+                        await interaction.reply({ content: '❌ Invalid request amount!', ephemeral: true });
+                        return;
+                    }
+                } else {
+                    const requestParts = requestStr.split(' x');
+                    requestItem = requestParts[0].trim().toLowerCase();
+                    requestQuantity = requestParts[1] ? parseInt(requestParts[1]) : 1;
+
+                    if (!SHOP_ITEMS[requestItem]) {
+                        await interaction.reply({ content: '❌ Invalid item ID in request!', ephemeral: true });
+                        return;
+                    }
+                }
+
+                // Verify sender has what they're offering
+                const senderProfile = getEconomyProfile(interaction.user.id, interaction.guild.id);
+                if (offerMoney > 0 && senderProfile.wallet < offerMoney) {
+                    await interaction.reply({ 
+                        content: `❌ You don't have **$${offerMoney.toLocaleString()}** to offer!`, 
+                        ephemeral: true 
+                    });
+                    return;
+                }
+
+                if (offerItem) {
+                    const inventory = senderProfile.inventory || {};
+                    if (!inventory[offerItem] || inventory[offerItem] < offerQuantity) {
+                        await interaction.reply({ 
+                            content: `❌ You don't have **${offerQuantity}x ${SHOP_ITEMS[offerItem].name}** to offer!`, 
+                            ephemeral: true 
+                        });
+                        return;
+                    }
+                }
+
+                // Verify target has what's being requested
+                const targetProfile = getEconomyProfile(targetUserId, interaction.guild.id);
+                if (requestMoney > 0 && targetProfile.wallet < requestMoney) {
+                    await interaction.reply({ 
+                        content: `❌ ${targetMember.user.username} doesn't have **$${requestMoney.toLocaleString()}**!`, 
+                        ephemeral: true 
+                    });
+                    return;
+                }
+
+                if (requestItem) {
+                    const targetInventory = targetProfile.inventory || {};
+                    if (!targetInventory[requestItem] || targetInventory[requestItem] < requestQuantity) {
+                        await interaction.reply({ 
+                            content: `❌ ${targetMember.user.username} doesn't have **${requestQuantity}x ${SHOP_ITEMS[requestItem].name}**!`, 
+                            ephemeral: true 
+                        });
+                        return;
+                    }
+                }
+
+                // Create trade confirmation buttons
+                const acceptBtn = new ButtonBuilder()
+                    .setCustomId(`trade_accept_${interaction.user.id}_${targetUserId}_${Date.now()}`)
+                    .setLabel('Accept Trade')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji('✅');
+
+                const declineBtn = new ButtonBuilder()
+                    .setCustomId(`trade_decline_${interaction.user.id}_${targetUserId}_${Date.now()}`)
+                    .setLabel('Decline Trade')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('❌');
+
+                const row = new ActionRowBuilder().addComponents(acceptBtn, declineBtn);
+
+                // Build trade offer description
+                let offerDesc = offerMoney > 0 ? `**$${offerMoney.toLocaleString()}**` : `**${offerQuantity}x ${SHOP_ITEMS[offerItem].name}**`;
+                let requestDesc = requestMoney > 0 ? `**$${requestMoney.toLocaleString()}**` : `**${requestQuantity}x ${SHOP_ITEMS[requestItem].name}**`;
+
+                const tradeEmbed = new EmbedBuilder()
+                    .setTitle('🔄 Trade Offer')
+                    .setColor(0xFFAA00)
+                    .setDescription(`${interaction.user} wants to trade with ${targetMember.user}!`)
+                    .addFields(
+                        { name: '📤 Offering', value: offerDesc, inline: true },
+                        { name: '📥 Requesting', value: requestDesc, inline: true }
+                    )
+                    .setFooter({ text: 'Trade expires in 2 minutes' })
+                    .setTimestamp();
+
+                await interaction.reply({ content: `${targetMember.user}`, embeds: [tradeEmbed], components: [row] });
+
+                // Store trade data temporarily (will be validated on accept)
+                if (!global.pendingTrades) global.pendingTrades = {};
+                global.pendingTrades[`${interaction.user.id}_${targetUserId}_${Date.now()}`] = {
+                    sender: interaction.user.id,
+                    target: targetUserId,
+                    offerMoney,
+                    offerItem,
+                    offerQuantity,
+                    requestMoney,
+                    requestItem,
+                    requestQuantity,
+                    expires: Date.now() + 120000 // 2 minutes
+                };
+
+                return;
+            }
+
+            // Poll creation modal handler
+            if (interaction.customId === 'poll_create_modal') {
+                const question = interaction.fields.getTextInputValue('poll_question');
+                const optionsText = interaction.fields.getTextInputValue('poll_options');
+                const options = optionsText.split('\n').filter(o => o.trim()).slice(0, 10);
+
+                if (options.length < 2) {
+                    await interaction.reply({ content: '❌ You need at least 2 options for a poll!', ephemeral: true });
+                    return;
+                }
+
+                // Get stored duration
+                const duration = global.pollDurations?.[interaction.user.id] || '24h';
+                delete global.pollDurations?.[interaction.user.id];
+
+                // Parse duration
+                const durationMs = {
+                    '1h': 3600000,
+                    '6h': 21600000,
+                    '12h': 43200000,
+                    '24h': 86400000,
+                    '3d': 259200000,
+                    '1w': 604800000
+                }[duration];
+
+                const endTime = Date.now() + durationMs;
+
+                // Create poll embed
+                const pollEmbed = new EmbedBuilder()
+                    .setTitle('📊 ' + question)
+                    .setColor(0x5865F2)
+                    .setDescription(options.map((opt, i) => `${i + 1}️⃣ ${opt} - **0 votes**`).join('\n\n'))
+                    .setFooter({ text: `Poll by ${interaction.user.username} • Ends` })
+                    .setTimestamp(endTime);
+
+                // Create buttons (max 5 per row, 2 rows = 10 options)
+                const row1Components = [];
+                const row2Components = [];
+
+                const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+
+                for (let i = 0; i < Math.min(options.length, 5); i++) {
+                    row1Components.push(
+                        new ButtonBuilder()
+                            .setCustomId(`poll_vote_${interaction.id}_${i}`)
+                            .setLabel(options[i])
+                            .setStyle(ButtonStyle.Primary)
+                            .setEmoji(emojis[i])
+                    );
+                }
+
+                for (let i = 5; i < options.length; i++) {
+                    row2Components.push(
+                        new ButtonBuilder()
+                            .setCustomId(`poll_vote_${interaction.id}_${i}`)
+                            .setLabel(options[i])
+                            .setStyle(ButtonStyle.Primary)
+                            .setEmoji(emojis[i])
+                    );
+                }
+
+                const components = [];
+                if (row1Components.length) components.push(new ActionRowBuilder().addComponents(row1Components));
+                if (row2Components.length) components.push(new ActionRowBuilder().addComponents(row2Components));
+
+                const pollMessage = await interaction.reply({ embeds: [pollEmbed], components, fetchReply: true });
+
+                // Store poll data
+                if (!global.activePolls) global.activePolls = {};
+                global.activePolls[interaction.id] = {
+                    messageId: pollMessage.id,
+                    channelId: interaction.channel.id,
+                    guildId: interaction.guild.id,
+                    question,
+                    options,
+                    votes: {},
+                    endTime,
+                    creatorId: interaction.user.id
+                };
+
+                // Schedule poll end
+                setTimeout(() => {
+                    endPoll(interaction.id, client);
+                }, durationMs);
+
+                return;
+            }
+
             // Embed Builder modal handler
             if (interaction.customId === 'embed_builder_modal') {
                 const title = interaction.fields.getTextInputValue('embed_title') || null;
@@ -13344,6 +13930,66 @@ const SHOP_ITEMS = {
         price: 15000, 
         description: 'Permanent VIP badge on profile',
         type: 'permanent'
+    },
+    'legend_badge': {
+        name: '🏆 Legend Badge',
+        price: 50000,
+        description: 'Permanent Legend status badge',
+        type: 'permanent'
+    },
+    'daily_multiplier': {
+        name: '💰 Daily Multiplier (7 days)',
+        price: 10000,
+        description: '2x daily reward for 7 days',
+        type: 'consumable'
+    },
+    'work_multiplier': {
+        name: '💼 Work Multiplier (7 days)',
+        price: 8000,
+        description: '1.5x work earnings for 7 days',
+        type: 'consumable'
+    },
+    'mega_xp_boost': {
+        name: '🚀 Mega XP Boost (24h)',
+        price: 5000,
+        description: '3x XP for 24 hours',
+        type: 'consumable'
+    },
+    'rob_immunity': {
+        name: '🔒 Rob Immunity (7 days)',
+        price: 12000,
+        description: 'Cannot be robbed for 7 days',
+        type: 'consumable'
+    },
+    'lottery_pack': {
+        name: '🎟️ Lottery Pack (10 tickets)',
+        price: 900,
+        description: '10 lottery tickets (save $100!)',
+        type: 'consumable'
+    },
+    'supporter_badge': {
+        name: '💎 Supporter Badge',
+        price: 25000,
+        description: 'Permanent Supporter badge',
+        type: 'permanent'
+    },
+    'custom_embed_color': {
+        name: '🌈 Custom Embed Color',
+        price: 4000,
+        description: 'Set custom color for your profile embeds',
+        type: 'utility'
+    },
+    'profile_banner': {
+        name: '🖼️ Profile Banner',
+        price: 6000,
+        description: 'Add custom banner to your economy profile',
+        type: 'utility'
+    },
+    'coin_magnet': {
+        name: '🧲 Coin Magnet (6h)',
+        price: 3500,
+        description: 'Earn 10% more from all sources',
+        type: 'consumable'
     }
 };
 
@@ -13413,6 +14059,14 @@ function addToInventory(userId, guildId, itemId, quantity = 1) {
     saveEconomyData();
 }
 
+function removeFromInventory(userId, guildId, itemId, quantity = 1) {
+    const profile = getEconomyProfile(userId, guildId);
+    if (!profile.inventory[itemId]) profile.inventory[itemId] = 0;
+    profile.inventory[itemId] -= quantity;
+    if (profile.inventory[itemId] <= 0) delete profile.inventory[itemId];
+    saveEconomyData();
+}
+
 // Work job list
 const WORK_JOBS = [
     { name: 'Streamer', min: 100, max: 300, emoji: '🎮' },
@@ -13424,6 +14078,59 @@ const WORK_JOBS = [
     { name: 'Designer', min: 110, max: 280, emoji: '🎨' },
     { name: 'Bug Tester', min: 70, max: 180, emoji: '🐛' }
 ];
+
+async function endPoll(pollId, client) {
+    if (!global.activePolls?.[pollId]) return;
+
+    const poll = global.activePolls[pollId];
+    
+    try {
+        const channel = await client.channels.fetch(poll.channelId);
+        const message = await channel.messages.fetch(poll.messageId);
+
+        // Count votes
+        const voteCounts = Array(poll.options.length).fill(0);
+        Object.values(poll.votes).forEach(vote => {
+            voteCounts[vote]++;
+        });
+
+        // Find winner(s)
+        const maxVotes = Math.max(...voteCounts);
+        const winners = poll.options.filter((_, i) => voteCounts[i] === maxVotes);
+
+        // Create results embed
+        const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+        const resultsEmbed = new EmbedBuilder()
+            .setTitle('📊 Poll Ended: ' + poll.question)
+            .setColor(0x00FF00)
+            .setDescription(poll.options.map((opt, i) => {
+                const votes = voteCounts[i];
+                const percentage = Object.keys(poll.votes).length > 0 
+                    ? Math.round((votes / Object.keys(poll.votes).length) * 100)
+                    : 0;
+                const bar = '█'.repeat(Math.floor(percentage / 5));
+                const isWinner = voteCounts[i] === maxVotes;
+                return `${emojis[i]} ${opt} - **${votes} votes** (${percentage}%)\n${isWinner ? '🏆 ' : ''}${bar}`;
+            }).join('\n\n'))
+            .addFields({ 
+                name: '👥 Total Votes', 
+                value: Object.keys(poll.votes).length.toString(), 
+                inline: true 
+            }, {
+                name: '🏆 Winner', 
+                value: winners.length === poll.options.length ? 'Tie!' : winners.join(', '),
+                inline: true
+            })
+            .setFooter({ text: `Created by ${poll.creatorId}` })
+            .setTimestamp();
+
+        await message.edit({ embeds: [resultsEmbed], components: [] });
+    } catch (error) {
+        console.error('Error ending poll:', error);
+    }
+
+    delete global.activePolls[pollId];
+}
 
 function startAutomatedMessages() {
     const CHANNEL_ID = '920750934085222470';
