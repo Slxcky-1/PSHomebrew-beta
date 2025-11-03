@@ -11619,39 +11619,47 @@ const now = Date.now();
                     }
                     
                     else if (interaction.customId === 'leveling_channel_modal') {
-                        const settings = getGuildSettings(guildId);
-                        const channelInput = interaction.fields.getTextInputValue('channel_id').trim();
-                        
-                        if (!channelInput) {
-                            settings.leveling.levelUpChannelId = null;
+                        try {
+                            const settings = getGuildSettings(guildId);
+                            const channelInput = interaction.fields.getTextInputValue('channel_id').trim();
+                            
+                            if (!channelInput) {
+                                settings.leveling.levelUpChannelId = null;
+                                saveSettings();
+                                await interaction.reply({ 
+                                    content: '✅ Level up messages will be sent in the current channel!', 
+                                    ephemeral: true 
+                                });
+                                return;
+                            }
+                            
+                            const channelMatch = channelInput.match(/(\d{17,19})/);
+                            
+                            if (!channelMatch) {
+                                return interaction.reply({ content: '❌ Invalid channel ID or mention!', ephemeral: true });
+                            }
+                            
+                            const channelId = channelMatch[1];
+                            const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
+                            
+                            if (!channel) {
+                                return interaction.reply({ content: '❌ Channel not found!', ephemeral: true });
+                            }
+                            
+                            settings.leveling.levelUpChannelId = channelId;
                             saveSettings();
+                            
                             await interaction.reply({ 
-                                content: '? Level up messages will be sent in the current channel!', 
+                                content: `✅ Level up channel set to ${channel}!`, 
                                 ephemeral: true 
                             });
-                            return;
+                        } catch (error) {
+                            console.error('Leveling channel modal error:', error);
+                            await interaction.reply({ 
+                                content: `❌ Error: ${error.message}`, 
+                                ephemeral: true 
+                            }).catch(() => {});
                         }
-                        
-                        const channelMatch = channelInput.match(/(\d{17,19})/);
-                        
-                        if (!channelMatch) {
-                            return interaction.reply({ content: '? Invalid channel ID or mention!', ephemeral: true });
-                        }
-                        
-                        const channelId = channelMatch[1];
-                        const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
-                        
-                        if (!channel) {
-                            return interaction.reply({ content: '? Channel not found!', ephemeral: true });
-                        }
-                        
-                        settings.leveling.levelUpChannelId = channelId;
-                        saveSettings();
-                        
-                        await interaction.reply({ 
-                            content: `? Level up channel set to ${channel}!`, 
-                            ephemeral: true 
-                        });
                     }
                     
                     else if (interaction.customId === 'leveling_addrole_modal') {
