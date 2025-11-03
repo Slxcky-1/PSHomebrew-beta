@@ -5330,22 +5330,22 @@ const now = Date.now();
                     .setCustomId('leveling_toggle')
                     .setLabel(settings.leveling.enabled ? 'Disable System' : 'Enable System')
                     .setStyle(settings.leveling.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(settings.leveling.enabled ? '?' : '?'),
+                    .setEmoji(settings.leveling.enabled ? '❌' : '✅'),
                 new ButtonBuilder()
                     .setCustomId('leveling_xprange')
                     .setLabel('Set XP Range')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('?'),
+                    .setEmoji('📊'),
                 new ButtonBuilder()
                     .setCustomId('leveling_cooldown')
                     .setLabel('Set Cooldown')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    .setEmoji('⏱️'),
                 new ButtonBuilder()
                     .setCustomId('leveling_maxlevel')
                     .setLabel('Set Max Level')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅')
+                    .setEmoji('🔢')
             );
         
         const row2 = new ActionRowBuilder()
@@ -5354,22 +5354,22 @@ const now = Date.now();
                     .setCustomId('leveling_channel')
                     .setLabel('Level Up Channel')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅'),
+                    .setEmoji('📢'),
                 new ButtonBuilder()
                     .setCustomId('leveling_addrole')
                     .setLabel('Add Level Role')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('?'),
+                    .setEmoji('➕'),
                 new ButtonBuilder()
                     .setCustomId('leveling_removerole')
                     .setLabel('Remove Level Role')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('?'),
+                    .setEmoji('➖'),
                 new ButtonBuilder()
                     .setCustomId('leveling_viewroles')
                     .setLabel('View Roles')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅')
+                    .setEmoji('📋')
             );
         
             await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
