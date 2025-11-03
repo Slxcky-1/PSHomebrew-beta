@@ -3286,6 +3286,46 @@ client.on('interactionCreate', async (interaction) => {
                     name: '💰 Economy System',
                     value: `• **Full currency system**\n\nDaily rewards & work jobs\nGambling (coinflip/dice/slots)\nRob users & item shop\nInventory & boosts`,
                     inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: '🎮 PlayStation Trivia',
+                    value: `• **Earn money playing trivia**\n\n21 questions, 6 categories\nPS3, PS4, PS5, PSP, Vita\n$100 reward per correct answer`,
+                    inline: true
+                },
+                {
+                    name: '📊 Interactive Polls',
+                    value: `• **Community voting system**\n\nUp to 10 poll options\nCustom durations (1h-1w)\nReal-time vote tracking`,
+                    inline: true
+                },
+                {
+                    name: '🎯 Game Database',
+                    value: `• **PlayStation game lookup**\n\n14 games in database\nSearch by title or ID\nCFW compatibility info`,
+                    inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: '🧹 Message Cleanup',
+                    value: `• **Bulk message deletion**\n\nDelete 1-100 messages\nFilter by specific user\nRequires Manage Messages`,
+                    inline: true
+                },
+                {
+                    name: '📝 Embed Builder',
+                    value: `• **Custom embed creator**\n\nInteractive visual builder\nColors, images, fields\nProfessional announcements`,
+                    inline: true
+                },
+                {
+                    name: '🔗 Webhook Manager',
+                    value: `• **Advanced webhook control**\n\nCreate & manage webhooks\nCustom avatars & names\nCross-server messaging`,
+                    inline: true
                 }
             )
             .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for AI token tracking' })
