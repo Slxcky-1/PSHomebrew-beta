@@ -10651,6 +10651,9 @@ const now = Date.now();
         // Handle modal submissions
         else if (interaction.isModalSubmit()) {
             const guildId = interaction.guild.id;
+            try {
+                console.log(`📨 Modal submitted: ${interaction.customId} | Guild: ${guildId} | User: ${interaction.user?.tag}`);
+            } catch {}
             
             // Giveaway modal handlers
             if (interaction.customId === 'giveaway_create_modal') {
