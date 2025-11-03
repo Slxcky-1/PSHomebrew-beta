@@ -134,8 +134,11 @@ module.exports = {
                     { name: 'Random', value: 'random' }
                 )),
     async execute(interaction) {
+        console.log('🎮 TRIVIA: Command triggered by', interaction.user.username);
         try {
+            console.log('🎮 TRIVIA: Starting execution...');
             let category = interaction.options.getString('category') || 'random';
+            console.log('🎮 TRIVIA: Category selected:', category);
             
             // Pick random category if random selected
             if (category === 'random') {
@@ -173,7 +176,9 @@ module.exports = {
             .setFooter({ text: 'You have 30 seconds to answer! • Correct answer: +100 coins' })
             .setTimestamp();
 
+        console.log('🎮 TRIVIA: Sending embed to user...');
         await interaction.reply({ embeds: [triviaEmbed], components: [row1, row2] });
+        console.log('🎮 TRIVIA: Embed sent successfully!');
 
         // Store question data with expiry
         if (!global.activeTrivia) global.activeTrivia = {};
@@ -196,7 +201,8 @@ module.exports = {
             }
         }, 30000);
         } catch (error) {
-            console.error('Trivia error:', error);
+            console.error('❌ TRIVIA ERROR:', error);
+            console.error('❌ TRIVIA STACK:', error.stack);
             await interaction.reply({ 
                 content: '❌ An error occurred while starting the trivia game. Please try again!', 
                 ephemeral: true 
