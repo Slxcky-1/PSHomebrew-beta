@@ -10856,6 +10856,10 @@ const now = Date.now();
             // Leveling setup modal handlers
             if (interaction.customId.includes('lvl_modal_')) {
                 try {
+                    const modulePath = require('path').join(__dirname, 'commands', 'levelingsetup.js');
+                    if (!require('fs').existsSync(modulePath)) {
+                        return interaction.reply({ content: '❌ This legacy leveling setup is not available in this build.', ephemeral: true });
+                    }
                     delete require.cache[require.resolve('./commands/levelingsetup.js')];
                     const lvlCommand = require('./commands/levelingsetup.js');
                     await lvlCommand.handleModal(interaction);
@@ -10870,6 +10874,10 @@ const now = Date.now();
             // Leave setup modal handlers
             if (interaction.customId.includes('leave_modal_')) {
                 try {
+                    const modulePath = require('path').join(__dirname, 'commands', 'leavesetup.js');
+                    if (!require('fs').existsSync(modulePath)) {
+                        return interaction.reply({ content: '❌ This legacy leave setup is not available in this build.', ephemeral: true });
+                    }
                     delete require.cache[require.resolve('./commands/leavesetup.js')];
                     const leaveCommand = require('./commands/leavesetup.js');
                     await leaveCommand.handleModal(interaction);
@@ -10884,6 +10892,10 @@ const now = Date.now();
             // Keyword setup modal handlers
             if (interaction.customId.includes('keyword_modal_')) {
                 try {
+                    const modulePath = require('path').join(__dirname, 'commands', 'keywordsetup.js');
+                    if (!require('fs').existsSync(modulePath)) {
+                        return interaction.reply({ content: '❌ This legacy keyword setup is not available in this build.', ephemeral: true });
+                    }
                     delete require.cache[require.resolve('./commands/keywordsetup.js')];
                     const keywordCommand = require('./commands/keywordsetup.js');
                     await keywordCommand.handleModal(interaction);
