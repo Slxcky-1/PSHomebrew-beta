@@ -5372,7 +5372,16 @@ const now = Date.now();
                     .setEmoji('📋')
             );
         
-            await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
+        const row3 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('leveling_cleardata')
+                    .setLabel('Clear All Leveling Data')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('🗑️')
+            );
+        
+            await interaction.reply({ embeds: [embed], components: [row1, row2, row3], ephemeral: true });
             return;
         } catch (error) {
             console.error('Leveling command error:', error);
@@ -8106,6 +8115,50 @@ const now = Date.now();
                 
                 await interaction.update({ 
                     content: rolesList, 
+                    components: [],
+                    embeds: []
+                });
+            }
+            
+            else if (interaction.customId === 'leveling_cleardata') {
+                // Confirmation buttons
+                const confirmRow = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('leveling_cleardata_confirm')
+                            .setLabel('Yes, Delete All Data')
+                            .setStyle(ButtonStyle.Danger)
+                            .setEmoji('⚠️'),
+                        new ButtonBuilder()
+                            .setCustomId('leveling_cleardata_cancel')
+                            .setLabel('Cancel')
+                            .setStyle(ButtonStyle.Secondary)
+                            .setEmoji('❌')
+                    );
+                
+                await interaction.update({
+                    content: '⚠️ **WARNING**: This will permanently delete ALL leveling data (XP and levels) for EVERY user in this server!\n\nAre you absolutely sure?',
+                    components: [confirmRow],
+                    embeds: []
+                });
+            }
+            
+            else if (interaction.customId === 'leveling_cleardata_confirm') {
+                if (userData[guildId]) {
+                    delete userData[guildId];
+                    saveUserData();
+                }
+                
+                await interaction.update({
+                    content: '✅ All leveling data has been cleared!',
+                    components: [],
+                    embeds: []
+                });
+            }
+            
+            else if (interaction.customId === 'leveling_cleardata_cancel') {
+                await interaction.update({
+                    content: '❌ Cancelled. No data was deleted.',
                     components: [],
                     embeds: []
                 });
