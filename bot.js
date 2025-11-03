@@ -7650,36 +7650,34 @@ const now = Date.now();
                     return;
                 }
             }
-            
-            initializeTicketSystem(guildId);
         
             // Feature toggle button handlers
             if (interaction.customId.startsWith('toggle_')) {
-            if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-                return interaction.reply({ content: '? Admin only!', ephemeral: true });
+                if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+                    return interaction.reply({ content: '? Admin only!', ephemeral: true });
+                }
+                
+                const settings = getGuildSettings(guildId);
+                const feature = interaction.customId.replace('toggle_', '');
+                
+                if (feature === 'leveling') {
+                    settings.leveling.enabled = !settings.leveling.enabled;
+                    saveSettings();
+                    await interaction.reply({ content: `? Leveling system ${settings.leveling.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
+                } else if (feature === 'keywords') {
+                    settings.keywords.enabled = !settings.keywords.enabled;
+                    saveSettings();
+                    await interaction.reply({ content: `? PS3 Error Detection ${settings.keywords.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
+                } else if (feature === 'welcome') {
+                    settings.welcome.enabled = !settings.welcome.enabled;
+                    saveSettings();
+                    await interaction.reply({ content: `? Welcome messages ${settings.welcome.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
+                } else if (feature === 'leave') {
+                    settings.leave.enabled = !settings.leave.enabled;
+                    saveSettings();
+                    await interaction.reply({ content: `? Leave messages ${settings.leave.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
+                }
             }
-            
-            const settings = getGuildSettings(guildId);
-            const feature = interaction.customId.replace('toggle_', '');
-            
-            if (feature === 'leveling') {
-                settings.leveling.enabled = !settings.leveling.enabled;
-                saveSettings();
-                await interaction.reply({ content: `? Leveling system ${settings.leveling.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
-            } else if (feature === 'keywords') {
-                settings.keywords.enabled = !settings.keywords.enabled;
-                saveSettings();
-                await interaction.reply({ content: `? PS3 Error Detection ${settings.keywords.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
-            } else if (feature === 'welcome') {
-                settings.welcome.enabled = !settings.welcome.enabled;
-                saveSettings();
-                await interaction.reply({ content: `? Welcome messages ${settings.welcome.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
-            } else if (feature === 'leave') {
-                settings.leave.enabled = !settings.leave.enabled;
-                saveSettings();
-                await interaction.reply({ content: `? Leave messages ${settings.leave.enabled ? '**enabled**' : '**disabled**'}!`, ephemeral: true });
-            }
-        }
         
         // Server Stats button handlers
         if (interaction.customId.startsWith('stats_')) {
