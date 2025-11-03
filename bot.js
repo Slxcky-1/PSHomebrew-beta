@@ -2240,9 +2240,6 @@ client.on('messageCreate', async (message) => {
         aiCooldowns[userId] = now;
         if (!aiConversations[channelId]) aiConversations[channelId] = [];
         
-        // Show typing indicator so user knows bot is processing
-        await message.channel.sendTyping();
-        
         // Check response cache first
         const cachedResponse = getCachedResponse(message.content);
         if (cachedResponse) {
