@@ -1656,13 +1656,13 @@ client.once('clientReady', async () => {
                     features.push(`? Commands: ${totalCommands} loaded`);
                     
                     const onlineEmbed = new EmbedBuilder()
-                        .setTitle('⚙️ Bot Online - Update Complete')
+                        .setTitle('Bot Online - Update Complete')
                         .setDescription(`Successfully updated and restarted!\n\n**Git Pull:**\n\`\`\`${updateData.gitOutput || 'Updated successfully'}\`\`\`\n\n**System Check:**\n${features.join('\n')}`)
                         .setColor(0x00FF00)
                         .addFields(
-                            { name: '? Downtime', value: `${downtime}s`, inline: true },
-                            { name: '📌 Servers', value: `${client.guilds.cache.size}`, inline: true },
-                            { name: '📌 Users', value: `${client.guilds.cache.reduce((acc, g) => acc + g.memberCount, 0)}`, inline: true }
+                            { name: 'Downtime', value: `${downtime}s`, inline: true },
+                            { name: 'Servers', value: `${client.guilds.cache.size}`, inline: true },
+                            { name: 'Users', value: `${client.guilds.cache.reduce((acc, g) => acc + g.memberCount, 0)}`, inline: true }
                         )
                         .setTimestamp();
                     
