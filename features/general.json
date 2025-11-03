@@ -36,6 +36,10 @@
         {
             "name": "analytics",
             "description": "View comprehensive server analytics and statistics (Admin only)"
+        },
+        {
+            "name": "embedbuilder",
+            "description": "Create custom embeds with an interactive builder (Manage Messages required)"
         }
     ]
 }

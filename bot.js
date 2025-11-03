@@ -5385,6 +5385,64 @@ const now = Date.now();
         return;
     }
 
+    // ===== EMBED BUILDER =====
+    
+    if (interaction.commandName === 'embedbuilder') {
+        const modal = new ModalBuilder()
+            .setCustomId('embed_builder_modal')
+            .setTitle('Embed Builder');
+
+        const titleInput = new TextInputBuilder()
+            .setCustomId('embed_title')
+            .setLabel('Title')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Enter embed title')
+            .setRequired(false)
+            .setMaxLength(256);
+
+        const descriptionInput = new TextInputBuilder()
+            .setCustomId('embed_description')
+            .setLabel('Description')
+            .setStyle(TextInputStyle.Paragraph)
+            .setPlaceholder('Enter embed description')
+            .setRequired(false)
+            .setMaxLength(4000);
+
+        const colorInput = new TextInputBuilder()
+            .setCustomId('embed_color')
+            .setLabel('Color (Hex Code)')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('e.g., #FF5733 or 0xFF5733')
+            .setRequired(false)
+            .setMaxLength(10);
+
+        const footerInput = new TextInputBuilder()
+            .setCustomId('embed_footer')
+            .setLabel('Footer Text')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Enter footer text')
+            .setRequired(false)
+            .setMaxLength(2048);
+
+        const imageInput = new TextInputBuilder()
+            .setCustomId('embed_image')
+            .setLabel('Image URL')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('https://example.com/image.png')
+            .setRequired(false);
+
+        const row1 = new ActionRowBuilder().addComponents(titleInput);
+        const row2 = new ActionRowBuilder().addComponents(descriptionInput);
+        const row3 = new ActionRowBuilder().addComponents(colorInput);
+        const row4 = new ActionRowBuilder().addComponents(footerInput);
+        const row5 = new ActionRowBuilder().addComponents(imageInput);
+
+        modal.addComponents(row1, row2, row3, row4, row5);
+
+        await interaction.showModal(modal);
+        return;
+    }
+
     // ===== ECONOMY COMMANDS =====
     
     // Economy command - Interactive panel
@@ -10621,6 +10679,73 @@ const now = Date.now();
                 return;
             }
 
+            // Embed Builder modal handler
+            if (interaction.customId === 'embed_builder_modal') {
+                const title = interaction.fields.getTextInputValue('embed_title') || null;
+                const description = interaction.fields.getTextInputValue('embed_description') || null;
+                const colorInput = interaction.fields.getTextInputValue('embed_color') || null;
+                const footer = interaction.fields.getTextInputValue('embed_footer') || null;
+                const image = interaction.fields.getTextInputValue('embed_image') || null;
+
+                // Parse color
+                let color = 0x5865F2; // Default Discord blurple
+                if (colorInput) {
+                    const colorStr = colorInput.replace('#', '').replace('0x', '');
+                    const parsedColor = parseInt(colorStr, 16);
+                    if (!isNaN(parsedColor) && parsedColor >= 0 && parsedColor <= 0xFFFFFF) {
+                        color = parsedColor;
+                    }
+                }
+
+                // Build the embed
+                const embed = new EmbedBuilder().setColor(color);
+
+                if (title) embed.setTitle(title);
+                if (description) embed.setDescription(description);
+                if (footer) embed.setFooter({ text: footer });
+                if (image) {
+                    // Validate URL
+                    try {
+                        new URL(image);
+                        embed.setImage(image);
+                    } catch (e) {
+                        // Invalid URL, skip image
+                    }
+                }
+
+                embed.setTimestamp();
+
+                // Create channel select menu for sending
+                const channelSelect = new StringSelectMenuBuilder()
+                    .setCustomId('embed_send_channel')
+                    .setPlaceholder('Select a channel to send embed')
+                    .addOptions(
+                        interaction.guild.channels.cache
+                            .filter(c => c.isTextBased() && c.type !== 4) // Exclude categories
+                            .slice(0, 25) // Max 25 options
+                            .map(channel => ({
+                                label: channel.name,
+                                value: channel.id,
+                                description: `Send to #${channel.name}`
+                            }))
+                    );
+
+                const row = new ActionRowBuilder().addComponents(channelSelect);
+
+                await interaction.reply({
+                    content: '**Preview of your embed:**',
+                    embeds: [embed],
+                    components: [row],
+                    ephemeral: true
+                });
+
+                // Store embed data temporarily
+                if (!client.embedBuilderCache) client.embedBuilderCache = new Map();
+                client.embedBuilderCache.set(interaction.user.id, embed.toJSON());
+
+                return;
+            }
+
             // Logging system modal handlers
             if (interaction.customId.startsWith('log_modal_')) {
                 const guildId = interaction.guild.id;
@@ -12374,6 +12499,45 @@ const now = Date.now();
                 await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                 return;
             }
+        }
+
+        // Embed Builder - Send to channel
+        if (interaction.customId === 'embed_send_channel') {
+            const channelId = interaction.values[0];
+            const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
+
+            if (!channel || !channel.isTextBased()) {
+                await interaction.reply({ content: '❌ Could not find that channel!', ephemeral: true });
+                return;
+            }
+
+            // Get cached embed data
+            const embedData = client.embedBuilderCache?.get(interaction.user.id);
+            if (!embedData) {
+                await interaction.reply({ content: '❌ Embed data expired. Please create a new embed.', ephemeral: true });
+                return;
+            }
+
+            try {
+                const embed = new EmbedBuilder(embedData);
+                await channel.send({ embeds: [embed] });
+                
+                await interaction.update({
+                    content: `✅ Embed sent to ${channel}!`,
+                    embeds: [],
+                    components: []
+                });
+
+                // Clean up cache
+                client.embedBuilderCache.delete(interaction.user.id);
+            } catch (error) {
+                console.error('Error sending embed:', error);
+                await interaction.reply({ 
+                    content: '❌ Failed to send embed. Make sure I have permission to send messages in that channel!', 
+                    ephemeral: true 
+                });
+            }
+            return;
         }
     }
 });
