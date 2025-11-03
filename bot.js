@@ -6918,28 +6918,25 @@ const now = Date.now();
                 // Trivia answer handlers
                 if (interaction.customId.startsWith('trivia_answer_')) {
                     try {
-                        // Defer immediately to prevent timeout
-                        await interaction.deferUpdate();
-                        
                         const parts = interaction.customId.split('_');
                         const triviaId = parts[2];
                         const selectedAnswer = parseInt(parts[3]);
                         const correctAnswer = parseInt(parts[4]);
 
                         if (!global.activeTrivia?.[triviaId]) {
-                            await interaction.followUp({ content: '❌ This trivia question has expired!', ephemeral: true });
+                            await interaction.reply({ content: '❌ This trivia question has expired!', ephemeral: true });
                             return;
                         }
 
                     const trivia = global.activeTrivia[triviaId];
 
                     if (trivia.answered) {
-                        await interaction.followUp({ content: '❌ This question has already been answered!', ephemeral: true });
+                        await interaction.reply({ content: '❌ This question has already been answered!', ephemeral: true });
                         return;
                     }
 
                     if (Date.now() > trivia.expires) {
-                        await interaction.followUp({ content: '⏰ Time\'s up!', ephemeral: true });
+                        await interaction.reply({ content: '⏰ Time\'s up!', ephemeral: true });
                         delete global.activeTrivia[triviaId];
                         return;
                     }
@@ -6957,7 +6954,7 @@ const now = Date.now();
                             .setColor(0x00FF00)
                             .setFooter({ text: `Answered by ${interaction.user.username}` });
 
-                        await interaction.editReply({ embeds: [correctEmbed], components: [] });
+                        await interaction.update({ embeds: [correctEmbed], components: [] });
                     } else {
                         const wrongEmbed = new EmbedBuilder()
                             .setTitle('❌ Wrong!')
@@ -6965,14 +6962,14 @@ const now = Date.now();
                             .setColor(0xFF0000)
                             .setFooter({ text: `Better luck next time!` });
 
-                        await interaction.editReply({ embeds: [wrongEmbed], components: [] });
+                        await interaction.update({ embeds: [wrongEmbed], components: [] });
                     }
 
                         delete global.activeTrivia[triviaId];
                         return;
                     } catch (error) {
                         console.error('Trivia answer error:', error);
-                        await interaction.followUp({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                        await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                         return;
                     }
                 }
