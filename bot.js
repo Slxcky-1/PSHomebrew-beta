@@ -1581,7 +1581,6 @@ client.once('clientReady', async () => {
     console.log('\n' + '='.repeat(60));
     console.log(`🤖 ${client.user.tag} is online!`);
     console.log(`🌐 Servers: ${client.guilds.cache.size}`);
-    console.log(`⏰ Bot Version: ${new Date().toISOString()}`);
     console.log('='.repeat(60));
     
     // Display token quota status on startup
@@ -6241,13 +6240,6 @@ const now = Date.now();
         // Handle button interactions
         else if (interaction.isButton()) {
             const guildId = interaction.guild.id;
-            
-            // Clear any cached modules for button handlers
-            Object.keys(require.cache).forEach(key => {
-                if (key.includes('commands')) {
-                    delete require.cache[key];
-                }
-            });
 
             // Giveaway button handlers
             if (interaction.customId.startsWith('giveaway_')) {
