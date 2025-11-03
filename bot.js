@@ -2424,7 +2424,7 @@ async function checkKeywords(message, settings) {
         let errorDatabase = null;
         let consoleType = null;
         
-        for (const code of errorCodeKeys) {
+    for (const code of Object.keys(consoleErrorCodes)) {
             // Check if message contains the error code (case-insensitive)
             if (messageContent.includes(code.toUpperCase())) {
                 foundErrorCode = code;
