@@ -2384,9 +2384,10 @@ analytics.messages.byUser[userId] = (analytics.messages.byUser[userId] || 0) + 1
     // PS3 Error Code Detection
     if (settings.keywords && settings.keywords.enabled) {
         // Skip error code detection in AI chat channels
-        if (message.channel.id === '1431740126546890843' || message.channel.id === '1433480720776433664') return;
-        
-        await checkKeywords(message, settings);
+        const isAIChannel = message.channel.id === '1431740126546890843' || message.channel.id === '1433480720776433664';
+        if (!isAIChannel) {
+            await checkKeywords(message, settings);
+        }
     }
 });
 
