@@ -6235,7 +6235,7 @@ const now = Date.now();
         return;
     }
 
-        } // End slash command handling
+    } // End slash command handling
     
         // Handle button interactions
         else if (interaction.isButton()) {
@@ -6917,37 +6917,30 @@ const now = Date.now();
 
                 // Trivia answer handlers
                 if (interaction.customId.startsWith('trivia_answer_')) {
-                    console.log('🎮 TRIVIA BUTTON CLICKED:', interaction.customId);
-                    try {
-                        const parts = interaction.customId.split('_');
-                        const triviaId = parts[2];
-                        const selectedAnswer = parseInt(parts[3]);
-                        const correctAnswer = parseInt(parts[4]);
-                        console.log('🎮 Parsed:', { triviaId, selectedAnswer, correctAnswer });
+                    const parts = interaction.customId.split('_');
+                    const triviaId = parts[2];
+                    const selectedAnswer = parseInt(parts[3]);
+                    const correctAnswer = parseInt(parts[4]);
 
-                        if (!global.activeTrivia?.[triviaId]) {
-                            await interaction.reply({ content: '❌ This trivia question has expired!', ephemeral: true });
-                            return;
-                        }
+                    if (!global.activeTrivia?.[triviaId]) {
+                        return await interaction.reply({ content: '❌ This trivia question has expired!', ephemeral: true });
+                    }
 
                     const trivia = global.activeTrivia[triviaId];
 
                     if (trivia.answered) {
-                        await interaction.reply({ content: '❌ This question has already been answered!', ephemeral: true });
-                        return;
+                        return await interaction.reply({ content: '❌ This question has already been answered!', ephemeral: true });
                     }
 
                     if (Date.now() > trivia.expires) {
-                        await interaction.reply({ content: '⏰ Time\'s up!', ephemeral: true });
                         delete global.activeTrivia[triviaId];
-                        return;
+                        return await interaction.reply({ content: '⏰ Time\'s up!', ephemeral: true });
                     }
 
                     trivia.answered = true;
                     const isCorrect = selectedAnswer === correctAnswer;
 
                     if (isCorrect) {
-                        // Award economy points
                         addMoney(interaction.user.id, interaction.guild.id, 100, 'wallet');
 
                         const correctEmbed = new EmbedBuilder()
@@ -6967,13 +6960,8 @@ const now = Date.now();
                         await interaction.update({ embeds: [wrongEmbed], components: [] });
                     }
 
-                        delete global.activeTrivia[triviaId];
-                        return;
-                    } catch (error) {
-                        console.error('Trivia answer error:', error);
-                        await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
-                        return;
-                    }
+                    delete global.activeTrivia[triviaId];
+                    return;
                 }
             }
             // Leveling setup button handlers
