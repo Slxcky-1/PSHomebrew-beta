@@ -19,7 +19,7 @@ module.exports = {
     
     async execute(interaction) {
         // Check admin permissions
-        if (!interaction.member.permissions.has('Administrator')) {
+    if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
             return interaction.reply({
                 content: '❌ You need Administrator permissions to change the bot language!',
                 ephemeral: true

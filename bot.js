@@ -1109,7 +1109,7 @@ async function logCriticalError(error, context = 'Unknown', guildId = null) {
 
 // Helper function to check admin permissions (optimization - reduces code duplication)
 function requireAdmin(interaction) {
-    if (!interaction.member.permissions.has('Administrator')) {
+    if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
         interaction.reply({ content: '❌ You need Administrator permissions to use this command!', ephemeral: true });
         return false;
     }
@@ -3785,7 +3785,7 @@ client.on('interactionCreate', async (interaction) => {
     // AI Stats command - Display token quota usage
     if (interaction.commandName === 'aistats') {
         const userId = interaction.user.id;
-        const isAdmin = interaction.member.permissions.has('Administrator');
+    const isAdmin = interaction.member.permissions.has(PermissionFlagsBits.Administrator);
         
         const quotaStatus = getTokenQuotaStatus();
         checkAndResetUserQuota(userId);
@@ -7541,7 +7541,7 @@ const now = Date.now();
             
             // AI system button handlers (new panel system)
             if (interaction.customId.startsWith('ai_')) {
-                if (!interaction.member.permissions.has('Administrator')) {
+                if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
                     return interaction.reply({ content: '? You need Administrator permission to use this.', ephemeral: true });
                 }
                 
@@ -11456,7 +11456,7 @@ const now = Date.now();
                 const guildId = interaction.guild.id;
                 
                 // Check admin permissions
-                if (!interaction.member.permissions.has('Administrator')) {
+                if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
                     return interaction.reply({ 
                         content: '? You need Administrator permissions to use this command!', 
                         ephemeral: true 
@@ -11530,7 +11530,7 @@ const now = Date.now();
             
             // AI system modal handlers (new panel system)
             if (interaction.customId.startsWith('ai_modal_')) {
-                if (!interaction.member.permissions.has('Administrator')) {
+                if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
                     return interaction.reply({ 
                         content: '? You need Administrator permissions to use this command!', 
                         ephemeral: true 
@@ -11547,7 +11547,7 @@ const now = Date.now();
                 const guildId = interaction.guild.id;
                 
                 // Check admin permissions
-                if (!interaction.member.permissions.has('Administrator')) {
+                if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
                     return interaction.reply({ 
                         content: '? You need Administrator permissions to use this command!', 
                         ephemeral: true 
@@ -11765,7 +11765,7 @@ const now = Date.now();
             if (interaction.customId.startsWith('ticket_')) {
                 const guildId = interaction.guild.id;
                 
-                if (!interaction.member.permissions.has('Administrator')) {
+                if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
                     return interaction.reply({ 
                         content: '? You need Administrator permissions!', 
                         ephemeral: true 
@@ -11908,7 +11908,7 @@ const now = Date.now();
             
             // Webhook system modal handlers
             if (interaction.customId.startsWith('webhook_')) {
-                if (!interaction.member.permissions.has('Administrator')) {
+                if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
                     return interaction.reply({ 
                         content: '? You need Administrator permissions to use this command!', 
                         ephemeral: true 
