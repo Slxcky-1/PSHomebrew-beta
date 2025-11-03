@@ -1232,11 +1232,14 @@ for (const [code, description] of Object.entries(consoleErrorCodes)) {
     if (code.startsWith('_') || typeof description !== 'string') continue;
     
     if (description.startsWith('CFW:')) {
-        errorCodeCategories.set(code, { name: '📌 Custom Firmware', color: 0x9B59B6 });
+        // 🟣 for CFW
+        errorCodeCategories.set(code, { name: '🟣 Custom Firmware', color: 0x9B59B6 });
     } else if (description.startsWith('SYSCON:')) {
-        errorCodeCategories.set(code, { name: '📌 Hardware (SYSCON)', color: 0xE74C3C });
+        // 🔴 for SYSCON hardware
+        errorCodeCategories.set(code, { name: '🔴 Hardware (SYSCON)', color: 0xE74C3C });
     } else {
-        errorCodeCategories.set(code, { name: '📌 Original PS3 Errors', color: 0x3498DB });
+        // 🔵 for original OFW errors
+        errorCodeCategories.set(code, { name: '🔵 Original PS3 Errors', color: 0x3498DB });
     }
 }
 
@@ -2517,9 +2520,20 @@ async function checkKeywords(message, settings) {
             categoryInfo = errorCodeCategories.get(foundErrorCode) || categoryInfo;
         }
         
+        // Localized title for PS3/PS4, generic for others
+        let title;
+        if (consoleType === 'PS3') {
+            title = translate(message.guild.id, 'errorCodes.ps3Title', { code: foundErrorCode });
+        } else if (consoleType === 'PS4') {
+            title = translate(message.guild.id, 'errorCodes.ps4Title', { code: foundErrorCode });
+        } else {
+            title = `❓ ${consoleType} Error Code: ${foundErrorCode}`;
+        }
+        // Clean "Answer:" prefix if present and format with proper emoji
+        const cleanedAnswer = String(errorDescription).replace(/^\s*Answer:\s*/i, '');
         const errorEmbed = new EmbedBuilder()
-            .setTitle(`? ${consoleType} Error Code: ${foundErrorCode}`)
-            .setDescription(`\n\n⚠️ **${errorDescription}**\n\n\n**${categoryInfo.name}**`)
+            .setTitle(title)
+            .setDescription(`**🗨️ Answer:** ${cleanedAnswer}\n\n**${categoryInfo.name}**`)
             .setColor(categoryInfo.color)
             .setTimestamp();
         
