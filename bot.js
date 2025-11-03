@@ -10597,6 +10597,9 @@ const now = Date.now();
     
         // Handle modal submissions
         else if (interaction.isModalSubmit()) {
+            const guildId = interaction.guild.id;
+            const settings = getGuildSettings(guildId);
+            
             // Giveaway modal handlers
             if (interaction.customId === 'giveaway_create_modal') {
                 const prize = interaction.fields.getTextInputValue('prize');
@@ -11620,7 +11623,6 @@ const now = Date.now();
                     
                     else if (interaction.customId === 'leveling_channel_modal') {
                         try {
-                            const settings = getGuildSettings(guildId);
                             const channelInput = interaction.fields.getTextInputValue('channel_id').trim();
                             
                             if (!channelInput) {
