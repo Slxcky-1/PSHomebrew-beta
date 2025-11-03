@@ -3152,17 +3152,17 @@ client.on('interactionCreate', async (interaction) => {
             .addFields(
                 {
                     name: '📊 Leveling System',
-                    value: `✅ **Gamified progression system**\n\nReward active members automatically\nUnlock roles as you rank up`,
+                    value: `• **Gamified progression system**\n\nReward active members automatically\nUnlock roles as you rank up`,
                     inline: true
                 },
                 {
                     name: '⚠️ Error Codes',
-                    value: `✅ **Instant PS3/PS4 code lookup**\n\n351 error codes in database\nAutomated troubleshooting assistant`,
+                    value: `• **Instant PS3/PS4 code lookup**\n\n351 error codes in database\nAutomated troubleshooting assistant`,
                     inline: true
                 },
                 {
                     name: '🤖 AI Chat',
-                    value: `✅ **Powered by DeepSeek AI + ChatGPT**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily`,
+                    value: `• **Powered by DeepSeek AI + ChatGPT**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily`,
                     inline: true
                 },
                 {
@@ -3172,17 +3172,17 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '👋 Welcome Messages',
-                    value: `❓ **Professional member onboarding**\n\nFully customizable greetings\nMake great first impressions`,
+                    value: `• **Professional member onboarding**\n\nFully customizable greetings\nMake great first impressions`,
                     inline: true
                 },
                 {
                     name: '👋 Leave Messages',
-                    value: `✅ **Elegant farewell system**\n\nCustom goodbye messages\nTrack member departures`,
+                    value: `• **Elegant farewell system**\n\nCustom goodbye messages\nTrack member departures`,
                     inline: true
                 },
                 {
                     name: '🎫 Ticket System',
-                    value: `✅ **Advanced support platform**\n\nOrganized help desk solution\nProfessional ticket management`,
+                    value: `• **Advanced support platform**\n\nOrganized help desk solution\nProfessional ticket management`,
                     inline: true
                 },
                 {
@@ -3192,17 +3192,17 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '🛡️ Raid Protection',
-                    value: `✅ **Military-grade server defense**\n\nAI-powered spam detection\nReal-time threat neutralization`,
+                    value: `• **Military-grade server defense**\n\nAI-powered spam detection\nReal-time threat neutralization`,
                     inline: true
                 },
                 {
                     name: '✏️ Auto Nickname',
-                    value: `⚠️ **Smart member branding**\n\nAutomatic **PS** prefix system\nProfessional server identity`,
+                    value: `• **Smart member branding**\n\nAutomatic **PS** prefix system\nProfessional server identity`,
                     inline: true
                 },
                 {
                     name: '📺 YouTube Notifs',
-                    value: `✅ **Content update alerts**\n\nInstant new video notifications\nNever miss an upload`,
+                    value: `• **Content update alerts**\n\nInstant new video notifications\nNever miss an upload`,
                     inline: true
                 },
                 {
@@ -3212,17 +3212,17 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '📊 Server Stats',
-                    value: `✅ **Real-time analytics dashboard**\n\nLive member tracking\nDynamic voice channel stats`,
+                    value: `• **Real-time analytics dashboard**\n\nLive member tracking\nDynamic voice channel stats`,
                     inline: true
                 },
                 {
                     name: '⚙️ Custom Commands',
-                    value: `❓ **Interactive command builder**\n\nCreate clickable buttons\nNo coding required`,
+                    value: `• **Interactive command builder**\n\nCreate clickable buttons\nNo coding required`,
                     inline: true
                 },
                 {
                     name: '📝 Moderation Logging',
-                    value: `✅ **Complete audit system**\n\nFull action history tracking\nAccountability & transparency`,
+                    value: `• **Complete audit system**\n\nFull action history tracking\nAccountability & transparency`,
                     inline: true
                 },
                 {
@@ -3232,17 +3232,17 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '🌍 Multi-Language',
-                    value: `⚠️ **Global language support**\n\n6 languages available\nEN, ES, FR, DE, PT, JA\nServer-wide translation`,
+                    value: `• **Global language support**\n\n6 languages available\nEN, ES, FR, DE, PT, JA\nServer-wide translation`,
                     inline: true
                 },
                 {
                     name: '⚡ AI Optimization',
-                    value: `❓ **Performance & efficiency**\n\nResponse caching system\n30-50% API cost reduction\n5k tokens per user daily`,
+                    value: `• **Performance & efficiency**\n\nResponse caching system\n30-50% API cost reduction\n5k tokens per user daily`,
                     inline: true
                 },
                 {
                     name: '🎨 Bot Customization',
-                    value: `✅ **Per-server branding**\n\nCustom bot nicknames\nProfessional server identity\nPersonalized experience`,
+                    value: `• **Per-server branding**\n\nCustom bot nicknames\nProfessional server identity\nPersonalized experience`,
                     inline: true
                 },
                 {
@@ -3252,12 +3252,12 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '🎉 Giveaway System',
-                    value: `✅ **Automated prize distribution**\n\nAutomatic winner selection\nRole & level requirements\nMultiple winners support\nAuto-DM winners`,
+                    value: `• **Automated prize distribution**\n\nAutomatic winner selection\nRole & level requirements\nMultiple winners support\nAuto-DM winners`,
                     inline: true
                 },
                 {
                     name: '💰 Economy System',
-                    value: `✅ **Full currency system**\n\nDaily rewards & work jobs\nGambling (coinflip/dice/slots)\nRob users & item shop\nInventory & boosts`,
+                    value: `• **Full currency system**\n\nDaily rewards & work jobs\nGambling (coinflip/dice/slots)\nRob users & item shop\nInventory & boosts`,
                     inline: true
                 }
             )
