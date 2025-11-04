@@ -13348,6 +13348,7 @@ const now = Date.now();
                 if (!requireAdmin(interaction)) return;
                 
                 try {
+                    await interaction.deferReply({ ephemeral: true });
                     const settings = getGuildSettings(guildId);
                     const rawInput = interaction.fields.getTextInputValue('channel_name').trim();
                     
@@ -13363,25 +13364,22 @@ const now = Date.now();
                         channel = interaction.guild.channels.cache.find(c => c.name.toLowerCase() === name) || null;
                     }
                     if (!channel) {
-                        return interaction.reply({ 
-                            content: '❌ Channel not found! Please provide a valid channel mention, ID, or name.', 
-                            ephemeral: true 
-                        });
+                        await interaction.editReply('❌ Channel not found! Please provide a valid channel mention, ID, or name.');
+                        return;
                     }
                     
                     // Persist by name (current welcome system uses names)
                     settings.welcome.channelName = channel.name;
                     saveSettings();
                     
-                    await interaction.reply({ 
-                        content: `✅ Welcome channel set to **#${channel.name}**!`, 
-                        ephemeral: true 
-                    });
+                    await interaction.editReply(`✅ Welcome channel set to **#${channel.name}**!`);
                 } catch (error) {
                     console.error('❌ [WELCOME MODAL] Error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
                             await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true });
+                        } else {
+                            await interaction.editReply('❌ An error occurred. Please try again!');
                         }
                     } catch (replyError) {
                         console.error('Failed to send error reply:', replyError);
@@ -13397,21 +13395,21 @@ const now = Date.now();
                 if (!requireAdmin(interaction)) return;
                 
                 try {
+                    await interaction.deferReply({ ephemeral: true });
                     const settings = getGuildSettings(guildId);
                     const messageText = interaction.fields.getTextInputValue('message_text').trim();
                     
                     settings.welcome.customMessage = messageText;
                     saveSettings();
                     
-                    await interaction.reply({ 
-                        content: `✅ Welcome message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`, 
-                        ephemeral: true 
-                    });
+                    await interaction.editReply(`✅ Welcome message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`);
                 } catch (error) {
                     console.error('❌ [WELCOME MESSAGE MODAL] Error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
                             await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true });
+                        } else {
+                            await interaction.editReply('❌ An error occurred. Please try again!');
                         }
                     } catch (replyError) {
                         console.error('Failed to send error message:', replyError);
