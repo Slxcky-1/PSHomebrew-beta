@@ -5668,46 +5668,53 @@ const now = Date.now();
         return;
     }
 
-    // Leave Setup command - Interactive panel
+    // Leave Setup command - Interactive panel (inline)
     if (interaction.commandName === 'leave') {
-        const profile = getEconomyProfile(interaction.user.id, interaction.guild.id);
-        const now = Date.now();
-        const cooldown = 24 * 60 * 60 * 1000; // 24 hours
-        
-        if (profile.lastDaily && (now - profile.lastDaily) < cooldown) {
-            const timeLeft = cooldown - (now - profile.lastDaily);
-            const hours = Math.floor(timeLeft / (60 * 60 * 1000));
-            const minutes = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
-            
-            const embed = new EmbedBuilder()
-                .setTitle('⏰ Daily Reward Cooldown')
-                .setDescription(`You already claimed your daily reward!\n\nCome back in **${hours}h ${minutes}m**`)
-                .setColor(0xFF0000);
-            
-            await interaction.reply({ embeds: [embed], ephemeral: true });
-            return;
-        }
-        
-        const dailyAmount = Math.floor(Math.random() * 500) + 500; // 500-1000
-        const bonusStreak = Math.floor((profile.dailyStreak || 0) / 7) * 100; // +100 per week
-        const totalAmount = dailyAmount + bonusStreak;
-        
-        profile.lastDaily = now;
-        profile.dailyStreak = (profile.dailyStreak || 0) + 1;
-        addMoney(interaction.user.id, interaction.guild.id, totalAmount, 'wallet');
-        
+        if (!requireAdmin(interaction)) return;
+        const settings = getGuildSettings(interaction.guild.id);
+
+        const status = settings.leave?.enabled ? '✅ Enabled' : '❌ Disabled';
+        const channelName = settings.leave?.channelName || '📝 Not set';
+        const hasCustom = settings.leave?.customMessage ? '✅ Set' : '📝 Default';
+
         const embed = new EmbedBuilder()
-            .setTitle('🎁 Daily Reward Claimed!')
-            .setColor(0x00FF00)
-            .setDescription(`You received **$${totalAmount.toLocaleString()}**!`)
+            .setTitle('👋 Leave Message Settings')
+            .setColor(settings.leave?.enabled ? 0x00FF00 : 0xFF0000)
+            .setDescription('Configure goodbye messages when members leave the server.')
             .addFields(
-                { name: '💵 Base Amount', value: `$${dailyAmount.toLocaleString()}`, inline: true },
-                { name: '🔥 Streak Bonus', value: `$${bonusStreak.toLocaleString()}`, inline: true },
-                { name: '📈 Current Streak', value: `${profile.dailyStreak} days`, inline: true }
+                { name: 'Status', value: status, inline: true },
+                { name: 'Channel', value: channelName, inline: true },
+                { name: 'Custom Message', value: hasCustom, inline: true }
             )
-            .setFooter({ text: 'Come back tomorrow for another reward!' });
-        
-        await interaction.reply({ embeds: [embed] });
+            .setFooter({ text: 'Use the buttons below to configure' })
+            .setTimestamp();
+
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('leave_toggle')
+                    .setLabel(settings.leave?.enabled ? 'Disable' : 'Enable')
+                    .setStyle(settings.leave?.enabled ? ButtonStyle.Danger : ButtonStyle.Success),
+                new ButtonBuilder()
+                    .setCustomId('leave_set_channel')
+                    .setLabel('Set Channel')
+                    .setStyle(ButtonStyle.Primary),
+                new ButtonBuilder()
+                    .setCustomId('leave_set_message')
+                    .setLabel('Set Custom Message')
+                    .setStyle(ButtonStyle.Primary),
+                new ButtonBuilder()
+                    .setCustomId('leave_clear_message')
+                    .setLabel('Clear Message')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(!settings.leave?.customMessage),
+                new ButtonBuilder()
+                    .setCustomId('leave_refresh')
+                    .setLabel('Refresh')
+                    .setStyle(ButtonStyle.Secondary)
+            );
+
+        await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
         return;
     }
     
@@ -6113,13 +6120,6 @@ const now = Date.now();
             return interaction.reply({ content: `❌ This item cannot be used directly!`, ephemeral: true });
         }
         
-        return;
-    }
-
-    // Leave Setup command - Interactive panel
-    if (interaction.commandName === 'leave') {
-        const leaveCommand = require('./commands/leave.js');
-        await leaveCommand.execute(interaction);
         return;
     }
 
@@ -9509,6 +9509,7 @@ const now = Date.now();
     if (interaction.customId.startsWith('leave_')) {
         if (!requireAdmin(interaction)) return;
         
+        const guildId = interaction.guild.id;
         const settings = getGuildSettings(guildId);
         const config = settings.leave;
         
@@ -9551,6 +9552,13 @@ const now = Date.now();
             
             modal.addComponents(new ActionRowBuilder().addComponents(messageInput));
             await interaction.showModal(modal);
+        } else if (interaction.customId === 'leave_clear_message') {
+            config.customMessage = null;
+            saveSettings();
+            await interaction.reply({ 
+                content: `✅ Leave message reset to default!`, 
+                ephemeral: true 
+            });
         } else if (interaction.customId === 'leave_refresh') {
             const messagePreview = (config.customMessage || '{user} has left {server}. We now have {memberCount} members.')
                 .substring(0, 200);
@@ -13433,6 +13441,113 @@ const now = Date.now();
                     await interaction.editReply(`✅ Welcome message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`);
                 } catch (error) {
                     console.error('❌ [WELCOME MESSAGE MODAL] Error:', error);
+                    try {
+                        if (!interaction.replied && !interaction.deferred) {
+                            await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true });
+                        } else {
+                            await interaction.editReply('❌ An error occurred. Please try again!');
+                        }
+                    } catch (replyError) {
+                        console.error('Failed to send error message:', replyError);
+                    }
+                }
+                return;
+            }
+            
+            // Leave system modal handlers
+            if (interaction.customId === 'leave_channel_modal') {
+                const guildId = interaction.guild.id;
+                console.log(`🔧 [LEAVE MODAL] Started | Guild: ${guildId} | User: ${interaction.user.tag}`);
+                
+                try {
+                    console.log(`🔧 [LEAVE MODAL] Deferring reply...`);
+                    await interaction.deferReply({ ephemeral: true });
+                    console.log(`🔧 [LEAVE MODAL] Reply deferred successfully`);
+                    
+                    // Check admin permissions after defer
+                    if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+                        console.log(`🔧 [LEAVE MODAL] Permission denied for ${interaction.user.tag}`);
+                        await interaction.editReply('❌ You need Administrator permissions to use this command!');
+                        return;
+                    }
+                    console.log(`🔧 [LEAVE MODAL] Admin check passed`);
+                    const settings = getGuildSettings(guildId);
+                    const rawInput = interaction.fields.getTextInputValue('channel_name').trim();
+                    console.log(`🔧 [LEAVE MODAL] Input received: "${rawInput}"`);
+                    
+                    // Normalize input: accept <#id>, id, #name, or name
+                    const idMatch = rawInput.match(/(\d{17,19})/);
+                    let channel = null;
+                    console.log(`🔧 [LEAVE MODAL] ID match: ${idMatch ? idMatch[1] : 'none'}`);
+                    if (idMatch) {
+                        const id = idMatch[1];
+                        console.log(`🔧 [LEAVE MODAL] Fetching channel by ID: ${id}`);
+                        channel = interaction.guild.channels.cache.get(id) 
+                            || await interaction.guild.channels.fetch(id).catch((err) => {
+                                console.log(`🔧 [LEAVE MODAL] Fetch failed: ${err.message}`);
+                                return null;
+                            });
+                    } else {
+                        const name = rawInput.replace(/^#/, '').toLowerCase();
+                        console.log(`🔧 [LEAVE MODAL] Searching for channel by name: "${name}"`);
+                        channel = interaction.guild.channels.cache.find(c => c.name.toLowerCase() === name) || null;
+                    }
+                    console.log(`🔧 [LEAVE MODAL] Channel resolved: ${channel ? `${channel.name} (${channel.id})` : 'NOT FOUND'}`);
+                    if (!channel) {
+                        console.log(`🔧 [LEAVE MODAL] Replying with not found error`);
+                        await interaction.editReply('❌ Channel not found! Please provide a valid channel mention, ID, or name.');
+                        return;
+                    }
+                    
+                    // Persist by name (current leave system uses names)
+                    settings.leave.channelName = channel.name;
+                    saveSettings();
+                    console.log(`🔧 [LEAVE MODAL] Settings saved. Replying with success.`);
+                    
+                    await interaction.editReply(`✅ Leave channel set to **#${channel.name}**!`);
+                    console.log(`🔧 [LEAVE MODAL] Success reply sent`);
+                } catch (error) {
+                    console.error('❌ [LEAVE MODAL] FATAL ERROR:', error);
+                    console.error('❌ [LEAVE MODAL] Error stack:', error.stack);
+                    console.error('❌ [LEAVE MODAL] Interaction state - replied:', interaction.replied, 'deferred:', interaction.deferred);
+                    try {
+                        if (!interaction.replied && !interaction.deferred) {
+                            console.log('❌ [LEAVE MODAL] Sending fresh reply');
+                            await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true });
+                        } else {
+                            console.log('❌ [LEAVE MODAL] Editing deferred reply');
+                            await interaction.editReply('❌ An error occurred. Please try again!');
+                        }
+                    } catch (replyError) {
+                        console.error('❌ [LEAVE MODAL] Failed to send error reply:', replyError);
+                    }
+                }
+                console.log(`🔧 [LEAVE MODAL] Handler completed`);
+                return;
+            }
+            
+            if (interaction.customId === 'leave_message_modal') {
+                const guildId = interaction.guild.id;
+                console.log(`🔧 [LEAVE MESSAGE MODAL] Started | Guild: ${guildId} | User: ${interaction.user.tag}`);
+                
+                try {
+                    await interaction.deferReply({ ephemeral: true });
+                    
+                    // Check admin permissions after defer
+                    if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+                        await interaction.editReply('❌ You need Administrator permissions to use this command!');
+                        return;
+                    }
+                    const settings = getGuildSettings(guildId);
+                    const messageText = interaction.fields.getTextInputValue('message_text').trim();
+                    
+                    settings.leave.customMessage = messageText;
+                    saveSettings();
+                    
+                    await interaction.editReply(`✅ Leave message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`);
+                    console.log(`🔧 [LEAVE MESSAGE MODAL] Success`);
+                } catch (error) {
+                    console.error('❌ [LEAVE MESSAGE MODAL] Error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
                             await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true });
