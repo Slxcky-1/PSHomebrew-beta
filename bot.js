@@ -9412,6 +9412,7 @@ const now = Date.now();
     if (interaction.customId.startsWith('welcome_')) {
         if (!requireAdmin(interaction)) return;
         
+        const guildId = interaction.guild.id;
         const settings = getGuildSettings(guildId);
         const config = settings.welcome;
         
