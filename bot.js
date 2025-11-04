@@ -13344,11 +13344,14 @@ const now = Date.now();
             if (interaction.customId === 'welcome_channel_modal') {
                 const guildId = interaction.guild.id;
                 
-                // Check admin permissions (reuse helper for consistency)
-                if (!requireAdmin(interaction)) return;
-                
                 try {
                     await interaction.deferReply({ ephemeral: true });
+                    
+                    // Check admin permissions after defer
+                    if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+                        await interaction.editReply('❌ You need Administrator permissions to use this command!');
+                        return;
+                    }
                     const settings = getGuildSettings(guildId);
                     const rawInput = interaction.fields.getTextInputValue('channel_name').trim();
                     
@@ -13391,11 +13394,14 @@ const now = Date.now();
             if (interaction.customId === 'welcome_message_modal') {
                 const guildId = interaction.guild.id;
                 
-                // Check admin permissions
-                if (!requireAdmin(interaction)) return;
-                
                 try {
                     await interaction.deferReply({ ephemeral: true });
+                    
+                    // Check admin permissions after defer
+                    if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+                        await interaction.editReply('❌ You need Administrator permissions to use this command!');
+                        return;
+                    }
                     const settings = getGuildSettings(guildId);
                     const messageText = interaction.fields.getTextInputValue('message_text').trim();
                     
