@@ -13344,64 +13344,47 @@ const now = Date.now();
             if (interaction.customId === 'welcome_channel_modal') {
                 const guildId = interaction.guild.id;
                 
-                // Check admin permissions
-                if (!interaction.member.permissions.has('Administrator')) {
-                    return interaction.reply({ 
-                        content: '? You need Administrator permissions to use this command!', 
-                        ephemeral: true 
-                    });
-                }
+                // Check admin permissions (reuse helper for consistency)
+                if (!requireAdmin(interaction)) return;
                 
                 try {
                     const settings = getGuildSettings(guildId);
-                    let channelInput = interaction.fields.getTextInputValue('channel_name').trim();
+                    const rawInput = interaction.fields.getTextInputValue('channel_name').trim();
                     
-                    // Check if it's a channel ID (numeric)
-                    let channelName = channelInput;
-                    if (/^\d+$/.test(channelInput)) {
-                        // Validate snowflake ID format
-                        if (!/^\d{17,19}$/.test(channelInput)) {
-                            return interaction.reply({ 
-                                content: '? Invalid channel ID format!', 
-                                ephemeral: true 
-                            });
-                        }
-                        
-                        // It's an ID, fetch the channel
-                        const channel = await interaction.guild.channels.fetch(channelInput).catch(() => null);
-                        if (!channel) {
-                            return interaction.reply({ 
-                                content: `? Channel with ID \`${channelInput}\` not found!`, 
-                                ephemeral: true 
-                            });
-                        }
-                        channelName = channel.name;
+                    // Normalize input: accept <#id>, id, #name, or name
+                    const idMatch = rawInput.match(/(\d{17,19})/);
+                    let channel = null;
+                    if (idMatch) {
+                        const id = idMatch[1];
+                        channel = interaction.guild.channels.cache.get(id) 
+                            || await interaction.guild.channels.fetch(id).catch(() => null);
                     } else {
-                        // It's a name, verify it exists
-                        const channel = interaction.guild.channels.cache.find(c => c.name === channelInput);
-                        if (!channel) {
-                            return interaction.reply({ 
-                                content: `? Channel \`#${channelInput}\` not found!`, 
-                                ephemeral: true 
-                            });
-                        }
+                        const name = rawInput.replace(/^#/, '').toLowerCase();
+                        channel = interaction.guild.channels.cache.find(c => c.name.toLowerCase() === name) || null;
+                    }
+                    if (!channel) {
+                        return interaction.reply({ 
+                            content: '❌ Channel not found! Please provide a valid channel mention, ID, or name.', 
+                            ephemeral: true 
+                        });
                     }
                     
-                    settings.welcome.channelName = channelName;
+                    // Persist by name (current welcome system uses names)
+                    settings.welcome.channelName = channel.name;
                     saveSettings();
                     
                     await interaction.reply({ 
-                        content: `? Welcome channel set to **#${channelName}**!`, 
+                        content: `✅ Welcome channel set to **#${channel.name}**!`, 
                         ephemeral: true 
                     });
                 } catch (error) {
-                    console.error('? [WELCOME MODAL] Error:', error);
+                    console.error('❌ [WELCOME MODAL] Error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
-                            await interaction.reply({ content: '? An error occurred. Please try again.', ephemeral: true });
+                            await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true });
                         }
                     } catch (replyError) {
-                        console.error('Failed to send error message:', replyError);
+                        console.error('Failed to send error reply:', replyError);
                     }
                 }
                 return;
@@ -13411,12 +13394,7 @@ const now = Date.now();
                 const guildId = interaction.guild.id;
                 
                 // Check admin permissions
-                if (!interaction.member.permissions.has('Administrator')) {
-                    return interaction.reply({ 
-                        content: '? You need Administrator permissions to use this command!', 
-                        ephemeral: true 
-                    });
-                }
+                if (!requireAdmin(interaction)) return;
                 
                 try {
                     const settings = getGuildSettings(guildId);
@@ -13426,14 +13404,14 @@ const now = Date.now();
                     saveSettings();
                     
                     await interaction.reply({ 
-                        content: `? Welcome message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`, 
+                        content: `✅ Welcome message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`, 
                         ephemeral: true 
                     });
                 } catch (error) {
-                    console.error('? [WELCOME MESSAGE MODAL] Error:', error);
+                    console.error('❌ [WELCOME MESSAGE MODAL] Error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
-                            await interaction.reply({ content: '? An error occurred. Please try again.', ephemeral: true });
+                            await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true });
                         }
                     } catch (replyError) {
                         console.error('Failed to send error message:', replyError);
