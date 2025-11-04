@@ -13343,30 +13343,44 @@ const now = Date.now();
             // Welcome system modal handlers (inline command)
             if (interaction.customId === 'welcome_channel_modal') {
                 const guildId = interaction.guild.id;
+                console.log(`🔧 [WELCOME MODAL] Started | Guild: ${guildId} | User: ${interaction.user.tag}`);
                 
                 try {
+                    console.log(`🔧 [WELCOME MODAL] Deferring reply...`);
                     await interaction.deferReply({ ephemeral: true });
+                    console.log(`🔧 [WELCOME MODAL] Reply deferred successfully`);
                     
                     // Check admin permissions after defer
                     if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+                        console.log(`🔧 [WELCOME MODAL] Permission denied for ${interaction.user.tag}`);
                         await interaction.editReply('❌ You need Administrator permissions to use this command!');
                         return;
                     }
+                    console.log(`🔧 [WELCOME MODAL] Admin check passed`);
                     const settings = getGuildSettings(guildId);
                     const rawInput = interaction.fields.getTextInputValue('channel_name').trim();
+                    console.log(`🔧 [WELCOME MODAL] Input received: "${rawInput}"`);
                     
                     // Normalize input: accept <#id>, id, #name, or name
                     const idMatch = rawInput.match(/(\d{17,19})/);
                     let channel = null;
+                    console.log(`🔧 [WELCOME MODAL] ID match: ${idMatch ? idMatch[1] : 'none'}`);
                     if (idMatch) {
                         const id = idMatch[1];
+                        console.log(`🔧 [WELCOME MODAL] Fetching channel by ID: ${id}`);
                         channel = interaction.guild.channels.cache.get(id) 
-                            || await interaction.guild.channels.fetch(id).catch(() => null);
+                            || await interaction.guild.channels.fetch(id).catch((err) => {
+                                console.log(`🔧 [WELCOME MODAL] Fetch failed: ${err.message}`);
+                                return null;
+                            });
                     } else {
                         const name = rawInput.replace(/^#/, '').toLowerCase();
+                        console.log(`🔧 [WELCOME MODAL] Searching for channel by name: "${name}"`);
                         channel = interaction.guild.channels.cache.find(c => c.name.toLowerCase() === name) || null;
                     }
+                    console.log(`🔧 [WELCOME MODAL] Channel resolved: ${channel ? `${channel.name} (${channel.id})` : 'NOT FOUND'}`);
                     if (!channel) {
+                        console.log(`🔧 [WELCOME MODAL] Replying with not found error`);
                         await interaction.editReply('❌ Channel not found! Please provide a valid channel mention, ID, or name.');
                         return;
                     }
@@ -13374,20 +13388,27 @@ const now = Date.now();
                     // Persist by name (current welcome system uses names)
                     settings.welcome.channelName = channel.name;
                     saveSettings();
+                    console.log(`🔧 [WELCOME MODAL] Settings saved. Replying with success.`);
                     
                     await interaction.editReply(`✅ Welcome channel set to **#${channel.name}**!`);
+                    console.log(`🔧 [WELCOME MODAL] Success reply sent`);
                 } catch (error) {
-                    console.error('❌ [WELCOME MODAL] Error:', error);
+                    console.error('❌ [WELCOME MODAL] FATAL ERROR:', error);
+                    console.error('❌ [WELCOME MODAL] Error stack:', error.stack);
+                    console.error('❌ [WELCOME MODAL] Interaction state - replied:', interaction.replied, 'deferred:', interaction.deferred);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
+                            console.log('❌ [WELCOME MODAL] Sending fresh reply');
                             await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true });
                         } else {
+                            console.log('❌ [WELCOME MODAL] Editing deferred reply');
                             await interaction.editReply('❌ An error occurred. Please try again!');
                         }
                     } catch (replyError) {
-                        console.error('Failed to send error reply:', replyError);
+                        console.error('❌ [WELCOME MODAL] Failed to send error reply:', replyError);
                     }
                 }
+                console.log(`🔧 [WELCOME MODAL] Handler completed`);
                 return;
             }
             
