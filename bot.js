@@ -6169,10 +6169,12 @@ const now = Date.now();
         return;
     }
 
-    // PCommands command - Interactive panel
+    // PCommands command - Disabled (empty command file)
     if (interaction.commandName === 'pcommands') {
-        const pcommandsCommand = require('./commands/pcommands.js');
-        await pcommandsCommand.execute(interaction);
+        await interaction.reply({ 
+            content: '❌ This command is currently disabled. Contact the bot administrator.', 
+            ephemeral: true 
+        });
         return;
     }
 
@@ -7207,20 +7209,6 @@ const now = Date.now();
                 }
             }
 
-            // Leave setup button handlers
-            if (interaction.customId.startsWith('leave_')) {
-                try {
-                    delete require.cache[require.resolve('./commands/leavesetup.js')];
-                    const leaveCommand = require('./commands/leavesetup.js');
-                    await leaveCommand.handleButton(interaction);
-                    return;
-                } catch (error) {
-                    console.error('❌ Leave button error:', error);
-                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
-                    return;
-                }
-            }
-
             // Keyword setup button handlers (inline)
             if (interaction.customId.startsWith('keyword_')) {
                 try {
@@ -7311,18 +7299,13 @@ const now = Date.now();
                 }
             }
 
-            // PCommands button handlers
+            // PCommands button handlers - Disabled (empty command file)
             if (interaction.customId.startsWith('pcmd_')) {
-                try {
-                    delete require.cache[require.resolve('./commands/pcommands.js')];
-                    const pcommandsCommand = require('./commands/pcommands.js');
-                    await pcommandsCommand.handleButton(interaction);
-                    return;
-                } catch (error) {
-                    console.error('❌ PCommands button error:', error);
-                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
-                    return;
-                }
+                await interaction.reply({ 
+                    content: '❌ PCommands feature is currently disabled. Contact the bot administrator.', 
+                    ephemeral: true 
+                }).catch(() => {});
+                return;
             }
             
             // Logging system button handlers
@@ -11146,24 +11129,6 @@ const now = Date.now();
                 }
             }
 
-            // Leave setup modal handlers
-            if (interaction.customId.includes('leave_modal_')) {
-                try {
-                    const modulePath = require('path').join(__dirname, 'commands', 'leavesetup.js');
-                    if (!require('fs').existsSync(modulePath)) {
-                        return interaction.reply({ content: '❌ This legacy leave setup is not available in this build.', ephemeral: true });
-                    }
-                    delete require.cache[require.resolve('./commands/leavesetup.js')];
-                    const leaveCommand = require('./commands/leavesetup.js');
-                    await leaveCommand.handleModal(interaction);
-                    return;
-                } catch (error) {
-                    console.error('❌ Leave modal error:', error);
-                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
-                    return;
-                }
-            }
-
             // Keyword setup modal handlers (inline)
             if (interaction.customId === 'keyword_modal_response') {
                 try {
@@ -11181,18 +11146,13 @@ const now = Date.now();
                 }
             }
 
-            // PCommands modal handlers
+            // PCommands modal handlers - Disabled (empty command file)
             if (interaction.customId.includes('pcmd_modal_')) {
-                try {
-                    delete require.cache[require.resolve('./commands/pcommands.js')];
-                    const pcommandsCommand = require('./commands/pcommands.js');
-                    await pcommandsCommand.handleModal(interaction);
-                    return;
-                } catch (error) {
-                    console.error('❌ PCommands modal error:', error);
-                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
-                    return;
-                }
+                await interaction.reply({ 
+                    content: '❌ PCommands feature is currently disabled. Contact the bot administrator.', 
+                    ephemeral: true 
+                }).catch(() => {});
+                return;
             }
             
             // Economy modal handlers
@@ -13598,20 +13558,6 @@ const now = Date.now();
                 return;
             } catch (error) {
                 console.error('? Leveling select menu error:', error);
-                await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
-                return;
-            }
-        }
-
-        // Leave setup select menu handlers
-        if (interaction.customId.startsWith('leave_select_')) {
-            try {
-                delete require.cache[require.resolve('./commands/leavesetup.js')];
-                const leaveCommand = require('./commands/leavesetup.js');
-                await leaveCommand.handleSelectMenu(interaction);
-                return;
-            } catch (error) {
-                console.error('? Leave select menu error:', error);
                 await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                 return;
             }
