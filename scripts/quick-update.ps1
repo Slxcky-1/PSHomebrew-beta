@@ -75,10 +75,14 @@ Write-Host ""
 Write-Host "💼 Stashing local changes..." -ForegroundColor Yellow
 git stash push -m "Auto-stash before update $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 
-# Pull latest changes
+# Reset to match GitHub exactly (removes deleted files)
 Write-Host ""
-Write-Host "⬇️  Pulling latest changes..." -ForegroundColor Cyan
-git pull origin main
+Write-Host "🧹 Cleaning workspace to match GitHub..." -ForegroundColor Cyan
+git reset --hard origin/main
+
+# Clean untracked files
+Write-Host "🗑️  Removing untracked files..." -ForegroundColor Cyan
+git clean -fd
 
 # Restore config files
 Write-Host ""

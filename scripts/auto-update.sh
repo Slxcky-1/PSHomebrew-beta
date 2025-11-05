@@ -67,13 +67,13 @@ echo ""
 echo -e "\033[33m💼 Stashing local changes...\033[0m"
 git stash push -m "Auto-stash before update $(date '+%Y-%m-%d %H:%M:%S')" 2>&1
 
-# Pull latest changes
+# Reset to match GitHub exactly (removes deleted files)
 echo ""
-echo -e "\033[36m⬇️  Pulling latest changes...\033[0m"
-git pull origin main 2>&1
+echo -e "\033[36m🧹 Cleaning workspace to match GitHub...\033[0m"
+git reset --hard origin/main 2>&1
 
 if [ $? -ne 0 ]; then
-    echo -e "\033[31m❌ ERROR: Failed to pull updates\033[0m"
+    echo -e "\033[31m❌ ERROR: Failed to reset to GitHub version\033[0m"
     echo -e "\033[33m🔧 Restoring from backup...\033[0m"
     
     # Restore from backup on failure
@@ -88,6 +88,10 @@ if [ $? -ne 0 ]; then
     
     exit 1
 fi
+
+# Clean untracked files and directories
+echo -e "\033[36m🗑️  Removing untracked files...\033[0m"
+git clean -fd 2>&1
 
 # Restore config files
 echo ""

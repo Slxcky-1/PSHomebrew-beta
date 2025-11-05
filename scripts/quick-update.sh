@@ -72,10 +72,14 @@ echo ""
 echo -e "\033[33m💼 Stashing local changes...\033[0m"
 git stash push -m "Auto-stash before update $(date '+%Y-%m-%d %H:%M:%S')"
 
-# Pull latest changes
+# Reset to match GitHub exactly (removes deleted files)
 echo ""
-echo -e "\033[36m⬇️  Pulling latest changes...\033[0m"
-git pull origin main
+echo -e "\033[36m🧹 Cleaning workspace to match GitHub...\033[0m"
+git reset --hard origin/main
+
+# Clean untracked files
+echo -e "\033[36m🗑️  Removing untracked files...\033[0m"
+git clean -fd
 
 # Restore config files
 echo ""
