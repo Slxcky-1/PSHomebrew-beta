@@ -7181,33 +7181,6 @@ const now = Date.now();
                     return;
                 }
             }
-            // Leveling setup button handlers
-            if (interaction.customId.startsWith('lvl_')) {
-                try {
-                    delete require.cache[require.resolve('./commands/levelingsetup.js')];
-                    const lvlCommand = require('./commands/levelingsetup.js');
-                    await lvlCommand.handleButton(interaction);
-                    return;
-                } catch (error) {
-                    console.error('❌ Leveling button error:', error);
-                    console.error('Stack trace:', error.stack);
-                    try {
-                        if (!interaction.replied && !interaction.deferred) {
-                            await interaction.reply({ 
-                                content: '? An error occurred while processing leveling setup. Please try again or contact an admin.', 
-                                ephemeral: true 
-                            });
-                        } else if (interaction.deferred) {
-                            await interaction.editReply({ 
-                                content: '? An error occurred while processing leveling setup. Please try again or contact an admin.' 
-                            });
-                        }
-                    } catch (replyError) {
-                        console.error('Failed to send leveling error message:', replyError);
-                    }
-                    return;
-                }
-            }
 
             // Keyword setup button handlers (inline)
             if (interaction.customId.startsWith('keyword_')) {
@@ -7312,6 +7285,7 @@ const now = Date.now();
             if (interaction.customId.startsWith('log_')) {
                 if (!requireAdmin(interaction)) return;
                 
+                const guildId = interaction.guild.id;
                 const settings = getGuildSettings(guildId);
                 if (!settings.logging) {
                     settings.logging = {
@@ -7646,6 +7620,7 @@ const now = Date.now();
             if (interaction.customId.startsWith('logtoggle_')) {
                 if (!requireAdmin(interaction)) return;
                 
+                const guildId = interaction.guild.id;
                 const settings = getGuildSettings(guildId);
                 const logType = interaction.customId.replace('logtoggle_', '');
                 
@@ -7746,14 +7721,99 @@ const now = Date.now();
                 return;
             }
             
-            // AI system button handlers (new panel system)
+            // AI system button handlers
             if (interaction.customId.startsWith('ai_')) {
-                if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-                    return interaction.reply({ content: '? You need Administrator permission to use this.', ephemeral: true });
+                if (!requireAdmin(interaction)) return;
+                
+                const guildId = interaction.guild.id;
+                const settings = getGuildSettings(guildId);
+                if (!settings.ai) {
+                    settings.ai = defaultSettings.ai;
                 }
                 
-                const aisetupCommand = require('./commands/aisetup.js');
-                await aisetupCommand.handleButton(interaction);
+                try {
+                    if (interaction.customId === 'ai_toggle') {
+                        settings.ai.enabled = !settings.ai.enabled;
+                        saveSettings();
+                        
+                        await interaction.reply({ 
+                            content: `✅ AI chat ${settings.ai.enabled ? '**enabled**' : '**disabled**'}! ${settings.ai.enabled ? `Messages in **#${settings.ai.channelName}** will be answered automatically.` : ''}`, 
+                            ephemeral: true 
+                        });
+                    }
+                    else if (interaction.customId === 'ai_set_channel') {
+                        const modal = new ModalBuilder()
+                            .setCustomId('ai_channel_modal')
+                            .setTitle('Set AI Channel');
+                        
+                        const channelInput = new TextInputBuilder()
+                            .setCustomId('channel_name')
+                            .setLabel('Channel name (without #)')
+                            .setStyle(TextInputStyle.Short)
+                            .setPlaceholder('ai-chat')
+                            .setValue(settings.ai.channelName)
+                            .setRequired(true)
+                            .setMaxLength(100);
+                        
+                        const row = new ActionRowBuilder().addComponents(channelInput);
+                        modal.addComponents(row);
+                        
+                        await interaction.showModal(modal);
+                    }
+                    else if (interaction.customId === 'ai_set_history') {
+                        const modal = new ModalBuilder()
+                            .setCustomId('ai_history_modal')
+                            .setTitle('Set Max History');
+                        
+                        const historyInput = new TextInputBuilder()
+                            .setCustomId('max_history')
+                            .setLabel('Max conversation exchanges to remember')
+                            .setStyle(TextInputStyle.Short)
+                            .setPlaceholder('3')
+                            .setValue(settings.ai.maxHistory.toString())
+                            .setRequired(true)
+                            .setMaxLength(2);
+                        
+                        const row = new ActionRowBuilder().addComponents(historyInput);
+                        modal.addComponents(row);
+                        
+                        await interaction.showModal(modal);
+                    }
+                    else if (interaction.customId === 'ai_set_temperature') {
+                        const modal = new ModalBuilder()
+                            .setCustomId('ai_temperature_modal')
+                            .setTitle('Set AI Temperature');
+                        
+                        const tempInput = new TextInputBuilder()
+                            .setCustomId('temperature')
+                            .setLabel('Temperature (0.0 - 2.0)')
+                            .setStyle(TextInputStyle.Short)
+                            .setPlaceholder('0.7')
+                            .setValue(settings.ai.temperature.toString())
+                            .setRequired(true)
+                            .setMaxLength(4);
+                        
+                        const row = new ActionRowBuilder().addComponents(tempInput);
+                        modal.addComponents(row);
+                        
+                        await interaction.showModal(modal);
+                    }
+                    else if (interaction.customId === 'ai_clear_history') {
+                        const totalConvos = Object.keys(aiConversations).length;
+                        
+                        for (const channelId in aiConversations) {
+                            delete aiConversations[channelId];
+                        }
+                        
+                        await interaction.reply({ 
+                            content: `✅ Cleared all AI conversation history! (${totalConvos} channel${totalConvos !== 1 ? 's' : ''})`, 
+                            ephemeral: true 
+                        });
+                    }
+                } catch (error) {
+                    console.error('❌ AI button error:', error);
+                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                }
                 return;
             }
             
@@ -7928,6 +7988,7 @@ const now = Date.now();
                     return interaction.reply({ content: '? Admin only!', ephemeral: true });
                 }
                 
+                const guildId = interaction.guild.id;
                 const settings = getGuildSettings(guildId);
                 const feature = interaction.customId.replace('toggle_', '');
                 
@@ -7954,6 +8015,7 @@ const now = Date.now();
         if (interaction.customId.startsWith('stats_')) {
             if (!requireAdmin(interaction)) return;
             
+            const guildId = interaction.guild.id;
             const settings = getGuildSettings(guildId);
             if (!settings.serverStats) {
                 settings.serverStats = defaultSettings.serverStats;
@@ -11111,24 +11173,6 @@ const now = Date.now();
                 return;
             }
             
-            // Leveling setup modal handlers
-            if (interaction.customId.includes('lvl_modal_')) {
-                try {
-                    const modulePath = require('path').join(__dirname, 'commands', 'levelingsetup.js');
-                    if (!require('fs').existsSync(modulePath)) {
-                        return interaction.reply({ content: '❌ This legacy leveling setup is not available in this build.', ephemeral: true });
-                    }
-                    delete require.cache[require.resolve('./commands/levelingsetup.js')];
-                    const lvlCommand = require('./commands/levelingsetup.js');
-                    await lvlCommand.handleModal(interaction);
-                    return;
-                } catch (error) {
-                    console.error('❌ Leveling modal error:', error);
-                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
-                    return;
-                }
-            }
-
             // Keyword setup modal handlers (inline)
             if (interaction.customId === 'keyword_modal_response') {
                 try {
@@ -11774,17 +11818,78 @@ const now = Date.now();
                 return;
             }
             
-            // AI system modal handlers (new panel system)
-            if (interaction.customId.startsWith('ai_modal_')) {
+            // AI system modal handlers
+            if (interaction.customId === 'ai_channel_modal' || interaction.customId === 'ai_history_modal' || interaction.customId === 'ai_temperature_modal') {
+                const guildId = interaction.guild.id;
+                
                 if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
                     return interaction.reply({ 
-                        content: '? You need Administrator permissions to use this command!', 
+                        content: '❌ You need Administrator permissions to use this command!', 
                         ephemeral: true 
                     });
                 }
                 
-                const aisetupCommand = require('./commands/aisetup.js');
-                await aisetupCommand.handleModal(interaction);
+                try {
+                    const settings = getGuildSettings(guildId);
+                    if (!settings.ai) {
+                        settings.ai = defaultSettings.ai;
+                    }
+                    
+                    if (interaction.customId === 'ai_channel_modal') {
+                        const channelName = interaction.fields.getTextInputValue('channel_name').trim();
+                        const cleanChannelName = channelName.replace(/^#/, '');
+                        
+                        settings.ai.channelName = cleanChannelName;
+                        saveSettings();
+                        
+                        await interaction.reply({ 
+                            content: `✅ AI channel set to **#${cleanChannelName}**! ${settings.ai.enabled ? 'AI will respond there automatically.' : 'Enable AI to start using it.'}`, 
+                            ephemeral: true 
+                        });
+                    }
+                    else if (interaction.customId === 'ai_history_modal') {
+                        const historyStr = interaction.fields.getTextInputValue('max_history').trim();
+                        const history = parseInt(historyStr);
+                        
+                        if (isNaN(history) || history < 1 || history > 50) {
+                            return interaction.reply({ 
+                                content: '❌ Invalid number! Must be between 1-50.', 
+                                ephemeral: true 
+                            });
+                        }
+                        
+                        settings.ai.maxHistory = history;
+                        saveSettings();
+                        
+                        await interaction.reply({ 
+                            content: `✅ Max history set to **${history} exchanges**!`, 
+                            ephemeral: true 
+                        });
+                    }
+                    else if (interaction.customId === 'ai_temperature_modal') {
+                        const tempStr = interaction.fields.getTextInputValue('temperature').trim();
+                        const temperature = parseFloat(tempStr);
+                        
+                        if (isNaN(temperature) || temperature < 0 || temperature > 2) {
+                            return interaction.reply({ 
+                                content: '❌ Invalid temperature! Must be between 0.0-2.0.', 
+                                ephemeral: true 
+                            });
+                        }
+                        
+                        settings.ai.temperature = temperature;
+                        saveSettings();
+                        
+                        await interaction.reply({ 
+                            content: `✅ Temperature set to **${temperature}**! ${temperature < 0.3 ? '(Very focused)' : temperature < 0.7 ? '(Balanced)' : temperature < 1.0 ? '(Creative)' : '(Very creative)'}`, 
+                            ephemeral: true 
+                        });
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ [AI MODAL] Error:', error);
+                    await interaction.reply({ content: '❌ An error occurred. Please try again.', ephemeral: true }).catch(() => {});
+                }
                 return;
             }
             
@@ -13549,20 +13654,6 @@ const now = Date.now();
 
     // Handle select menus
     if (interaction.isStringSelectMenu()) {
-        // Leveling setup select menu handlers
-        if (interaction.customId.startsWith('lvl_select_')) {
-            try {
-                delete require.cache[require.resolve('./commands/levelingsetup.js')];
-                const lvlCommand = require('./commands/levelingsetup.js');
-                await lvlCommand.handleSelectMenu(interaction);
-                return;
-            } catch (error) {
-                console.error('? Leveling select menu error:', error);
-                await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
-                return;
-            }
-        }
-
         // Embed Builder - Send to channel
         if (interaction.customId === 'embed_send_channel') {
             const channelId = interaction.values[0];
