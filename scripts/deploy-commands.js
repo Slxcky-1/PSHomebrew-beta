@@ -5,7 +5,7 @@ const path = require('path');
 // Load configuration
 let config;
 try {
-    config = require('./config.json');
+    config = require('../config.json');
     console.log('✅ Loaded configuration from config.json');
 } catch (error) {
     console.error('❌ Error: Could not load config.json!');
@@ -21,7 +21,7 @@ if (!config.token || !config.clientId) {
 }
 
 // Load all commands from features directory
-const featuresPath = path.join(__dirname, 'features');
+const featuresPath = path.join(__dirname, '../features');
 const featureFiles = fs.readdirSync(featuresPath).filter(file => file.endsWith('.json'));
 
 let commands = [];
