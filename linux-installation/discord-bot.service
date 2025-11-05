@@ -1,27 +1,56 @@
 [Unit]
-Description=PSHomebrew Discord Bot
+Description=PSHomebrew Discord Bot - PlayStation Homebrew Community Bot
+Documentation=https://github.com/Slxcky-1/PSHomebrew-beta
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
-User=elontusk
-WorkingDirectory=/home/elontusk/Desktop/PSHomebrew-beta-main
+User=psbot
+Group=psbot
+WorkingDirectory=/opt/pshomebrew-bot
 ExecStart=/usr/bin/node bot.js
+ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
 RestartSec=10
+StartLimitInterval=60s
+StartLimitBurst=3
+
+# Logging
 StandardOutput=journal
 StandardError=journal
+SyslogIdentifier=pshomebrew-bot
 
 # Environment variables
 Environment=NODE_ENV=production
+Environment=TZ=UTC
 
-# Security settings (optional - remove if causing issues)
+# Security hardening
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
-ProtectHome=read-only
-ReadWritePaths=/home/elontusk/Desktop/PSHomebrew-beta-main
+ProtectHome=true
+ReadWritePaths=/opt/pshomebrew-bot/data
+ReadWritePaths=/opt/pshomebrew-bot/backups
+ReadOnlyPaths=/opt/pshomebrew-bot
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateDevices=true
+ProtectHostname=true
+ProtectClock=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RemoveIPC=true
+RestrictNamespaces=true
+
+# Memory and resource limits
+MemoryLimit=2G
+MemoryHigh=1.5G
+TasksMax=1024
 
 [Install]
 WantedBy=multi-user.target

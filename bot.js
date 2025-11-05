@@ -10123,7 +10123,7 @@ const now = Date.now();
         saveSettings();
         
         const actionText = action === 'none' ? 'Monitor only (no action)' : action === 'kick' ? 'Kick raiders' : 'Ban raiders';
-        await interaction.update({ content: `? Raid action set to: **${actionText}**`, components: [] });
+        await interaction.update({ content: `✅ Raid action set to: **${actionText}**`, components: [] });
         return;
     }
     
@@ -13715,6 +13715,56 @@ const now = Date.now();
                         console.error('Failed to send error message:', replyError);
                     }
                 }
+                return;
+            }
+            
+            // ===============================================
+            // NEW FEATURES - Modal Handlers
+            // ===============================================
+            
+            // Firmware notification setup modal
+            if (interaction.customId === 'fw_notify_setup') {
+                const channelInput = interaction.fields.getTextInputValue('notify_channel').trim();
+                
+                // Find the channel
+                let channel = null;
+                const idMatch = channelInput.match(/(\d{17,19})/);
+                if (idMatch) {
+                    channel = interaction.guild.channels.cache.get(idMatch[1]);
+                } else {
+                    const name = channelInput.replace(/^#/, '').toLowerCase();
+                    channel = interaction.guild.channels.cache.find(c => c.name.toLowerCase() === name);
+                }
+                
+                if (!channel) {
+                    return await interaction.reply({
+                        content: '❌ Channel not found! Please provide a valid channel mention, ID, or name.',
+                        ephemeral: true
+                    });
+                }
+                
+                if (!channel.isTextBased()) {
+                    return await interaction.reply({
+                        content: '❌ Please select a text channel for notifications.',
+                        ephemeral: true
+                    });
+                }
+                
+                // Save to server settings
+                const settings = getGuildSettings(interaction.guild.id);
+                if (!settings.firmwareNotifications) {
+                    settings.firmwareNotifications = {};
+                }
+                settings.firmwareNotifications.channelId = channel.id;
+                settings.firmwareNotifications.enabled = true;
+                saveSettings();
+                
+                await interaction.reply({
+                    content: `✅ **Firmware notifications enabled!**\n\nFirmware updates will be posted in ${channel} automatically when detected.`,
+                    ephemeral: true
+                });
+                
+                console.log(`📡 Firmware notifications enabled for guild ${interaction.guild.id} in channel ${channel.name}`);
                 return;
             }
         }

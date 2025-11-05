@@ -1,0 +1,64 @@
+{
+  "name": "PKG Database",
+  "description": "Search and analyze PlayStation PKG files and homebrew",
+  "enabled": true,
+  "commands": [
+    {
+      "name": "pkg",
+      "description": "Search PKG database or analyze PKG files",
+      "options": [
+        {
+          "name": "action",
+          "description": "What to do",
+          "type": 3,
+          "required": true,
+          "choices": [
+            { "name": "Search by game name", "value": "search" },
+            { "name": "Get PKG info by ID", "value": "info" },
+            { "name": "Verify PKG file", "value": "verify" },
+            { "name": "Browse by region", "value": "region" },
+            { "name": "Latest homebrew", "value": "homebrew" }
+          ]
+        },
+        {
+          "name": "query",
+          "description": "Search query, PKG ID, or region code",
+          "type": 3,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "homebrew",
+      "description": "Browse PlayStation homebrew applications",
+      "options": [
+        {
+          "name": "console",
+          "description": "Console type",
+          "type": 3,
+          "required": false,
+          "choices": [
+            { "name": "PS3", "value": "ps3" },
+            { "name": "PS4", "value": "ps4" },
+            { "name": "PS5", "value": "ps5" },
+            { "name": "PS Vita", "value": "vita" },
+            { "name": "PSP", "value": "psp" }
+          ]
+        },
+        {
+          "name": "category",
+          "description": "Homebrew category",
+          "type": 3,
+          "required": false,
+          "choices": [
+            { "name": "Games", "value": "games" },
+            { "name": "Emulators", "value": "emulators" },
+            { "name": "Media Players", "value": "media" },
+            { "name": "File Managers", "value": "files" },
+            { "name": "System Tools", "value": "system" }
+          ]
+        }
+      ]
+    }
+  ]
+}
