@@ -2194,30 +2194,59 @@ client.on('messageCreate', async (message) => {
                 // Send to dedicated channel if set, otherwise use current channel
                 const levelUpChannelId = settings.leveling.levelUpChannelId;
                 const levelUpChannelName = settings.leveling.levelUpChannel; // legacy support (name or ID)
+                console.log(`🔔 [LEVEL UP] User ${message.author.tag} reached level ${profile.level}`);
+                console.log(`🔔 [LEVEL UP] Config: levelUpChannelId="${levelUpChannelId}", levelUpChannelName="${levelUpChannelName}"`);
+                console.log(`🔔 [LEVEL UP] Current channel: ${message.channel.name} (${message.channel.id})`);
+                
                 let targetChannel = null;
                 if (levelUpChannelId) {
+                    console.log(`🔔 [LEVEL UP] Attempting to resolve channel by ID: ${levelUpChannelId}`);
                     targetChannel = message.guild.channels.cache.get(levelUpChannelId) 
-                        || await message.guild.channels.fetch(levelUpChannelId).catch(() => null);
+                        || await message.guild.channels.fetch(levelUpChannelId).catch((err) => {
+                            console.log(`🔔 [LEVEL UP] Failed to fetch channel ${levelUpChannelId}:`, err?.message);
+                            return null;
+                        });
+                    if (targetChannel) {
+                        console.log(`🔔 [LEVEL UP] ✅ Resolved target channel: ${targetChannel.name} (${targetChannel.id})`);
+                    } else {
+                        console.log(`🔔 [LEVEL UP] ❌ Could not resolve channel ID: ${levelUpChannelId}`);
+                    }
                 } else if (levelUpChannelName) {
+                    console.log(`🔔 [LEVEL UP] Attempting to resolve channel by name: ${levelUpChannelName}`);
                     // If the legacy field accidentally holds an ID or mention, resolve it; otherwise treat as name
                     const idMatch = String(levelUpChannelName).match(/(\d{17,19})/);
                     if (idMatch) {
                         const id = idMatch[1];
+                        console.log(`🔔 [LEVEL UP] Found ID in legacy name field: ${id}`);
                         targetChannel = message.guild.channels.cache.get(id) 
-                            || await message.guild.channels.fetch(id).catch(() => null);
+                            || await message.guild.channels.fetch(id).catch((err) => {
+                                console.log(`🔔 [LEVEL UP] Failed to fetch legacy channel ${id}:`, err?.message);
+                                return null;
+                            });
                     }
                     if (!targetChannel) {
+                        console.log(`🔔 [LEVEL UP] Trying findChannel with name: ${levelUpChannelName}`);
                         targetChannel = findChannel(message.guild, levelUpChannelName);
                     }
+                    if (targetChannel) {
+                        console.log(`🔔 [LEVEL UP] ✅ Resolved target channel: ${targetChannel.name} (${targetChannel.id})`);
+                    }
+                } else {
+                    console.log(`🔔 [LEVEL UP] No target channel configured, using current channel`);
                 }
+                
                 try {
                     if (targetChannel) {
+                        console.log(`🔔 [LEVEL UP] Sending message to: ${targetChannel.name} (${targetChannel.id})`);
                         await targetChannel.send({ embeds: [embed] });
+                        console.log(`🔔 [LEVEL UP] ✅ Message sent successfully`);
                     } else {
+                        console.log(`🔔 [LEVEL UP] Sending message to current channel: ${message.channel.name} (${message.channel.id})`);
                         await message.channel.send({ embeds: [embed] });
+                        console.log(`🔔 [LEVEL UP] ✅ Message sent to current channel`);
                     }
                 } catch (err) {
-                    console.error('Level up message send failed, falling back to current channel:', err?.message || err);
+                    console.error('🔔 [LEVEL UP] ❌ Message send failed, falling back to current channel:', err?.message || err);
                     if (message.channel) {
                         await message.channel.send({ embeds: [embed] }).catch(() => {});
                     }
