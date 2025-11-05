@@ -5436,44 +5436,44 @@ const now = Date.now();
             const embed = new EmbedBuilder()
                 .setTitle('⚙️ Leveling System Control Panel')
                 .setColor(settings.leveling.enabled ? 0x00FF00 : 0xFF0000)
-            .setDescription(
-                `System is currently **${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
-                `Manage your server's leveling system.\n\n` +
-                `Click the buttons below to configure leveling settings.`
-            )
-            .addFields(
-                { name: '⚙️ Status', value: settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                { name: '? XP Range', value: `${settings.leveling.minXP}-${settings.leveling.maxXP}`, inline: true },
-                { name: '📌 Cooldown', value: `${settings.leveling.cooldown / 1000}s`, inline: true },
-                { name: '📌 Max Level', value: settings.leveling.maxLevel.toString(), inline: true },
-                { name: '📢 Level Up Channel', value: settings.leveling.levelUpChannelId ? `<#${settings.leveling.levelUpChannelId}>` : 'Current Channel', inline: true },
-                { name: '🎖️ Level Roles', value: Object.keys(settings.leveling.levelRoles).length > 0 ? `${Object.keys(settings.leveling.levelRoles).length} roles configured` : 'None', inline: true }
-            )
-            .setFooter({ text: 'Click buttons below to configure leveling system' })
-            .setTimestamp();
+                .setDescription(
+                    `System is currently **${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                    `Manage your server's leveling system.\n\n` +
+                    `Click the buttons below to configure leveling settings.`
+                )
+                .addFields(
+                    { name: '⚙️ Status', value: settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                    { name: '❓ XP Range', value: `${settings.leveling.minXP}-${settings.leveling.maxXP}`, inline: true },
+                    { name: '� Cooldown', value: `${settings.leveling.cooldown / 1000}s`, inline: true },
+                    { name: '� Max Level', value: settings.leveling.maxLevel.toString(), inline: true },
+                    { name: '📢 Level Up Channel', value: settings.leveling.levelUpChannelId ? `<#${settings.leveling.levelUpChannelId}>` : 'Current Channel', inline: true },
+                    { name: '🎖️ Level Roles', value: Object.keys(settings.leveling.levelRoles).length > 0 ? `${Object.keys(settings.leveling.levelRoles).length} roles configured` : '⚪ None configured', inline: true }
+                )
+                .setFooter({ text: 'Click buttons below to configure leveling system • Today at ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) })
+                .setTimestamp();
         
         const row1 = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId('leveling_toggle')
-                    .setLabel(settings.leveling.enabled ? 'Disable System' : 'Enable System')
+                    .setLabel(settings.leveling.enabled ? 'Disable' : 'Enable')
                     .setStyle(settings.leveling.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
                     .setEmoji(settings.leveling.enabled ? '❌' : '✅'),
                 new ButtonBuilder()
                     .setCustomId('leveling_xprange')
-                    .setLabel('Set XP Range')
+                    .setLabel('XP Range')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📊'),
+                    .setEmoji('❓'),
                 new ButtonBuilder()
                     .setCustomId('leveling_cooldown')
-                    .setLabel('Set Cooldown')
+                    .setLabel('Cooldown')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⏱️'),
+                    .setEmoji('🔴'),
                 new ButtonBuilder()
                     .setCustomId('leveling_maxlevel')
-                    .setLabel('Set Max Level')
+                    .setLabel('Max Level')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔢')
+                    .setEmoji('�')
             );
         
         const row2 = new ActionRowBuilder()
@@ -5487,17 +5487,17 @@ const now = Date.now();
                     .setCustomId('leveling_addrole')
                     .setLabel('Add Level Role')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('➕'),
+                    .setEmoji('🎖️'),
                 new ButtonBuilder()
                     .setCustomId('leveling_removerole')
                     .setLabel('Remove Level Role')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('➖'),
+                    .setEmoji('🎖️'),
                 new ButtonBuilder()
                     .setCustomId('leveling_viewroles')
                     .setLabel('View Roles')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('📋')
+                    .setEmoji('🎖️')
             );
         
         const row3 = new ActionRowBuilder()
