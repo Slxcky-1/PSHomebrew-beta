@@ -6169,10 +6169,93 @@ const now = Date.now();
         return;
     }
 
-    // PCommands command - Disabled (empty command file)
+    // PCommands command - Custom server commands
     if (interaction.commandName === 'pcommands') {
+        const guildId = interaction.guild.id;
+        const settings = getGuildSettings(guildId);
+        
+        if (!settings.customCommands) {
+            settings.customCommands = {};
+        }
+        
+        const commandCount = Object.keys(settings.customCommands).length;
+        const isAdmin = interaction.member.permissions.has(PermissionFlagsBits.Administrator);
+        
+        const embed = new EmbedBuilder()
+            .setTitle('📜 Custom Server Commands')
+            .setColor(0x5865F2)
+            .setDescription(
+                commandCount > 0 
+                    ? `This server has **${commandCount}** custom command${commandCount !== 1 ? 's' : ''}.\n\nClick a button below to use a command!`
+                    : '📝 No custom commands yet!\n\n' + (isAdmin ? 'Administrators can create custom commands with simple responses.' : 'Ask an admin to create some!')
+            )
+            .setFooter({ text: isAdmin ? 'Admins: Use buttons to manage commands' : `${commandCount} total commands` })
+            .setTimestamp();
+        
+        if (commandCount > 0) {
+            const commandList = Object.entries(settings.customCommands)
+                .slice(0, 10)
+                .map(([name, data]) => `**/${name}** - ${data.description || 'No description'}`)
+                .join('\n');
+            embed.addFields({ name: 'Available Commands', value: commandList || 'None' });
+        }
+        
+        const components = [];
+        
+        // Command buttons (max 5 per row, max 5 rows = 25 commands)
+        if (commandCount > 0) {
+            const commandEntries = Object.entries(settings.customCommands).slice(0, 25);
+            for (let i = 0; i < Math.min(5, Math.ceil(commandEntries.length / 5)); i++) {
+                const row = new ActionRowBuilder();
+                const rowCommands = commandEntries.slice(i * 5, (i + 1) * 5);
+                
+                rowCommands.forEach(([name, data]) => {
+                    row.addComponents(
+                        new ButtonBuilder()
+                            .setCustomId(`pcmd_use_${name}`)
+                            .setLabel(data.label || name)
+                            .setStyle(ButtonStyle.Secondary)
+                            .setEmoji('📌')
+                    );
+                });
+                
+                components.push(row);
+            }
+        }
+        
+        // Admin management buttons
+        if (isAdmin && components.length < 5) {
+            const adminRow = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('pcmd_add')
+                        .setLabel('Add Command')
+                        .setStyle(ButtonStyle.Success)
+                        .setEmoji('➕'),
+                    new ButtonBuilder()
+                        .setCustomId('pcmd_edit')
+                        .setLabel('Edit Command')
+                        .setStyle(ButtonStyle.Primary)
+                        .setEmoji('✏️')
+                        .setDisabled(commandCount === 0),
+                    new ButtonBuilder()
+                        .setCustomId('pcmd_delete')
+                        .setLabel('Delete Command')
+                        .setStyle(ButtonStyle.Danger)
+                        .setEmoji('🗑️')
+                        .setDisabled(commandCount === 0),
+                    new ButtonBuilder()
+                        .setCustomId('pcmd_refresh')
+                        .setLabel('Refresh')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setEmoji('🔄')
+                );
+            components.push(adminRow);
+        }
+        
         await interaction.reply({ 
-            content: '❌ This command is currently disabled. Contact the bot administrator.', 
+            embeds: [embed], 
+            components: components.length > 0 ? components : [],
             ephemeral: true 
         });
         return;
@@ -7272,12 +7355,144 @@ const now = Date.now();
                 }
             }
 
-            // PCommands button handlers - Disabled (empty command file)
+            // PCommands button handlers
             if (interaction.customId.startsWith('pcmd_')) {
-                await interaction.reply({ 
-                    content: '❌ PCommands feature is currently disabled. Contact the bot administrator.', 
-                    ephemeral: true 
-                }).catch(() => {});
+                const guildId = interaction.guild.id;
+                const settings = getGuildSettings(guildId);
+                
+                if (!settings.customCommands) {
+                    settings.customCommands = {};
+                }
+                
+                // Use a custom command
+                if (interaction.customId.startsWith('pcmd_use_')) {
+                    const cmdName = interaction.customId.replace('pcmd_use_', '');
+                    const cmd = settings.customCommands[cmdName];
+                    
+                    if (!cmd) {
+                        await interaction.reply({ content: '❌ Command not found!', ephemeral: true });
+                        return;
+                    }
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle(cmd.title || cmdName)
+                        .setDescription(cmd.response || cmd.description || 'No content')
+                        .setColor(0x5865F2)
+                        .setFooter({ text: `Command: /${cmdName}` })
+                        .setTimestamp();
+                    
+                    await interaction.reply({ embeds: [embed] });
+                    return;
+                }
+                
+                // Admin commands
+                if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+                    await interaction.reply({ content: '❌ Admin only!', ephemeral: true });
+                    return;
+                }
+                
+                if (interaction.customId === 'pcmd_add') {
+                    const modal = new ModalBuilder()
+                        .setCustomId('pcmd_add_modal')
+                        .setTitle('Add Custom Command');
+                    
+                    modal.addComponents(
+                        new ActionRowBuilder().addComponents(
+                            new TextInputBuilder()
+                                .setCustomId('cmd_name')
+                                .setLabel('Command Name (no spaces)')
+                                .setStyle(TextInputStyle.Short)
+                                .setPlaceholder('rules')
+                                .setRequired(true)
+                                .setMaxLength(32)
+                        ),
+                        new ActionRowBuilder().addComponents(
+                            new TextInputBuilder()
+                                .setCustomId('cmd_label')
+                                .setLabel('Button Label')
+                                .setStyle(TextInputStyle.Short)
+                                .setPlaceholder('Server Rules')
+                                .setRequired(true)
+                                .setMaxLength(80)
+                        ),
+                        new ActionRowBuilder().addComponents(
+                            new TextInputBuilder()
+                                .setCustomId('cmd_title')
+                                .setLabel('Title')
+                                .setStyle(TextInputStyle.Short)
+                                .setPlaceholder('📜 Server Rules')
+                                .setRequired(true)
+                                .setMaxLength(256)
+                        ),
+                        new ActionRowBuilder().addComponents(
+                            new TextInputBuilder()
+                                .setCustomId('cmd_response')
+                                .setLabel('Response/Description')
+                                .setStyle(TextInputStyle.Paragraph)
+                                .setPlaceholder('1. Be respectful\n2. No spam\n3. Have fun!')
+                                .setRequired(true)
+                                .setMaxLength(2000)
+                        )
+                    );
+                    
+                    await interaction.showModal(modal);
+                    return;
+                }
+                
+                if (interaction.customId === 'pcmd_edit' || interaction.customId === 'pcmd_delete') {
+                    const commands = Object.keys(settings.customCommands);
+                    
+                    if (commands.length === 0) {
+                        await interaction.reply({ content: '❌ No commands to manage!', ephemeral: true });
+                        return;
+                    }
+                    
+                    const options = commands.slice(0, 25).map(name => ({
+                        label: settings.customCommands[name].label || name,
+                        value: name,
+                        description: settings.customCommands[name].description?.substring(0, 100) || 'No description'
+                    }));
+                    
+                    const selectMenu = new StringSelectMenuBuilder()
+                        .setCustomId(interaction.customId === 'pcmd_edit' ? 'pcmd_edit_select' : 'pcmd_delete_select')
+                        .setPlaceholder('Select a command')
+                        .addOptions(options);
+                    
+                    await interaction.reply({
+                        content: `Select a command to ${interaction.customId === 'pcmd_edit' ? 'edit' : 'delete'}:`,
+                        components: [new ActionRowBuilder().addComponents(selectMenu)],
+                        ephemeral: true
+                    });
+                    return;
+                }
+                
+                if (interaction.customId === 'pcmd_refresh') {
+                    // Re-send the main panel
+                    const commandCount = Object.keys(settings.customCommands).length;
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle('📜 Custom Server Commands')
+                        .setColor(0x5865F2)
+                        .setDescription(
+                            commandCount > 0 
+                                ? `This server has **${commandCount}** custom command${commandCount !== 1 ? 's' : ''}.\n\nClick a button below to use a command!`
+                                : '📝 No custom commands yet!\n\nAdministrators can create custom commands with simple responses.'
+                        )
+                        .setFooter({ text: 'Admins: Use buttons to manage commands' })
+                        .setTimestamp();
+                    
+                    if (commandCount > 0) {
+                        const commandList = Object.entries(settings.customCommands)
+                            .slice(0, 10)
+                            .map(([name, data]) => `**/${name}** - ${data.description || 'No description'}`)
+                            .join('\n');
+                        embed.addFields({ name: 'Available Commands', value: commandList || 'None' });
+                    }
+                    
+                    await interaction.update({ embeds: [embed], components: [] });
+                    return;
+                }
+                
                 return;
             }
             
@@ -11190,12 +11405,49 @@ const now = Date.now();
                 }
             }
 
-            // PCommands modal handlers - Disabled (empty command file)
-            if (interaction.customId.includes('pcmd_modal_')) {
+            // PCommands modal handlers
+            if (interaction.customId === 'pcmd_add_modal' || interaction.customId === 'pcmd_edit_modal') {
+                if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+                    await interaction.reply({ content: '❌ Admin only!', ephemeral: true });
+                    return;
+                }
+                
+                const guildId = interaction.guild.id;
+                const settings = getGuildSettings(guildId);
+                
+                if (!settings.customCommands) {
+                    settings.customCommands = {};
+                }
+                
+                const cmdName = interaction.fields.getTextInputValue('cmd_name').trim().toLowerCase().replace(/\s+/g, '_');
+                const cmdLabel = interaction.fields.getTextInputValue('cmd_label').trim();
+                const cmdTitle = interaction.fields.getTextInputValue('cmd_title').trim();
+                const cmdResponse = interaction.fields.getTextInputValue('cmd_response').trim();
+                
+                if (!/^[a-z0-9_-]+$/.test(cmdName)) {
+                    await interaction.reply({ 
+                        content: '❌ Command name must only contain letters, numbers, hyphens, and underscores!', 
+                        ephemeral: true 
+                    });
+                    return;
+                }
+                
+                settings.customCommands[cmdName] = {
+                    label: cmdLabel,
+                    title: cmdTitle,
+                    description: cmdResponse.substring(0, 100),
+                    response: cmdResponse,
+                    createdBy: interaction.user.id,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                
+                saveSettings();
+                
                 await interaction.reply({ 
-                    content: '❌ PCommands feature is currently disabled. Contact the bot administrator.', 
+                    content: `✅ Custom command **/${cmdName}** ${interaction.customId === 'pcmd_add_modal' ? 'created' : 'updated'} successfully!`, 
                     ephemeral: true 
-                }).catch(() => {});
+                });
                 return;
             }
             
@@ -13654,6 +13906,85 @@ const now = Date.now();
 
     // Handle select menus
     if (interaction.isStringSelectMenu()) {
+        // PCommands select menus
+        if (interaction.customId === 'pcmd_edit_select') {
+            const cmdName = interaction.values[0];
+            const guildId = interaction.guild.id;
+            const settings = getGuildSettings(guildId);
+            const cmd = settings.customCommands[cmdName];
+            
+            if (!cmd) {
+                await interaction.reply({ content: '❌ Command not found!', ephemeral: true });
+                return;
+            }
+            
+            const modal = new ModalBuilder()
+                .setCustomId('pcmd_edit_modal')
+                .setTitle(`Edit Command: ${cmdName}`);
+            
+            modal.addComponents(
+                new ActionRowBuilder().addComponents(
+                    new TextInputBuilder()
+                        .setCustomId('cmd_name')
+                        .setLabel('Command Name')
+                        .setStyle(TextInputStyle.Short)
+                        .setValue(cmdName)
+                        .setRequired(true)
+                        .setMaxLength(32)
+                ),
+                new ActionRowBuilder().addComponents(
+                    new TextInputBuilder()
+                        .setCustomId('cmd_label')
+                        .setLabel('Button Label')
+                        .setStyle(TextInputStyle.Short)
+                        .setValue(cmd.label || cmdName)
+                        .setRequired(true)
+                        .setMaxLength(80)
+                ),
+                new ActionRowBuilder().addComponents(
+                    new TextInputBuilder()
+                        .setCustomId('cmd_title')
+                        .setLabel('Title')
+                        .setStyle(TextInputStyle.Short)
+                        .setValue(cmd.title || cmdName)
+                        .setRequired(true)
+                        .setMaxLength(256)
+                ),
+                new ActionRowBuilder().addComponents(
+                    new TextInputBuilder()
+                        .setCustomId('cmd_response')
+                        .setLabel('Response/Description')
+                        .setStyle(TextInputStyle.Paragraph)
+                        .setValue(cmd.response || cmd.description || '')
+                        .setRequired(true)
+                        .setMaxLength(2000)
+                )
+            );
+            
+            await interaction.showModal(modal);
+            return;
+        }
+        
+        if (interaction.customId === 'pcmd_delete_select') {
+            const cmdName = interaction.values[0];
+            const guildId = interaction.guild.id;
+            const settings = getGuildSettings(guildId);
+            
+            if (!settings.customCommands[cmdName]) {
+                await interaction.reply({ content: '❌ Command not found!', ephemeral: true });
+                return;
+            }
+            
+            delete settings.customCommands[cmdName];
+            saveSettings();
+            
+            await interaction.update({ 
+                content: `✅ Command **/${cmdName}** deleted successfully!`, 
+                components: [] 
+            });
+            return;
+        }
+        
         // Embed Builder - Send to channel
         if (interaction.customId === 'embed_send_channel') {
             const channelId = interaction.values[0];
