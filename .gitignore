@@ -5,15 +5,9 @@ node_modules/
 config.json
 .secure-config
 
-# Bot runtime files
-update-marker.json
-serverSettings.json
-userData.json
-ticketData.json
-moderationData.json
-pendingPurchases.json
-giveawayData.json
-economyData.json
+# Bot runtime data files
+data/*.json
+!data/.gitkeep
 
 # Environment variables
 .env

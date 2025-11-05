@@ -190,31 +190,31 @@ const client = new Client({
 
 // Load or create user data file for leveling system
 let userData = {};
-const userDataFile = './userData.json';
+const userDataFile = './data/userData.json';
 
 // Load or create server settings
 let serverSettings = {};
-const settingsFile = './serverSettings.json';
+const settingsFile = './data/serverSettings.json';
 
 // Ticket system data
 let ticketData = {};
-const ticketDataFile = './ticketData.json';
+const ticketDataFile = './data/ticketData.json';
 
 // Moderation data
 let moderationData = {};
-const moderationDataFile = './moderationData.json';
+const moderationDataFile = './data/moderationData.json';
 
 // Pending SellHub purchases (for users not yet in server)
 let pendingPurchases = {};
-const pendingPurchasesFile = './pendingPurchases.json';
+const pendingPurchasesFile = './data/pendingPurchases.json';
 
 // Giveaways data
 let giveawayData = {};
-const giveawayDataFile = './giveawayData.json';
+const giveawayDataFile = './data/giveawayData.json';
 
 // Economy data
 let economyData = {};
-const economyDataFile = './economyData.json';
+const economyDataFile = './data/economyData.json';
 
 // AI conversation history (stored in memory only, not persisted)
 let aiConversations = {}; // { channelId: [ { role: 'user'|'assistant', content: 'message', userId?: string } ] }
@@ -1682,8 +1682,8 @@ client.once('clientReady', async () => {
     
     // Check if bot was restarted via /update command
     try {
-        if (fsSync.existsSync('./update-marker.json')) {
-            const updateData = JSON.parse(fsSync.readFileSync('./update-marker.json', 'utf8'));
+        if (fsSync.existsSync('./data/update-marker.json')) {
+            const updateData = JSON.parse(fsSync.readFileSync('./data/update-marker.json', 'utf8'));
             
             // Send message to channel and delete after 45 seconds
             const guild = client.guilds.cache.get(updateData.guildId);
@@ -1697,14 +1697,14 @@ client.once('clientReady', async () => {
                     features.push(`Config: Loaded`);
                     features.push(`DeepSeek API: ${config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
                     features.push(`ChatGPT API: ${config.openaiApiKey && config.openaiApiKey !== 'YOUR_OPENAI_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
-                    features.push(`User Data: ${fsSync.existsSync('./userData.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`User Data: ${fsSync.existsSync('./data/userData.json') ? 'Loaded' : 'Missing'}`);
                     features.push(`Console Error Codes (PS1-PS5, PSP, Vita): ${Object.keys(consoleErrorCodes).filter(k => !k.startsWith('_')).length} loaded`);
                     
                     // Additional data file checks
                     features.push(`Ticket System: ${fsSync.existsSync('./ticketData.json') ? 'Loaded' : 'Missing'}`);
                     features.push(`Moderation Data: ${fsSync.existsSync('./moderationData.json') ? 'Loaded' : 'Missing'}`);
                     features.push(`Server Settings: ${fsSync.existsSync('./serverSettings.json') ? 'Loaded' : 'Missing'}`);
-                    features.push(`CFW Knowledge: ${fsSync.existsSync('./cfwKnowledge.json') ? 'Loaded' : 'Missing'}`);
+                    features.push(`CFW Knowledge: ${fsSync.existsSync('./data/cfwKnowledge.json') ? 'Loaded' : 'Missing'}`);
                     
                     // Count registered commands from feature files
                     let totalCommands = 0;
@@ -1772,7 +1772,7 @@ client.once('clientReady', async () => {
                 console.log('❌ Guild not found');
             }
             // Delete marker file
-            fsSync.unlinkSync('./update-marker.json');
+            fsSync.unlinkSync('./data/update-marker.json');
             console.log('🗑️ Update marker deleted');
         }
     } catch (error) {
@@ -3856,7 +3856,7 @@ client.on('interactionCreate', async (interaction) => {
             
             // Build optimized message array
             // Load latest CFW knowledge
-            const cfwKnowledge = loadJSON('./cfwKnowledge.json', {});
+            const cfwKnowledge = loadJSON('./data/cfwKnowledge.json', {});
             const cfwInfo = cfwKnowledge.evilnatCFW 
                 ? `Current CFW Info: Evilnat ${cfwKnowledge.evilnatCFW.latestVersion} is the latest version (updated ${new Date(cfwKnowledge.lastUpdated).toLocaleDateString()}).` 
                 : '';
@@ -8257,7 +8257,7 @@ const now = Date.now();
                 
                 await interaction.update({ embeds: [restartEmbed], components: [] });
                 
-                fsSync.writeFileSync('./update-marker.json', JSON.stringify({
+                fsSync.writeFileSync('./data/update-marker.json', JSON.stringify({
                     channelId: interaction.channel.id,
                     guildId: interaction.guild.id,
                     timestamp: Date.now(),
@@ -8280,10 +8280,17 @@ const now = Date.now();
                 const { exec } = require('child_process');
                 const startTime = Date.now();
                 
-                const backupFiles = ['config.json', '.secure-config', 'serverSettings.json', 'userData.json', 'ticketData.json', 'moderationData.json'];
-                backupFiles.forEach(file => {
-                    if (fsSync.existsSync(file)) {
-                        fsSync.copyFileSync(file, `${file}.backup`);
+                const backupFiles = [
+                    { src: 'config.json', backup: 'config.json.backup' },
+                    { src: '.secure-config', backup: '.secure-config.backup' },
+                    { src: 'data/serverSettings.json', backup: 'data/serverSettings.json.backup' },
+                    { src: 'data/userData.json', backup: 'data/userData.json.backup' },
+                    { src: 'data/ticketData.json', backup: 'data/ticketData.json.backup' },
+                    { src: 'data/moderationData.json', backup: 'data/moderationData.json.backup' }
+                ];
+                backupFiles.forEach(({ src, backup }) => {
+                    if (fsSync.existsSync(src)) {
+                        fsSync.copyFileSync(src, backup);
                     }
                 });
                 
@@ -8320,7 +8327,7 @@ const now = Date.now();
                         .setTimestamp();
                     
                     interaction.followUp({ embeds: [successEmbed] }).then((msg) => {
-                        fsSync.writeFileSync('./update-marker.json', JSON.stringify({
+                        fsSync.writeFileSync('./data/update-marker.json', JSON.stringify({
                             channelId: interaction.channel.id,
                             guildId: interaction.guild.id,
                             messageId: msg.id,
@@ -14457,7 +14464,7 @@ client.rest.on('rateLimited', (info) => {
 // CFW Knowledge Scraper - Updates AI knowledge with latest CFW versions
 // CFW Knowledge Scraper - Updates AI knowledge with latest CFW versions
 function startCFWKnowledgeScraper() {
-    const cfwKnowledgePath = './cfwKnowledge.json';
+    const cfwKnowledgePath = './data/cfwKnowledge.json';
     
     async function updateCFWKnowledge() {
         try {
