@@ -6186,72 +6186,54 @@ const now = Date.now();
             .setColor(0x5865F2)
             .setDescription(
                 commandCount > 0 
-                    ? `This server has **${commandCount}** custom command${commandCount !== 1 ? 's' : ''}.\n\nClick a button below to use a command!`
+                    ? `This server has **${commandCount}** custom command${commandCount !== 1 ? 's' : ''}.\n\n${isAdmin ? 'Use the buttons below to view or manage commands.' : 'Click "View Commands" to see all available commands!'}`
                     : '📝 No custom commands yet!\n\n' + (isAdmin ? 'Administrators can create custom commands with simple responses.' : 'Ask an admin to create some!')
             )
             .setFooter({ text: isAdmin ? 'Admins: Use buttons to manage commands' : `${commandCount} total commands` })
             .setTimestamp();
         
-        if (commandCount > 0) {
-            const commandList = Object.entries(settings.customCommands)
-                .slice(0, 10)
-                .map(([name, data]) => `**/${name}** - ${data.description || 'No description'}`)
-                .join('\n');
-            embed.addFields({ name: 'Available Commands', value: commandList || 'None' });
-        }
-        
         const components = [];
         
-        // Command buttons (max 5 per row, max 5 rows = 25 commands)
-        if (commandCount > 0) {
-            const commandEntries = Object.entries(settings.customCommands).slice(0, 25);
-            for (let i = 0; i < Math.min(5, Math.ceil(commandEntries.length / 5)); i++) {
-                const row = new ActionRowBuilder();
-                const rowCommands = commandEntries.slice(i * 5, (i + 1) * 5);
-                
-                rowCommands.forEach(([name, data]) => {
-                    row.addComponents(
-                        new ButtonBuilder()
-                            .setCustomId(`pcmd_use_${name}`)
-                            .setLabel(data.label || name)
-                            .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('📌')
-                    );
-                });
-                
-                components.push(row);
-            }
+        // View Commands button (always visible for everyone)
+        const viewRow = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('pcmd_view')
+                    .setLabel('View Commands')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('�')
+                    .setDisabled(commandCount === 0)
+            );
+        
+        // Admin management buttons (only for admins)
+        if (isAdmin) {
+            viewRow.addComponents(
+                new ButtonBuilder()
+                    .setCustomId('pcmd_add')
+                    .setLabel('Add Command')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji('➕'),
+                new ButtonBuilder()
+                    .setCustomId('pcmd_edit')
+                    .setLabel('Edit Command')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('✏️')
+                    .setDisabled(commandCount === 0),
+                new ButtonBuilder()
+                    .setCustomId('pcmd_delete')
+                    .setLabel('Delete Command')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('🗑️')
+                    .setDisabled(commandCount === 0),
+                new ButtonBuilder()
+                    .setCustomId('pcmd_refresh')
+                    .setLabel('Refresh')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🔄')
+            );
         }
         
-        // Admin management buttons
-        if (isAdmin && components.length < 5) {
-            const adminRow = new ActionRowBuilder()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('pcmd_add')
-                        .setLabel('Add Command')
-                        .setStyle(ButtonStyle.Success)
-                        .setEmoji('➕'),
-                    new ButtonBuilder()
-                        .setCustomId('pcmd_edit')
-                        .setLabel('Edit Command')
-                        .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✏️')
-                        .setDisabled(commandCount === 0),
-                    new ButtonBuilder()
-                        .setCustomId('pcmd_delete')
-                        .setLabel('Delete Command')
-                        .setStyle(ButtonStyle.Danger)
-                        .setEmoji('🗑️')
-                        .setDisabled(commandCount === 0),
-                    new ButtonBuilder()
-                        .setCustomId('pcmd_refresh')
-                        .setLabel('Refresh')
-                        .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('🔄')
-                );
-            components.push(adminRow);
-        }
+        components.push(viewRow);
         
         await interaction.reply({ 
             embeds: [embed], 
@@ -7362,6 +7344,51 @@ const now = Date.now();
                 
                 if (!settings.customCommands) {
                     settings.customCommands = {};
+                }
+                
+                // View all commands (everyone can use this)
+                if (interaction.customId === 'pcmd_view') {
+                    const commandCount = Object.keys(settings.customCommands).length;
+                    
+                    if (commandCount === 0) {
+                        await interaction.reply({ content: '❌ No commands available!', ephemeral: true });
+                        return;
+                    }
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle('📋 Available Commands')
+                        .setColor(0x5865F2)
+                        .setDescription(`This server has **${commandCount}** custom command${commandCount !== 1 ? 's' : ''}.\n\nClick a button below to use a command!`)
+                        .setFooter({ text: `${commandCount} total commands` })
+                        .setTimestamp();
+                    
+                    const components = [];
+                    
+                    // Command buttons (max 5 per row, max 5 rows = 25 commands)
+                    const commandEntries = Object.entries(settings.customCommands).slice(0, 25);
+                    for (let i = 0; i < Math.min(5, Math.ceil(commandEntries.length / 5)); i++) {
+                        const row = new ActionRowBuilder();
+                        const rowCommands = commandEntries.slice(i * 5, (i + 1) * 5);
+                        
+                        rowCommands.forEach(([name, data]) => {
+                            row.addComponents(
+                                new ButtonBuilder()
+                                    .setCustomId(`pcmd_use_${name}`)
+                                    .setLabel(data.label || name)
+                                    .setStyle(ButtonStyle.Secondary)
+                                    .setEmoji('📌')
+                            );
+                        });
+                        
+                        components.push(row);
+                    }
+                    
+                    await interaction.reply({ 
+                        embeds: [embed], 
+                        components: components,
+                        ephemeral: true 
+                    });
+                    return;
                 }
                 
                 // Use a custom command
