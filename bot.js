@@ -502,7 +502,7 @@ function analyzeUserTone(message, userId) {
     const lower = message.toLowerCase();
     
     // Simplified tone detection
-    const isQuestion = /\b(how|what|why|help|explain|error|fix|problem)\b/i.test(lower) || message.includes('?');
+    const isQuestion = /\b(how|what|why|help|explain|error|fix|problem)\b/i.test(lower) || message.includes('');
     const isBanter = /\b(lol|lmao|haha|funny|joke|bro|mate)\b/i.test(lower) || /[😂😆🤣😅😄😁🙂🙃]/u.test(message);
     const isTechnical = /\b(code|script|error code|debug|install|setup|api|command)\b/i.test(lower);
     
@@ -2524,7 +2524,7 @@ async function checkKeywords(message, settings) {
         const messageContent = message.content.toUpperCase();
         
         // Trigger when the user asks a question OR when the message looks like an error code
-        const isQuestion = messageContent.includes('?') ||
+        const isQuestion = messageContent.includes('') ||
                            messageContent.match(/\b(WHAT|WHY|HOW|HELP|FIX|ERROR|ISSUE|PROBLEM|GETTING)\b/);
         // Broad patterns for PS-family error codes (PS3 numeric, SYSCON hex, PS4/PS5 prefixes, Vita/PSP)
         const looksLikeErrorCode = /(\b8[0-9]{7}\b)|(\b[A-F0-9]{8}\b)|(\b(C[0-3]-\d{4}-\d{4})\b)|(\b(CE-|NP-|WS-|SU-|WV-|NW-|E2-)\d[0-9\-]*\b)|(\bFFFF[0-9A-F]{4}\b)/i.test(message.content);
@@ -3120,7 +3120,7 @@ client.on('interactionCreate', async (interaction) => {
                         const lvlChannel = settings.leveling.levelUpChannelId 
                             ? `<#${settings.leveling.levelUpChannelId}>` 
                             : (settings.leveling.levelUpChannel ? `#${settings.leveling.levelUpChannel}` : 'Current channel');
-                        return `**Status:** ${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n**XP Range:** ${settings.leveling.minXP}-${settings.leveling.maxXP}\n**Cooldown:** ${settings.leveling.cooldown / 1000}s\n**Max Level:** ${settings.leveling.maxLevel}\n**Level Up Messages:** ${settings.leveling.showLevelUpMessages ? '?' : '?'}\n**Level Up Channel:** ${lvlChannel}`;
+                        return `**Status:** ${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n**XP Range:** ${settings.leveling.minXP}-${settings.leveling.maxXP}\n**Cooldown:** ${settings.leveling.cooldown / 1000}s\n**Max Level:** ${settings.leveling.maxLevel}\n**Level Up Messages:** ${settings.leveling.showLevelUpMessages ? '' : ''}\n**Level Up Channel:** ${lvlChannel}`;
                     })(),
                     inline: false
                 },
@@ -3185,7 +3185,7 @@ client.on('interactionCreate', async (interaction) => {
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
-                    name: '?',
+                    name: '',
                     value: `**Leveling System**\n${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nEarn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\n**${settings.leveling.cooldown / 1000}s** cooldown\n**${settings.leveling.maxLevel} levels** total`,
                     inline: true
                 },
@@ -3210,7 +3210,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: true
                 },
                 {
-                    name: '?',
+                    name: '',
                     value: `**Leave Messages**\n${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nChannel: **#${settings.leave.channelName}**\n${settings.leave.customMessage ? '✅ Custom message' : '📝 Default message'}`,
                     inline: true
                 },
@@ -4037,7 +4037,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('custombot_set_avatar')
                     .setLabel('Change Avatar (Global)')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('?✅')
+                    .setEmoji('🖼️')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -4095,7 +4095,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('ai_set_temperature')
                     .setLabel('Temperature')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('?✅')
+                    .setEmoji('🌡️')
             );
         
         const row2 = new ActionRowBuilder()
@@ -4104,7 +4104,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('ai_clear_history')
                     .setLabel('Clear All History')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('?✅'),
+                    .setEmoji('🗑️'),
                 new ButtonBuilder()
                     .setCustomId('ai_refresh')
                     .setLabel('Refresh')
@@ -4563,7 +4563,7 @@ const now = Date.now();
                     .setCustomId('log_set_server')
                     .setLabel('Server')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('?✅'),
+                    .setEmoji('🖥️'),
                 new ButtonBuilder()
                     .setCustomId('log_set_keywords')
                     .setLabel('Keywords')
@@ -4758,7 +4758,7 @@ const now = Date.now();
                     .setCustomId('mod_toggle')
                     .setLabel(settings.moderation.enabled ? 'Disable System' : 'Enable System')
                     .setStyle(settings.moderation.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(settings.moderation.enabled ? '?' : '?'),
+                    .setEmoji(settings.moderation.enabled ? '' : ''),
                 new ButtonBuilder()
                     .setCustomId('mod_threshold')
                     .setLabel('Set Threshold')
@@ -5444,8 +5444,8 @@ const now = Date.now();
                 .addFields(
                     { name: '⚙️ Status', value: settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                     { name: '❓ XP Range', value: `${settings.leveling.minXP}-${settings.leveling.maxXP}`, inline: true },
-                    { name: '� Cooldown', value: `${settings.leveling.cooldown / 1000}s`, inline: true },
-                    { name: '� Max Level', value: settings.leveling.maxLevel.toString(), inline: true },
+                    { name: '⏱️ Cooldown', value: `${settings.leveling.cooldown / 1000}s`, inline: true },
+                    { name: '🔢 Max Level', value: settings.leveling.maxLevel.toString(), inline: true },
                     { name: '📢 Level Up Channel', value: settings.leveling.levelUpChannelId ? `<#${settings.leveling.levelUpChannelId}>` : 'Current Channel', inline: true },
                     { name: '🎖️ Level Roles', value: Object.keys(settings.leveling.levelRoles).length > 0 ? `${Object.keys(settings.leveling.levelRoles).length} roles configured` : '⚪ None configured', inline: true }
                 )
@@ -5468,12 +5468,12 @@ const now = Date.now();
                     .setCustomId('leveling_cooldown')
                     .setLabel('Cooldown')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔴'),
+                    .setEmoji('⏱️'),
                 new ButtonBuilder()
                     .setCustomId('leveling_maxlevel')
                     .setLabel('Max Level')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('�')
+                    .setEmoji('🔢')
             );
         
         const row2 = new ActionRowBuilder()
@@ -6230,7 +6230,7 @@ const now = Date.now();
                     .setCustomId('pcmd_view')
                     .setLabel('View Commands')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('�')
+                    .setEmoji('📋')
                     .setDisabled(commandCount === 0)
             );
         
@@ -6308,7 +6308,7 @@ const now = Date.now();
                     .setCustomId('ticket_toggle')
                     .setLabel(settings.enabled ? 'Disable System' : 'Enable System')
                     .setStyle(settings.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(settings.enabled ? '?' : '?'),
+                    .setEmoji(settings.enabled ? '' : ''),
                 new ButtonBuilder()
                     .setCustomId('ticket_staffrole')
                     .setLabel('Set Staff Role')
@@ -7691,7 +7691,7 @@ const now = Date.now();
                     // Event toggles button
                     if (interaction.customId === 'log_toggles') {
                         const config = settings.logging.logTypes;
-                        const statusIcon = (enabled) => enabled ? '?' : '?';
+                        const statusIcon = (enabled) => enabled ? '' : '';
                         
                         const toggleEmbed = new EmbedBuilder()
                             .setTitle('⚙️ Event Toggle Settings')
@@ -7899,7 +7899,7 @@ const now = Date.now();
                 saveSettings();
                 
                 const config = settings.logging.logTypes;
-                const statusIcon = (enabled) => enabled ? '?' : '?';
+                const statusIcon = (enabled) => enabled ? '' : '';
                 
                 const toggleEmbed = new EmbedBuilder()
                     .setTitle('⚙️ Event Toggle Settings')
@@ -8894,7 +8894,7 @@ const now = Date.now();
                             .setCustomId('ticket_toggle')
                             .setLabel(settings.enabled ? 'Disable System' : 'Enable System')
                             .setStyle(settings.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                            .setEmoji(settings.enabled ? '?' : '?'),
+                            .setEmoji(settings.enabled ? '' : ''),
                         new ButtonBuilder()
                             .setCustomId('ticket_staffrole')
                             .setLabel('Set Staff Role')
@@ -9647,7 +9647,7 @@ const now = Date.now();
                         .setCustomId('mod_toggle')
                         .setLabel(settings.moderation.enabled ? 'Disable System' : 'Enable System')
                         .setStyle(settings.moderation.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                        .setEmoji(settings.moderation.enabled ? '?' : '?'),
+                        .setEmoji(settings.moderation.enabled ? '' : ''),
                     new ButtonBuilder()
                         .setCustomId('mod_threshold')
                         .setLabel('Set Threshold')
@@ -10320,7 +10320,7 @@ const now = Date.now();
                         color: '#5865F2'
                     },
                     emojis: {
-                        board: '?',
+                        board: '',
                         food: '✅',
                         up: '✅', 
                         down: '✅',
@@ -10382,9 +10382,9 @@ const now = Date.now();
                         overTitle: 'Game Over'
                     },
                     emojis: {
-                        xButton: '?',
-                        oButton: '?',
-                        blankButton: '?'
+                        xButton: '',
+                        oButton: '',
+                        blankButton: ''
                     },
                     mentionUser: true,
                     timeoutTime: 60000,
@@ -10444,7 +10444,7 @@ const now = Date.now();
                         color: '#5865F2'
                     },
                     emojis: {
-                        board: '?',
+                        board: '',
                         player1: '✅',
                         player2: '✅'
                     },
