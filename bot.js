@@ -6710,6 +6710,12 @@ const now = Date.now();
     
         // Handle button interactions
         else if (interaction.isButton()) {
+            // Safety check for customId
+            if (!interaction.customId) {
+                console.warn('Button interaction without customId');
+                return;
+            }
+            
             const guildId = interaction.guild.id;
 
             // Giveaway button handlers
@@ -11551,6 +11557,12 @@ const now = Date.now();
     
         // Handle modal submissions
         else if (interaction.isModalSubmit()) {
+            // Safety check for customId
+            if (!interaction.customId) {
+                console.warn('Modal interaction without customId');
+                return;
+            }
+            
             const guildId = interaction.guild.id;
             try {
                 console.log(`📨 Modal submitted: ${interaction.customId} | Guild: ${guildId} | User: ${interaction.user?.tag}`);
@@ -14436,6 +14448,12 @@ const now = Date.now();
 
     // Handle select menus
     if (interaction.isStringSelectMenu()) {
+        // Safety check for customId
+        if (!interaction.customId) {
+            console.warn('Select menu interaction without customId');
+            return;
+        }
+        
         // PCommands select menus
         if (interaction.customId === 'pcmd_edit_select') {
             const cmdName = interaction.values[0];
