@@ -9743,6 +9743,7 @@ const now = Date.now();
 
                 // Ban Risk Analyzer - Opens modal
                 if (interaction.customId === 'banrisk_analyze') {
+                    console.log('🔴 Ban Risk Analyzer button clicked - showing modal');
                     const modal = new ModalBuilder()
                         .setCustomId('banrisk_analyze_modal')
                         .setTitle('PSN Ban Risk Analyzer');
@@ -15274,6 +15275,7 @@ const now = Date.now();
 
             // Ban Risk Analyzer modal
             if (interaction.customId === 'banrisk_analyze_modal') {
+                console.log('🔍 Ban Risk Analyzer modal received!');
                 const activity = interaction.fields.getTextInputValue('planned_activity');
                 
                 // Analyze risk based on keywords
