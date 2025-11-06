@@ -15227,6 +15227,139 @@ const now = Date.now();
                 await interaction.reply({ embeds: [embed], ephemeral: true });
                 return;
             }
+
+            // ===== CONSOLE INFO HUB MODAL HANDLERS =====
+            
+            // Version Checker modal submissions
+            if (interaction.customId.startsWith('version_modal_')) {
+                const console = interaction.customId.replace('version_modal_', '');
+                const serialNumber = interaction.fields.getTextInputValue('serial_number').toUpperCase();
+                
+                const embed = new EmbedBuilder()
+                    .setTitle(`🔍 ${console.toUpperCase()} Version Checker Results`)
+                    .setColor(0x00FF00)
+                    .setDescription(`Analysis for: **${serialNumber}**`)
+                    .addFields(
+                        { name: '📊 Console Type', value: console.toUpperCase(), inline: true },
+                        { name: '🔢 Model/Serial', value: serialNumber, inline: true },
+                        { name: '⚠️ Note', value: 'This is a placeholder feature. Full database coming soon!', inline: false },
+                        { name: '💡 What We\'ll Check', value: '• Manufacturing date range\n• Hardware revision\n• CFW compatibility\n• Downgrade possibilities\n• Known issues for this model', inline: false }
+                    )
+                    .setFooter({ text: 'Version Checker - Database in development' });
+
+                await interaction.reply({ embeds: [embed], ephemeral: true });
+                return;
+            }
+
+            // Compatibility Checker modal
+            if (interaction.customId === 'compat_search_modal') {
+                const gameName = interaction.fields.getTextInputValue('game_name');
+                const firmware = interaction.fields.getTextInputValue('firmware_version') || 'Not specified';
+                
+                const embed = new EmbedBuilder()
+                    .setTitle('✅ Game Compatibility Results')
+                    .setColor(0x3498DB)
+                    .setDescription(`Search results for: **${gameName}**`)
+                    .addFields(
+                        { name: '🎮 Game', value: gameName, inline: true },
+                        { name: '📱 Your Firmware', value: firmware, inline: true },
+                        { name: '⚠️ Note', value: 'This is a placeholder feature. Full game database coming soon!', inline: false },
+                        { name: '💡 What We\'ll Show', value: '• Minimum firmware required\n• Maximum exploitable FW it works on\n• Region compatibility\n• DLC requirements\n• Known issues/patches needed', inline: false }
+                    )
+                    .setFooter({ text: 'Compatibility Checker - Database in development' });
+
+                await interaction.reply({ embeds: [embed], ephemeral: true });
+                return;
+            }
+
+            // Ban Risk Analyzer modal
+            if (interaction.customId === 'banrisk_analyze_modal') {
+                const activity = interaction.fields.getTextInputValue('planned_activity');
+                
+                // Analyze risk based on keywords
+                const highRiskKeywords = ['psn', 'online', 'sign in', 'login', 'multiplayer', 'trophy sync', 'download'];
+                const mediumRiskKeywords = ['pkg', 'install', 'save', 'mod'];
+                
+                const activityLower = activity.toLowerCase();
+                let riskLevel = 'LOW';
+                let riskColor = 0x00FF00;
+                let riskEmoji = '🟢';
+                
+                if (highRiskKeywords.some(keyword => activityLower.includes(keyword))) {
+                    riskLevel = 'HIGH';
+                    riskColor = 0xFF0000;
+                    riskEmoji = '🔴';
+                } else if (mediumRiskKeywords.some(keyword => activityLower.includes(keyword))) {
+                    riskLevel = 'MEDIUM';
+                    riskColor = 0xFFA500;
+                    riskEmoji = '🟡';
+                }
+                
+                const embed = new EmbedBuilder()
+                    .setTitle(`${riskEmoji} PSN Ban Risk Analysis`)
+                    .setColor(riskColor)
+                    .setDescription(`**Your planned activity:**\n${activity}`)
+                    .addFields(
+                        { name: '📊 Risk Level', value: `**${riskLevel} RISK**`, inline: true },
+                        { name: '⚠️ Ban Probability', value: riskLevel === 'HIGH' ? 'Very High' : riskLevel === 'MEDIUM' ? 'Moderate' : 'Low', inline: true }
+                    );
+
+                if (riskLevel === 'HIGH') {
+                    embed.addFields({
+                        name: '🚨 WARNING',
+                        value: '**This activity has HIGH ban risk!**\n\n' +
+                               '• **DO NOT** connect to PSN on modded consoles\n' +
+                               '• **DO NOT** play online with CFW/HEN\n' +
+                               '• **DO NOT** sync trophies from homebrew\n\n' +
+                               '**Recommendation:** Use a separate account or console for online activities.',
+                        inline: false
+                    });
+                } else if (riskLevel === 'MEDIUM') {
+                    embed.addFields({
+                        name: '⚠️ CAUTION',
+                        value: '**This activity has MODERATE ban risk:**\n\n' +
+                               '• Some PKG installations can be detected\n' +
+                               '• Save modifications may trigger flags\n' +
+                               '• Keep your console offline to be safe\n\n' +
+                               '**Recommendation:** Stay disconnected from PSN.',
+                        inline: false
+                    });
+                } else {
+                    embed.addFields({
+                        name: '✅ SAFE',
+                        value: '**This activity is relatively safe:**\n\n' +
+                               '• As long as you stay offline, risk is minimal\n' +
+                               '• Homebrew apps don\'t connect to Sony servers\n' +
+                               '• Just ensure network is disabled\n\n' +
+                               '**Recommendation:** Continue staying offline!',
+                        inline: false
+                    });
+                }
+
+                embed.setFooter({ text: 'Ban Risk Analyzer - Stay safe!' });
+
+                await interaction.reply({ embeds: [embed], ephemeral: true });
+                return;
+            }
+
+            // Game Lookup modal
+            if (interaction.customId === 'gamelookup_search_modal') {
+                const gameSearch = interaction.fields.getTextInputValue('game_search');
+                
+                const embed = new EmbedBuilder()
+                    .setTitle('🎮 PlayStation Game Lookup')
+                    .setColor(0x0099FF)
+                    .setDescription(`Search results for: **${gameSearch}**`)
+                    .addFields(
+                        { name: '🔍 Search Query', value: gameSearch, inline: false },
+                        { name: '⚠️ Note', value: 'This is a placeholder feature. Full game database coming soon!', inline: false },
+                        { name: '💡 What We\'ll Show', value: '• Game title & region\n• Title ID (CUSA/NPUB etc.)\n• Release date\n• Firmware requirements\n• PKG availability\n• DLC information\n• Size & version info', inline: false }
+                    )
+                    .setFooter({ text: 'Game Lookup - Database in development' });
+
+                await interaction.reply({ embeds: [embed], ephemeral: true });
+                return;
+            }
         }
     
     } catch (error) {
