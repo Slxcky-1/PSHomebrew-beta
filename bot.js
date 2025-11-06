@@ -2584,15 +2584,15 @@ async function checkKeywords(message, settings) {
         const errorDescription = errorDatabase[foundErrorCode];
         
         // Get pre-computed category for PS3 (or use default for PS4/PS5/Vita/PSP)
-        let categoryInfo = { name: `� ${consoleType} Error`, color: 0x0099FF };
+        let categoryInfo = { name: `❓ ${consoleType} Error`, color: 0x0099FF };
         if (consoleType === 'PS3') {
             categoryInfo = errorCodeCategories.get(foundErrorCode) || categoryInfo;
         } else if (consoleType === 'PS4' || consoleType === 'PS5') {
-            categoryInfo = { name: `🟢 ${consoleType} Error`, color: 0x2ECC71 };
+            categoryInfo = { name: `❓ ${consoleType} Error`, color: 0x2ECC71 };
         } else if (consoleType === 'PS Vita') {
-            categoryInfo = { name: `🟡 ${consoleType} Error`, color: 0xF1C40F };
+            categoryInfo = { name: `❓ ${consoleType} Error`, color: 0xF1C40F };
         } else if (consoleType === 'PSP') {
-            categoryInfo = { name: `🟠 ${consoleType} Error`, color: 0xE67E22 };
+            categoryInfo = { name: `❓ ${consoleType} Error`, color: 0xE67E22 };
         }
         
         // Localized title for PS3/PS4, generic for others
