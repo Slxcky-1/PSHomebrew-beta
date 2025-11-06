@@ -432,6 +432,8 @@
   "SU-35931-1": "Answer: PlayStation error detected. Check PlayStation support for details.",
   "CE-35486-6": "Answer: PlayStation error detected. Check PlayStation support for details.",
   "CE-35659-8": "Answer: Cannot download or update content. The download may have been interrupted or the file is corrupted. Delete the incomplete download and try again. Check your internet connection stability and available storage space.",
+  "CE-35888-2": "Answer: CFW: Cannot start the application. Wrong daughterboard installed in BD-ROM drive (BDP-025 mismatch). Replace with correct daughterboard or swap entire drive assembly. Common on consoles with replaced/repaired Blu-ray drives.",
+  "CE-30366-8": "Answer: CFW: Prohibits connection to SEN and running PS4 Blu-ray games. Console may be console-banned or have invalid system files. Check ban status via PSN test connection, rebuild database in Safe Mode, or reinstall system software if on jailbroken firmware.",
   "CE-30784-2": "Answer: PlayStation error detected. Check PlayStation support for details.",
   "CE-35489-9": "Answer: PlayStation error detected. Check PlayStation support for details.",
   "CE-35406-8": "Answer: PlayStation error detected. Check PlayStation support for details.",
