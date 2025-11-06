@@ -15339,20 +15339,69 @@ const now = Date.now();
                     
                     console.log(`🎮 Checking compatibility for: ${gameName} on firmware: ${firmware}`);
                     
-                    const embed = new EmbedBuilder()
-                        .setTitle('✅ Game Compatibility Results')
-                        .setColor(0x3498DB)
-                        .setDescription(`Search results for: **${gameName}**`)
-                        .addFields(
-                            { name: '🎮 Game', value: gameName, inline: true },
-                            { name: '📱 Your Firmware', value: firmware, inline: true },
-                            { name: '⚠️ Note', value: 'This is a placeholder feature. Full game database coming soon!', inline: false },
-                            { name: '💡 What We\'ll Show', value: '• Minimum firmware required\n• Maximum exploitable FW it works on\n• Region compatibility\n• DLC requirements\n• Known issues/patches needed', inline: false }
-                        )
-                        .setFooter({ text: 'Compatibility Checker - Database in development' });
+                    // Load game database
+                    const gameDatabase = JSON.parse(fs.readFileSync('./data/gameDatabase.json', 'utf8'));
+                    
+                    // Search for game by title or title ID
+                    const searchTerm = gameName.toUpperCase();
+                    let foundGame = null;
+                    let foundTitleId = null;
+                    
+                    // First try exact title ID match
+                    if (gameDatabase.games[searchTerm]) {
+                        foundGame = gameDatabase.games[searchTerm];
+                        foundTitleId = searchTerm;
+                    } else {
+                        // Search by title (partial match)
+                        for (const [titleId, game] of Object.entries(gameDatabase.games)) {
+                            if (game.title.toUpperCase().includes(searchTerm) || searchTerm.includes(game.title.toUpperCase())) {
+                                foundGame = game;
+                                foundTitleId = titleId;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (foundGame) {
+                        // Game found - show full details
+                        const embed = new EmbedBuilder()
+                            .setTitle(`🎮 ${foundGame.title}`)
+                            .setColor(foundGame.console === 'PS5' ? 0x0070CC : foundGame.console === 'PS4' ? 0x003087 : 0x0066CC)
+                            .setDescription(`**${foundGame.console}** • ${foundGame.region} • ${foundGame.releaseDate}`)
+                            .setThumbnail(foundGame.thumbnail)
+                            .addFields(
+                                { name: '� Title ID', value: foundGame.titleId, inline: true },
+                                { name: '💾 File Size', value: foundGame.fileSize, inline: true },
+                                { name: '📱 Your Firmware', value: firmware, inline: true },
+                                { name: '⚙️ Min Firmware', value: foundGame.minFirmware, inline: true },
+                                { name: '✅ Max Exploitable FW', value: foundGame.maxExploitableFW, inline: true },
+                                { name: '🔄 Update Version', value: foundGame.updateRequired || 'None', inline: true },
+                                { name: '📦 DLC Available', value: foundGame.dlcAvailable ? 'Yes ✅' : 'No ❌', inline: true },
+                                { name: '🎯 Compatibility', value: foundGame.compatibility, inline: false },
+                                { name: '� Notes', value: foundGame.notes, inline: false }
+                            )
+                            .setFooter({ text: `Game Database v${gameDatabase._metadata.version} • ${gameDatabase._metadata.totalGames} games` })
+                            .setTimestamp();
 
-                    await interaction.reply({ embeds: [embed], ephemeral: true });
-                    console.log('✅ Compatibility check reply sent successfully');
+                        await interaction.reply({ embeds: [embed], ephemeral: true });
+                        console.log(`✅ Found game: ${foundGame.title}`);
+                    } else {
+                        // Game not found
+                        const embed = new EmbedBuilder()
+                            .setTitle('❌ Game Not Found')
+                            .setColor(0xFF0000)
+                            .setDescription(`No results found for: **${gameName}**`)
+                            .addFields(
+                                { name: '💡 Search Tips', value: '• Try the **Title ID** (e.g., CUSA07408)\n• Use the **full game name**\n• Check spelling\n• Try without special characters', inline: false },
+                                { name: '📊 Database Info', value: `Currently tracking **${gameDatabase._metadata.totalGames} games**\n\nPopular games available:\n• God of War (CUSA07408)\n• Spider-Man (CUSA05333)\n• The Last of Us (CUSA00341)\n• Bloodborne (CUSA02299)`, inline: false },
+                                { name: '➕ Request Addition', value: 'Game not in database? Let the server admins know!', inline: false }
+                            )
+                            .setFooter({ text: 'Game Compatibility Checker' });
+
+                        await interaction.reply({ embeds: [embed], ephemeral: true });
+                        console.log(`❌ Game not found: ${gameName}`);
+                    }
+                    
                     return;
                 } catch (error) {
                     console.error('❌ Error in compat_search_modal:', error);
