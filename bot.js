@@ -2608,7 +2608,7 @@ async function checkKeywords(message, settings) {
         const cleanedAnswer = String(errorDescription).replace(/^\s*Answer:\s*/i, '');
         const errorEmbed = new EmbedBuilder()
             .setTitle(title)
-            .setDescription(`**🗨️ Answer:** ${cleanedAnswer}\n\n**${categoryInfo.name}**`)
+            .setDescription(`**❓ Answer:** ${cleanedAnswer}\n\n**${categoryInfo.name}**`)
             .setColor(categoryInfo.color)
             .setTimestamp();
         
