@@ -15339,6 +15339,23 @@ const now = Date.now();
                     
                     console.log(`🎮 Checking compatibility for: ${gameName} on firmware: ${firmware}`);
                     
+                    // Check if game database exists
+                    if (!fsSync.existsSync('./data/gameDatabase.json')) {
+                        const embed = new EmbedBuilder()
+                            .setTitle('⚠️ Database Not Available')
+                            .setColor(0xFFA500)
+                            .setDescription('The game database is currently unavailable on this server.')
+                            .addFields(
+                                { name: '📝 Your Search', value: `**${gameName}**\nFirmware: ${firmware}`, inline: false },
+                                { name: '💡 Status', value: 'The database file is missing. Please contact the server administrator.', inline: false }
+                            )
+                            .setFooter({ text: 'Game Compatibility Checker' });
+                        
+                        await interaction.reply({ embeds: [embed], ephemeral: true });
+                        console.log('⚠️ Game database file not found');
+                        return;
+                    }
+                    
                     // Load game database
                     const gameDatabase = JSON.parse(fsSync.readFileSync('./data/gameDatabase.json', 'utf8'));
                     
