@@ -1,4 +1,4 @@
-﻿// --- Global error handling ---
+// --- Global error handling ---
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
 });
@@ -6479,8 +6479,6 @@ const now = Date.now();
     
     // Firmware Tracker - Interactive panel
     if (interaction.commandName === 'firmware') {
-        const selectedConsole = interaction.options.getString('console');
-        
         // Load firmware data
         let firmwareData = {
             lastUpdate: Date.now(),
@@ -6534,59 +6532,7 @@ const now = Date.now();
             }
         };
 
-        // If a specific console is selected, show detailed view
-        if (selectedConsole) {
-            const data = firmwareData[selectedConsole];
-            
-            const embed = new EmbedBuilder()
-                .setTitle(`${data.emoji} ${data.name} Firmware Tracker`)
-                .setColor(data.status.includes('✅') ? 0x00FF00 : data.status.includes('⚠️') ? 0xFFA500 : 0xFF0000)
-                .setDescription(`Detailed firmware information for ${data.name}`)
-                .addFields(
-                    { name: '📌 Latest Official', value: data.latest, inline: true },
-                    { name: '📌 Exploitable', value: data.exploitable, inline: true },
-                    { name: '📌 Status', value: data.status, inline: true }
-                );
-
-            // Add console-specific details
-            if (selectedConsole === 'ps3') {
-                embed.addFields(
-                    { name: '🛠️ CFW Version', value: data.cfw, inline: false },
-                    { name: '⚠️ Recommendations', value: '• Stay on 4.90 or lower for full CFW\n• Evilnat CFW for latest features\n• HEN available for 4.91-4.92', inline: false }
-                );
-            } else if (selectedConsole === 'ps4') {
-                embed.addFields(
-                    { name: '🛠️ GoldHEN', value: `${data.goldhen} MAX`, inline: true },
-                    { name: '🛠️ BD-JB', value: data.bdjb, inline: true },
-                    { name: '⚠️ Recommendations', value: '• **DO NOT UPDATE** past 12.02\n• GoldHEN supports 9.00-12.02\n• 13.00 exploit announced but not released', inline: false }
-                );
-            } else if (selectedConsole === 'ps5') {
-                embed.addFields(
-                    { name: '🛠️ etaHEN', value: data.etahen, inline: true },
-                    { name: '🛠️ Lapse', value: data.lapse, inline: true },
-                    { name: '⚠️ Recommendations', value: '• **DO NOT UPDATE** past 10.01\n• etaHEN + ItemzFlow for PKG loading\n• 12.00 exploit announced but not released', inline: false }
-                );
-            } else if (selectedConsole === 'vita') {
-                embed.addFields(
-                    { name: '🛠️ h-encore', value: data.henkaku, inline: true },
-                    { name: '🛠️ Ensō', value: data.enso, inline: true },
-                    { name: '⚠️ Recommendations', value: '• All firmware versions exploitable!\n• 3.65 recommended for Ensō\n• 3.60-3.74 h-encore/h-encore²', inline: false }
-                );
-            } else if (selectedConsole === 'psp') {
-                embed.addFields(
-                    { name: '🛠️ CFW', value: data.cfw, inline: false },
-                    { name: '⚠️ Recommendations', value: '• All PSPs are exploitable!\n• 6.61 PRO-C or ME for best compatibility\n• Infinity for permanent CFW', inline: false }
-                );
-            }
-
-            embed.setFooter({ text: `Last updated: ${new Date(firmwareData.lastUpdate).toLocaleString()}` })
-                .setTimestamp();
-
-            await interaction.reply({ embeds: [embed], ephemeral: true });
-            return;
-        }
-
-        // Show overview of all consoles if no specific console selected
+        // Show overview of all consoles
         const embed = new EmbedBuilder()
             .setTitle('📱 PlayStation Firmware Tracker')
             .setColor(0x0066CC)
@@ -6623,7 +6569,7 @@ const now = Date.now();
                     inline: false
                 }
             )
-            .setFooter({ text: `Last updated: ${new Date(firmwareData.lastUpdate).toLocaleString()} • Use /firmware console:<name> for details` })
+            .setFooter({ text: `Last updated: ${new Date(firmwareData.lastUpdate).toLocaleString()} • Use buttons below for details` })
             .setTimestamp();
 
         const row1 = new ActionRowBuilder()
@@ -6825,6 +6771,113 @@ const now = Date.now();
             .setTimestamp();
         
         await interaction.reply({ embeds: [embed], ephemeral: true });
+        return;
+    }
+
+    // ===== CONSOLE INFO HUB =====
+    if (interaction.commandName === 'consoleinfo') {
+        const embed = new EmbedBuilder()
+            .setTitle('🎮 PlayStation Console Information Hub')
+            .setColor(0x0099FF)
+            .setDescription('**Your one-stop hub for all PlayStation console tools and information**\n\nSelect a tool below to get started:')
+            .addFields(
+                { 
+                    name: '📡 Firmware Tools', 
+                    value: '• **Firmware Tracker** - Check latest firmware versions\n• **FW Notifications** - Get notified of new updates\n• **Safe Firmware** - Find safe versions to stay on', 
+                    inline: false 
+                },
+                { 
+                    name: '🎮 Console Tools', 
+                    value: '• **Version Checker** - Identify your console model\n• **Jailbreak Tutorials** - Step-by-step guides\n• **Compatibility Checker** - Game compatibility lookup', 
+                    inline: false 
+                },
+                { 
+                    name: '📦 Package & Game Tools', 
+                    value: '• **PKG Database** - Search and verify PKG files\n• **Game Lookup** - Find game information\n• **Homebrew Browser** - Discover homebrew apps', 
+                    inline: false 
+                },
+                { 
+                    name: '🛡️ Safety & Backup', 
+                    value: '• **Ban Risk Calculator** - Analyze PSN ban risks\n• **Backup Reminder** - NAND/save backup checklist\n• **Downgrade Guide** - Firmware downgrade paths', 
+                    inline: false 
+                }
+            )
+            .setFooter({ text: 'PSHomebrew Console Info Hub • Select a tool below' })
+            .setTimestamp();
+
+        const row1 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('cinfo_firmware')
+                    .setLabel('Firmware Tracker')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('📡'),
+                new ButtonBuilder()
+                    .setCustomId('cinfo_fwnotify')
+                    .setLabel('FW Notifications')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🔔'),
+                new ButtonBuilder()
+                    .setCustomId('cinfo_gamelookup')
+                    .setLabel('Game Lookup')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🎮'),
+                new ButtonBuilder()
+                    .setCustomId('cinfo_pkg')
+                    .setLabel('PKG Database')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('📦')
+            );
+
+        const row2 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('cinfo_version')
+                    .setLabel('Version Checker')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🔍'),
+                new ButtonBuilder()
+                    .setCustomId('cinfo_jailbreak')
+                    .setLabel('Jailbreak Tutorials')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('📚'),
+                new ButtonBuilder()
+                    .setCustomId('cinfo_compat')
+                    .setLabel('Compatibility')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('✅'),
+                new ButtonBuilder()
+                    .setCustomId('cinfo_homebrew')
+                    .setLabel('Homebrew')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🛠️')
+            );
+
+        const row3 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('cinfo_banrisk')
+                    .setLabel('Ban Risk Calculator')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('⚠️'),
+                new ButtonBuilder()
+                    .setCustomId('cinfo_backup')
+                    .setLabel('Backup Checklist')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji('💾'),
+                new ButtonBuilder()
+                    .setCustomId('cinfo_downgrade')
+                    .setLabel('Downgrade Guide')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('⬇️'),
+                new ButtonBuilder()
+                    .setCustomId('cinfo_refresh')
+                    .setLabel('Refresh')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🔄')
+            );
+
+        await interaction.reply({ embeds: [embed], components: [row1, row2, row3], ephemeral: true });
         return;
     }
 
@@ -9094,6 +9147,336 @@ const now = Date.now();
                     );
                 
                 await interaction.update({ embeds: [embed], components: [row1, row2] });
+            }
+        }
+        
+        // ===== CONSOLE INFO HUB BUTTON HANDLERS =====
+        if (interaction.customId.startsWith('cinfo_')) {
+            try {
+                // Firmware Tracker - redirect to firmware command
+                if (interaction.customId === 'cinfo_firmware') {
+                    let firmwareData = {
+                        lastUpdate: Date.now(),
+                        ps3: { latest: '4.92', exploitable: '4.90', status: '✅ Exploitable' },
+                        ps4: { latest: '13.02', exploitable: '12.02', status: '⚠️ Limited' },
+                        ps5: { latest: '12.20', exploitable: '10.01', status: '⚠️ Limited' },
+                        vita: { latest: '3.74', exploitable: '3.74', status: '✅ Fully Exploitable' },
+                        psp: { latest: '6.61', exploitable: '6.61', status: '✅ Fully Exploitable' }
+                    };
+
+                    const embed = new EmbedBuilder()
+                        .setTitle('📱 PlayStation Firmware Tracker')
+                        .setColor(0x0066CC)
+                        .setDescription('Real-time PlayStation firmware monitoring and exploit compatibility checker')
+                        .addFields(
+                            { name: '🎮 PS3', value: `**Latest:** ${firmwareData.ps3.latest}\n**Exploitable:** ${firmwareData.ps3.exploitable}\n**Status:** ${firmwareData.ps3.status}`, inline: true },
+                            { name: '🎮 PS4', value: `**Latest:** ${firmwareData.ps4.latest}\n**Exploitable:** ${firmwareData.ps4.exploitable}\n**Status:** ${firmwareData.ps4.status}`, inline: true },
+                            { name: '🎮 PS5', value: `**Latest:** ${firmwareData.ps5.latest}\n**Exploitable:** ${firmwareData.ps5.exploitable}\n**Status:** ${firmwareData.ps5.status}`, inline: true },
+                            { name: '📱 PS Vita', value: `**Latest:** ${firmwareData.vita.latest}\n**Exploitable:** ${firmwareData.vita.exploitable}\n**Status:** ${firmwareData.vita.status}`, inline: true },
+                            { name: '🕹️ PSP', value: `**Latest:** ${firmwareData.psp.latest}\n**Exploitable:** ${firmwareData.psp.exploitable}\n**Status:** ${firmwareData.psp.status}`, inline: true }
+                        )
+                        .setFooter({ text: `Last updated: ${new Date().toLocaleString()}` });
+
+                    const row1 = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('fw_ps4_detail').setLabel('PS4 Details').setStyle(ButtonStyle.Secondary).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('fw_ps5_detail').setLabel('PS5 Details').setStyle(ButtonStyle.Secondary).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('fw_safety_guide').setLabel('Safety Guide').setStyle(ButtonStyle.Secondary).setEmoji('📚')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [row1] });
+                    return;
+                }
+
+                // FW Notifications
+                if (interaction.customId === 'cinfo_fwnotify') {
+                    const embed = new EmbedBuilder()
+                        .setTitle('🔔 Firmware Update Notifications')
+                        .setColor(0xFFAA00)
+                        .setDescription('Get notified when new PlayStation firmware releases drop!')
+                        .addFields(
+                            { name: '📡 How it Works', value: 'When Sony releases a new firmware update, you\'ll get an instant notification in your selected channel.', inline: false },
+                            { name: '🎮 Supported Consoles', value: 'PS3, PS4, PS5, PS Vita, PSP', inline: false },
+                            { name: '⚙️ Setup', value: 'Use the button below to configure notification settings for your server.', inline: false }
+                        );
+
+                    const row = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('fw_notifications').setLabel('Configure Notifications').setStyle(ButtonStyle.Primary).setEmoji('⚙️'),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back to Hub').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [row] });
+                    return;
+                }
+
+                // Game Lookup
+                if (interaction.customId === 'cinfo_gamelookup') {
+                    const embed = new EmbedBuilder()
+                        .setTitle('🎮 PlayStation Game Lookup')
+                        .setColor(0x0099FF)
+                        .setDescription('Search for PlayStation game information, compatibility, and more!')
+                        .addFields(
+                            { name: '🔍 Search Options', value: '• Game Title\n• Title ID (e.g., CUSA12345)\n• Developer/Publisher\n• Genre', inline: false },
+                            { name: '📊 Information Provided', value: '• Release date & region\n• Firmware requirements\n• PKG availability\n• DLC information', inline: false }
+                        );
+
+                    const row = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('gamelookup_search').setLabel('Search Game').setStyle(ButtonStyle.Primary).setEmoji('🔍'),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back to Hub').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [row] });
+                    return;
+                }
+
+                // PKG Database
+                if (interaction.customId === 'cinfo_pkg') {
+                    const embed = new EmbedBuilder()
+                        .setTitle('📦 PKG Database')
+                        .setColor(0x9B59B6)
+                        .setDescription('Search, verify, and analyze PlayStation PKG files')
+                        .addFields(
+                            { name: '🔍 Search by:', value: '• Game name\n• PKG ID\n• Region code\n• Developer', inline: true },
+                            { name: '✅ Verify:', value: '• File integrity\n• Region locks\n• Fake PKG detection\n• Hash validation', inline: true },
+                            { name: '🛠️ Latest Homebrew', value: 'Browse the latest homebrew apps and tools for all PlayStation consoles', inline: false }
+                        );
+
+                    const row = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('pkg_search_modal').setLabel('Search PKG').setStyle(ButtonStyle.Primary).setEmoji('🔍'),
+                            new ButtonBuilder().setCustomId('pkg_verify').setLabel('Verify PKG').setStyle(ButtonStyle.Secondary).setEmoji('✅'),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [row] });
+                    return;
+                }
+
+                // Version Checker
+                if (interaction.customId === 'cinfo_version') {
+                    const embed = new EmbedBuilder()
+                        .setTitle('🔍 Console Version Checker')
+                        .setColor(0x00FF00)
+                        .setDescription('Identify your PlayStation console model and check exploit compatibility')
+                        .addFields(
+                            { name: '🎮 Supported Consoles', value: 'PS3, PS4, PS5, PS Vita, PSP', inline: false },
+                            { name: '📋 Information Provided', value: '• Console model & revision\n• Manufacturing date range\n• Compatible CFW/exploits\n• Downgrade possibilities\n• Hardware capabilities', inline: false },
+                            { name: '🔢 Enter Your:', value: '• Serial number (on console sticker)\n• Model number (e.g., CUH-1215A)\n• MAC address (for PS3/Vita)', inline: false }
+                        );
+
+                    const row = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('version_ps3').setLabel('PS3').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('version_ps4').setLabel('PS4').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('version_ps5').setLabel('PS5').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [row] });
+                    return;
+                }
+
+                // Jailbreak Tutorials
+                if (interaction.customId === 'cinfo_jailbreak') {
+                    const embed = new EmbedBuilder()
+                        .setTitle('📚 Jailbreak Tutorials')
+                        .setColor(0xFF6600)
+                        .setDescription('Step-by-step guides for jailbreaking PlayStation consoles')
+                        .addFields(
+                            { name: '🎮 PS3', value: 'CFW Installation (4.90 and below)\nHEN Installation (4.91-4.92)', inline: true },
+                            { name: '🎮 PS4', value: 'GoldHEN Setup (9.00-12.02)\nBD-JB Installation', inline: true },
+                            { name: '🎮 PS5', value: 'etaHEN Installation (10.01)\nPPPwn Setup', inline: true },
+                            { name: '📱 PS Vita', value: 'h-encore² Installation\nEnsō Permanent CFW', inline: true },
+                            { name: '🕹️ PSP', value: 'PRO-C CFW\nInfinity Permanent Patch', inline: true },
+                            { name: '⚠️ Warning', value: 'Always backup your console before attempting any exploit!', inline: false }
+                        );
+
+                    const row = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('jb_ps3').setLabel('PS3 Guide').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('jb_ps4').setLabel('PS4 Guide').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('jb_ps5').setLabel('PS5 Guide').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [row] });
+                    return;
+                }
+
+                // Compatibility Checker
+                if (interaction.customId === 'cinfo_compat') {
+                    const embed = new EmbedBuilder()
+                        .setTitle('✅ Game Compatibility Checker')
+                        .setColor(0x3498DB)
+                        .setDescription('Check if a game is compatible with your firmware version')
+                        .addFields(
+                            { name: '🎯 What We Check', value: '• Minimum firmware required\n• Latest exploitable firmware\n• Region compatibility\n• DLC compatibility\n• Update package requirements', inline: false },
+                            { name: '💡 Usage', value: 'Enter a game name or Title ID to check compatibility with your current firmware version', inline: false }
+                        );
+
+                    const row = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('compat_search').setLabel('Check Game').setStyle(ButtonStyle.Primary).setEmoji('🔍'),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [row] });
+                    return;
+                }
+
+                // Homebrew Browser
+                if (interaction.customId === 'cinfo_homebrew') {
+                    const embed = new EmbedBuilder()
+                        .setTitle('🛠️ PlayStation Homebrew Browser')
+                        .setColor(0x9B59B6)
+                        .setDescription('Discover and browse homebrew applications for PlayStation consoles')
+                        .addFields(
+                            { name: '📦 Categories', value: '• Games\n• Emulators\n• Media Players\n• File Managers\n• System Tools\n• Utilities', inline: true },
+                            { name: '🎮 Consoles', value: '• PS3\n• PS4\n• PS5\n• PS Vita\n• PSP', inline: true },
+                            { name: '🔥 Popular Apps', value: 'RetroArch, ItemzFlow, Apollo Save Tool, Multiman, PKGi, Adrenaline', inline: false }
+                        );
+
+                    const row1 = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('hb_ps3').setLabel('PS3').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('hb_ps4').setLabel('PS4').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('hb_ps5').setLabel('PS5').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('hb_vita').setLabel('Vita').setStyle(ButtonStyle.Primary).setEmoji('📱')
+                        );
+
+                    const row2 = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('hb_psp').setLabel('PSP').setStyle(ButtonStyle.Primary).setEmoji('🕹️'),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [row1, row2] });
+                    return;
+                }
+
+                // Ban Risk Calculator
+                if (interaction.customId === 'cinfo_banrisk') {
+                    const embed = new EmbedBuilder()
+                        .setTitle('⚠️ PSN Ban Risk Calculator')
+                        .setColor(0xFF0000)
+                        .setDescription('Analyze your PSN ban risk based on planned activities')
+                        .addFields(
+                            { name: '🔴 HIGH RISK (Almost Guaranteed Ban)', value: '• Signing into PSN on CFW/HEN\n• Using pirated games online\n• Modifying online game saves\n• Trophy hacking with sync\n• Cheating in multiplayer', inline: false },
+                            { name: '🟡 MEDIUM RISK (Possible Ban)', value: '• Installing unsigned PKGs\n• Using save editors offline\n• Frequent profile changes\n• Suspicious trophy timestamps\n• Multiple console bans on same account', inline: false },
+                            { name: '🟢 LOW RISK (Minimal Risk)', value: '• Using CFW offline only\n• Homebrew apps (no PSN)\n• Save backups (offline)\n• System modifications (offline)\n• Network disconnected during exploits', inline: false },
+                            { name: '✅ SAFE PRACTICES', value: '• **Never connect to PSN** on modded consoles\n• Use a **separate account** for homebrew\n• **Disable network** in settings\n• **Block PSN servers** in router\n• Keep **stock console** for online play', inline: false }
+                        );
+
+                    const row = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('banrisk_analyze').setLabel('Analyze My Risk').setStyle(ButtonStyle.Danger).setEmoji('⚠️'),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [row] });
+                    return;
+                }
+
+                // Backup Checklist
+                if (interaction.customId === 'cinfo_backup') {
+                    const embed = new EmbedBuilder()
+                        .setTitle('💾 Backup Checklist')
+                        .setColor(0x00FF00)
+                        .setDescription('Essential backups before modifying your PlayStation console')
+                        .addFields(
+                            { name: '🔴 CRITICAL - Do Before Anything!', value: '✅ **NAND/NOR Backup** (PS3)\n✅ **SLC/SLCCMGR Backup** (PS4/PS5)\n✅ **eMMC Backup** (PS Vita)\n✅ **Flash Backup** (PSP)\n\n⚠️ **Without these, console death is permanent!**', inline: false },
+                            { name: '🟡 IMPORTANT - Highly Recommended', value: '✅ Save game backups\n✅ License/activation backups\n✅ System settings backup\n✅ Database rebuild backup\n✅ Trophy data backup', inline: false },
+                            { name: '🟢 OPTIONAL - Nice to Have', value: '✅ Game update packages\n✅ DLC packages\n✅ Theme backups\n✅ Screenshot/video captures\n✅ Custom configurations', inline: false },
+                            { name: '🛠️ Recommended Tools', value: '**PS3:** multiman, webMAN\n**PS4:** Apollo Save Tool, Save Wizard\n**PS5:** Save Mounter\n**Vita:** VitaShell, QCMA\n**PSP:** PSP Filer', inline: false },
+                            { name: '📍 Backup Storage', value: '• Use **quality USB drives** (3.0+)\n• Keep **multiple copies** (USB + PC)\n• Label backups with **date & firmware**\n• Store in **safe location**\n• Test backups **regularly**', inline: false }
+                        );
+
+                    const row = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('backup_ps3').setLabel('PS3 Guide').setStyle(ButtonStyle.Success).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('backup_ps4').setLabel('PS4 Guide').setStyle(ButtonStyle.Success).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('backup_ps5').setLabel('PS5 Guide').setStyle(ButtonStyle.Success).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [row] });
+                    return;
+                }
+
+                // Downgrade Guide
+                if (interaction.customId === 'cinfo_downgrade') {
+                    const embed = new EmbedBuilder()
+                        .setTitle('⬇️ Firmware Downgrade Guide')
+                        .setColor(0xFF9900)
+                        .setDescription('Check if your console can be downgraded and learn how')
+                        .addFields(
+                            { name: '✅ Downgradeable Consoles', value: '**PS3:** Most models (requires hardware flasher)\n**PS Vita:** All models via modoru\n**PSP:** All models (brick risk exists)', inline: false },
+                            { name: '❌ Cannot Downgrade', value: '**PS4:** Impossible without hardware mod\n**PS5:** Not possible currently', inline: false },
+                            { name: '🔧 Required Tools', value: '**PS3:** E3 Flasher, Teensy++, or Progskeet\n**Vita:** modoru plugin\n**PSP:** Pandora Battery + Magic Memory Stick', inline: false },
+                            { name: '⚠️ Risks', value: '• **Brick potential** (especially PS3/PSP)\n• **Warranty void**\n• **Time consuming** (PS3: 1-3 hours)\n• **Requires soldering** (PS3 hardware)\n• **Data loss** possible', inline: false },
+                            { name: '💡 Recommendations', value: '• Check if you\'re **already on exploitable FW**\n• Consider **staying put** vs downgrade risks\n• **Practice soldering** on junk boards first\n• **Read full guides** before starting\n• Have **backup console** if possible', inline: false }
+                        );
+
+                    const row = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('downgrade_ps3').setLabel('PS3 Downgrade').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('downgrade_vita').setLabel('Vita Downgrade').setStyle(ButtonStyle.Primary).setEmoji('📱'),
+                            new ButtonBuilder().setCustomId('downgrade_psp').setLabel('PSP Downgrade').setStyle(ButtonStyle.Primary).setEmoji('🕹️'),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [row] });
+                    return;
+                }
+
+                // Refresh - back to main hub
+                if (interaction.customId === 'cinfo_refresh') {
+                    const embed = new EmbedBuilder()
+                        .setTitle('🎮 PlayStation Console Information Hub')
+                        .setColor(0x0099FF)
+                        .setDescription('**Your one-stop hub for all PlayStation console tools and information**\n\nSelect a tool below to get started:')
+                        .addFields(
+                            { name: '📡 Firmware Tools', value: '• **Firmware Tracker** - Check latest firmware versions\n• **FW Notifications** - Get notified of new updates\n• **Safe Firmware** - Find safe versions to stay on', inline: false },
+                            { name: '🎮 Console Tools', value: '• **Version Checker** - Identify your console model\n• **Jailbreak Tutorials** - Step-by-step guides\n• **Compatibility Checker** - Game compatibility lookup', inline: false },
+                            { name: '📦 Package & Game Tools', value: '• **PKG Database** - Search and verify PKG files\n• **Game Lookup** - Find game information\n• **Homebrew Browser** - Discover homebrew apps', inline: false },
+                            { name: '🛡️ Safety & Backup', value: '• **Ban Risk Calculator** - Analyze PSN ban risks\n• **Backup Reminder** - NAND/save backup checklist\n• **Downgrade Guide** - Firmware downgrade paths', inline: false }
+                        )
+                        .setFooter({ text: 'PSHomebrew Console Info Hub • Select a tool below' })
+                        .setTimestamp();
+
+                    const row1 = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('cinfo_firmware').setLabel('Firmware Tracker').setStyle(ButtonStyle.Primary).setEmoji('📡'),
+                            new ButtonBuilder().setCustomId('cinfo_fwnotify').setLabel('FW Notifications').setStyle(ButtonStyle.Primary).setEmoji('🔔'),
+                            new ButtonBuilder().setCustomId('cinfo_gamelookup').setLabel('Game Lookup').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
+                            new ButtonBuilder().setCustomId('cinfo_pkg').setLabel('PKG Database').setStyle(ButtonStyle.Primary).setEmoji('📦')
+                        );
+
+                    const row2 = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('cinfo_version').setLabel('Version Checker').setStyle(ButtonStyle.Secondary).setEmoji('🔍'),
+                            new ButtonBuilder().setCustomId('cinfo_jailbreak').setLabel('Jailbreak Tutorials').setStyle(ButtonStyle.Secondary).setEmoji('📚'),
+                            new ButtonBuilder().setCustomId('cinfo_compat').setLabel('Compatibility').setStyle(ButtonStyle.Secondary).setEmoji('✅'),
+                            new ButtonBuilder().setCustomId('cinfo_homebrew').setLabel('Homebrew').setStyle(ButtonStyle.Secondary).setEmoji('🛠️')
+                        );
+
+                    const row3 = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('cinfo_banrisk').setLabel('Ban Risk Calculator').setStyle(ButtonStyle.Danger).setEmoji('⚠️'),
+                            new ButtonBuilder().setCustomId('cinfo_backup').setLabel('Backup Checklist').setStyle(ButtonStyle.Success).setEmoji('💾'),
+                            new ButtonBuilder().setCustomId('cinfo_downgrade').setLabel('Downgrade Guide').setStyle(ButtonStyle.Secondary).setEmoji('⬇️'),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Refresh').setStyle(ButtonStyle.Secondary).setEmoji('🔄')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [row1, row2, row3] });
+                    return;
+                }
+
+            } catch (error) {
+                console.error('Console Info Hub button error:', error);
+                await interaction.reply({ content: `❌ Error: ${error.message}`, ephemeral: true }).catch(() => {});
             }
         }
         

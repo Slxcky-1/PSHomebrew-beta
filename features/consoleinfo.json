@@ -1,0 +1,12 @@
+{
+  "name": "Console Information Hub",
+  "description": "Comprehensive PlayStation console information, tools, and utilities",
+  "enabled": true,
+  "commands": [
+    {
+      "name": "consoleinfo",
+      "description": "Interactive hub for all PlayStation console tools and information",
+      "options": []
+    }
+  ]
+}
