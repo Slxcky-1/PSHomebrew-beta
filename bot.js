@@ -9728,42 +9728,6 @@ const now = Date.now();
                     return;
                 }
 
-                // Compatibility Checker - Opens modal
-                if (interaction.customId === 'compat_search') {
-                    console.log('🎮 Game Compatibility Checker button clicked - showing modal');
-                    try {
-                        const modal = new ModalBuilder()
-                            .setCustomId('compat_search_modal')
-                            .setTitle('Game Compatibility Checker');
-                        
-                        const gameInput = new TextInputBuilder()
-                            .setCustomId('game_name')
-                            .setLabel('Game Name or Title ID')
-                            .setStyle(TextInputStyle.Short)
-                            .setPlaceholder('e.g., "The Last of Us" or "CUSA12345"')
-                            .setRequired(true);
-                        
-                        const fwInput = new TextInputBuilder()
-                            .setCustomId('firmware_version')
-                            .setLabel('Your Current Firmware (optional)')
-                            .setStyle(TextInputStyle.Short)
-                            .setPlaceholder('e.g., 9.00, 10.01, 4.90')
-                            .setRequired(false);
-                        
-                        modal.addComponents(
-                            new ActionRowBuilder().addComponents(gameInput),
-                            new ActionRowBuilder().addComponents(fwInput)
-                        );
-                        
-                        await interaction.showModal(modal);
-                        console.log('✅ Game Compatibility Checker modal shown successfully');
-                        return;
-                    } catch (error) {
-                        console.error('❌ Error showing compat_search modal:', error);
-                        throw error;
-                    }
-                }
-
                 // Ban Risk Analyzer - Opens modal
                 if (interaction.customId === 'banrisk_analyze') {
                     console.log('🔴 Ban Risk Analyzer button clicked - showing modal');
@@ -9854,6 +9818,42 @@ const now = Date.now();
             } catch (e) {
                 console.error('gamelookup_search showModal error:', e);
                 await interaction.reply({ content: '❌ Could not open the game search form. Please try again.', ephemeral: true }).catch(() => {});
+            }
+            return;
+        }
+
+        // Compatibility Checker - Opens modal (standalone button id)
+        if (interaction.customId === 'compat_search') {
+            try {
+                console.log('🎮 Game Compatibility Checker button clicked - showing modal (top-level handler)');
+                const modal = new ModalBuilder()
+                    .setCustomId('compat_search_modal')
+                    .setTitle('Game Compatibility Checker');
+                
+                const gameInput = new TextInputBuilder()
+                    .setCustomId('game_name')
+                    .setLabel('Game Name or Title ID')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('e.g., "The Last of Us" or "CUSA12345"')
+                    .setRequired(true);
+                
+                const fwInput = new TextInputBuilder()
+                    .setCustomId('firmware_version')
+                    .setLabel('Your Current Firmware (optional)')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('e.g., 9.00, 10.01, 4.90')
+                    .setRequired(false);
+                
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(gameInput),
+                    new ActionRowBuilder().addComponents(fwInput)
+                );
+                
+                await interaction.showModal(modal);
+                console.log('✅ Game Compatibility Checker modal shown successfully');
+            } catch (e) {
+                console.error('❌ Error showing compat_search modal:', e);
+                await interaction.reply({ content: '❌ Could not open the compatibility checker form. Please try again.', ephemeral: true }).catch(() => {});
             }
             return;
         }
