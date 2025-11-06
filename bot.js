@@ -6,7 +6,7 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 // --- End global error handling ---
-const { Client, GatewayIntentBits, EmbedBuilder, ActivityType, PermissionFlagsBits, ChannelType, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, ActivityType, PermissionFlagsBits, ChannelType, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, MessageFlags } = require('discord.js');
 const fsSync = require('fs');
 const fs = require('fs').promises;
 const path = require('path');
@@ -12843,7 +12843,8 @@ const now = Date.now();
                     .setDescription(`You bought **${quantity}x ${item.name}** for **$${totalCost.toLocaleString()}**!`)
                     .setFooter({ text: 'Check your inventory!' });
                 
-                await interaction.reply({ embeds: [embed], ephemeral: true });
+                await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+                await interaction.editReply({ embeds: [embed] });
                 return;
             }
 
@@ -15104,7 +15105,8 @@ const now = Date.now();
                     .setDescription(`Firmware update notifications will be posted to ${channel} for the selected consoles.`)
                     .setFooter({ text: 'You can change these settings anytime using /firmware' });
                 
-                await interaction.reply({ embeds: [embed], ephemeral: true });
+                await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+                await interaction.editReply({ embeds: [embed] });
                 return;
             }
             
@@ -15151,7 +15153,8 @@ const now = Date.now();
                     inline: false
                 });
                 
-                await interaction.reply({ embeds: [embed], ephemeral: true });
+                await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+                await interaction.editReply({ embeds: [embed] });
                 return;
             }
             
@@ -15225,7 +15228,8 @@ const now = Date.now();
                     });
                 }
                 
-                await interaction.reply({ embeds: [embed], ephemeral: true });
+                await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+                await interaction.editReply({ embeds: [embed] });
                 return;
             }
 
