@@ -4407,6 +4407,17 @@ const now = Date.now();
         await interaction.reply({ embeds: [embed], components: [row1], ephemeral: true });
     }
     
+    // YouTube Notifications Command
+    if (interaction.commandName === 'youtubenotifications') {
+        if (!requireAdmin(interaction)) return;
+        
+        await interaction.reply({ 
+            content: '📺 YouTube RSS Notifications - Feature coming soon!\n\nThis will allow automatic notifications when subscribed YouTube channels upload new videos.',
+            ephemeral: true 
+        });
+        return;
+    }
+    
     // Games command - Show games menu
     if (interaction.commandName === 'games') {
         try {
@@ -6730,6 +6741,25 @@ const now = Date.now();
             console.error('❌ Gamelookup command error:', error);
             await interaction.reply({ content: '❌ An error occurred!', ephemeral: true }).catch(() => {});
         }
+        return;
+    }
+
+    if (interaction.commandName === 'homebrew') {
+        const console = interaction.options.getString('console') || 'all';
+        const category = interaction.options.getString('category') || 'all';
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🛠️ PlayStation Homebrew Browser')
+            .setDescription(`Browse homebrew for ${console.toUpperCase()}`)
+            .setColor(0x9B59B6)
+            .addFields(
+                { name: 'Console', value: console.toUpperCase(), inline: true },
+                { name: 'Category', value: category || 'All', inline: true }
+            )
+            .setFooter({ text: 'Homebrew database feature - Coming soon!' })
+            .setTimestamp();
+        
+        await interaction.reply({ embeds: [embed], ephemeral: true });
         return;
     }
 
