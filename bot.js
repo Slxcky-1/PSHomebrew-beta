@@ -15325,23 +15325,32 @@ const now = Date.now();
 
             // Compatibility Checker modal
             if (interaction.customId === 'compat_search_modal') {
-                const gameName = interaction.fields.getTextInputValue('game_name');
-                const firmware = interaction.fields.getTextInputValue('firmware_version') || 'Not specified';
-                
-                const embed = new EmbedBuilder()
-                    .setTitle('✅ Game Compatibility Results')
-                    .setColor(0x3498DB)
-                    .setDescription(`Search results for: **${gameName}**`)
-                    .addFields(
-                        { name: '🎮 Game', value: gameName, inline: true },
-                        { name: '📱 Your Firmware', value: firmware, inline: true },
-                        { name: '⚠️ Note', value: 'This is a placeholder feature. Full game database coming soon!', inline: false },
-                        { name: '💡 What We\'ll Show', value: '• Minimum firmware required\n• Maximum exploitable FW it works on\n• Region compatibility\n• DLC requirements\n• Known issues/patches needed', inline: false }
-                    )
-                    .setFooter({ text: 'Compatibility Checker - Database in development' });
+                console.log('📋 Game Compatibility Checker modal submitted');
+                try {
+                    const gameName = interaction.fields.getTextInputValue('game_name');
+                    const firmware = interaction.fields.getTextInputValue('firmware_version') || 'Not specified';
+                    
+                    console.log(`🎮 Checking compatibility for: ${gameName} on firmware: ${firmware}`);
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle('✅ Game Compatibility Results')
+                        .setColor(0x3498DB)
+                        .setDescription(`Search results for: **${gameName}**`)
+                        .addFields(
+                            { name: '🎮 Game', value: gameName, inline: true },
+                            { name: '📱 Your Firmware', value: firmware, inline: true },
+                            { name: '⚠️ Note', value: 'This is a placeholder feature. Full game database coming soon!', inline: false },
+                            { name: '💡 What We\'ll Show', value: '• Minimum firmware required\n• Maximum exploitable FW it works on\n• Region compatibility\n• DLC requirements\n• Known issues/patches needed', inline: false }
+                        )
+                        .setFooter({ text: 'Compatibility Checker - Database in development' });
 
-                await interaction.reply({ embeds: [embed], ephemeral: true });
-                return;
+                    await interaction.reply({ embeds: [embed], ephemeral: true });
+                    console.log('✅ Compatibility check reply sent successfully');
+                    return;
+                } catch (error) {
+                    console.error('❌ Error in compat_search_modal:', error);
+                    throw error;
+                }
             }
 
             // Ban Risk Analyzer modal
