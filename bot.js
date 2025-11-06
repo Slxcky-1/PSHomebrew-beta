@@ -9784,6 +9784,57 @@ const now = Date.now();
                 await interaction.reply({ content: `❌ Error: ${error.message}`, ephemeral: true }).catch(() => {});
             }
         }
+
+        // Handlers for buttons rendered by the consoleinfo hub but with non-`cinfo_` customIds
+        // These MUST live outside the `cinfo_` guard, otherwise Discord will show "This interaction failed"
+        // because the button click is never acknowledged.
+
+        // Ban Risk Analyzer - Opens modal (standalone button id)
+        if (interaction.customId === 'banrisk_analyze') {
+            try {
+                console.log('🔴 Ban Risk Analyzer button clicked - showing modal (top-level handler)');
+                const modal = new ModalBuilder()
+                    .setCustomId('banrisk_analyze_modal')
+                    .setTitle('PSN Ban Risk Analyzer');
+
+                const activityInput = new TextInputBuilder()
+                    .setCustomId('planned_activity')
+                    .setLabel('What do you plan to do?')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setPlaceholder('e.g., "Install PKGs and play offline" or "Sign into PSN to download saves"')
+                    .setRequired(true);
+
+                modal.addComponents(new ActionRowBuilder().addComponents(activityInput));
+                await interaction.showModal(modal);
+            } catch (e) {
+                console.error('banrisk_analyze showModal error:', e);
+                await interaction.reply({ content: '❌ Could not open the analysis form. Please try again.', ephemeral: true }).catch(() => {});
+            }
+            return;
+        }
+
+        // Game Lookup - Opens modal (standalone button id)
+        if (interaction.customId === 'gamelookup_search') {
+            try {
+                const modal = new ModalBuilder()
+                    .setCustomId('gamelookup_search_modal')
+                    .setTitle('PlayStation Game Lookup');
+
+                const searchInput = new TextInputBuilder()
+                    .setCustomId('game_search')
+                    .setLabel('Game Name or Title ID')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('e.g., "God of War" or "CUSA07408"')
+                    .setRequired(true);
+
+                modal.addComponents(new ActionRowBuilder().addComponents(searchInput));
+                await interaction.showModal(modal);
+            } catch (e) {
+                console.error('gamelookup_search showModal error:', e);
+                await interaction.reply({ content: '❌ Could not open the game search form. Please try again.', ephemeral: true }).catch(() => {});
+            }
+            return;
+        }
         
         // Firmware Tracker button handlers
         if (interaction.customId.startsWith('fw_')) {
