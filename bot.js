@@ -6479,6 +6479,8 @@ const now = Date.now();
     
     // Firmware Tracker - Interactive panel
     if (interaction.commandName === 'firmware') {
+        const selectedConsole = interaction.options.getString('console');
+        
         // Load firmware data
         let firmwareData = {
             lastUpdate: Date.now(),
@@ -6487,7 +6489,9 @@ const now = Date.now();
                 exploitable: '4.90',
                 cfw: '4.92.2 Evilnat',
                 status: '✅ Exploitable',
-                riskLevel: 'LOW'
+                riskLevel: 'LOW',
+                name: 'PS3',
+                emoji: '🎮'
             },
             ps4: {
                 latest: '13.02',
@@ -6495,15 +6499,19 @@ const now = Date.now();
                 goldhen: '12.02',
                 bdjb: '12.02',
                 status: '⚠️ Limited',
-                riskLevel: 'MEDIUM'
+                riskLevel: 'MEDIUM',
+                name: 'PS4',
+                emoji: '🎮'
             },
             ps5: {
-                latest: '10.50',
+                latest: '12.20',
                 exploitable: '10.01',
                 etahen: '10.01',
                 lapse: '10.01',
                 status: '⚠️ Limited',
-                riskLevel: 'HIGH'
+                riskLevel: 'HIGH',
+                name: 'PS5',
+                emoji: '🎮'
             },
             vita: {
                 latest: '3.74',
@@ -6511,17 +6519,74 @@ const now = Date.now();
                 henkaku: '3.60-3.74',
                 enso: '3.65',
                 status: '✅ Fully Exploitable',
-                riskLevel: 'VERY_LOW'
+                riskLevel: 'VERY_LOW',
+                name: 'PS Vita',
+                emoji: '📱'
             },
             psp: {
                 latest: '6.61',
                 exploitable: '6.61',
                 cfw: '6.61 PRO-C',
                 status: '✅ Fully Exploitable',
-                riskLevel: 'VERY_LOW'
+                riskLevel: 'VERY_LOW',
+                name: 'PSP',
+                emoji: '🕹️'
             }
         };
 
+        // If a specific console is selected, show detailed view
+        if (selectedConsole) {
+            const data = firmwareData[selectedConsole];
+            
+            const embed = new EmbedBuilder()
+                .setTitle(`${data.emoji} ${data.name} Firmware Tracker`)
+                .setColor(data.status.includes('✅') ? 0x00FF00 : data.status.includes('⚠️') ? 0xFFA500 : 0xFF0000)
+                .setDescription(`Detailed firmware information for ${data.name}`)
+                .addFields(
+                    { name: '📌 Latest Official', value: data.latest, inline: true },
+                    { name: '📌 Exploitable', value: data.exploitable, inline: true },
+                    { name: '📌 Status', value: data.status, inline: true }
+                );
+
+            // Add console-specific details
+            if (selectedConsole === 'ps3') {
+                embed.addFields(
+                    { name: '🛠️ CFW Version', value: data.cfw, inline: false },
+                    { name: '⚠️ Recommendations', value: '• Stay on 4.90 or lower for full CFW\n• Evilnat CFW for latest features\n• HEN available for 4.91-4.92', inline: false }
+                );
+            } else if (selectedConsole === 'ps4') {
+                embed.addFields(
+                    { name: '🛠️ GoldHEN', value: `${data.goldhen} MAX`, inline: true },
+                    { name: '🛠️ BD-JB', value: data.bdjb, inline: true },
+                    { name: '⚠️ Recommendations', value: '• **DO NOT UPDATE** past 12.02\n• GoldHEN supports 9.00-12.02\n• 13.00 exploit announced but not released', inline: false }
+                );
+            } else if (selectedConsole === 'ps5') {
+                embed.addFields(
+                    { name: '🛠️ etaHEN', value: data.etahen, inline: true },
+                    { name: '🛠️ Lapse', value: data.lapse, inline: true },
+                    { name: '⚠️ Recommendations', value: '• **DO NOT UPDATE** past 10.01\n• etaHEN + ItemzFlow for PKG loading\n• 12.00 exploit announced but not released', inline: false }
+                );
+            } else if (selectedConsole === 'vita') {
+                embed.addFields(
+                    { name: '🛠️ h-encore', value: data.henkaku, inline: true },
+                    { name: '🛠️ Ensō', value: data.enso, inline: true },
+                    { name: '⚠️ Recommendations', value: '• All firmware versions exploitable!\n• 3.65 recommended for Ensō\n• 3.60-3.74 h-encore/h-encore²', inline: false }
+                );
+            } else if (selectedConsole === 'psp') {
+                embed.addFields(
+                    { name: '🛠️ CFW', value: data.cfw, inline: false },
+                    { name: '⚠️ Recommendations', value: '• All PSPs are exploitable!\n• 6.61 PRO-C or ME for best compatibility\n• Infinity for permanent CFW', inline: false }
+                );
+            }
+
+            embed.setFooter({ text: `Last updated: ${new Date(firmwareData.lastUpdate).toLocaleString()}` })
+                .setTimestamp();
+
+            await interaction.reply({ embeds: [embed], ephemeral: true });
+            return;
+        }
+
+        // Show overview of all consoles if no specific console selected
         const embed = new EmbedBuilder()
             .setTitle('📱 PlayStation Firmware Tracker')
             .setColor(0x0066CC)
@@ -6558,7 +6623,7 @@ const now = Date.now();
                     inline: false
                 }
             )
-            .setFooter({ text: `Last updated: ${new Date(firmwareData.lastUpdate).toLocaleString()}` })
+            .setFooter({ text: `Last updated: ${new Date(firmwareData.lastUpdate).toLocaleString()} • Use /firmware console:<name> for details` })
             .setTimestamp();
 
         const row1 = new ActionRowBuilder()
