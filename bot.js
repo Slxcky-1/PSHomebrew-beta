@@ -6890,6 +6890,7 @@ const now = Date.now();
     
         // Handle button interactions
         else if (interaction.isButton()) {
+            try { console.log(`🔘 Button clicked: ${interaction.customId} | User: ${interaction.user?.tag} | Guild: ${interaction.guild?.id}`); } catch {}
             // Safety check for customId
             if (!interaction.customId) {
                 console.warn('Button interaction without customId');
