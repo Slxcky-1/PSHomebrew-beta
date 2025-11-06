@@ -6602,6 +6602,25 @@ const now = Date.now();
         return;
     }
 
+    // Safe Firmware Command
+    if (interaction.commandName === 'safefirmware') {
+        const console = interaction.options.getString('console');
+        await interaction.reply({ 
+            content: `✅ Safe firmware info for ${console.toUpperCase()} - Feature coming soon!`,
+            ephemeral: true 
+        });
+        return;
+    }
+
+    // Firmware Notifications Toggle
+    if (interaction.commandName === 'fwnotify') {
+        await interaction.reply({ 
+            content: '🔔 Firmware notification settings - Feature coming soon!',
+            ephemeral: true 
+        });
+        return;
+    }
+
     // PKG Database - Interactive panel
     if (interaction.commandName === 'pkg') {
         const embed = new EmbedBuilder()
