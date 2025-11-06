@@ -2611,9 +2611,13 @@ async function checkKeywords(message, settings) {
         }
         // Clean "Answer:" prefix if present and format with proper emoji
         const cleanedAnswer = String(errorDescription).replace(/^\s*Answer:\s*/i, '');
+        
+        // For PS3, categoryInfo.name already has the circle emoji, for others add it
+        const categoryDisplay = consoleType === 'PS3' ? categoryInfo.name : `${circleEmoji} ${categoryInfo.name}`;
+        
         const errorEmbed = new EmbedBuilder()
             .setTitle(title)
-            .setDescription(`**✅ Answer:** ${cleanedAnswer}\n\n**${circleEmoji} ${categoryInfo.name}**`)
+            .setDescription(`**✅ Answer:** ${cleanedAnswer}\n\n**${categoryDisplay}**`)
             .setColor(categoryInfo.color)
             .setTimestamp();
         
