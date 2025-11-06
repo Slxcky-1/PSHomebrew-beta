@@ -2960,6 +2960,12 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
 // Unified interaction handler (slash commands, buttons, select menus)
 client.on('interactionCreate', async (interaction) => {
     try {
+        // Global safety check - prevent undefined customId errors
+        if ((interaction.isButton() || interaction.isStringSelectMenu() || interaction.isModalSubmit()) && !interaction.customId) {
+            console.warn(`[WARN] Interaction without customId: ${interaction.type}`);
+            return;
+        }
+        
         // Handle slash commands
         if (interaction.isChatInputCommand()) {
             // Track command usage in analytics
