@@ -4,11 +4,6 @@
   "enabled": true,
   "commands": [
     {
-      "name": "firmware",
-      "description": "Check latest firmware versions and exploit compatibility",
-      "options": []
-    },
-    {
       "name": "safefirmware",
       "description": "Check what firmware versions are safe to stay on",
       "options": [

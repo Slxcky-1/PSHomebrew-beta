@@ -50,10 +50,6 @@
             "description": "Play PlayStation trivia and earn economy points (categories: PS3, PS4, PS5, PSP, Vita)"
         },
         {
-            "name": "gamelookup",
-            "description": "Look up PlayStation game information, IDs, and CFW compatibility"
-        },
-        {
             "name": "clean",
             "description": "Delete a specified number of messages (1-100, Manage Messages required)"
         }
