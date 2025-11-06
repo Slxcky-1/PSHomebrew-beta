@@ -15340,7 +15340,7 @@ const now = Date.now();
                     console.log(`🎮 Checking compatibility for: ${gameName} on firmware: ${firmware}`);
                     
                     // Load game database
-                    const gameDatabase = JSON.parse(fs.readFileSync('./data/gameDatabase.json', 'utf8'));
+                    const gameDatabase = JSON.parse(fsSync.readFileSync('./data/gameDatabase.json', 'utf8'));
                     
                     // Search for game by title or title ID
                     const searchTerm = gameName.toUpperCase();
