@@ -9730,31 +9730,38 @@ const now = Date.now();
 
                 // Compatibility Checker - Opens modal
                 if (interaction.customId === 'compat_search') {
-                    const modal = new ModalBuilder()
-                        .setCustomId('compat_search_modal')
-                        .setTitle('Game Compatibility Checker');
-                    
-                    const gameInput = new TextInputBuilder()
-                        .setCustomId('game_name')
-                        .setLabel('Game Name or Title ID')
-                        .setStyle(TextInputStyle.Short)
-                        .setPlaceholder('e.g., "The Last of Us" or "CUSA12345"')
-                        .setRequired(true);
-                    
-                    const fwInput = new TextInputBuilder()
-                        .setCustomId('firmware_version')
-                        .setLabel('Your Current Firmware (optional)')
-                        .setStyle(TextInputStyle.Short)
-                        .setPlaceholder('e.g., 9.00, 10.01, 4.90')
-                        .setRequired(false);
-                    
-                    modal.addComponents(
-                        new ActionRowBuilder().addComponents(gameInput),
-                        new ActionRowBuilder().addComponents(fwInput)
-                    );
-                    
-                    await interaction.showModal(modal);
-                    return;
+                    console.log('🎮 Game Compatibility Checker button clicked - showing modal');
+                    try {
+                        const modal = new ModalBuilder()
+                            .setCustomId('compat_search_modal')
+                            .setTitle('Game Compatibility Checker');
+                        
+                        const gameInput = new TextInputBuilder()
+                            .setCustomId('game_name')
+                            .setLabel('Game Name or Title ID')
+                            .setStyle(TextInputStyle.Short)
+                            .setPlaceholder('e.g., "The Last of Us" or "CUSA12345"')
+                            .setRequired(true);
+                        
+                        const fwInput = new TextInputBuilder()
+                            .setCustomId('firmware_version')
+                            .setLabel('Your Current Firmware (optional)')
+                            .setStyle(TextInputStyle.Short)
+                            .setPlaceholder('e.g., 9.00, 10.01, 4.90')
+                            .setRequired(false);
+                        
+                        modal.addComponents(
+                            new ActionRowBuilder().addComponents(gameInput),
+                            new ActionRowBuilder().addComponents(fwInput)
+                        );
+                        
+                        await interaction.showModal(modal);
+                        console.log('✅ Game Compatibility Checker modal shown successfully');
+                        return;
+                    } catch (error) {
+                        console.error('❌ Error showing compat_search modal:', error);
+                        throw error;
+                    }
                 }
 
                 // Ban Risk Analyzer - Opens modal
