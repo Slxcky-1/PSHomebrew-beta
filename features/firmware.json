@@ -6,21 +6,7 @@
     {
       "name": "firmware",
       "description": "Check latest firmware versions and exploit compatibility",
-      "options": [
-        {
-          "name": "console",
-          "description": "Console type",
-          "type": 3,
-          "required": false,
-          "choices": [
-            { "name": "PS3", "value": "ps3" },
-            { "name": "PS4", "value": "ps4" },
-            { "name": "PS5", "value": "ps5" },
-            { "name": "PS Vita", "value": "vita" },
-            { "name": "PSP", "value": "psp" }
-          ]
-        }
-      ]
+      "options": []
     },
     {
       "name": "safefirmware",

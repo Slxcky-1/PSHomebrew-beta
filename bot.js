@@ -9474,6 +9474,280 @@ const now = Date.now();
                     return;
                 }
 
+                // ===== SUB-FEATURE HANDLERS =====
+                
+                // Version Checker - Console Selection
+                if (interaction.customId.startsWith('version_')) {
+                    const console = interaction.customId.replace('version_', '');
+                    const modal = new ModalBuilder()
+                        .setCustomId(`version_modal_${console}`)
+                        .setTitle(`${console.toUpperCase()} Version Checker`);
+                    
+                    const serialInput = new TextInputBuilder()
+                        .setCustomId('serial_number')
+                        .setLabel('Serial Number or Model Number')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder(console === 'ps3' ? 'e.g., CECHK01' : console === 'ps4' ? 'e.g., CUH-1215A' : 'e.g., CFI-1015A')
+                        .setRequired(true);
+                    
+                    modal.addComponents(new ActionRowBuilder().addComponents(serialInput));
+                    await interaction.showModal(modal);
+                    return;
+                }
+
+                // Jailbreak Tutorial - Console Selection
+                if (interaction.customId.startsWith('jb_')) {
+                    const console = interaction.customId.replace('jb_', '');
+                    let embed;
+
+                    if (console === 'ps3') {
+                        embed = new EmbedBuilder()
+                            .setTitle('🎮 PS3 Jailbreak Guide')
+                            .setColor(0x0066CC)
+                            .setDescription('**Step-by-step guide to jailbreaking your PlayStation 3**')
+                            .addFields(
+                                { name: '📋 Prerequisites', value: '• PS3 on firmware **4.90 or below** for CFW\n• USB drive (FAT32, min 1GB)\n• Computer with internet\n• PS3 compatible with CFW (check model)', inline: false },
+                                { name: '🔧 Step 1: Check Compatibility', value: 'Not all PS3s can run CFW:\n• **CECH-20xx and below**: Full CFW support\n• **CECH-21xx to 25xx**: Limited CFW (DEX)\n• **CECH-30xx+**: HEN only (4.91-4.92)', inline: false },
+                                { name: '📥 Step 2: Download Files', value: '• Latest Evilnat CFW (4.90 recommended)\n• HFW if on 4.91-4.92\n• Flash Writer tool\n• HEN installer (for incompatible models)', inline: false },
+                                { name: '⚙️ Step 3: Install CFW/HEN', value: '1. Format USB to FAT32\n2. Create folder: PS3/UPDATE/\n3. Copy CFW .PUP file\n4. Insert USB, go to Settings > System Update\n5. Install from USB\n6. Wait 5-10 minutes (DO NOT TURN OFF!)', inline: false },
+                                { name: '✅ Step 4: Verify', value: 'After reboot:\n• Check System Information for CFW version\n• Install multiman/webMAN\n• Enable QA flags if needed', inline: false },
+                                { name: '⚠️ Critical Warnings', value: '• **NEVER update** to official firmware after CFW\n• **Backup NAND/NOR** before starting\n• **Don\'t sign into PSN** on CFW\n• **Use offline** account only', inline: false }
+                            );
+                    } else if (console === 'ps4') {
+                        embed = new EmbedBuilder()
+                            .setTitle('🎮 PS4 Jailbreak Guide (GoldHEN)')
+                            .setColor(0xFF4400)
+                            .setDescription('**Complete guide to jailbreaking PS4 (9.00-12.02)**')
+                            .addFields(
+                                { name: '📋 Prerequisites', value: '• PS4 on firmware **9.00 - 12.02**\n• Internet connection (for initial setup)\n• USB drive (optional, for offline host)\n• Patience (exploit can take 5-20 attempts)', inline: false },
+                                { name: '🔧 Step 1: Prepare Console', value: '1. Go to **Settings > Network > Set Up Internet**\n2. Note down your **DNS settings** (write them down!)\n3. Set **Primary DNS**: 165.227.83.145\n4. **Test connection** to verify', inline: false },
+                                { name: '🌐 Step 2: Load GoldHEN', value: '1. Open **Internet Browser**\n2. Go to: **karo218.ir**\n3. Select your firmware version\n4. Click **GoldHEN 2.4b18.6**\n5. Wait for **"GoldHEN loaded"** message', inline: false },
+                                { name: '💡 Tips for Success', value: '• Close all apps before loading\n• Try different times of day\n• Reset console if 10+ failures\n• **Rest Mode works** after successful load\n• Some games require **FW spoofing**', inline: false },
+                                { name: '📦 Step 3: Install Homebrew', value: '• Use **Online Package Installer**\n• Install **Apollo Save Tool**\n• Install **Homebrew Store**\n• Install **FTP Server** for file transfer', inline: false },
+                                { name: '⚠️ Critical Warnings', value: '• **DO NOT UPDATE** past 12.02!\n• **Disable automatic updates**\n• **Don\'t sign into PSN**\n• **Use burner account** only\n• **Block telemetry** in network settings', inline: false }
+                            );
+                    } else if (console === 'ps5') {
+                        embed = new EmbedBuilder()
+                            .setTitle('🎮 PS5 Jailbreak Guide (etaHEN)')
+                            .setColor(0xFF0000)
+                            .setDescription('**Guide to jailbreaking PS5 on firmware 10.01 and below**')
+                            .addFields(
+                                { name: '📋 Prerequisites', value: '• PS5 on **firmware 10.01 or below**\n• **Ethernet cable** (WiFi possible but slower)\n• Computer or Raspberry Pi\n• **PPPwn** or **etaHEN** loader\n• **Extreme patience** (can take many attempts)', inline: false },
+                                { name: '🚨 IMPORTANT', value: '**Exploitable PS5s are EXTREMELY rare!**\n• Most sold consoles are 10.50+\n• Once you update, **you cannot downgrade**\n• **Guard this console** with your life\n• Consider getting backup PS5 for online', inline: false },
+                                { name: '🔧 Method 1: PPPwn (Recommended)', value: '1. Download **PPPwn** for your PC/Pi\n2. Connect PS5 via **Ethernet**\n3. Set PS5 to **PPPoE** mode\n4. Run PPPwn script\n5. Wait for **kernel exploitation** (2-30 min)\n6. Load **etaHEN** payload', inline: false },
+                                { name: '🌐 Method 2: Browser Exploit', value: '1. Set DNS to exploit server\n2. Open PS5 browser (user guide trick)\n3. Navigate to exploit site\n4. Click **etaHEN 2.0b**\n5. **Multiple attempts** needed (very unstable)', inline: false },
+                                { name: '📦 After Jailbreak', value: '• Install **ItemzFlow** (homebrew store)\n• Install **FTP Server**\n• Install **Save Manager**\n• Enable **Debug Settings**\n• Set up **offline patches**', inline: false },
+                                { name: '⚠️ CRITICAL Warnings', value: '• **NEVER EVER UPDATE!**\n• **Disconnect from internet** after setup\n• **Don\'t use PSN** - instant ban\n• **Exploit is temporary** - runs at each boot\n• **12.00 exploit announced** but not released', inline: false }
+                            );
+                    }
+
+                    const backButton = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('cinfo_jailbreak').setLabel('Back to Tutorials').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [backButton] });
+                    return;
+                }
+
+                // Homebrew Browser - Console Selection
+                if (interaction.customId.startsWith('hb_')) {
+                    const console = interaction.customId.replace('hb_', '');
+                    const consoleNames = { ps3: 'PS3', ps4: 'PS4', ps5: 'PS5', vita: 'PS Vita', psp: 'PSP' };
+                    
+                    const embed = new EmbedBuilder()
+                        .setTitle(`🛠️ ${consoleNames[console]} Homebrew Apps`)
+                        .setColor(0x9B59B6)
+                        .setDescription(`Popular homebrew applications for ${consoleNames[console]}`)
+                        .addFields(
+                            { name: '🎮 Games & Emulators', value: console === 'ps3' ? 'RetroArch, SNES9x, PCSX-Rearmed' : 
+                                                                      console === 'ps4' ? 'RetroArch, PPSSPP, Duckstation' :
+                                                                      console === 'ps5' ? 'RetroArch (limited), PS4 BC emulators' :
+                                                                      console === 'vita' ? 'Adrenaline, RetroArch, GTA ports' :
+                                                                      'RetroArch, SNES9x, GBA emulator', inline: false },
+                            { name: '🔧 System Tools', value: console === 'ps3' ? 'multiman, webMAN, IRISMAN, Apollo' :
+                                                                   console === 'ps4' ? 'GoldHEN, Apollo, Orbis Toolbox' :
+                                                                   console === 'ps5' ? 'etaHEN, Debug Settings, FTP' :
+                                                                   console === 'vita' ? 'VitaShell, Adrenaline, Autoplugin' :
+                                                                   'PSP Filer, CXMB, Recovery Flasher', inline: false },
+                            { name: '📦 Package Managers', value: console === 'ps3' ? 'PSN Patch, PKG Linker' :
+                                                                       console === 'ps4' ? 'PKG Installer, Remote PKG' :
+                                                                       console === 'ps5' ? 'ItemzFlow' :
+                                                                       console === 'vita' ? 'PKGj, NPS Browser' :
+                                                                       'PSP ISO Tool', inline: false },
+                            { name: '💾 Save Managers', value: console === 'ps3' ? 'Apollo Save Tool, Bruteforce' :
+                                                                    console === 'ps4' ? 'Apollo Save Tool, Save Wizard' :
+                                                                    console === 'ps5' ? 'Save Mounter' :
+                                                                    console === 'vita' ? 'SaveManager, VitaShell' :
+                                                                    'CWCheat, PPSSPP saves', inline: false }
+                        )
+                        .setFooter({ text: 'Homebrew database - Basic listings' });
+
+                    const backButton = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('cinfo_homebrew').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [backButton] });
+                    return;
+                }
+
+                // Backup Guide - Console Selection
+                if (interaction.customId.startsWith('backup_')) {
+                    const console = interaction.customId.replace('backup_', '');
+                    let embed;
+
+                    if (console === 'ps3') {
+                        embed = new EmbedBuilder()
+                            .setTitle('💾 PS3 Backup Guide')
+                            .setColor(0x00FF00)
+                            .addFields(
+                                { name: '🔴 CRITICAL: NAND/NOR Flash Backup', value: '**THIS IS YOUR CONSOLE\'S LIFE!**\n\n1. Install **Flash Memory Manager** or **multiman**\n2. Go to **System > Flash Memory Dump**\n3. Wait 5-15 minutes (don\'t interrupt!)\n4. Save to **multiple USBs** + computer\n5. **Test the dump** - verify file size matches', inline: false },
+                                { name: '💡 What is NAND/NOR?', value: '• **NAND**: Fat PS3 consoles\n• **NOR**: Slim/Super Slim\n• Contains: encryption keys, board data\n• **Without this, brick = trash**\n• Size: ~256MB (check your model)', inline: false },
+                                { name: '🟡 Save Game Backups', value: '**Method 1: USB**\n1. Settings > System > Backup Utility\n2. Select data to backup\n3. Wait for completion\n\n**Method 2: Apollo Save Tool**\n• More control over individual saves\n• Can decrypt/resign saves', inline: false },
+                                { name: '📄 Other Important Backups', value: '• **act.dat** (license activation)\n• **PARAM.SFO** files\n• **Game updates** (from HDD)\n• **Themes** (if custom)\n• **System database** (Apollo)', inline: false }
+                            );
+                    } else if (console === 'ps4') {
+                        embed = new EmbedBuilder()
+                            .setTitle('💾 PS4 Backup Guide')
+                            .setColor(0x00FF00)
+                            .addFields(
+                                { name: '🔴 CRITICAL: System Backup', value: '**Before ANY modifications:**\n\n1. Use **Apollo Save Tool** or **PS4 Backup**\n2. Backup **entire system database**\n3. Save **user data** separately\n4. **Multiple copies** - USB + PC\n5. Include **activation data**', inline: false },
+                                { name: '💾 Save Game Backups', value: '**Using Apollo:**\n1. Launch Apollo Save Tool\n2. Select saves to backup\n3. Export to USB\n4. Can **decrypt/resign** for mods\n\n**Using PS4 Built-in:**\n• Settings > Application Data Management\n• Copy to USB or online storage', inline: false },
+                                { name: '🎮 Game Data Backups', value: '• **Installed games** (if removed from PSN)\n• **Game updates** (backup PKGs)\n• **DLC packages**\n• **Patches** (some games need specific versions)', inline: false },
+                                { name: '⚠️ Important Notes', value: '• **Can\'t backup system flash** like PS3\n• Focus on **save data & licenses**\n• **Trophy data** can be backed up\n• **Themes/avatars** if custom', inline: false }
+                            );
+                    } else {
+                        embed = new EmbedBuilder()
+                            .setTitle('💾 PS5 Backup Guide')
+                            .setColor(0x00FF00)
+                            .addFields(
+                                { name: '🔴 LIMITED: PS5 Backups', value: '**PS5 jailbreak is very new:**\n\n• **No NAND dump tools** yet\n• Focus on **save data**\n• Backup **activation files**\n• Keep **system database** safe\n• **Multiple storage locations**', inline: false },
+                                { name: '💾 What You CAN Backup', value: '• **Save data** (via Save Mounter)\n• **Screenshots/videos**\n• **User profiles**\n• **Game installations** (if have space)\n• **PKG files** (homebrew)', inline: false },
+                                { name: '⚠️ Critical Limitations', value: '• **No system flash backup** available\n• **Brick = permanent** (for now)\n• **Be extremely careful**\n• **Don\'t experiment** unless you understand risks\n• **Keep stock PS5** for online', inline: false }
+                            );
+                    }
+
+                    const backButton = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('cinfo_backup').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [backButton] });
+                    return;
+                }
+
+                // Downgrade Guide - Console Selection  
+                if (interaction.customId.startsWith('downgrade_')) {
+                    const console = interaction.customId.replace('downgrade_', '');
+                    let embed;
+
+                    if (console === 'ps3') {
+                        embed = new EmbedBuilder()
+                            .setTitle('⬇️ PS3 Downgrade Guide')
+                            .setColor(0xFF9900)
+                            .addFields(
+                                { name: '🔧 Required Hardware', value: '• **E3 Flasher** (~$40-60) - Most popular\n• **Teensy++ 2.0** (~$25) + Clip - DIY option\n• **Progskeet** - Professional tool\n• **NAND/NOR clip** - For reading flash\n• **Soldering iron** (for some methods)', inline: false },
+                                { name: '📋 Process Overview', value: '1. **Dump current NAND/NOR**\n2. **Patch dump** with CFW tools\n3. **Write patched dump** back\n4. **Boot into CFW**\n5. **Downgrade if needed**', inline: false },
+                                { name: '⚠️ Risks & Warnings', value: '• **BRICK RISK**: 10-20% for beginners\n• **Requires soldering** on some models\n• **Time consuming**: 2-4 hours first time\n• **Expensive** if you hire someone\n• **Practice first** on junk board', inline: false },
+                                { name: '💡 Alternative: Just Stay Put', value: 'If you\'re on **4.91-4.92**:\n• Use **HEN** instead of downgrading\n• Still get most homebrew\n• **Zero brick risk**\n• Easier for beginners', inline: false }
+                            );
+                    } else if (console === 'vita') {
+                        embed = new EmbedBuilder()
+                            .setTitle('⬇️ PS Vita Downgrade Guide')
+                            .setColor(0xFF9900)
+                            .addFields(
+                                { name: '✅ Good News!', value: '**All Vita firmware can be hacked!**\n\n• Use **modoru** plugin\n• Downgrades to 3.60 or 3.65\n• **Relatively safe** process\n• No hardware modifications needed', inline: false },
+                                { name: '📋 Downgrade Steps', value: '1. Install **h-encore** or **h-encore²**\n2. Install **modoru** plugin\n3. Run modoru, select target firmware\n4. Wait for downgrade (10-15 min)\n5. Install **Ensō** for permanent CFW', inline: false },
+                                { name: '🎯 Target Firmware', value: '• **3.60**: Best for Ensō, most stable\n• **3.65**: Also supports Ensō\n• **3.68**: If you need certain apps\n\n**Recommended: 3.60 or 3.65**', inline: false },
+                                { name: '⚠️ Warnings', value: '• **Backup saves** first\n• **Charge battery** to 100%\n• **Don\'t interrupt** process\n• Small **brick risk** if interrupted', inline: false }
+                            );
+                    } else {
+                        embed = new EmbedBuilder()
+                            .setTitle('⬇️ PSP Downgrade Guide')
+                            .setColor(0xFF9900)
+                            .addFields(
+                                { name: '🔧 Classic Method: Pandora Battery', value: '• **Pandora Battery** (magic battery)\n• **Magic Memory Stick** (special MS)\n• Works on **most PSP models**\n• **Brick risk** if done wrong\n• Outdated but still works', inline: false },
+                                { name: '💡 Modern Method: Chronoswitch', value: '**If already on CFW:**\n1. Install **Chronoswitch Downgrader**\n2. Select target OFW\n3. Run downgrade\n4. Re-install CFW\n\n**Much safer than Pandora**', inline: false },
+                                { name: '🎯 Recommended Firmware', value: '• **6.61**: Latest, best compatibility\n• **6.60**: Also good, wide support\n• **5.03**: For older homebrew\n\n**Install: 6.61 PRO-C or ME**', inline: false },
+                                { name: '⚠️ Critical Warnings', value: '• **Higher brick risk** than Vita\n• **Don\'t downgrade** if on 6.61 already\n• **Backup MS data** first\n• **Full battery** required\n• **Consider staying on 6.61 CFW**', inline: false }
+                            );
+                    }
+
+                    const backButton = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('cinfo_downgrade').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [backButton] });
+                    return;
+                }
+
+                // Compatibility Checker - Opens modal
+                if (interaction.customId === 'compat_search') {
+                    const modal = new ModalBuilder()
+                        .setCustomId('compat_search_modal')
+                        .setTitle('Game Compatibility Checker');
+                    
+                    const gameInput = new TextInputBuilder()
+                        .setCustomId('game_name')
+                        .setLabel('Game Name or Title ID')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('e.g., "The Last of Us" or "CUSA12345"')
+                        .setRequired(true);
+                    
+                    const fwInput = new TextInputBuilder()
+                        .setCustomId('firmware_version')
+                        .setLabel('Your Current Firmware (optional)')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('e.g., 9.00, 10.01, 4.90')
+                        .setRequired(false);
+                    
+                    modal.addComponents(
+                        new ActionRowBuilder().addComponents(gameInput),
+                        new ActionRowBuilder().addComponents(fwInput)
+                    );
+                    
+                    await interaction.showModal(modal);
+                    return;
+                }
+
+                // Ban Risk Analyzer - Opens modal
+                if (interaction.customId === 'banrisk_analyze') {
+                    const modal = new ModalBuilder()
+                        .setCustomId('banrisk_analyze_modal')
+                        .setTitle('PSN Ban Risk Analyzer');
+                    
+                    const activityInput = new TextInputBuilder()
+                        .setCustomId('planned_activity')
+                        .setLabel('What do you plan to do?')
+                        .setStyle(TextInputStyle.Paragraph)
+                        .setPlaceholder('e.g., "Install PKGs and play offline" or "Sign into PSN to download saves"')
+                        .setRequired(true);
+                    
+                    modal.addComponents(new ActionRowBuilder().addComponents(activityInput));
+                    await interaction.showModal(modal);
+                    return;
+                }
+
+                // Game Lookup - Opens modal  
+                if (interaction.customId === 'gamelookup_search') {
+                    const modal = new ModalBuilder()
+                        .setCustomId('gamelookup_search_modal')
+                        .setTitle('PlayStation Game Lookup');
+                    
+                    const searchInput = new TextInputBuilder()
+                        .setCustomId('game_search')
+                        .setLabel('Game Name or Title ID')
+                        .setStyle(TextInputStyle.Short)
+                        .setPlaceholder('e.g., "God of War" or "CUSA07408"')
+                        .setRequired(true);
+                    
+                    modal.addComponents(new ActionRowBuilder().addComponents(searchInput));
+                    await interaction.showModal(modal);
+                    return;
+                }
+
             } catch (error) {
                 console.error('Console Info Hub button error:', error);
                 await interaction.reply({ content: `❌ Error: ${error.message}`, ephemeral: true }).catch(() => {});
