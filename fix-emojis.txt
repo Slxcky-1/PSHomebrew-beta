@@ -1,0 +1,3 @@
+﻿Line 9489: PKG emoji is corrupted
+Line 9490: Version Checker emoji is corrupted
+Should be 📦 and 🔍

@@ -1318,7 +1318,7 @@ async function handleRaid(guild, suspiciousJoins) {
                         .setColor(0xFF0000)
                         .addFields(
                             { name: 'Action Taken', value: settings.raidProtection.action === 'none' ? 'None (monitoring only)' : `Auto-${settings.raidProtection.action}`, inline: true },
-                            { name: 'Server Status', value: '📌 Lockdown Active', inline: true },
+                            { name: 'Server Status', value: ' Lockdown Active', inline: true },
                             { name: 'Suspicious Members', value: suspiciousJoins.slice(0, 10).map(j => `<@${j.userId}>`).join(', ') + (suspiciousJoins.length > 10 ? `\n...and ${suspiciousJoins.length - 10} more` : ''), inline: false }
                         )
                         .setTimestamp();
@@ -2185,9 +2185,9 @@ client.on('messageCreate', async (message) => {
                     .setColor(0x00FF00)
                     .setThumbnail(message.author.displayAvatarURL())
                     .addFields(
-                        { name: '📌 Previous Level', value: result.oldLevel.toString(), inline: true },
+                        { name: ' Previous Level', value: result.oldLevel.toString(), inline: true },
                         { name: '🆙 New Level', value: result.newLevel.toString(), inline: true },
-                        { name: '📌 XP Gained', value: xpGained.toString(), inline: true }
+                        { name: ' XP Gained', value: xpGained.toString(), inline: true }
                     )
                     .setTimestamp();
                 
@@ -2583,8 +2583,13 @@ async function checkKeywords(message, settings) {
         // Get error description from database
         const errorDescription = errorDatabase[foundErrorCode];
         
+        // Detect if it's a CFW/jailbreak code or OFW code based on description
+        const isCFWCode = String(errorDescription).match(/\b(CFW|jailbreak|homebrew|PKG|HEN|exploit)\b/i);
+        
         // Get pre-computed category for PS3 (or use default for PS4/PS5/Vita/PSP)
         let categoryInfo = { name: `❓ ${consoleType} Error`, color: 0x0099FF };
+        let circleEmoji = isCFWCode ? '🟣' : '🔵'; // Purple for CFW, Blue for OFW
+        
         if (consoleType === 'PS3') {
             categoryInfo = errorCodeCategories.get(foundErrorCode) || categoryInfo;
         } else if (consoleType === 'PS4' || consoleType === 'PS5') {
@@ -2608,7 +2613,7 @@ async function checkKeywords(message, settings) {
         const cleanedAnswer = String(errorDescription).replace(/^\s*Answer:\s*/i, '');
         const errorEmbed = new EmbedBuilder()
             .setTitle(title)
-            .setDescription(`**❓ Answer:** ${cleanedAnswer}\n\n**${categoryInfo.name}**`)
+            .setDescription(`**✅ Answer:** ${cleanedAnswer}\n\n**${circleEmoji} ${categoryInfo.name}**`)
             .setColor(categoryInfo.color)
             .setTimestamp();
         
@@ -2641,8 +2646,8 @@ client.on('guildMemberAdd', async (member) => {
                         .setDescription(`Welcome to the server! Your previous purchase has been activated and you've been given access to **${role.name}**.`)
                         .setColor(0x00FF00)
                         .addFields(
-                            { name: '📌 Order ID', value: purchase.orderId, inline: true },
-                            { name: '📌 Amount Paid', value: `$${purchase.amount}`, inline: true }
+                            { name: ' Order ID', value: purchase.orderId, inline: true },
+                            { name: ' Amount Paid', value: `$${purchase.amount}`, inline: true }
                         )
                         .setFooter({ text: member.guild.name })
                         .setTimestamp();
@@ -2660,12 +2665,12 @@ client.on('guildMemberAdd', async (member) => {
                         .setColor(0x00FF00)
                         .setDescription('User joined server and role was automatically assigned.')
                         .addFields(
-                            { name: '📌 Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
-                            { name: '📌 Order ID', value: purchase.orderId, inline: true },
-                            { name: '📌 Amount', value: `$${purchase.amount}`, inline: true },
-                            { name: '📌 Email', value: purchase.email || 'N/A', inline: false },
-                            { name: '📌 Role Given', value: role.name, inline: false },
-                            { name: '📌 Product', value: purchase.product || 'Unknown', inline: false }
+                            { name: ' Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
+                            { name: ' Order ID', value: purchase.orderId, inline: true },
+                            { name: ' Amount', value: `$${purchase.amount}`, inline: true },
+                            { name: ' Email', value: purchase.email || 'N/A', inline: false },
+                            { name: ' Role Given', value: role.name, inline: false },
+                            { name: ' Product', value: purchase.product || 'Unknown', inline: false }
                         )
                         .setThumbnail(member.user.displayAvatarURL())
                         .setTimestamp();
@@ -2771,9 +2776,9 @@ client.on('guildMemberAdd', async (member) => {
             .setColor(0x00FF00)
             .setThumbnail(member.user.displayAvatarURL())
             .addFields(
-                { name: '📌 Getting Started', value: 'Check out our rules and guidelines', inline: false },
-                { name: '📌 Chat', value: 'Feel free to chat and ask questions', inline: false },
-                { name: '📌 Community', value: `You are member #${member.guild.memberCount}`, inline: false }
+                { name: ' Getting Started', value: 'Check out our rules and guidelines', inline: false },
+                { name: ' Chat', value: 'Feel free to chat and ask questions', inline: false },
+                { name: ' Community', value: `You are member #${member.guild.memberCount}`, inline: false }
             )
             .setFooter({ text: member.guild.name })
             .setTimestamp();
@@ -2837,7 +2842,7 @@ client.on('guildMemberRemove', (member) => {
             .setColor(0xFF0000)
             .setThumbnail(member.user.displayAvatarURL())
             .addFields(
-                { name: '📌 Member Count', value: member.guild.memberCount.toString(), inline: true },
+                { name: ' Member Count', value: member.guild.memberCount.toString(), inline: true },
                 { name: '⏰ Time in Server', value: member.joinedAt ? `Joined ${member.joinedAt.toDateString()}` : 'Unknown', inline: true }
             )
             .setFooter({ text: member.guild.name })
@@ -2995,22 +3000,22 @@ client.on('interactionCreate', async (interaction) => {
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
-                    name: '📌 Leveling Commands',
+                    name: ' Leveling Commands',
                     value: '`/level` - Check your level and XP\n`/level @user` - Check another user\'s level\n`/rank` - See your rank position\n`/leaderboard` - View top 10 users',
                     inline: false
                 },
                 {
-                    name: '📌 Information',
+                    name: ' Information',
                     value: '`/help` - Show this command list\n`/ping` - Check bot latency\n`/features` - View all bot features\n`/viewsettings` - View server settings (Admin)',
                     inline: false
                 },
                 {
-                    name: '📌 Admin - Toggle Features',
+                    name: ' Admin - Toggle Features',
                     value: '`/toggle` - Toggle features on/off',
                     inline: false
                 },
                 {
-                    name: '📌 Admin - Leveling Settings',
+                    name: ' Admin - Leveling Settings',
                     value: '`/setxp` - Set XP range per message\n`/setcooldown` - Set XP cooldown\n`/setmaxlevel` - Set maximum level\n`/setlevelupchannel` - Set level up announcement channel',
                     inline: false
                 },
@@ -3025,7 +3030,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '📌 PlayStation Error Code Detection',
+                    name: ' PlayStation Error Code Detection',
                     value: `Simply type any PlayStation error code in chat (PS1-PS5, PSP, Vita)!\nExamples: \`80710016\` (PS3), \`CE-34878-0\` (PS4), \`CE-108255-1\` (PS5), \`C1-2741-4\` (Vita)\n**${Object.keys(consoleErrorCodes).filter(k => !k.startsWith('_')).length} error codes** in database`,
                     inline: false
                 }
@@ -3047,17 +3052,17 @@ client.on('interactionCreate', async (interaction) => {
             .setColor(wsLatency < 100 ? 0x00FF00 : wsLatency < 200 ? 0xFFFF00 : 0xFF0000)
             .addFields(
                 {
-                    name: '📌 Roundtrip Latency',
+                    name: ' Roundtrip Latency',
                     value: `\`${roundtripLatency}ms\``,
                     inline: true
                 },
                 {
-                    name: '📌 WebSocket Heartbeat',
+                    name: ' WebSocket Heartbeat',
                     value: `\`${wsLatency}ms\``,
                     inline: true
                 },
                 {
-                    name: '📌 Status',
+                    name: ' Status',
                     value: wsLatency < 100 ? '🟢 Excellent' : wsLatency < 200 ? '🟡 Good' : '🔴 High',
                     inline: true
                 }
@@ -3185,7 +3190,7 @@ client.on('interactionCreate', async (interaction) => {
             .setColor(0xFFAA00)
             .addFields(
                 {
-                    name: '📌 Leveling System',
+                    name: ' Leveling System',
                     value: (() => { 
                         const lvlChannel = settings.leveling.levelUpChannelId 
                             ? `<#${settings.leveling.levelUpChannelId}>` 
@@ -3195,17 +3200,17 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '📌 PS3 Error Code Detection',
+                    name: ' PS3 Error Code Detection',
                     value: `**Status:** ${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}\n**Error Codes:** ${Object.keys(consoleErrorCodes).length} configured\n**Custom Response:** ${settings.keywords.customResponse ? '✅ Set' : '❌ Not set'}`,
                     inline: false
                 },
                 {
-                    name: '📌 Welcome System',
+                    name: ' Welcome System',
                     value: `**Status:** ${settings.welcome.enabled ? '✅ Enabled' : '❌ Disabled'}\n**Channel:** #${settings.welcome.channelName}\n**Custom Message:** ${settings.welcome.customMessage ? '✅ Set' : '❌ Not set'}`,
                     inline: false
                 },
                 {
-                    name: '📌 Leave System',
+                    name: ' Leave System',
                     value: `**Status:** ${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'}\n**Channel:** #${settings.leave.channelName}\n**Custom Message:** ${settings.leave.customMessage ? '✅ Set' : '❌ Not set'}`,
                     inline: false
                 }
@@ -3690,7 +3695,7 @@ client.on('interactionCreate', async (interaction) => {
             .setColor(settings.serverStats.enabled ? 0x00FF00 : 0xFF0000)
             .addFields(
                 { name: '⚙️ Status', value: settings.serverStats.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                { name: '📌 Update Interval', value: `${settings.serverStats.updateInterval / 60000} minute(s)`, inline: true },
+                { name: ' Update Interval', value: `${settings.serverStats.updateInterval / 60000} minute(s)`, inline: true },
                 { name: '\u200B', value: '\u200B', inline: false },
                 { name: '👥 Member Count Channel', value: settings.serverStats.channels.memberCount ? `<#${settings.serverStats.channels.memberCount}>` : '❌ Not set', inline: false },
                 { name: '🤖 Bot Count Channel', value: settings.serverStats.channels.botCount ? `<#${settings.serverStats.channels.botCount}>` : '❌ Not set', inline: false },
@@ -3795,7 +3800,7 @@ client.on('interactionCreate', async (interaction) => {
                         { name: 'Channel', value: `#${interaction.channel.name}`, inline: true },
                         { name: 'Command', value: `/aichat`, inline: true },
                         { name: 'Message', value: userMessage.substring(0, 1000), inline: false },
-                        { name: 'Action Taken', value: '📌 AI locked in this server until you re-enable it', inline: false }
+                        { name: 'Action Taken', value: ' AI locked in this server until you re-enable it', inline: false }
                     )
                     .setTimestamp()
                     .setFooter({ text: 'Mention the bot in the server to unlock AI' });
@@ -3997,7 +4002,7 @@ client.on('interactionCreate', async (interaction) => {
             .addFields(
                 { name: '\u200B', value: '**👤 Your Personal Usage**', inline: false },
                 { 
-                    name: '📌 Today', 
+                    name: ' Today', 
                     value: `Used: **${userUsed.toLocaleString()}** / **5,000** tokens\nRemaining: **${userRemaining.toLocaleString()}** tokens\n${userRemaining < 1000 ? '⚠️ Running low!' : '✅ Plenty left!'}`,
                     inline: false 
                 }
@@ -4009,30 +4014,30 @@ client.on('interactionCreate', async (interaction) => {
                 { name: '\u200B', value: '\u200B', inline: false }, // Spacer
                 { name: '\u200B', value: '**🤖 DeepSeek (Server-Wide)**', inline: false },
                 { 
-                    name: '📌 Today', 
+                    name: ' Today', 
                     value: `Used: **${quotaStatus.deepseek.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.deepseek.dailyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { 
-                    name: '📌 This Month', 
+                    name: ' This Month', 
                     value: `Used: **${quotaStatus.deepseek.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.deepseek.monthlyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { name: '\u200B', value: '\u200B', inline: true }, // Spacer
                 { name: '\u200B', value: '**💬 ChatGPT (Server-Wide)**', inline: false },
                 { 
-                    name: '📌 Today', 
+                    name: ' Today', 
                     value: `Used: **${quotaStatus.chatgpt.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.chatgpt.dailyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { 
-                    name: '📌 This Month', 
+                    name: ' This Month', 
                     value: `Used: **${quotaStatus.chatgpt.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { name: '\u200B', value: '\u200B', inline: true }, // Spacer
                 { 
-                    name: '📌 Cache Performance', 
+                    name: ' Cache Performance', 
                     value: `Cached responses: **${responseCache.size}**/100\nAPI calls saved: **~${Math.round(responseCache.size * 0.3)}**`,
                     inline: false 
                 }
@@ -4068,7 +4073,7 @@ client.on('interactionCreate', async (interaction) => {
             )
             .addFields(
                 { 
-                    name: '📌 Bot Nickname (Per-Server)', 
+                    name: ' Bot Nickname (Per-Server)', 
                     value: settings.customization.botName || '*Using default name*',
                     inline: false 
                 },
@@ -4078,7 +4083,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '📌 Note',
+                    name: ' Note',
                     value: '• Nicknames are per-server\n• Avatar changes are global (Discord limitation)',
                     inline: false
                 }
@@ -4135,11 +4140,11 @@ client.on('interactionCreate', async (interaction) => {
             )
             .addFields(
                 { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                { name: '📌 Channel', value: `#${config.channelName}`, inline: true },
-                { name: '📌 Model', value: config.model, inline: true },
-                { name: '📌 Max History', value: `${config.maxHistory} exchanges`, inline: true },
+                { name: ' Channel', value: `#${config.channelName}`, inline: true },
+                { name: ' Model', value: config.model, inline: true },
+                { name: ' Max History', value: `${config.maxHistory} exchanges`, inline: true },
                 { name: '🔸 Temperature', value: config.temperature.toString(), inline: true },
-                { name: '📌 System Prompt', value: config.systemPrompt.substring(0, 100) + '...', inline: false }
+                { name: ' System Prompt', value: config.systemPrompt.substring(0, 100) + '...', inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure AI chat settings' })
             .setTimestamp();
@@ -4261,7 +4266,7 @@ const now = Date.now();
                     inline: true
                 },
                 { 
-                    name: '📌 Member Growth (7 Days)', 
+                    name: ' Member Growth (7 Days)', 
                     value: `**Joins:** ${joinsLast7Days}\n` +
                            `**Leaves:** ${leavesLast7Days}\n` +
                            `**Net Growth:** ${netGrowth >= 0 ? '+' : ''}${netGrowth}\n` +
@@ -4269,17 +4274,17 @@ const now = Date.now();
                     inline: true
                 },
                 { 
-                    name: '📌 Command Usage', 
+                    name: ' Command Usage', 
                     value: `**Total Commands:** ${analytics.commands.total.toLocaleString()}`,
                     inline: true
                 },
                 { 
-                    name: '📌 Top Active Users', 
+                    name: ' Top Active Users', 
                     value: topUsersText || 'No data yet',
                     inline: false
                 },
                 { 
-                    name: '📌 Top Active Channels', 
+                    name: ' Top Active Channels', 
                     value: topChannelsText || 'No data yet',
                     inline: false
                 },
@@ -4318,10 +4323,10 @@ const now = Date.now();
             )
             .addFields(
                 { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                { name: '📌 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
+                { name: ' Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
                 { name: '💬 Custom Message', value: config.customMessage ? '✅ Set' : '📝 Using default', inline: true },
                 { name: '✅ Message Preview', value: messagePreview, inline: false },
-                { name: '📌 Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
+                { name: ' Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure welcome messages' })
             .setTimestamp();
@@ -4378,10 +4383,10 @@ const now = Date.now();
             )
             .addFields(
                 { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                { name: '📌 Prefix', value: config.prefix || 'None', inline: true },
-                { name: '📌 Suffix', value: config.suffix || 'None', inline: true },
-                { name: '📌 Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
-                { name: '📌 Note', value: 'Max nickname length is 32 characters', inline: false }
+                { name: ' Prefix', value: config.prefix || 'None', inline: true },
+                { name: ' Suffix', value: config.suffix || 'None', inline: true },
+                { name: ' Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
+                { name: ' Note', value: 'Max nickname length is 32 characters', inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure auto-nickname' })
             .setTimestamp();
@@ -4432,21 +4437,21 @@ const now = Date.now();
                 .setDescription('Choose a game to play from the buttons below!')
                 .setColor(0x5865F2)
                 .addFields(
-                    { name: '📌 Snake', value: 'Classic snake game', inline: true },
+                    { name: ' Snake', value: 'Classic snake game', inline: true },
                     { name: '? Tic-Tac-Toe', value: 'Play with a friend', inline: true },
-                    { name: '📌 Connect 4', value: 'Play with a friend', inline: true },
-                    { name: '📌 Wordle', value: 'Guess the word', inline: true },
-                    { name: '📌 Minesweeper', value: 'Avoid the mines', inline: true },
-                    { name: '📌 2048', value: 'Number puzzle', inline: true },
-                    { name: '📌 Memory', value: 'Match pairs', inline: true },
-                    { name: '📌 Fast Type', value: 'Typing test', inline: true },
-                    { name: '📌 Find Emoji', value: 'Find the emoji', inline: true },
-                    { name: '📌 Guess Pokémon', value: 'Name that Pokémon', inline: true },
-                    { name: '📌 RPS', value: 'Rock Paper Scissors', inline: true },
-                    { name: '📌 Hangman', value: 'Guess the word', inline: true },
-                    { name: '📌 Trivia', value: 'Answer questions', inline: true },
-                    { name: '📌 Slots', value: 'Slot machine', inline: true },
-                    { name: '📌 Would You Rather', value: 'Decision game', inline: true }
+                    { name: ' Connect 4', value: 'Play with a friend', inline: true },
+                    { name: ' Wordle', value: 'Guess the word', inline: true },
+                    { name: ' Minesweeper', value: 'Avoid the mines', inline: true },
+                    { name: ' 2048', value: 'Number puzzle', inline: true },
+                    { name: ' Memory', value: 'Match pairs', inline: true },
+                    { name: ' Fast Type', value: 'Typing test', inline: true },
+                    { name: ' Find Emoji', value: 'Find the emoji', inline: true },
+                    { name: ' Guess Pokémon', value: 'Name that Pokémon', inline: true },
+                    { name: ' RPS', value: 'Rock Paper Scissors', inline: true },
+                    { name: ' Hangman', value: 'Guess the word', inline: true },
+                    { name: ' Trivia', value: 'Answer questions', inline: true },
+                    { name: ' Slots', value: 'Slot machine', inline: true },
+                    { name: ' Would You Rather', value: 'Decision game', inline: true }
                 )
                 .setFooter({ text: 'Click a button to start playing!' })
                 .setTimestamp();
@@ -4593,13 +4598,13 @@ const now = Date.now();
                 { name: 'Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                 { name: 'Active Logs', value: `${Object.values(config.logTypes).filter(v => v).length}/12 types`, inline: true },
                 { name: 'Channels Set', value: `${Object.values(config.channels).filter(v => v).length}/7 configured`, inline: true },
-                { name: '📌 Critical Errors', value: criticalChan, inline: true },
-                { name: '📌 Moderation', value: modChan, inline: true },
+                { name: ' Critical Errors', value: criticalChan, inline: true },
+                { name: ' Moderation', value: modChan, inline: true },
                 { name: '✅ Messages', value: msgChan, inline: true },
-                { name: '📌 Members', value: memberChan, inline: true },
-                { name: '📌 Voice', value: voiceChan, inline: true },
+                { name: ' Members', value: memberChan, inline: true },
+                { name: ' Voice', value: voiceChan, inline: true },
                 { name: '🔸 Server', value: serverChan, inline: true },
-                { name: '📌 Keywords', value: keywordChan, inline: false }
+                { name: ' Keywords', value: keywordChan, inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure logging channels' })
             .setTimestamp();
@@ -4699,12 +4704,12 @@ const now = Date.now();
             )
             .addFields(
                 { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                { name: '📌 Join Threshold', value: `${config.joinThreshold} members`, inline: true },
-                { name: '📌 Time Window', value: `${config.timeWindow} seconds`, inline: true },
+                { name: ' Join Threshold', value: `${config.joinThreshold} members`, inline: true },
+                { name: ' Time Window', value: `${config.timeWindow} seconds`, inline: true },
                 { name: '? Action', value: actionText, inline: true },
                 { name: '⏱️ Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
-                { name: '📌 Current Lockdown', value: lockdownStatus, inline: true },
-                { name: '📌 Notification Channel', value: notifChannel, inline: true },
+                { name: ' Current Lockdown', value: lockdownStatus, inline: true },
+                { name: ' Notification Channel', value: notifChannel, inline: true },
                 { name: '✅ Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
             )
             .setFooter({ text: 'Click buttons below to configure raid protection' })
@@ -4821,14 +4826,14 @@ const now = Date.now();
             .setDescription(`System is currently **${settings.moderation.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
             .setColor(settings.moderation.enabled ? 0x00FF00 : 0xFF0000)
             .addFields(
-                { name: '📌 Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
+                { name: ' Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
                 { name: '? Auto-Action', value: settings.moderation.autoAction.charAt(0).toUpperCase() + settings.moderation.autoAction.slice(1), inline: true },
-                { name: '📌 Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
+                { name: ' Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
                 { name: '⏰ Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
                 { name: '📬 DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
-                { name: '📌 Log Channel', value: logChan, inline: true },
-                { name: '📌 Mute Role', value: muteRole, inline: true },
-                { name: '📌 Moderator Roles', value: modRoles, inline: false }
+                { name: ' Log Channel', value: logChan, inline: true },
+                { name: ' Mute Role', value: muteRole, inline: true },
+                { name: ' Moderator Roles', value: modRoles, inline: false }
             )
             .setFooter({ text: 'Click a button to configure that setting' })
             .setTimestamp();
@@ -5407,10 +5412,10 @@ const now = Date.now();
                         `Click the buttons below to configure ticket settings.`
                     )
                     .addFields(
-                        { name: '📌 Status', value: '? Disabled', inline: true },
-                        { name: '📌 Staff Role', value: staffRole, inline: true },
-                        { name: '📌 Category', value: settings.categoryName, inline: true },
-                        { name: '📌 Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
+                        { name: ' Status', value: '? Disabled', inline: true },
+                        { name: ' Staff Role', value: staffRole, inline: true },
+                        { name: ' Category', value: settings.categoryName, inline: true },
+                        { name: ' Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
                         { name: '✅ Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
                         { name: '✅ Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
                     )
@@ -5633,7 +5638,7 @@ const now = Date.now();
                 { name: '✅ Create Giveaway', value: 'Start a new giveaway', inline: true },
                 { name: '📋 List Active', value: 'View all active giveaways', inline: true },
                 { name: '🔴 End Early', value: 'End a giveaway before time', inline: true },
-                { name: '📌 Features', value: '• Automatic winner selection\n• Role requirements\n• Level requirements\n• Multiple winners\n• Auto-DM winners', inline: false }
+                { name: ' Features', value: '• Automatic winner selection\n• Role requirements\n• Level requirements\n• Multiple winners\n• Auto-DM winners', inline: false }
             )
             .setFooter({ text: 'Click buttons below to manage giveaways' })
             .setTimestamp();
@@ -6371,9 +6376,9 @@ const now = Date.now();
                 `Click the buttons below to get started.`
             )
             .addFields(
-                { name: '📌 Create Webhook', value: 'Set up a new webhook in any channel', inline: true },
-                { name: '📌 Custom Embed', value: 'Design your embed with interactive forms', inline: true },
-                { name: '📌 Templates', value: 'Save frequently used embed designs', inline: true }
+                { name: ' Create Webhook', value: 'Set up a new webhook in any channel', inline: true },
+                { name: ' Custom Embed', value: 'Design your embed with interactive forms', inline: true },
+                { name: ' Templates', value: 'Save frequently used embed designs', inline: true }
             )
             .setFooter({ text: 'Webhook Creator • Admin Only' })
             .setTimestamp();
@@ -6417,14 +6422,14 @@ const now = Date.now();
                 `Use the buttons below to perform moderation actions.`
             )
             .addFields(
-                { name: '📌 Warn', value: 'Issue a warning to a user', inline: true },
-                { name: '📌 Timeout', value: 'Timeout a user temporarily', inline: true },
-                { name: '📌 Kick', value: 'Kick a user from server', inline: true },
-                { name: '📌 Ban', value: 'Permanently ban a user', inline: true },
-                { name: '📌 Mute', value: 'Mute a user in channels', inline: true },
-                { name: '📌 Unmute', value: 'Remove mute from a user', inline: true },
-                { name: '📌 Infractions', value: 'View user\'s infraction history', inline: true },
-                { name: '📌 Clear Warnings', value: 'Clear all warnings for a user', inline: true },
+                { name: ' Warn', value: 'Issue a warning to a user', inline: true },
+                { name: ' Timeout', value: 'Timeout a user temporarily', inline: true },
+                { name: ' Kick', value: 'Kick a user from server', inline: true },
+                { name: ' Ban', value: 'Permanently ban a user', inline: true },
+                { name: ' Mute', value: 'Mute a user in channels', inline: true },
+                { name: ' Unmute', value: 'Remove mute from a user', inline: true },
+                { name: ' Infractions', value: 'View user\'s infraction history', inline: true },
+                { name: ' Clear Warnings', value: 'Clear all warnings for a user', inline: true },
                 { name: '\u200B', value: '\u200B', inline: true }
             )
             .setFooter({ text: 'Click buttons below to perform moderation actions' })
@@ -7790,7 +7795,7 @@ const now = Date.now();
                                     .setCustomId(`pcmd_use_${name}`)
                                     .setLabel(data.label || name)
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('📌')
+                                    .setEmoji('')
                             );
                         });
                         
@@ -7973,13 +7978,13 @@ const now = Date.now();
                                 { name: 'Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                                 { name: 'Active Logs', value: `${Object.values(config.logTypes).filter(v => v).length}/12 types`, inline: true },
                                 { name: 'Channels Set', value: `${Object.values(config.channels).filter(v => v).length}/7 configured`, inline: true },
-                                { name: '📌 Critical Errors', value: criticalChan, inline: true },
-                                { name: '📌 Moderation', value: modChan, inline: true },
+                                { name: ' Critical Errors', value: criticalChan, inline: true },
+                                { name: ' Moderation', value: modChan, inline: true },
                                 { name: '✅ Messages', value: msgChan, inline: true },
-                                { name: '📌 Members', value: memberChan, inline: true },
-                                { name: '📌 Voice', value: voiceChan, inline: true },
+                                { name: ' Members', value: memberChan, inline: true },
+                                { name: ' Voice', value: voiceChan, inline: true },
                                 { name: '🔸 Server', value: serverChan, inline: true },
-                                { name: '📌 Keywords', value: keywordChan, inline: false }
+                                { name: ' Keywords', value: keywordChan, inline: false }
                             )
                             .setFooter({ text: 'Click buttons below to configure logging channels' })
                             .setTimestamp();
@@ -8190,13 +8195,13 @@ const now = Date.now();
                                 { name: 'Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
                                 { name: 'Active Logs', value: `${Object.values(config.logTypes).filter(v => v).length}/12 types`, inline: true },
                                 { name: 'Channels Set', value: `${Object.values(config.channels).filter(v => v).length}/7 configured`, inline: true },
-                                { name: '📌 Critical Errors', value: criticalChan, inline: true },
-                                { name: '📌 Moderation', value: modChan, inline: true },
+                                { name: ' Critical Errors', value: criticalChan, inline: true },
+                                { name: ' Moderation', value: modChan, inline: true },
                                 { name: '✅ Messages', value: msgChan, inline: true },
-                                { name: '📌 Members', value: memberChan, inline: true },
-                                { name: '📌 Voice', value: voiceChan, inline: true },
+                                { name: ' Members', value: memberChan, inline: true },
+                                { name: ' Voice', value: voiceChan, inline: true },
                                 { name: '🔸 Server', value: serverChan, inline: true },
-                                { name: '📌 Keywords', value: keywordChan, inline: false }
+                                { name: ' Keywords', value: keywordChan, inline: false }
                             )
                             .setFooter({ text: 'Click buttons below to configure logging channels' })
                             .setTimestamp();
@@ -8529,7 +8534,7 @@ const now = Date.now();
                     
                     // Create a category for stats
                     const category = await interaction.guild.channels.create({
-                        name: '📌 Server Stats',
+                        name: ' Server Stats',
                         type: ChannelType.GuildCategory
                     });
                     
@@ -9106,9 +9111,9 @@ const now = Date.now();
                     )
                     .addFields(
                         { name: '⚙️ Status', value: settings.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                        { name: '📌 Staff Role', value: staffRole, inline: true },
-                        { name: '📌 Category', value: settings.categoryName, inline: true },
-                        { name: '📌 Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
+                        { name: ' Staff Role', value: staffRole, inline: true },
+                        { name: ' Category', value: settings.categoryName, inline: true },
+                        { name: ' Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
                         { name: '✅ Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
                         { name: '✅ Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
                     )
@@ -10378,7 +10383,7 @@ const now = Date.now();
                 webhooks.forEach(webhook => {
                     const channel = interaction.guild.channels.cache.get(webhook.channelId);
                     embed.addFields({
-                        name: `📌 ${webhook.name}`,
+                        name: ` ${webhook.name}`,
                         value: `Channel: ${channel ? `<#${channel.id}>` : 'Unknown'}\nID: \`${webhook.id}\``,
                         inline: true
                     });
@@ -10794,14 +10799,14 @@ const now = Date.now();
                 .setDescription(`System is currently **${settings.moderation.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
                 .setColor(settings.moderation.enabled ? 0x00FF00 : 0xFF0000)
                 .addFields(
-                    { name: '📌 Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
+                    { name: ' Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
                     { name: '? Auto-Action', value: settings.moderation.autoAction.charAt(0).toUpperCase() + settings.moderation.autoAction.slice(1), inline: true },
-                    { name: '📌 Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
+                    { name: ' Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
                     { name: '⏰ Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
                     { name: '📬 DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
-                    { name: '📌 Log Channel', value: logChan, inline: true },
-                    { name: '📌 Mute Role', value: muteRole, inline: true },
-                    { name: '📌 Moderator Roles', value: modRoles, inline: false }
+                    { name: ' Log Channel', value: logChan, inline: true },
+                    { name: ' Mute Role', value: muteRole, inline: true },
+                    { name: ' Moderator Roles', value: modRoles, inline: false }
                 )
                 .setFooter({ text: 'Click a button to configure that setting' })
                 .setTimestamp();
@@ -10950,10 +10955,10 @@ const now = Date.now();
                 )
                 .addFields(
                     { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                    { name: '📌 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
+                    { name: ' Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
                     { name: '💬 Custom Message', value: config.customMessage ? '✅ Set' : '📝 Using default', inline: true },
                     { name: '✅ Message Preview', value: messagePreview, inline: false },
-                    { name: '📌 Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
+                    { name: ' Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
                 )
                 .setFooter({ text: 'Click buttons below to configure welcome messages' })
                 .setTimestamp();
@@ -11054,10 +11059,10 @@ const now = Date.now();
                 )
                 .addFields(
                     { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                    { name: '📌 Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
+                    { name: ' Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
                     { name: '💬 Custom Message', value: config.customMessage ? '✅ Set' : '📝 Using default', inline: true },
                     { name: '✅ Message Preview', value: messagePreview, inline: false },
-                    { name: '📌 Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
+                    { name: ' Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
                 )
                 .setFooter({ text: 'Click buttons below to configure leave messages' })
                 .setTimestamp();
@@ -11152,10 +11157,10 @@ const now = Date.now();
                 )
                 .addFields(
                     { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                    { name: '📌 Prefix', value: config.prefix || 'None', inline: true },
-                    { name: '📌 Suffix', value: config.suffix || 'None', inline: true },
-                    { name: '📌 Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
-                    { name: '📌 Note', value: 'Max nickname length is 32 characters', inline: false }
+                    { name: ' Prefix', value: config.prefix || 'None', inline: true },
+                    { name: ' Suffix', value: config.suffix || 'None', inline: true },
+                    { name: ' Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
+                    { name: ' Note', value: 'Max nickname length is 32 characters', inline: false }
                 )
                 .setFooter({ text: 'Click buttons below to configure auto-nickname' })
                 .setTimestamp();
@@ -11385,12 +11390,12 @@ const now = Date.now();
                 )
                 .addFields(
                     { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                    { name: '📌 Join Threshold', value: `${config.joinThreshold} members`, inline: true },
-                    { name: '📌 Time Window', value: `${config.timeWindow} seconds`, inline: true },
+                    { name: ' Join Threshold', value: `${config.joinThreshold} members`, inline: true },
+                    { name: ' Time Window', value: `${config.timeWindow} seconds`, inline: true },
                     { name: '? Action', value: actionText, inline: true },
                     { name: '⏱️ Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
-                    { name: '📌 Current Lockdown', value: lockdownStatus, inline: true },
-                    { name: '📌 Notification Channel', value: notifChannel, inline: true },
+                    { name: ' Current Lockdown', value: lockdownStatus, inline: true },
+                    { name: ' Notification Channel', value: notifChannel, inline: true },
                     { name: '✅ Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
                 )
                 .setFooter({ text: 'Click buttons below to configure raid protection' })
@@ -15956,7 +15961,7 @@ async function checkPlayStationUpdates() {
                                 { name: 'New Version', value: `\`${update.newVersion}\``, inline: true }
                             )
                             .addFields({
-                                name: '📌 Important',
+                                name: ' Important',
                                 value: '**DO NOT UPDATE** if you want to keep your jailbreak!\n\nStay on your current firmware until the scene confirms new exploits.'
                             })
                             .setTimestamp()
@@ -16766,11 +16771,11 @@ if (config.sellhubApiKey && config.sellhubGuildId && config.sellhubRoleId && pro
                         .setColor(0xFFA500)
                         .setDescription('Role will be assigned automatically when user joins the server.')
                         .addFields(
-                            { name: '📌 Order ID', value: orderData.uniqid, inline: true },
-                            { name: '📌 Amount', value: `$${orderData.total}`, inline: true },
-                            { name: '📌 Email', value: orderData.customer_email || 'N/A', inline: false },
-                            { name: '📌 Discord ID', value: discordId, inline: false },
-                            { name: '📌 Product', value: orderData.product_title || 'Unknown', inline: false }
+                            { name: ' Order ID', value: orderData.uniqid, inline: true },
+                            { name: ' Amount', value: `$${orderData.total}`, inline: true },
+                            { name: ' Email', value: orderData.customer_email || 'N/A', inline: false },
+                            { name: ' Discord ID', value: discordId, inline: false },
+                            { name: ' Product', value: orderData.product_title || 'Unknown', inline: false }
                         )
                         .setTimestamp();
                     await logChannel.send({ embeds: [pendingEmbed] });
@@ -16796,8 +16801,8 @@ if (config.sellhubApiKey && config.sellhubGuildId && config.sellhubRoleId && pro
                     .setDescription(`Thank you for your purchase! You have been given access to **${role.name}**.`)
                     .setColor(0x00FF00)
                     .addFields(
-                        { name: '📌 Order ID', value: orderData.uniqid, inline: true },
-                        { name: '📌 Amount Paid', value: `$${orderData.total}`, inline: true }
+                        { name: ' Order ID', value: orderData.uniqid, inline: true },
+                        { name: ' Amount Paid', value: `$${orderData.total}`, inline: true }
                     )
                     .setFooter({ text: guild.name })
                     .setTimestamp();
@@ -16814,12 +16819,12 @@ if (config.sellhubApiKey && config.sellhubGuildId && config.sellhubRoleId && pro
                     .setTitle('💰 New Purchase')
                     .setColor(0x00FF00)
                     .addFields(
-                        { name: '📌 Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
-                        { name: '📌 Order ID', value: orderData.uniqid, inline: true },
-                        { name: '📌 Amount', value: `$${orderData.total}`, inline: true },
-                        { name: '📌 Email', value: orderData.customer_email || 'N/A', inline: false },
-                        { name: '📌 Role Given', value: role.name, inline: false },
-                        { name: '📌 Product', value: orderData.product_title || 'Unknown', inline: false }
+                        { name: ' Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
+                        { name: ' Order ID', value: orderData.uniqid, inline: true },
+                        { name: ' Amount', value: `$${orderData.total}`, inline: true },
+                        { name: ' Email', value: orderData.customer_email || 'N/A', inline: false },
+                        { name: ' Role Given', value: role.name, inline: false },
+                        { name: ' Product', value: orderData.product_title || 'Unknown', inline: false }
                     )
                     .setThumbnail(member.user.displayAvatarURL())
                     .setTimestamp();
