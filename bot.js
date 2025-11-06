@@ -1,4 +1,4 @@
-// --- Global error handling ---
+﻿// --- Global error handling ---
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
 });
@@ -9486,8 +9486,8 @@ const now = Date.now();
 
                     const row2 = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('cinfo_pkg').setLabel('PKG Database').setStyle(ButtonStyle.Primary).setEmoji('�'),
-                            new ButtonBuilder().setCustomId('cinfo_version').setLabel('Version Checker').setStyle(ButtonStyle.Secondary).setEmoji('�'),
+                            new ButtonBuilder().setCustomId('cinfo_pkg').setLabel('PKG Database').setStyle(ButtonStyle.Primary).setEmoji('📦'),
+                            new ButtonBuilder().setCustomId('cinfo_version').setLabel('Version Checker').setStyle(ButtonStyle.Secondary).setEmoji('🔍'),
                             new ButtonBuilder().setCustomId('cinfo_jailbreak').setLabel('Jailbreak Tutorials').setStyle(ButtonStyle.Secondary).setEmoji('📚'),
                             new ButtonBuilder().setCustomId('cinfo_compat').setLabel('Compatibility').setStyle(ButtonStyle.Secondary).setEmoji('✅')
                         );
