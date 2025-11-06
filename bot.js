@@ -9218,7 +9218,7 @@ const now = Date.now();
                         .addFields(
                             { name: '🎮 PS3', value: '**Safe:** 4.90 and below (full CFW)\n**HEN Only:** 4.91-4.92\n**Avoid:** 4.93+ (no exploit)', inline: false },
                             { name: '🎮 PS4', value: '**Safe:** 9.00-12.02 (GoldHEN)\n**Announced:** 13.00 exploit (not released)\n**Avoid:** 13.01+ (no exploit)', inline: false },
-                            { name: '🎮 PS5', value: '**Safe:** 10.01 and below (etaHEN)\n**Announced:** 12.00 exploit (not released)\n**Avoid:** 10.50+ (no exploit yet)', inline: false },
+                            { name: '🎮 PS5', value: '**Safe:** 10.01 and below (etaHEN)\n**Announced:** 12.00 exploit (not released)\n**Avoid:** 25.07+ (no exploit yet)', inline: false },
                             { name: '📱 PS Vita', value: '**All versions exploitable!**\n**Best:** 3.60 or 3.65 (Ensō support)\n**Works:** Up to 3.74 (h-encore²)', inline: false },
                             { name: '🕹️ PSP', value: '**All versions exploitable!**\n**Recommended:** 6.61 (latest, best support)\n**Alternative:** 6.60 (also good)', inline: false },
                             { name: '💡 General Advice', value: '• **Never update** if you want homebrew\n• **Disable auto-updates** in settings\n• **Stay offline** when possible\n• **Check compatibility** before any game/app', inline: false }
@@ -9872,7 +9872,7 @@ const now = Date.now();
                             .setColor(0x00FF00)
                             .addFields(
                                 { name: '🎮 PS4', value: 'Latest: 13.02 | Exploitable: 12.02', inline: true },
-                                { name: '🎮 PS5', value: 'Latest: 10.50 | Exploitable: 10.01', inline: true },
+                                { name: '🎮 PS5', value: 'Latest: 25.07-12.20.00 | Exploitable: 10.01', inline: true },
                                 { name: '📱 Last Update', value: new Date().toLocaleString(), inline: true }
                             );
                         
@@ -9907,7 +9907,7 @@ const now = Date.now();
                         .setTitle('🎮 PlayStation 5 Firmware Details')
                         .setColor(0xFF0000)
                         .addFields(
-                            { name: '🆕 Latest Official', value: '10.50', inline: true },
+                            { name: '🆕 Latest Official', value: '25.07-12.20.00', inline: true },
                             { name: '🔓 Exploitable', value: '10.01', inline: true },
                             { name: '📊 Status', value: '⚠️ Limited', inline: true },
                             { name: '🔥 etaHEN Max', value: '10.01', inline: true },
@@ -15605,7 +15605,7 @@ async function updateAIKnowledge() {
             ps4BDJB: '12.02',         // Updated: BD-JB by Gezine (supports 12.00, 12.02, NOT 12.50+)
             ps4GoldHENMax: '12.02',   // GoldHEN v2.4b18.6 max supported: 12.00, 12.02 (NOT 12.50)
             ps4Latest: '13.00',       // PS4 13.00 kernel exploit announced Nov 2025
-            ps5OFW: '10.50',
+            ps5OFW: '25.07-12.20.00',
             ps5Lapse: '10.01',        // Updated: PS5 "Lapse" exploit
             ps5Latest: '12.00',       // PS5 12.00 kernel exploit announced Nov 2025
             ps5kstuff: '7.61',
