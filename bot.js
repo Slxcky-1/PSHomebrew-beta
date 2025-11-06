@@ -2970,7 +2970,9 @@ client.on('interactionCreate', async (interaction) => {
         if (interaction.isChatInputCommand()) {
             // Track command usage in analytics
             if (interaction.guild) {
-}
+                analytics.commands.total++;
+                analytics.commands.byCommand[interaction.commandName] = (analytics.commands.byCommand[interaction.commandName] || 0) + 1;
+            }
             
             // Verify bot has necessary permissions
             if (interaction.guild && interaction.guild.members.me && !interaction.guild.members.me.permissions.has(PermissionFlagsBits.SendMessages)) {
