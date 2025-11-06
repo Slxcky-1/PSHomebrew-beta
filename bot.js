@@ -6813,6 +6813,11 @@ const now = Date.now();
                     .setStyle(ButtonStyle.Primary)
                     .setEmoji('📡'),
                 new ButtonBuilder()
+                    .setCustomId('cinfo_safefirmware')
+                    .setLabel('Safe Firmware')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('✅'),
+                new ButtonBuilder()
                     .setCustomId('cinfo_fwnotify')
                     .setLabel('FW Notifications')
                     .setStyle(ButtonStyle.Primary)
@@ -6821,16 +6826,16 @@ const now = Date.now();
                     .setCustomId('cinfo_gamelookup')
                     .setLabel('Game Lookup')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🎮'),
-                new ButtonBuilder()
-                    .setCustomId('cinfo_pkg')
-                    .setLabel('PKG Database')
-                    .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📦')
+                    .setEmoji('🎮')
             );
 
         const row2 = new ActionRowBuilder()
             .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('cinfo_pkg')
+                    .setLabel('PKG Database')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('📦'),
                 new ButtonBuilder()
                     .setCustomId('cinfo_version')
                     .setLabel('Version Checker')
@@ -6845,16 +6850,16 @@ const now = Date.now();
                     .setCustomId('cinfo_compat')
                     .setLabel('Compatibility')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅'),
-                new ButtonBuilder()
-                    .setCustomId('cinfo_homebrew')
-                    .setLabel('Homebrew')
-                    .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🛠️')
+                    .setEmoji('✅')
             );
 
         const row3 = new ActionRowBuilder()
             .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('cinfo_homebrew')
+                    .setLabel('Homebrew')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🛠️'),
                 new ButtonBuilder()
                     .setCustomId('cinfo_banrisk')
                     .setLabel('Ban Risk Calculator')
@@ -9188,6 +9193,30 @@ const now = Date.now();
                     return;
                 }
 
+                // Safe Firmware
+                if (interaction.customId === 'cinfo_safefirmware') {
+                    const embed = new EmbedBuilder()
+                        .setTitle('✅ Safe Firmware Versions')
+                        .setColor(0x00FF00)
+                        .setDescription('Find out which firmware versions are safe to stay on for homebrew')
+                        .addFields(
+                            { name: '🎮 PS3', value: '**Safe:** 4.90 and below (full CFW)\n**HEN Only:** 4.91-4.92\n**Avoid:** 4.93+ (no exploit)', inline: false },
+                            { name: '🎮 PS4', value: '**Safe:** 9.00-12.02 (GoldHEN)\n**Announced:** 13.00 exploit (not released)\n**Avoid:** 13.01+ (no exploit)', inline: false },
+                            { name: '🎮 PS5', value: '**Safe:** 10.01 and below (etaHEN)\n**Announced:** 12.00 exploit (not released)\n**Avoid:** 10.50+ (no exploit yet)', inline: false },
+                            { name: '📱 PS Vita', value: '**All versions exploitable!**\n**Best:** 3.60 or 3.65 (Ensō support)\n**Works:** Up to 3.74 (h-encore²)', inline: false },
+                            { name: '🕹️ PSP', value: '**All versions exploitable!**\n**Recommended:** 6.61 (latest, best support)\n**Alternative:** 6.60 (also good)', inline: false },
+                            { name: '💡 General Advice', value: '• **Never update** if you want homebrew\n• **Disable auto-updates** in settings\n• **Stay offline** when possible\n• **Check compatibility** before any game/app', inline: false }
+                        );
+
+                    const row = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back to Hub').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                        );
+
+                    await interaction.update({ embeds: [embed], components: [row] });
+                    return;
+                }
+
                 // FW Notifications
                 if (interaction.customId === 'cinfo_fwnotify') {
                     const embed = new EmbedBuilder()
@@ -9449,25 +9478,25 @@ const now = Date.now();
                     const row1 = new ActionRowBuilder()
                         .addComponents(
                             new ButtonBuilder().setCustomId('cinfo_firmware').setLabel('Firmware Tracker').setStyle(ButtonStyle.Primary).setEmoji('📡'),
+                            new ButtonBuilder().setCustomId('cinfo_safefirmware').setLabel('Safe Firmware').setStyle(ButtonStyle.Primary).setEmoji('✅'),
                             new ButtonBuilder().setCustomId('cinfo_fwnotify').setLabel('FW Notifications').setStyle(ButtonStyle.Primary).setEmoji('🔔'),
-                            new ButtonBuilder().setCustomId('cinfo_gamelookup').setLabel('Game Lookup').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('cinfo_pkg').setLabel('PKG Database').setStyle(ButtonStyle.Primary).setEmoji('📦')
+                            new ButtonBuilder().setCustomId('cinfo_gamelookup').setLabel('Game Lookup').setStyle(ButtonStyle.Primary).setEmoji('🎮')
                         );
 
                     const row2 = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('cinfo_version').setLabel('Version Checker').setStyle(ButtonStyle.Secondary).setEmoji('🔍'),
+                            new ButtonBuilder().setCustomId('cinfo_pkg').setLabel('PKG Database').setStyle(ButtonStyle.Primary).setEmoji('�'),
+                            new ButtonBuilder().setCustomId('cinfo_version').setLabel('Version Checker').setStyle(ButtonStyle.Secondary).setEmoji('�'),
                             new ButtonBuilder().setCustomId('cinfo_jailbreak').setLabel('Jailbreak Tutorials').setStyle(ButtonStyle.Secondary).setEmoji('📚'),
-                            new ButtonBuilder().setCustomId('cinfo_compat').setLabel('Compatibility').setStyle(ButtonStyle.Secondary).setEmoji('✅'),
-                            new ButtonBuilder().setCustomId('cinfo_homebrew').setLabel('Homebrew').setStyle(ButtonStyle.Secondary).setEmoji('🛠️')
+                            new ButtonBuilder().setCustomId('cinfo_compat').setLabel('Compatibility').setStyle(ButtonStyle.Secondary).setEmoji('✅')
                         );
 
                     const row3 = new ActionRowBuilder()
                         .addComponents(
+                            new ButtonBuilder().setCustomId('cinfo_homebrew').setLabel('Homebrew').setStyle(ButtonStyle.Secondary).setEmoji('🛠️'),
                             new ButtonBuilder().setCustomId('cinfo_banrisk').setLabel('Ban Risk Calculator').setStyle(ButtonStyle.Danger).setEmoji('⚠️'),
                             new ButtonBuilder().setCustomId('cinfo_backup').setLabel('Backup Checklist').setStyle(ButtonStyle.Success).setEmoji('💾'),
-                            new ButtonBuilder().setCustomId('cinfo_downgrade').setLabel('Downgrade Guide').setStyle(ButtonStyle.Secondary).setEmoji('⬇️'),
-                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Refresh').setStyle(ButtonStyle.Secondary).setEmoji('🔄')
+                            new ButtonBuilder().setCustomId('cinfo_downgrade').setLabel('Downgrade Guide').setStyle(ButtonStyle.Secondary).setEmoji('⬇️')
                         );
 
                     await interaction.update({ embeds: [embed], components: [row1, row2, row3] });

@@ -2,30 +2,5 @@
   "name": "Firmware Tracker",
   "description": "Real-time PlayStation firmware monitoring and exploit compatibility",
   "enabled": true,
-  "commands": [
-    {
-      "name": "safefirmware",
-      "description": "Check what firmware versions are safe to stay on",
-      "options": [
-        {
-          "name": "console",
-          "description": "Console type",
-          "type": 3,
-          "required": true,
-          "choices": [
-            { "name": "PS3", "value": "ps3" },
-            { "name": "PS4", "value": "ps4" },
-            { "name": "PS5", "value": "ps5" },
-            { "name": "PS Vita", "value": "vita" },
-            { "name": "PSP", "value": "psp" }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "fwnotify",
-      "description": "Toggle firmware update notifications for this server",
-      "options": []
-    }
-  ]
+  "commands": []
 }
