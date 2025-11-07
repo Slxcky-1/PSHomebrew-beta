@@ -16418,6 +16418,11 @@ function startCFWKnowledgeScraper() {
     // Check every 24 hours
     setInterval(updateCFWKnowledge, 24 * 60 * 60 * 1000);
     console.log('📡 CFW knowledge scraper started (checks every 24 hours)');
+    
+    // Start database auto-updater
+    const DatabaseAutoUpdater = require('./features/databaseAutoUpdater.js');
+    const dbUpdater = new DatabaseAutoUpdater(client);
+    dbUpdater.start();
 }
 
 // PS4 Error Code Scraper - Updates error database from online sources (runs on startup only, monthly via updateAIKnowledge)
