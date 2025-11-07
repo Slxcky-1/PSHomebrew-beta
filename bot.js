@@ -6897,44 +6897,44 @@ const now = Date.now();
                     .setStyle(ButtonStyle.Primary)
                     .setEmoji('📡'),
                 new ButtonBuilder()
-                    .setCustomId('cinfo_safefirmware')
-                    .setLabel('Safe Firmware')
+                    .setCustomId('game_browser')
+                    .setLabel('Game Browser')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    .setEmoji('🎮'),
                 new ButtonBuilder()
-                    .setCustomId('cinfo_fwnotify')
-                    .setLabel('FW Notifications')
+                    .setCustomId('dlc_browser')
+                    .setLabel('DLC Browser')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔔'),
+                    .setEmoji('�'),
                 new ButtonBuilder()
-                    .setCustomId('cinfo_gamelookup')
-                    .setLabel('Game Lookup')
+                    .setCustomId('compat_search')
+                    .setLabel('Game Compatibility')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🎮')
+                    .setEmoji('🔍')
             );
 
         const row2 = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId('cinfo_pkg')
-                    .setLabel('PKG Database')
-                    .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📦'),
-                new ButtonBuilder()
                     .setCustomId('cinfo_version')
                     .setLabel('Version Checker')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔍'),
+                    .setEmoji('�'),
                 new ButtonBuilder()
                     .setCustomId('cinfo_jailbreak')
                     .setLabel('Jailbreak Tutorials')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('📚'),
+                    .setEmoji('�'),
                 new ButtonBuilder()
-                    .setCustomId('cinfo_compat')
-                    .setLabel('Compatibility')
-                    .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅')
+                    .setCustomId('cinfo_banrisk')
+                    .setLabel('Ban Risk Analyzer')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('⚠️'),
+                new ButtonBuilder()
+                    .setCustomId('cinfo_backup')
+                    .setLabel('Backup Checklist')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji('💾')
             );
 
         const row3 = new ActionRowBuilder()
@@ -6945,20 +6945,15 @@ const now = Date.now();
                     .setStyle(ButtonStyle.Secondary)
                     .setEmoji('🛠️'),
                 new ButtonBuilder()
-                    .setCustomId('cinfo_banrisk')
-                    .setLabel('Ban Risk Calculator')
-                    .setStyle(ButtonStyle.Danger)
-                    .setEmoji('⚠️'),
-                new ButtonBuilder()
-                    .setCustomId('cinfo_backup')
-                    .setLabel('Backup Checklist')
-                    .setStyle(ButtonStyle.Success)
-                    .setEmoji('💾'),
-                new ButtonBuilder()
                     .setCustomId('cinfo_downgrade')
                     .setLabel('Downgrade Guide')
                     .setStyle(ButtonStyle.Secondary)
                     .setEmoji('⬇️'),
+                new ButtonBuilder()
+                    .setCustomId('cinfo_safefirmware')
+                    .setLabel('Safe Firmware')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('cinfo_refresh')
                     .setLabel('Refresh')
@@ -9887,6 +9882,43 @@ const now = Date.now();
             } catch (e) {
                 console.error('gamelookup_search showModal error:', e);
                 await interaction.reply({ content: '❌ Could not open the game search form. Please try again.', ephemeral: true }).catch(() => {});
+            }
+            return;
+        }
+
+        // Game Browser - Quick access to /gamebrowser command
+        if (interaction.customId === 'game_browser') {
+            try {
+                await interaction.reply({
+                    content: '🎮 **Game Browser** - Use these commands:\n\n' +
+                             '• `/gamebrowser` - Browse all games\n' +
+                             '• `/gamebrowser console:PS4` - Filter by console\n' +
+                             '• `/gamebrowser sort:size_asc` - Sort by file size\n' +
+                             '• `/gamebrowser series:"God of War"` - View game series\n' +
+                             '• `/gamebrowser dlc_only:True` - Games with DLC only\n\n' +
+                             '**Tip:** You can combine filters! Try `/gamebrowser console:PS5 sort:date_desc`',
+                    ephemeral: true
+                });
+            } catch (error) {
+                console.error('Error in game_browser button:', error);
+            }
+            return;
+        }
+
+        // DLC Browser - Quick access to /dlcbrowser command
+        if (interaction.customId === 'dlc_browser') {
+            try {
+                await interaction.reply({
+                    content: '📦 **DLC Browser** - Use these commands:\n\n' +
+                             '• `/dlcbrowser` - View all games with DLC\n' +
+                             '• `/dlcbrowser console:PS4` - Filter by console\n' +
+                             '• `/dlcbrowser console:PS5` - PS5 games with DLC\n\n' +
+                             '**180+ games** have downloadable content available!\n' +
+                             '**Installation:** Install base game → Install DLC PKGs separately → Enjoy!',
+                    ephemeral: true
+                });
+            } catch (error) {
+                console.error('Error in dlc_browser button:', error);
             }
             return;
         }
