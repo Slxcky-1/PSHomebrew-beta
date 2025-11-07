@@ -82,6 +82,75 @@ function translate(guildId, key, replacements = {}) {
 }
 // --- End Language System ---
 
+// --- Game Database Helper Functions ---
+// Levenshtein distance for fuzzy search
+function levenshteinDistance(str1, str2) {
+    const matrix = [];
+    const len1 = str1.length;
+    const len2 = str2.length;
+
+    for (let i = 0; i <= len2; i++) {
+        matrix[i] = [i];
+    }
+    for (let j = 0; j <= len1; j++) {
+        matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= len2; i++) {
+        for (let j = 1; j <= len1; j++) {
+            if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1,
+                    matrix[i][j - 1] + 1,
+                    matrix[i - 1][j] + 1
+                );
+            }
+        }
+    }
+    return matrix[len2][len1];
+}
+
+// Calculate similarity score (0-100)
+function similarityScore(str1, str2) {
+    const distance = levenshteinDistance(str1.toLowerCase(), str2.toLowerCase());
+    const maxLength = Math.max(str1.length, str2.length);
+    return Math.round((1 - distance / maxLength) * 100);
+}
+
+// Get game series/franchise
+function getGameSeries(gameTitle) {
+    const seriesKeywords = [
+        'God of War', 'Uncharted', 'The Last of Us', 'Spider-Man', 'Horizon',
+        'Bloodborne', 'Dark Souls', 'Final Fantasy', 'Kingdom Hearts', 'Persona',
+        'Gran Turismo', 'Ratchet', 'Crash Bandicoot', 'Resident Evil', 'Metal Gear',
+        'Assassin', 'Call of Duty', 'Battlefield', 'Need for Speed', 'FIFA'
+    ];
+    
+    for (const series of seriesKeywords) {
+        if (gameTitle.includes(series)) return series;
+    }
+    return null;
+}
+
+// Parse file size to bytes for sorting
+function parseSizeToBytes(sizeStr) {
+    const match = sizeStr.match(/^([\d.]+)\s*(GB|MB|KB)/i);
+    if (!match) return 0;
+    
+    const value = parseFloat(match[1]);
+    const unit = match[2].toUpperCase();
+    
+    switch(unit) {
+        case 'GB': return value * 1024 * 1024 * 1024;
+        case 'MB': return value * 1024 * 1024;
+        case 'KB': return value * 1024;
+        default: return 0;
+    }
+}
+// --- End Game Database Helper Functions ---
+
 // Load configuration
 let config;
 try {
@@ -15359,27 +15428,60 @@ const now = Date.now();
                     // Load game database
                     const gameDatabase = JSON.parse(fsSync.readFileSync('./data/gameDatabase.json', 'utf8'));
                     
-                    // Search for game by title or title ID
-                    const searchTerm = gameName.toUpperCase();
-                    let foundGame = null;
-                    let foundTitleId = null;
+                    // Enhanced search with fuzzy matching
+                    const searchTerm = gameName.trim();
+                    const searchUpper = searchTerm.toUpperCase();
+                    let matches = [];
                     
-                    // First try exact title ID match
-                    if (gameDatabase.games[searchTerm]) {
-                        foundGame = gameDatabase.games[searchTerm];
-                        foundTitleId = searchTerm;
-                    } else {
-                        // Search by title (partial match)
-                        for (const [titleId, game] of Object.entries(gameDatabase.games)) {
-                            if (game.title.toUpperCase().includes(searchTerm) || searchTerm.includes(game.title.toUpperCase())) {
-                                foundGame = game;
-                                foundTitleId = titleId;
-                                break;
-                            }
+                    // Search strategy:
+                    // 1. Exact Title ID match
+                    if (gameDatabase.games[searchUpper]) {
+                        matches.push({
+                            game: gameDatabase.games[searchUpper],
+                            titleId: searchUpper,
+                            score: 100,
+                            matchType: 'exact_id'
+                        });
+                    }
+                    
+                    // 2. Fuzzy search across all games
+                    for (const [titleId, game] of Object.entries(gameDatabase.games)) {
+                        // Skip if already matched by exact ID
+                        if (titleId === searchUpper) continue;
+                        
+                        // Calculate similarity scores
+                        const titleScore = similarityScore(searchTerm, game.title);
+                        const idScore = similarityScore(searchTerm, titleId);
+                        const partialMatch = game.title.toLowerCase().includes(searchTerm.toLowerCase());
+                        
+                        // Include if score is above threshold or partial match
+                        if (titleScore >= 60 || idScore >= 70 || partialMatch) {
+                            matches.push({
+                                game,
+                                titleId,
+                                score: Math.max(titleScore, idScore, partialMatch ? 75 : 0),
+                                matchType: partialMatch ? 'partial' : 'fuzzy'
+                            });
                         }
                     }
                     
-                    if (foundGame) {
+                    // Sort by score descending
+                    matches.sort((a, b) => b.score - a.score);
+                    
+                    if (matches.length === 1) {
+                        // Single match - show full details
+                        const foundGame = matches[0].game;
+                        const foundTitleId = matches[0].titleId;
+                        
+                        // Check for game series
+                        const series = getGameSeries(foundGame.title);
+                        let seriesGames = [];
+                        if (series) {
+                            seriesGames = Object.entries(gameDatabase.games)
+                                .filter(([_, g]) => g.title.includes(series) && g.titleId !== foundTitleId)
+                                .map(([id, g]) => `• ${g.title} (${g.console})`)
+                                .slice(0, 5);
+                        }
                         // Game found - show full details
                         const embed = new EmbedBuilder()
                             .setTitle(`🎮 ${foundGame.title}`)
