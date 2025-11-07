@@ -15504,6 +15504,33 @@ const now = Date.now();
 
                         await interaction.reply({ embeds: [embed], ephemeral: true });
                         console.log(`✅ Found game: ${foundGame.title}`);
+                        
+                    } else if (matches.length > 1) {
+                        // Multiple matches - show selection list
+                        const topMatches = matches.slice(0, 10);
+                        
+                        let description = `Found **${matches.length}** possible matches for: **${gameName}**\n\n`;
+                        description += topMatches.map((m, i) => 
+                            `**${i + 1}.** ${m.game.title} (${m.game.console})\n` +
+                            `└ ${m.titleId} • ${m.game.fileSize} • Match: ${m.score}%`
+                        ).join('\n\n');
+                        
+                        if (matches.length > 10) {
+                            description += `\n\n*...and ${matches.length - 10} more results*`;
+                        }
+                        
+                        const embed = new EmbedBuilder()
+                            .setTitle('🔍 Multiple Games Found')
+                            .setColor(0x00AAFF)
+                            .setDescription(description)
+                            .addFields(
+                                { name: '💡 Refine Your Search', value: '• Use the **Title ID** (e.g., CUSA07408)\n• Add **console name** (e.g., "God of War PS4")\n• Be more specific with the title', inline: false }
+                            )
+                            .setFooter({ text: `Top ${topMatches.length} of ${matches.length} results • Fuzzy search enabled` });
+                        
+                        await interaction.reply({ embeds: [embed], ephemeral: true });
+                        console.log(`🔍 Found ${matches.length} matches for: ${gameName}`);
+                        
                     } else {
                         // Game not found
                         const embed = new EmbedBuilder()
