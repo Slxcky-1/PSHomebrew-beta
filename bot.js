@@ -292,6 +292,185 @@ let aiUserProfiles = {}; // { userId: { messageCount: number, lastTone: 'questio
 let aiLockdown = {}; // { guildId: { locked: boolean, lockedBy: userId, reason: string, timestamp: number } }
 let aiRecentLinks = {}; // { channelId: { links: Set(), lastQuestion: string, messagesSinceLinks: 0 } } - Track recently shared links
 
+// --- Image Spam Detection System ---
+let imageSpamTracker = {}; // { userId: { images: [{url, channelId, timestamp}], warnings: number } }
+
+// Load image spam configuration dynamically
+function getImageSpamConfig() {
+    try {
+        const configPath = path.join(__dirname, 'features', 'imagespam.json');
+        if (fsSync.existsSync(configPath)) {
+            const config = JSON.parse(fsSync.readFileSync(configPath, 'utf8'));
+            return {
+                enabled: config.enabled ?? true,
+                maxImagesPerMinute: config.maxImagesPerMinute ?? 3,
+                maxImagesAcrossChannels: config.maxImagesAcrossChannels ?? 4,
+                warningThreshold: config.warningThreshold ?? 2,
+                timeoutDuration: config.timeoutDuration ?? 300000,
+                trackingWindow: config.trackingWindow ?? 120000,
+                exemptRoles: config.exemptRoles ?? [],
+                logChannelName: config.logChannelName ?? 'mod-logs'
+            };
+        }
+    } catch (error) {
+        console.error('Error loading image spam config:', error);
+    }
+    
+    // Default config
+    return {
+        enabled: true,
+        maxImagesPerMinute: 3,
+        maxImagesAcrossChannels: 4,
+        warningThreshold: 2,
+        timeoutDuration: 300000,
+        trackingWindow: 120000,
+        exemptRoles: [],
+        logChannelName: 'mod-logs'
+    };
+}
+
+// Check if message contains images
+function hasImages(message) {
+    // Check attachments
+    if (message.attachments.size > 0) {
+        return message.attachments.filter(att => 
+            att.contentType?.startsWith('image/') || 
+            /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(att.url)
+        ).size > 0;
+    }
+    
+    // Check embeds
+    if (message.embeds.length > 0) {
+        return message.embeds.some(embed => embed.image || embed.thumbnail);
+    }
+    
+    // Check for image URLs in content
+    const imageUrlRegex = /https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp|bmp)(\?[^\s]*)?/gi;
+    return imageUrlRegex.test(message.content);
+}
+
+// Detect and handle image spam
+async function detectImageSpam(message) {
+    const config = getImageSpamConfig();
+    
+    if (!config.enabled) return false;
+    if (!message.guild || message.author.bot) return false;
+    
+    // Skip if user has admin/mod permissions
+    if (message.member?.permissions.has(PermissionFlagsBits.Administrator) || 
+        message.member?.permissions.has(PermissionFlagsBits.ManageMessages)) {
+        return false;
+    }
+    
+    // Skip if user has exempt role
+    if (config.exemptRoles.length > 0) {
+        const hasExemptRole = message.member?.roles.cache.some(role => 
+            config.exemptRoles.includes(role.id) || config.exemptRoles.includes(role.name)
+        );
+        if (hasExemptRole) return false;
+    }
+    
+    const userId = message.author.id;
+    const now = Date.now();
+    
+    // Initialize tracker for user
+    if (!imageSpamTracker[userId]) {
+        imageSpamTracker[userId] = { images: [], warnings: 0 };
+    }
+    
+    const tracker = imageSpamTracker[userId];
+    
+    // Clean old entries (older than tracking window)
+    tracker.images = tracker.images.filter(img => now - img.timestamp < config.trackingWindow);
+    
+    // Add current image
+    tracker.images.push({
+        url: message.attachments.first()?.url || 'embedded',
+        channelId: message.channel.id,
+        timestamp: now
+    });
+    
+    // Check for spam patterns
+    const recentImages = tracker.images.filter(img => now - img.timestamp < 60000); // Last minute
+    const uniqueChannels = new Set(tracker.images.map(img => img.channelId)).size;
+    
+    // Spam detected: Too many images in short time
+    if (recentImages.length > config.maxImagesPerMinute) {
+        try {
+            await message.delete();
+            tracker.warnings++;
+            
+            if (tracker.warnings >= config.warningThreshold) {
+                // Timeout user
+                await message.member.timeout(config.timeoutDuration, 'Image spam detected');
+                
+                // Log to moderation channel
+                const logChannel = message.guild.channels.cache.find(ch => 
+                    ch.name === config.logChannelName || ch.name === 'moderation-logs' || ch.name === 'logs'
+                );
+                
+                if (logChannel) {
+                    await logChannel.send({
+                        embeds: [{
+                            color: 0xFF0000,
+                            title: '🚨 Image Spam Detected - User Timed Out',
+                            description: `**User:** ${message.author.tag} (${message.author.id})\n**Action:** ${config.timeoutDuration / 60000}-minute timeout\n**Reason:** Posted ${recentImages.length} images in 1 minute across ${uniqueChannels} channel(s)`,
+                            timestamp: new Date().toISOString()
+                        }]
+                    });
+                }
+                
+                // Reset warnings after timeout
+                setTimeout(() => {
+                    if (imageSpamTracker[userId]) {
+                        imageSpamTracker[userId].warnings = 0;
+                        imageSpamTracker[userId].images = [];
+                    }
+                }, config.timeoutDuration);
+                
+                console.log(`🚨 Image spam: Timed out ${message.author.tag} for ${config.timeoutDuration / 60000} minutes`);
+                return true; // Spam handled
+            } else {
+                // Send warning
+                const warningMsg = await message.channel.send(
+                    `⚠️ ${message.author}, slow down! You're posting images too quickly. ` +
+                    `(Warning ${tracker.warnings}/${config.warningThreshold})`
+                );
+                setTimeout(() => warningMsg.delete().catch(() => {}), 5000);
+                console.log(`⚠️ Image spam warning for ${message.author.tag} (${tracker.warnings}/${config.warningThreshold})`);
+                return true;
+            }
+        } catch (error) {
+            console.error('Error handling image spam:', error);
+        }
+    }
+    
+    // Spam detected: Images across multiple channels rapidly
+    if (uniqueChannels >= config.maxImagesAcrossChannels) {
+        try {
+            await message.delete();
+            tracker.warnings++;
+            
+            const warningMsg = await message.channel.send(
+                `⚠️ ${message.author}, you're posting images in too many channels. ` +
+                `(Warning ${tracker.warnings}/${config.warningThreshold})`
+            );
+            setTimeout(() => warningMsg.delete().catch(() => {}), 5000);
+            
+            if (tracker.warnings >= config.warningThreshold) {
+                await message.member.timeout(config.timeoutDuration, 'Cross-channel image spam');
+                console.log(`🚨 Cross-channel image spam: Timed out ${message.author.tag}`);
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Error handling cross-channel image spam:', error);
+        }
+    }
+    
+    return false;
+}
+
 // --- Token Quota Tracking System ---
 let tokenQuota = {
     deepseek: {
@@ -2139,6 +2318,12 @@ client.on('messageCreate', async (message) => {
     const settings = getGuildSettings(message.guild.id);
     const userId = message.author.id;
     const now = Date.now();
+    
+    // Image spam detection (run early, before other processing)
+    if (hasImages(message)) {
+        const isSpam = await detectImageSpam(message);
+        if (isSpam) return; // Stop processing if spam was detected and handled
+    }
     
     // Track message analytics
     analytics.messages.total++;

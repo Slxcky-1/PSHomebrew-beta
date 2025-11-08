@@ -1,0 +1,11 @@
+{
+  "enabled": true,
+  "maxImagesPerMinute": 3,
+  "maxImagesAcrossChannels": 4,
+  "warningThreshold": 2,
+  "timeoutDuration": 300000,
+  "trackingWindow": 120000,
+  "exemptRoles": [],
+  "logChannelName": "mod-logs",
+  "description": "Anti-spam protection for images. Detects and blocks users rapidly posting images across channels."
+}
