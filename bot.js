@@ -290,6 +290,7 @@ let aiConversations = {}; // { channelId: [ { role: 'user'|'assistant', content:
 let aiCooldowns = {}; // { userId: timestamp} - Track cooldowns per user
 let aiUserProfiles = {}; // { userId: { messageCount: number, lastTone: 'question'|'joke'|'casual', recentMessages: [] } }
 let aiLockdown = {}; // { guildId: { locked: boolean, lockedBy: userId, reason: string, timestamp: number } }
+let aiRecentLinks = {}; // { channelId: { links: Set(), lastQuestion: string, messagesSinceLinks: 0 } } - Track recently shared links
 
 // --- Token Quota Tracking System ---
 let tokenQuota = {
@@ -579,6 +580,34 @@ function analyzeUserTone(message, userId) {
     profile.lastTone = (isQuestion && isTechnical) ? 'technical' : isQuestion ? 'question' : isBanter ? 'joke' : 'casual';
     
     return profile.lastTone;
+}
+
+// Extract URLs from a message
+function extractLinks(text) {
+    const urlRegex = /https?:\/\/[^\s\]]+/gi;
+    const matches = text.match(urlRegex) || [];
+    return matches.map(url => url.replace(/[.,;:)]$/g, '')); // Clean trailing punctuation
+}
+
+// Check if question is similar to previous question (to avoid repeating same links)
+function isSimilarQuestion(question1, question2) {
+    if (!question1 || !question2) return false;
+    
+    // Normalize and extract key words
+    const normalize = (q) => q.toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter(w => w.length > 3 && !['what', 'when', 'where', 'how', 'why', 'does', 'will', 'can', 'the'].includes(w));
+    
+    const words1 = new Set(normalize(question1));
+    const words2 = new Set(normalize(question2));
+    
+    // Calculate overlap
+    const intersection = [...words1].filter(w => words2.has(w)).length;
+    const union = new Set([...words1, ...words2]).size;
+    
+    // If more than 50% overlap, consider it similar
+    return union > 0 && (intersection / union) > 0.5;
 }
 
 // Generate personality instruction based on user tone
@@ -2553,6 +2582,48 @@ client.on('messageCreate', async (message) => {
                     cacheResponse(message.content, safeText);
                 }
                 
+                // Track links in response and check if question is different
+                const responseLinks = extractLinks(safeText);
+                if (!aiRecentLinks[channelId]) {
+                    aiRecentLinks[channelId] = { links: new Set(), lastQuestion: '', messagesSinceLinks: 0 };
+                }
+                
+                // Initialize link tracking for this channel
+                const linkTracker = aiRecentLinks[channelId];
+                let linkReminderMessage = '';
+                
+                // Check if this is a different question and we have recent links
+                if (responseLinks.length > 0) {
+                    const isDifferentQuestion = !isSimilarQuestion(message.content, linkTracker.lastQuestion);
+                    const hasRecentLinks = linkTracker.links.size > 0;
+                    const shouldRemind = isDifferentQuestion && hasRecentLinks && linkTracker.messagesSinceLinks > 0;
+                    
+                    if (shouldRemind) {
+                        // Check if any new links overlap with recent links
+                        const newLinks = responseLinks.filter(link => !linkTracker.links.has(link));
+                        const repeatedLinks = responseLinks.filter(link => linkTracker.links.has(link));
+                        
+                        if (repeatedLinks.length > 0) {
+                            linkReminderMessage = `\n\n💡 *Note: Some of these resources were shared earlier. If you already checked them, let me know if you need different sources.*`;
+                        }
+                    }
+                    
+                    // Update link tracking
+                    linkTracker.lastQuestion = message.content;
+                    linkTracker.links.clear();
+                    responseLinks.forEach(link => linkTracker.links.add(link));
+                    linkTracker.messagesSinceLinks = 0;
+                } else {
+                    // No links in response, increment counter
+                    linkTracker.messagesSinceLinks++;
+                    
+                    // Clear link tracking after 5 messages without links
+                    if (linkTracker.messagesSinceLinks > 5) {
+                        linkTracker.links.clear();
+                        linkTracker.lastQuestion = '';
+                    }
+                }
+                
                 // Compress and add to history
                 const compressedResponse = compressMessage(safeText);
                 aiConversations[channelId].push({ role: 'assistant', content: compressedResponse, timestamp: now });
@@ -2561,13 +2632,16 @@ client.on('messageCreate', async (message) => {
                 const tokenFooter = aiProvider === '✅ ChatGPT' 
                     ? `\n\n*💬 ChatGPT: ${outputTokens} tokens*`
                     : `\n\n*🤖 DeepSeek: ${outputTokens} tokens*`;
-                if (safeText.length > 1900) {
-                    const chunks = safeText.match(/[\s\S]{1,1900}/g) || [];
+                
+                const finalResponse = safeText + linkReminderMessage + tokenFooter;
+                
+                if (finalResponse.length > 1900) {
+                    const chunks = finalResponse.match(/[\s\S]{1,1900}/g) || [];
                     await message.reply(chunks[0]);
                     for (let i = 1; i < chunks.length - 1; i++) await message.channel.send(chunks[i]);
-                    await message.channel.send(chunks[chunks.length - 1] + tokenFooter);
+                    await message.channel.send(chunks[chunks.length - 1]);
                 } else {
-                    await message.reply(safeText + tokenFooter);
+                    await message.reply(finalResponse);
                 }
             } catch (err) {
                 console.error('AI Error:', err);
