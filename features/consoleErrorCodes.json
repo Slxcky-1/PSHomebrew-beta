@@ -390,6 +390,7 @@
   "CE-34632-8": "Answer: Update file cannot be recognized. Re-download the update file.",
   "CE-34788-0": "Answer: Blu-ray disc or DVD cannot be played. Disc may be damaged.",
   "CE-34861-2": "Answer: An error occurred while playing a video file.",
+  "CE-34878": "Answer: Cannot start the application. The application file may be corrupted. Delete and reinstall the game. Common on PS4 when running homebrew/pirated games - ensure PKG is properly installed with valid license (.rap) file if needed.",
   "CE-34878-0": "Answer: Cannot start the application. The file may be corrupted.",
   "CE-35239-5": "Answer: Cannot install system software update.",
   "CE-35287-5": "Answer: Cannot complete the download. Check your internet connection.",
