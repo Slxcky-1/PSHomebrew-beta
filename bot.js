@@ -13802,7 +13802,8 @@ const now = Date.now();
                 interaction.customId === 'leveling_maxlevel_modal' ||
                 interaction.customId === 'leveling_channel_modal' ||
                 interaction.customId === 'leveling_addrole_modal' ||
-                interaction.customId === 'leveling_removerole_modal'
+                interaction.customId === 'leveling_removerole_modal' ||
+                interaction.customId === 'leveling_view_user_modal'
             ) {
                 const guildId = interaction.guild.id;
                 try {
