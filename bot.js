@@ -13923,31 +13923,51 @@ const now = Date.now();
                         saveSettings();
                         await interaction.reply({ content: `? Removed role for level ${level}!`, ephemeral: true });
                     } else if (interaction.customId === 'leveling_view_user_modal') {
-                        const userInput = interaction.fields.getTextInputValue('user_id')?.trim();
-                        const match = userInput ? userInput.match(/(\d{17,19})/) : null;
-                        const userId = match ? match[1] : null;
-                        const member = userId ? await interaction.guild.members.fetch(userId).catch(() => null) : null;
-                        if (!member) {
-                            return interaction.reply({ content: '❌ User not found! Please provide a valid mention or ID.', ephemeral: true });
+                        try {
+                            const userInput = interaction.fields.getTextInputValue('user_id')?.trim();
+                            
+                            if (!userInput) {
+                                return interaction.reply({ content: '❌ Please provide a user ID or mention!', ephemeral: true });
+                            }
+                            
+                            const match = userInput.match(/(\d{17,19})/);
+                            const userId = match ? match[1] : null;
+                            
+                            if (!userId) {
+                                return interaction.reply({ content: '❌ Invalid user ID or mention! Please use @user or paste the user ID.', ephemeral: true });
+                            }
+                            
+                            const member = await interaction.guild.members.fetch(userId).catch(() => null);
+                            
+                            if (!member) {
+                                return interaction.reply({ content: '❌ User not found in this server! Make sure they are a member.', ephemeral: true });
+                            }
+                            
+                            initializeUser(guildId, member.id);
+                            const entry = userData[guildId][member.id];
+                            const p = getXPProgress(entry.xp);
+                            const percent = Math.floor((p.currentLevelXP / p.xpRequiredForCurrentLevel) * 100);
+                            const barLen = 20;
+                            const filled = Math.min(barLen, Math.max(0, Math.round((percent / 100) * barLen)));
+                            const bar = '█'.repeat(filled) + '░'.repeat(barLen - filled);
+                            const embed = new EmbedBuilder()
+                                .setTitle(`📈 Level for ${member.user.tag}`)
+                                .setColor(0x5865F2)
+                                .setThumbnail(member.user.displayAvatarURL())
+                                .addFields(
+                                    { name: 'Level', value: p.level.toString(), inline: true },
+                                    { name: 'XP', value: `${entry.xp.toLocaleString()} XP`, inline: true },
+                                    { name: 'Progress', value: `${bar} ${percent}%\n${p.currentLevelXP}/${p.xpRequiredForCurrentLevel} XP`, inline: false }
+                                )
+                                .setTimestamp();
+                            await interaction.reply({ embeds: [embed], ephemeral: true });
+                        } catch (modalError) {
+                            console.error('❌ View user level modal error:', modalError);
+                            await interaction.reply({ 
+                                content: '❌ An error occurred while viewing user level. Please try again or contact an administrator.\n\n**Debug info:** ' + modalError.message, 
+                                ephemeral: true 
+                            }).catch(() => {});
                         }
-                        initializeUser(guildId, member.id);
-                        const entry = userData[guildId][member.id];
-                        const p = getXPProgress(entry.xp);
-                        const percent = Math.floor((p.currentLevelXP / p.xpRequiredForCurrentLevel) * 100);
-                        const barLen = 20;
-                        const filled = Math.min(barLen, Math.max(0, Math.round((percent / 100) * barLen)));
-                        const bar = '█'.repeat(filled) + '░'.repeat(barLen - filled);
-                        const embed = new EmbedBuilder()
-                            .setTitle(`📈 Level for ${member.user.tag}`)
-                            .setColor(0x5865F2)
-                            .setThumbnail(member.user.displayAvatarURL())
-                            .addFields(
-                                { name: 'Level', value: p.level.toString(), inline: true },
-                                { name: 'XP', value: `${entry.xp.toLocaleString()} XP`, inline: true },
-                                { name: 'Progress', value: `${bar} ${percent}%\n${p.currentLevelXP}/${p.xpRequiredForCurrentLevel} XP`, inline: false }
-                            )
-                            .setTimestamp();
-                        await interaction.reply({ embeds: [embed], ephemeral: true });
                     }
                 } catch (error) {
                     console.error('❌ Leveling modal error:', error);
