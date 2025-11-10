@@ -273,10 +273,6 @@ const ticketDataFile = './data/ticketData.json';
 let moderationData = {};
 const moderationDataFile = './data/moderationData.json';
 
-// Pending SellHub purchases (for users not yet in server)
-let pendingPurchases = {};
-const pendingPurchasesFile = './data/pendingPurchases.json';
-
 // Giveaways data
 let giveawayData = {};
 const giveawayDataFile = './data/giveawayData.json';
@@ -1020,23 +1016,8 @@ const saveSettings = createDebouncedSave(settingsFile, () => serverSettings, 500
 const saveTicketData = createDebouncedSave(ticketDataFile, () => ticketData, 3000); // 3s (was 1s)
 const saveModerationData = createDebouncedSave(moderationDataFile, () => moderationData, 3000); // 3s (was 1s)
 // Analytics system removed (unused feature)
-const savePendingPurchases = createDebouncedSave(pendingPurchasesFile, () => pendingPurchases, 3000); // 3s
 const saveGiveawayData = createDebouncedSave(giveawayDataFile, () => giveawayData, 3000); // 3s
 const saveEconomyData = createDebouncedSave(economyDataFile, () => economyData, 3000); // 3s
-
-// Load pending purchases
-async function loadPendingPurchases() {
-    try {
-        await fs.access(pendingPurchasesFile);
-        const data = await fs.readFile(pendingPurchasesFile, 'utf8');
-        pendingPurchases = JSON.parse(data);
-    } catch (error) {
-        if (error.code !== 'ENOENT') {
-            console.error('Error loading pending purchases:', error);
-        }
-        pendingPurchases = {};
-    }
-}
 
 // Load giveaway data
 async function loadGiveawayData() {
@@ -1936,7 +1917,6 @@ client.once('clientReady', async () => {
     migrateLegacyLevelUpChannels();
     loadTicketData();
     loadModerationData();
-    loadPendingPurchases();
     loadGiveawayData();
     loadEconomyData();
     
@@ -3219,66 +3199,6 @@ async function checkKeywords(message, settings) {
 // Member join event (Welcome message)
 client.on('guildMemberAdd', async (member) => {
     const settings = getGuildSettings(member.guild.id);
-    
-    // Check for pending SellHub purchases
-    if (pendingPurchases[member.id] && pendingPurchases[member.id].guildId === member.guild.id) {
-        const purchase = pendingPurchases[member.id];
-        console.log(`✅ Processing pending purchase for ${member.user.tag}`);
-        
-        try {
-            // Assign role
-            const role = member.guild.roles.cache.get(config.sellhubRoleId);
-            if (role) {
-                await member.roles.add(role);
-                console.log(`? Assigned pending purchase role to ${member.user.tag}`);
-                
-                // Send DM
-                try {
-                    const dmEmbed = new EmbedBuilder()
-                        .setTitle('✅ Purchase Activated!')
-                        .setDescription(`Welcome to the server! Your previous purchase has been activated and you've been given access to **${role.name}**.`)
-                        .setColor(0x00FF00)
-                        .addFields(
-                            { name: ' Order ID', value: purchase.orderId, inline: true },
-                            { name: ' Amount Paid', value: `$${purchase.amount}`, inline: true }
-                        )
-                        .setFooter({ text: member.guild.name })
-                        .setTimestamp();
-                    
-                    await member.send({ embeds: [dmEmbed] });
-                } catch (error) {
-                    console.log('Could not DM user:', error.message);
-                }
-                
-                // Log activation
-                const logChannel = member.guild.channels.cache.get(config.sellhubLogChannelId);
-                if (logChannel) {
-                    const activationEmbed = new EmbedBuilder()
-                        .setTitle('✅ Pending Purchase Activated')
-                        .setColor(0x00FF00)
-                        .setDescription('User joined server and role was automatically assigned.')
-                        .addFields(
-                            { name: ' Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
-                            { name: ' Order ID', value: purchase.orderId, inline: true },
-                            { name: ' Amount', value: `$${purchase.amount}`, inline: true },
-                            { name: ' Email', value: purchase.email || 'N/A', inline: false },
-                            { name: ' Role Given', value: role.name, inline: false },
-                            { name: ' Product', value: purchase.product || 'Unknown', inline: false }
-                        )
-                        .setThumbnail(member.user.displayAvatarURL())
-                        .setTimestamp();
-                    
-                    await logChannel.send({ embeds: [activationEmbed] });
-                }
-            }
-            
-            // Remove from pending
-            delete pendingPurchases[member.id];
-            savePendingPurchases();
-        } catch (error) {
-            console.error('Error processing pending purchase:', error);
-        }
-    }
     
     // Track member join in analytics (prune older than 30 days)
     const nowTs = Date.now();
@@ -17509,174 +17429,6 @@ function startAutomatedMessages() {
         logCriticalError(error, 'Automated Messages Startup', null);
     }
 }
-
-// ===== SELLHUB WEBHOOK SYSTEM =====
-// Initialize webhook server only if SellHub is configured (and not explicitly disabled)
-if (config.sellhubApiKey && config.sellhubGuildId && config.sellhubRoleId && process.env.SELLHUB_DISABLE !== '1') {
-    const express = require('express');
-    const sellhubApp = express();
-    sellhubApp.use(express.json());
-
-    sellhubApp.post('/sellhub-webhook', async (req, res) => {
-    try {
-        const event = req.body;
-        
-        console.log('✅ SellHub webhook received:', event.event);
-        
-        // Verify webhook secret if configured
-        if (config.sellhubWebhookSecret && config.sellhubWebhookSecret !== 'YOUR_WEBHOOK_SECRET') {
-            const receivedSecret = req.headers['x-sellhub-signature'];
-            if (receivedSecret !== config.sellhubWebhookSecret) {
-                console.log('❌ Invalid SellHub webhook signature');
-                return res.status(401).send('Unauthorized');
-            }
-        }
-        
-        // Handle order:paid event (successful purchase)
-        if (event.event === 'order:paid') {
-            const orderData = event.data;
-            const customFields = orderData.custom_fields || {};
-            
-            // Extract Discord ID from custom fields
-            let discordId = null;
-            if (customFields.discord_id) {
-                discordId = customFields.discord_id;
-            } else if (customFields['Discord ID']) {
-                discordId = customFields['Discord ID'];
-            } else if (orderData.customer_email) {
-                // Try to extract from email if it contains Discord ID
-                const emailMatch = orderData.customer_email.match(/(\d{17,19})/);
-                if (emailMatch) discordId = emailMatch[1];
-            }
-            
-            if (!discordId) {
-                console.log('✅ No Discord ID found in order:', orderData.uniqid);
-                return res.status(200).send('No Discord ID provided');
-            }
-            
-            // Get guild and member
-            const guild = client.guilds.cache.get(config.sellhubGuildId);
-            if (!guild) {
-                console.log('❌ Guild not found:', config.sellhubGuildId);
-                return res.status(200).send('Guild not found');
-            }
-            
-            const member = await guild.members.fetch(discordId).catch(() => null);
-            if (!member) {
-                console.log('? Member not found:', discordId);
-                
-                // Store as pending purchase
-                pendingPurchases[discordId] = {
-                    orderId: orderData.uniqid,
-                    amount: orderData.total,
-                    email: orderData.customer_email,
-                    product: orderData.product_title,
-                    timestamp: Date.now(),
-                    guildId: config.sellhubGuildId
-                };
-                savePendingPurchases();
-                console.log(`✅ Stored pending purchase for ${discordId}`);
-                
-                // Log pending purchase
-                const logChannel = guild.channels.cache.get(config.sellhubLogChannelId);
-                if (logChannel) {
-                    const pendingEmbed = new EmbedBuilder()
-                        .setTitle('? Purchase Pending - User Not in Server')
-                        .setColor(0xFFA500)
-                        .setDescription('Role will be assigned automatically when user joins the server.')
-                        .addFields(
-                            { name: ' Order ID', value: orderData.uniqid, inline: true },
-                            { name: ' Amount', value: `$${orderData.total}`, inline: true },
-                            { name: ' Email', value: orderData.customer_email || 'N/A', inline: false },
-                            { name: ' Discord ID', value: discordId, inline: false },
-                            { name: ' Product', value: orderData.product_title || 'Unknown', inline: false }
-                        )
-                        .setTimestamp();
-                    await logChannel.send({ embeds: [pendingEmbed] });
-                }
-                
-                return res.status(200).send('Purchase stored as pending');
-            }
-            
-            // Assign role
-            const role = guild.roles.cache.get(config.sellhubRoleId);
-            if (!role) {
-                console.log('❌ Role not found:', config.sellhubRoleId);
-                return res.status(200).send('Role not found');
-            }
-            
-            await member.roles.add(role);
-            console.log(`✅ Assigned role to ${member.user.tag}`);
-            
-            // Send DM to user
-            try {
-                const dmEmbed = new EmbedBuilder()
-                    .setTitle('✅ Purchase Successful!')
-                    .setDescription(`Thank you for your purchase! You have been given access to **${role.name}**.`)
-                    .setColor(0x00FF00)
-                    .addFields(
-                        { name: ' Order ID', value: orderData.uniqid, inline: true },
-                        { name: ' Amount Paid', value: `$${orderData.total}`, inline: true }
-                    )
-                    .setFooter({ text: guild.name })
-                    .setTimestamp();
-                
-                await member.send({ embeds: [dmEmbed] });
-            } catch (error) {
-                console.log('Could not DM user:', error.message);
-            }
-            
-            // Log purchase in channel
-            const logChannel = guild.channels.cache.get(config.sellhubLogChannelId);
-            if (logChannel) {
-                const logEmbed = new EmbedBuilder()
-                    .setTitle('💰 New Purchase')
-                    .setColor(0x00FF00)
-                    .addFields(
-                        { name: ' Customer', value: `${member.user.tag} (<@${member.id}>)`, inline: false },
-                        { name: ' Order ID', value: orderData.uniqid, inline: true },
-                        { name: ' Amount', value: `$${orderData.total}`, inline: true },
-                        { name: ' Email', value: orderData.customer_email || 'N/A', inline: false },
-                        { name: ' Role Given', value: role.name, inline: false },
-                        { name: ' Product', value: orderData.product_title || 'Unknown', inline: false }
-                    )
-                    .setThumbnail(member.user.displayAvatarURL())
-                    .setTimestamp();
-                
-                await logChannel.send({ embeds: [logEmbed] });
-            }
-        }
-        
-        res.status(200).send('OK');
-    } catch (error) {
-        console.error('❌ SellHub webhook error:', error);
-        res.status(500).send('Internal Server Error');
-    }
-    });
-
-    // Start webhook server with graceful port fallback
-    const START_PORT = parseInt(process.env.WEBHOOK_PORT, 10) || 3000;
-    const MAX_TRIES = parseInt(process.env.WEBHOOK_MAX_TRIES, 10) || 5;
-    function startWebhook(port, triesLeft) {
-        const server = sellhubApp.listen(port, '0.0.0.0', () => {
-            console.log(`✅ Webhook server running on port ${port}`);
-            console.log(`✅ SellHub webhook URL: http://YOUR_SERVER_IP:${port}/sellhub-webhook`);
-        });
-        server.on('error', (err) => {
-            if (err && err.code === 'EADDRINUSE' && triesLeft > 0) {
-                console.warn(`⚠️ Port ${port} in use. Trying ${port + 1}...`);
-                setTimeout(() => startWebhook(port + 1, triesLeft - 1), 500);
-            } else {
-                console.error('❌ SellHub webhook failed to start:', err?.message || err);
-            }
-        });
-    }
-    startWebhook(START_PORT, MAX_TRIES);
-    console.log('🧩 SellHub webhook system enabled');
-} else {
-    console.log('🧩 SellHub webhook system disabled (missing config or SELLHUB_DISABLE=1)');
-}
-// ===== END WEBHOOK SYSTEM =====
 
 // Login to Discord with error handling
 client.login(config.token).catch(error => {
