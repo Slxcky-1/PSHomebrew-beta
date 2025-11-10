@@ -484,6 +484,14 @@ let tokenQuota = {
         monthlyLimit: null, // Unlimited monthly
         lastResetDaily: new Date().toDateString(),
         lastResetMonthly: `${new Date().getFullYear()}-${new Date().getMonth() + 1}`
+    },
+    grok: {
+        dailyUsed: 0,
+        monthlyUsed: 0,
+        dailyLimit: 5000, // 5k tokens per day globally
+        monthlyLimit: null, // Unlimited monthly
+        lastResetDaily: new Date().toDateString(),
+        lastResetMonthly: `${new Date().getFullYear()}-${new Date().getMonth() + 1}`
     }
 };
 
@@ -541,6 +549,10 @@ function checkAndResetQuota() {
         tokenQuota.chatgpt.dailyUsed = 0;
         tokenQuota.chatgpt.lastResetDaily = today;
     }
+    if (tokenQuota.grok.lastResetDaily !== today) {
+        tokenQuota.grok.dailyUsed = 0;
+        tokenQuota.grok.lastResetDaily = today;
+    }
     
     // Reset monthly counters
     if (tokenQuota.deepseek.lastResetMonthly !== thisMonth) {
@@ -551,12 +563,17 @@ function checkAndResetQuota() {
         tokenQuota.chatgpt.monthlyUsed = 0;
         tokenQuota.chatgpt.lastResetMonthly = thisMonth;
     }
+    if (tokenQuota.grok.lastResetMonthly !== thisMonth) {
+        tokenQuota.grok.monthlyUsed = 0;
+        tokenQuota.grok.lastResetMonthly = thisMonth;
+    }
 }
 
 // Track token usage
 function trackTokenUsage(provider, tokens) {
     checkAndResetQuota();
-    const providerKey = provider.toLowerCase().includes('chatgpt') ? 'chatgpt' : 'deepseek';
+    const providerKey = provider.toLowerCase().includes('chatgpt') ? 'chatgpt' : 
+                       provider.toLowerCase().includes('grok') ? 'grok' : 'deepseek';
     tokenQuota[providerKey].dailyUsed += tokens;
     tokenQuota[providerKey].monthlyUsed += tokens;
 }
@@ -576,6 +593,12 @@ function getTokenQuotaStatus() {
             monthlyUsed: tokenQuota.chatgpt.monthlyUsed,
             dailyRemaining: tokenQuota.chatgpt.dailyLimit ? tokenQuota.chatgpt.dailyLimit - tokenQuota.chatgpt.dailyUsed : 'Unlimited ♾️',
             monthlyRemaining: tokenQuota.chatgpt.monthlyLimit ? tokenQuota.chatgpt.monthlyLimit - tokenQuota.chatgpt.monthlyUsed : 'Unlimited ♾️'
+        },
+        grok: {
+            dailyUsed: tokenQuota.grok.dailyUsed,
+            monthlyUsed: tokenQuota.grok.monthlyUsed,
+            dailyRemaining: tokenQuota.grok.dailyLimit ? tokenQuota.grok.dailyLimit - tokenQuota.grok.dailyUsed : 'Unlimited ♾️',
+            monthlyRemaining: tokenQuota.grok.monthlyLimit ? tokenQuota.grok.monthlyLimit - tokenQuota.grok.monthlyUsed : 'Unlimited ♾️'
         }
     };
 }
@@ -1902,6 +1925,9 @@ client.once('clientReady', async () => {
     console.log(`   🤖 ChatGPT:`);
     console.log(`      Daily: ${quotaStatus.chatgpt.dailyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.chatgpt.dailyRemaining.toLocaleString() + ' remaining'}`);
     console.log(`      Monthly: ${quotaStatus.chatgpt.monthlyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`   🚀 Grok:`);
+    console.log(`      Daily: ${quotaStatus.grok.dailyUsed.toLocaleString()} used | ${quotaStatus.grok.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.grok.dailyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`      Monthly: ${quotaStatus.grok.monthlyUsed.toLocaleString()} used | ${quotaStatus.grok.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.grok.monthlyRemaining.toLocaleString() + ' remaining'}`);
     console.log('='.repeat(60));
     
     // Set bot status to DND and activity
@@ -1954,6 +1980,7 @@ client.once('clientReady', async () => {
                     features.push(`Config: Loaded`);
                     features.push(`DeepSeek API: ${config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
                     features.push(`ChatGPT API: ${config.openaiApiKey && config.openaiApiKey !== 'YOUR_OPENAI_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
+                    features.push(`Grok API: ${config.grokApiKey && config.grokApiKey !== 'YOUR_GROK_API_KEY_HERE' ? 'Active' : 'Not configured'}`);
                     features.push(`User Data: ${fsSync.existsSync('./data/userData.json') ? 'Loaded' : 'Missing'}`);
                     features.push(`Console Error Codes (PS1-PS5, PSP, Vita): ${Object.keys(consoleErrorCodes).filter(k => !k.startsWith('_')).length} loaded`);
                     
@@ -2130,7 +2157,7 @@ function startFeatureHealthMonitor() {
         try {
             // Check AI System
             try {
-                if (config.deepseekApiKey || config.openaiApiKey) {
+                if (config.deepseekApiKey || config.openaiApiKey || config.grokApiKey) {
                     const activeAI = Object.values(serverSettings).filter(s => s.ai?.enabled).length;
                     if (activeAI > 0 && Object.keys(aiConversations).length === 0 && now - healthStatus.ai.lastCheck > 600000) {
                         throw new Error('AI system appears inactive - no conversations detected in 10+ minutes');
@@ -2934,8 +2961,9 @@ client.on('messageCreate', async (message) => {
                     ...aiConversations[channelId].map(m => ({ role: m.role, content: m.content }))
                 ];
                 
-                // Smart AI selection - ChatGPT ONLY in channel 1433480720776433664, DeepSeek everywhere else
+                // Smart AI selection - ChatGPT ONLY in channel 1433480720776433664, Grok in another specific channel, DeepSeek everywhere else
                 const isChatGPTChannelHere = message.channel.id === '1433480720776433664';
+                const isGrokChannelHere = message.channel.id === '1433480720776433665'; // You can change this channel ID
                 
                 let aiProvider, modelName, response;
                 
@@ -2950,8 +2978,22 @@ client.on('messageCreate', async (message) => {
                         temperature: settings.ai.temperature,
                         maxTokens: toneConfig.maxTokens
                     });
+                } else if (isGrokChannelHere && config.grokApiKey && config.grokApiKey !== 'YOUR_GROK_API_KEY_HERE') {
+                    // Use Grok in its designated channel
+                    aiProvider = '🚀 Grok';
+                    const grok = createOpenAI({ 
+                        apiKey: config.grokApiKey,
+                        baseURL: 'https://api.x.ai/v1'
+                    });
+                    modelName = 'grok-beta';
+                    response = await generateText({
+                        model: grok(modelName),
+                        messages,
+                        temperature: settings.ai.temperature,
+                        maxTokens: toneConfig.maxTokens
+                    });
                 } else {
-                    // Use DeepSeek for all other channels (or fallback if OpenAI key missing)
+                    // Use DeepSeek for all other channels (or fallback if OpenAI/Grok keys missing)
                     aiProvider = '🤖 DeepSeek';
                     const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
                     modelName = settings.ai.model;
@@ -2969,7 +3011,7 @@ client.on('messageCreate', async (message) => {
                 }
                 
                 const text = response.text;
-                // DeepSeek and OpenAI use different token keys - prioritize output/completion tokens ONLY
+                // DeepSeek, OpenAI, and Grok use different token keys - prioritize output/completion tokens ONLY
                 const outputTokens = response.usage?.completionTokens || response.usage?.outputTokens || 0;
                 const inputTokens = response.usage?.promptTokens || response.usage?.inputTokens || 0;
                 const totalTokens = response.usage?.totalTokens || (inputTokens + outputTokens);
@@ -2980,7 +3022,8 @@ client.on('messageCreate', async (message) => {
                 
                 // Get quota status
                 const quotaStatus = getTokenQuotaStatus();
-                const providerQuota = aiProvider.includes('ChatGPT') ? quotaStatus.chatgpt : quotaStatus.deepseek;
+                const providerQuota = aiProvider.includes('ChatGPT') ? quotaStatus.chatgpt : 
+                                     aiProvider.includes('Grok') ? quotaStatus.grok : quotaStatus.deepseek;
                 const userRemaining = getUserRemainingTokens(userId);
 
                 // Log token usage with AI provider - show breakdown and quota
@@ -4546,6 +4589,18 @@ client.on('interactionCreate', async (interaction) => {
                 { 
                     name: ' This Month', 
                     value: `Used: **${quotaStatus.chatgpt.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString()}**`,
+                    inline: true 
+                },
+                { name: '\u200B', value: '\u200B', inline: true }, // Spacer
+                { name: '\u200B', value: '**🚀 Grok (Server-Wide)**', inline: false },
+                { 
+                    name: ' Today', 
+                    value: `Used: **${quotaStatus.grok.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.grok.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.grok.dailyRemaining.toLocaleString()}**`,
+                    inline: true 
+                },
+                { 
+                    name: ' This Month', 
+                    value: `Used: **${quotaStatus.grok.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.grok.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.grok.monthlyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { name: '\u200B', value: '\u200B', inline: true }, // Spacer

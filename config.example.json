@@ -3,6 +3,7 @@
   "clientId": "YOUR_APPLICATION_CLIENT_ID_HERE",
   "deepseekApiKey": "YOUR_DEEPSEEK_API_KEY_HERE_OPTIONAL",
   "openaiApiKey": "YOUR_OPENAI_API_KEY_HERE_OPTIONAL",
+  "grokApiKey": "YOUR_GROK_API_KEY_HERE_OPTIONAL",
   "botOwnerId": "YOUR_DISCORD_USER_ID_HERE",
   
   "_comment_sellhub": "SellHub Integration (Optional) - Remove this comment line",
