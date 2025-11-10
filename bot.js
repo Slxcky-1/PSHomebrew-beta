@@ -2832,8 +2832,8 @@ client.on('messageCreate', async (message) => {
         const channelId = message.channel.id;
         const now = Date.now();
         
-        // Check user daily token limit (5k per user per day)
-        if (hasUserExceededLimit(userId)) {
+        // Check user daily token limit (5k per user per day) - EXCEPT for bot owner
+        if (userId !== '413515992790990848' && hasUserExceededLimit(userId)) {
             const remaining = getUserRemainingTokens(userId);
             return message.reply(`✅ **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ?`);
         }
@@ -4365,8 +4365,8 @@ client.on('interactionCreate', async (interaction) => {
         const channelId = interaction.channel.id;
         const userId = interaction.user.id;
         
-        // Check user daily token limit (5k per user per day)
-        if (hasUserExceededLimit(userId)) {
+        // Check user daily token limit (5k per user per day) - EXCEPT for bot owner
+        if (userId !== '413515992790990848' && hasUserExceededLimit(userId)) {
             const remaining = getUserRemainingTokens(userId);
             return interaction.reply({
                 content: `✅ **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ?`,
