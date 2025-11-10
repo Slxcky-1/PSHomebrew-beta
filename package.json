@@ -23,8 +23,8 @@
   "private": true,
   "dependencies": {
     "@ai-sdk/deepseek": "^1.0.23",
-    "@ai-sdk/openai": "^1.0.14",
-    "ai": "^5.0.80",
+    "@ai-sdk/openai": "^2.0.65",
+    "ai": "^5.0.91",
     "cheerio": "^1.1.2",
     "discord-gamecord": "^4.4.2",
     "discord.js": "^14.14.1",
