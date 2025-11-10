@@ -3000,7 +3000,7 @@ client.on('messageCreate', async (message) => {
                         apiKey: config.grokApiKey,
                         baseURL: 'https://api.x.ai/v1'
                     });
-                    modelName = 'grok-beta';
+                    modelName = 'grok-4';
                     console.log('🚀 Attempting Grok API call...');
                     try {
                         response = await generateText({
