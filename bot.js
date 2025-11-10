@@ -659,6 +659,7 @@ setInterval(() => {
 // Import AI SDKs
 const { createDeepSeek } = require('@ai-sdk/deepseek');
 const { createOpenAI } = require('@ai-sdk/openai');
+const { createXai } = require('@ai-sdk/xai');
 const { generateText } = require('ai');
 
 // Optimized jailbreak detection - compact patterns
@@ -2996,9 +2997,8 @@ client.on('messageCreate', async (message) => {
                     // Use Grok in its designated channel
                     console.log('✅ Using Grok - API Key exists:', !!config.grokApiKey);
                     aiProvider = '🚀 Grok';
-                    const grok = createOpenAI({ 
-                        apiKey: config.grokApiKey,
-                        baseURL: 'https://api.x.ai/v1'
+                    const grok = createXai({ 
+                        apiKey: config.grokApiKey
                     });
                     modelName = 'grok-4';
                     console.log('🚀 Attempting Grok API call...');
@@ -3021,6 +3021,7 @@ client.on('messageCreate', async (message) => {
                             return message.reply('❌ **Grok API Error: Invalid API key**\n\nThe API key may be incorrect or expired.');
                         } else {
                             return message.reply(`❌ **Grok API Error**\n\n\`\`\`${grokError.message}\`\`\`\n\nFalling back to DeepSeek...`);
+                        }
                         }
                     }
                 } else if (isDeepSeekChannelHere && config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE') {
