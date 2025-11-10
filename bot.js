@@ -2064,6 +2064,7 @@ client.once('clientReady', async () => {
         startCFWKnowledgeScraper();
         startAutomatedMessages();
         checkGiveaways(); // Start giveaway checker
+        startFeatureHealthMonitor(); // Start health monitoring for all features
     }, 1000); // Reduced from 3000ms to 1000ms for faster feature initialization
 });
 
@@ -2124,6 +2125,261 @@ function startMemoryCleanup() {
     }, 600000); // Every 10 minutes
 }
 
+// Comprehensive Feature Health Monitor - checks all major systems
+function startFeatureHealthMonitor() {
+    const healthStatus = {
+        ai: { lastCheck: Date.now(), healthy: true, errors: 0 },
+        leveling: { lastCheck: Date.now(), healthy: true, errors: 0 },
+        economy: { lastCheck: Date.now(), healthy: true, errors: 0 },
+        tickets: { lastCheck: Date.now(), healthy: true, errors: 0 },
+        moderation: { lastCheck: Date.now(), healthy: true, errors: 0 },
+        giveaways: { lastCheck: Date.now(), healthy: true, errors: 0 },
+        youtube: { lastCheck: Date.now(), healthy: true, errors: 0 },
+        serverStats: { lastCheck: Date.now(), healthy: true, errors: 0 },
+        cfwKnowledge: { lastCheck: Date.now(), healthy: true, errors: 0 },
+        automatedMessages: { lastCheck: Date.now(), healthy: true, errors: 0 },
+        raidProtection: { lastCheck: Date.now(), healthy: true, errors: 0 },
+        imageSpam: { lastCheck: Date.now(), healthy: true, errors: 0 }
+    };
+
+    // Check all features every 5 minutes
+    setInterval(async () => {
+        const now = Date.now();
+        let criticalFailures = [];
+
+        try {
+            // Check AI System
+            try {
+                if (config.deepseekApiKey || config.openaiApiKey) {
+                    const activeAI = Object.values(serverSettings).filter(s => s.ai?.enabled).length;
+                    if (activeAI > 0 && Object.keys(aiConversations).length === 0 && now - healthStatus.ai.lastCheck > 600000) {
+                        throw new Error('AI system appears inactive - no conversations detected in 10+ minutes');
+                    }
+                    healthStatus.ai.healthy = true;
+                    healthStatus.ai.errors = 0;
+                }
+            } catch (error) {
+                healthStatus.ai.healthy = false;
+                healthStatus.ai.errors++;
+                if (healthStatus.ai.errors >= 3) {
+                    criticalFailures.push({ feature: 'AI Chat System', error: error.message });
+                }
+            }
+
+            // Check Leveling System
+            try {
+                const activeLeveling = Object.values(serverSettings).filter(s => s.leveling?.enabled).length;
+                if (activeLeveling > 0 && !userData) {
+                    throw new Error('Leveling system enabled but userData is undefined');
+                }
+                if (activeLeveling > 0 && Object.keys(userData).length === 0 && client.guilds.cache.size > 0) {
+                    console.warn('⚠️ Leveling enabled but no user data found');
+                }
+                healthStatus.leveling.healthy = true;
+                healthStatus.leveling.errors = 0;
+            } catch (error) {
+                healthStatus.leveling.healthy = false;
+                healthStatus.leveling.errors++;
+                if (healthStatus.leveling.errors >= 3) {
+                    criticalFailures.push({ feature: 'Leveling System', error: error.message });
+                }
+            }
+
+            // Check Economy System
+            try {
+                if (!economyData || typeof economyData !== 'object') {
+                    throw new Error('Economy data is corrupted or undefined');
+                }
+                healthStatus.economy.healthy = true;
+                healthStatus.economy.errors = 0;
+            } catch (error) {
+                healthStatus.economy.healthy = false;
+                healthStatus.economy.errors++;
+                if (healthStatus.economy.errors >= 3) {
+                    criticalFailures.push({ feature: 'Economy System', error: error.message });
+                }
+            }
+
+            // Check Ticket System
+            try {
+                const activeTickets = Object.values(serverSettings).filter(s => s.tickets?.enabled).length;
+                if (activeTickets > 0 && !ticketData) {
+                    throw new Error('Ticket system enabled but ticketData is undefined');
+                }
+                healthStatus.tickets.healthy = true;
+                healthStatus.tickets.errors = 0;
+            } catch (error) {
+                healthStatus.tickets.healthy = false;
+                healthStatus.tickets.errors++;
+                if (healthStatus.tickets.errors >= 3) {
+                    criticalFailures.push({ feature: 'Ticket System', error: error.message });
+                }
+            }
+
+            // Check Moderation System
+            try {
+                if (!moderationData || typeof moderationData !== 'object') {
+                    throw new Error('Moderation data is corrupted or undefined');
+                }
+                healthStatus.moderation.healthy = true;
+                healthStatus.moderation.errors = 0;
+            } catch (error) {
+                healthStatus.moderation.healthy = false;
+                healthStatus.moderation.errors++;
+                if (healthStatus.moderation.errors >= 3) {
+                    criticalFailures.push({ feature: 'Moderation System', error: error.message });
+                }
+            }
+
+            // Check Giveaway System
+            try {
+                if (!giveawayData || typeof giveawayData !== 'object') {
+                    throw new Error('Giveaway data is corrupted or undefined');
+                }
+                healthStatus.giveaways.healthy = true;
+                healthStatus.giveaways.errors = 0;
+            } catch (error) {
+                healthStatus.giveaways.healthy = false;
+                healthStatus.giveaways.errors++;
+                if (healthStatus.giveaways.errors >= 3) {
+                    criticalFailures.push({ feature: 'Giveaway System', error: error.message });
+                }
+            }
+
+            // Check YouTube Monitoring
+            try {
+                if (fsSync.existsSync('./features/youtubeNotifications.json')) {
+                    const ytData = JSON.parse(fsSync.readFileSync('./features/youtubeNotifications.json', 'utf8'));
+                    const activeYT = Object.values(ytData).filter(config => config.enabled).length;
+                    if (activeYT > 0) {
+                        // System is expected to be running
+                        healthStatus.youtube.healthy = true;
+                    }
+                }
+                healthStatus.youtube.errors = 0;
+            } catch (error) {
+                healthStatus.youtube.healthy = false;
+                healthStatus.youtube.errors++;
+                if (healthStatus.youtube.errors >= 3) {
+                    criticalFailures.push({ feature: 'YouTube Monitoring', error: error.message });
+                }
+            }
+
+            // Check Server Stats
+            try {
+                const activeStats = Object.values(serverSettings).filter(s => s.serverStats?.enabled).length;
+                if (activeStats > 0) {
+                    healthStatus.serverStats.healthy = true;
+                }
+                healthStatus.serverStats.errors = 0;
+            } catch (error) {
+                healthStatus.serverStats.healthy = false;
+                healthStatus.serverStats.errors++;
+                if (healthStatus.serverStats.errors >= 3) {
+                    criticalFailures.push({ feature: 'Server Stats', error: error.message });
+                }
+            }
+
+            // Check CFW Knowledge Updater
+            try {
+                if (!serverSettings || Object.keys(serverSettings).length === 0) {
+                    throw new Error('Server settings undefined or empty');
+                }
+                healthStatus.cfwKnowledge.healthy = true;
+                healthStatus.cfwKnowledge.errors = 0;
+            } catch (error) {
+                healthStatus.cfwKnowledge.healthy = false;
+                healthStatus.cfwKnowledge.errors++;
+                if (healthStatus.cfwKnowledge.errors >= 3) {
+                    criticalFailures.push({ feature: 'CFW Knowledge Updater', error: error.message });
+                }
+            }
+
+            // Check Automated Messages
+            try {
+                if (fsSync.existsSync('./features/general.json')) {
+                    const generalData = JSON.parse(fsSync.readFileSync('./features/general.json', 'utf8'));
+                    const activeAM = Object.values(generalData).filter(config => config.automatedMessages?.enabled).length;
+                    if (activeAM > 0) {
+                        healthStatus.automatedMessages.healthy = true;
+                    }
+                }
+                healthStatus.automatedMessages.errors = 0;
+            } catch (error) {
+                healthStatus.automatedMessages.healthy = false;
+                healthStatus.automatedMessages.errors++;
+                if (healthStatus.automatedMessages.errors >= 3) {
+                    criticalFailures.push({ feature: 'Automated Messages', error: error.message });
+                }
+            }
+
+            // Check Raid Protection
+            try {
+                if (fsSync.existsSync('./features/raidprotection.json')) {
+                    const raidData = JSON.parse(fsSync.readFileSync('./features/raidprotection.json', 'utf8'));
+                    const activeRP = Object.values(raidData).filter(config => config.enabled).length;
+                    if (activeRP > 0) {
+                        healthStatus.raidProtection.healthy = true;
+                    }
+                }
+                healthStatus.raidProtection.errors = 0;
+            } catch (error) {
+                healthStatus.raidProtection.healthy = false;
+                healthStatus.raidProtection.errors++;
+                if (healthStatus.raidProtection.errors >= 3) {
+                    criticalFailures.push({ feature: 'Raid Protection', error: error.message });
+                }
+            }
+
+            // Check Image Spam Detection
+            try {
+                if (fsSync.existsSync('./features/imagespam.json')) {
+                    const spamConfig = JSON.parse(fsSync.readFileSync('./features/imagespam.json', 'utf8'));
+                    if (spamConfig && typeof spamConfig === 'object') {
+                        healthStatus.imageSpam.healthy = true;
+                    }
+                }
+                healthStatus.imageSpam.errors = 0;
+            } catch (error) {
+                healthStatus.imageSpam.healthy = false;
+                healthStatus.imageSpam.errors++;
+                if (healthStatus.imageSpam.errors >= 3) {
+                    criticalFailures.push({ feature: 'Image Spam Detection', error: error.message });
+                }
+            }
+
+            // Update last check times
+            for (const feature in healthStatus) {
+                healthStatus[feature].lastCheck = now;
+            }
+
+            // Log health status
+            const healthySystems = Object.entries(healthStatus).filter(([_, status]) => status.healthy).length;
+            const totalSystems = Object.keys(healthStatus).length;
+            console.log(`🏥 Health Check: ${healthySystems}/${totalSystems} systems healthy`);
+
+            // Send critical failure alerts
+            if (criticalFailures.length > 0) {
+                const failureMessage = criticalFailures.map(f => `❌ **${f.feature}**: ${f.error}`).join('\n');
+                console.error('🚨 CRITICAL FEATURE FAILURES DETECTED:');
+                criticalFailures.forEach(f => console.error(`   - ${f.feature}: ${f.error}`));
+                
+                await logCriticalError(
+                    new Error(`Multiple feature failures detected: ${criticalFailures.map(f => f.feature).join(', ')}`),
+                    'Feature Health Monitor',
+                    null
+                );
+            }
+
+        } catch (monitorError) {
+            console.error('❌ Health monitor encountered an error:', monitorError);
+            await logCriticalError(monitorError, 'Health Monitor System', null);
+        }
+    }, 300000); // Check every 5 minutes
+
+    console.log('🏥 Feature health monitor started');
+}
+
 // YouTube monitoring system
 function startYouTubeMonitoring() {
     const ytDataPath = './features/youtubeNotifications.json';
@@ -2181,7 +2437,8 @@ function startYouTubeMonitoring() {
                         console.log(`📹 Posted new video from ${ytChannel.name} in ${guild.name}`);
                         
                     } catch (error) {
-                        console.error(`? Error checking YouTube channel ${ytChannel.name}:`, error.message);
+                        console.error(`❌ Error checking YouTube channel ${ytChannel.name}:`, error.message);
+                        await logCriticalError(error, `YouTube Monitor - ${ytChannel.name}`, guildId);
                     }
                 }
             }
@@ -2189,6 +2446,7 @@ function startYouTubeMonitoring() {
             // Ignore if file doesn't exist yet
             if (error.code !== 'ENOENT') {
                 console.error('❌ YouTube monitoring error:', error);
+                await logCriticalError(error, 'YouTube Monitoring System', null);
             }
         }
     }
@@ -2207,7 +2465,10 @@ function startYouTubeMonitoring() {
                 }
             }
         } catch (error) {
-            // Silent fail
+            // Silent fail if file doesn't exist
+            if (error.code !== 'ENOENT') {
+                console.error('❌ YouTube monitoring interval error:', error);
+            }
         }
     }, 300000); // Check every 5 minutes (will respect individual guild intervals in future update)
     
@@ -16737,7 +16998,7 @@ function startCFWKnowledgeScraper() {
             
             // Update if version changed
             if (knowledge.evilnatCFW.latestVersion !== latestVersion) {
-                console.log(`? New Evilnat CFW version found: ${latestVersion} (was ${knowledge.evilnatCFW.latestVersion})`);
+                console.log(`🔄 New Evilnat CFW version found: ${latestVersion} (was ${knowledge.evilnatCFW.latestVersion})`);
                 knowledge.evilnatCFW.latestVersion = latestVersion;
                 knowledge.lastUpdated = new Date().toISOString();
                 knowledge.evilnatCFW.source = 'PSX-Place scrape';
@@ -16747,7 +17008,8 @@ function startCFWKnowledgeScraper() {
                 console.log(`✅ CFW knowledge up to date (Evilnat ${latestVersion})`);
             }
         } catch (error) {
-            console.error('? Failed to update CFW knowledge:', error.message);
+            console.error('❌ Failed to update CFW knowledge:', error.message);
+            await logCriticalError(error, 'CFW Knowledge Scraper', null);
         }
     }
     
@@ -16758,10 +17020,15 @@ function startCFWKnowledgeScraper() {
     setInterval(updateCFWKnowledge, 24 * 60 * 60 * 1000);
     console.log('📡 CFW knowledge scraper started (checks every 24 hours)');
     
-    // Start database auto-updater
-    const DatabaseAutoUpdater = require('./features/databaseAutoUpdater.js');
-    const dbUpdater = new DatabaseAutoUpdater(client);
-    dbUpdater.start();
+    // Start database auto-updater with error handling
+    try {
+        const DatabaseAutoUpdater = require('./features/databaseAutoUpdater.js');
+        const dbUpdater = new DatabaseAutoUpdater(client);
+        dbUpdater.start();
+    } catch (error) {
+        console.error('❌ Failed to start database auto-updater:', error.message);
+        logCriticalError(error, 'Database Auto-Updater', null);
+    }
 }
 
 // PS4 Error Code Scraper - Updates error database from online sources (runs on startup only, monthly via updateAIKnowledge)
@@ -16769,18 +17036,24 @@ function startCFWKnowledgeScraper() {
 // ===== GIVEAWAY SYSTEM =====
 function checkGiveaways() {
     setInterval(async () => {
-        const now = Date.now();
-        
-        for (const [messageId, giveaway] of Object.entries(giveawayData)) {
-            if (giveaway.ended) continue;
+        try {
+            const now = Date.now();
             
-            if (now >= giveaway.endTime) {
-                try {
-                    await endGiveaway(messageId, giveaway);
-                } catch (error) {
-                    console.error(`❌ Error ending giveaway ${messageId}:`, error);
+            for (const [messageId, giveaway] of Object.entries(giveawayData)) {
+                if (giveaway.ended) continue;
+                
+                if (now >= giveaway.endTime) {
+                    try {
+                        await endGiveaway(messageId, giveaway);
+                    } catch (error) {
+                        console.error(`❌ Error ending giveaway ${messageId}:`, error);
+                        await logCriticalError(error, 'Giveaway End Handler', giveaway.guildId);
+                    }
                 }
             }
+        } catch (error) {
+            console.error('❌ Giveaway checker encountered critical error:', error);
+            await logCriticalError(error, 'Giveaway System', null);
         }
     }, 10000); // Check every 10 seconds
 }
@@ -17195,25 +17468,29 @@ function startAutomatedMessages() {
         
         const msUntil7PM = next7PM - now;
         
-        setTimeout(() => {
+        setTimeout(async () => {
             try {
                 const channel = client.channels.cache.get(CHANNEL_ID);
                 if (channel) {
                     // Format: ## for bigger text, ** for bold
                     const reminders = [
                         "## **Don't forget to check out `/pcommands` to see all server commands!** ✅",
-                        "## **Reminder: Use `/pcommands` to explore all the cool features I have!** ?",
-                        "## **Hey! Did you know you can type `/pcommands` to see everything I can do?** ✅",
-                        "## **Pro tip: Check `/pcommands` for a full list of server features!** ✅",
-                        "## **Don't miss out! Use `/pcommands` to discover all available commands!** ✅"
+                        "## **Reminder: Use `/pcommands` to explore all the cool features I have!** 🎮",
+                        "## **Hey! Did you know you can type `/pcommands` to see everything I can do?** 🤖",
+                        "## **Pro tip: Check `/pcommands` for a full list of server features!** 💡",
+                        "## **Don't miss out! Use `/pcommands` to discover all available commands!** 🚀"
                     ];
                     
                     const randomReminder = reminders[Math.floor(Math.random() * reminders.length)];
-                    channel.send(randomReminder);
-                    console.log('? Sent daily 7 PM reminder');
+                    await channel.send(randomReminder);
+                    console.log('📢 Sent daily 7 PM reminder');
+                } else {
+                    console.error('❌ Automated message channel not found:', CHANNEL_ID);
+                    await logCriticalError(new Error('Automated message channel not found'), 'Automated Messages', null);
                 }
             } catch (error) {
-                console.error('? Failed to send daily reminder:', error);
+                console.error('❌ Failed to send daily reminder:', error);
+                await logCriticalError(error, 'Automated Messages', null);
             }
             
             // Schedule next day's reminder (24 hours)
@@ -17224,8 +17501,13 @@ function startAutomatedMessages() {
     }
     
     // Start daily reminder only
-    scheduleDailyReminder();
-    console.log('⏰ Daily 7 PM reminder started for channel ' + CHANNEL_ID);
+    try {
+        scheduleDailyReminder();
+        console.log('⏰ Daily 7 PM reminder started for channel ' + CHANNEL_ID);
+    } catch (error) {
+        console.error('❌ Failed to start automated messages:', error);
+        logCriticalError(error, 'Automated Messages Startup', null);
+    }
 }
 
 // ===== SELLHUB WEBHOOK SYSTEM =====
