@@ -2996,12 +2996,28 @@ client.on('messageCreate', async (message) => {
                         baseURL: 'https://api.x.ai/v1'
                     });
                     modelName = 'grok-beta';
-                    response = await generateText({
-                        model: grok(modelName),
-                        messages,
-                        temperature: settings.ai.temperature,
-                        maxTokens: toneConfig.maxTokens
-                    });
+                    console.log('🚀 Attempting Grok API call...');
+                    try {
+                        response = await generateText({
+                            model: grok(modelName),
+                            messages,
+                            temperature: settings.ai.temperature,
+                            maxTokens: toneConfig.maxTokens
+                        });
+                        console.log('✅ Grok API call successful');
+                    } catch (grokError) {
+                        console.error('❌ Grok API Error:', grokError.message);
+                        console.error('Full error:', JSON.stringify(grokError, null, 2));
+                        
+                        // Check if it's a credit/billing issue
+                        if (grokError.message?.includes('insufficient') || grokError.message?.includes('credit') || grokError.message?.includes('quota')) {
+                            return message.reply('❌ **Grok API Error: Insufficient credits**\n\nThe Grok API key may need to be topped up with credits. Please check your X.AI account balance.');
+                        } else if (grokError.message?.includes('401') || grokError.message?.includes('unauthorized')) {
+                            return message.reply('❌ **Grok API Error: Invalid API key**\n\nThe API key may be incorrect or expired.');
+                        } else {
+                            return message.reply(`❌ **Grok API Error**\n\n\`\`\`${grokError.message}\`\`\`\n\nFalling back to DeepSeek...`);
+                        }
+                    }
                 } else {
                     // Use DeepSeek for all other channels (or fallback if OpenAI/Grok keys missing)
                     aiProvider = '🤖 DeepSeek';
