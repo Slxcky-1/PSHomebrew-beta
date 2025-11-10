@@ -2930,8 +2930,8 @@ client.on('messageCreate', async (message) => {
         // Process AI (async, non-blocking)
         (async () => {
             try {
-                // AGGRESSIVE search detection - search for almost any technical question
-                const shouldSearch = /\b(latest|recent|current|today|news|what's new|search|look up|find|202[45]|who is|what is|when is|where|download|get|install|jailbreak|hack|exploit|firmware|cfw|ofw|homebrew|pkg|rap|license|tool|app|emulator|ps[12345]|psp|vita|error|code|fix|solve|guide|tutorial|how to|explain|step|instruction|verify|trusted|source|site|website|link|repo|github|update|version|compatible|work|support|available|best|recommend|game|backup)\b/i.test(message.content);
+                // AGGRESSIVE search detection - search for almost any technical question (skip for bot owner for speed)
+                const shouldSearch = userId !== '413515992790990848' && /\b(latest|recent|current|today|news|what's new|search|look up|find|202[45]|who is|what is|when is|where|download|get|install|jailbreak|hack|exploit|firmware|cfw|ofw|homebrew|pkg|rap|license|tool|app|emulator|ps[12345]|psp|vita|error|code|fix|solve|guide|tutorial|how to|explain|step|instruction|verify|trusted|source|site|website|link|repo|github|update|version|compatible|work|support|available|best|recommend|game|backup)\b/i.test(message.content);
                 
                 // Start web search in parallel (don't await yet)
                 const searchPromise = shouldSearch ? searchWeb(message.content) : Promise.resolve(null);
@@ -3000,7 +3000,7 @@ client.on('messageCreate', async (message) => {
                     const grok = createXai({ 
                         apiKey: config.grokApiKey
                     });
-                    modelName = 'grok-4';
+                    modelName = 'grok-4-fast-non-reasoning'; // Fast version - much quicker responses
                     console.log('🚀 Attempting Grok API call...');
                     try {
                         response = await generateText({
