@@ -3022,7 +3022,6 @@ client.on('messageCreate', async (message) => {
                         } else {
                             return message.reply(`❌ **Grok API Error**\n\n\`\`\`${grokError.message}\`\`\`\n\nFalling back to DeepSeek...`);
                         }
-                        }
                     }
                 } else if (isDeepSeekChannelHere && config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE') {
                     // Use DeepSeek in its designated channel
