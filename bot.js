@@ -2971,9 +2971,10 @@ client.on('messageCreate', async (message) => {
                     }
                 }
                 
-                // Smart AI selection - ChatGPT ONLY in channel 1433480720776433664, Grok in another specific channel, DeepSeek everywhere else
+                // Smart AI selection - Each AI provider has its own dedicated channel
                 const isChatGPTChannelHere = message.channel.id === '1433480720776433664';
                 const isGrokChannelHere = message.channel.id === '1437545574026186938';
+                const isDeepSeekChannelHere = message.channel.id === '1431740126546890843';
                 
                 let aiProvider, modelName, response;
                 
@@ -3018,8 +3019,8 @@ client.on('messageCreate', async (message) => {
                             return message.reply(`❌ **Grok API Error**\n\n\`\`\`${grokError.message}\`\`\`\n\nFalling back to DeepSeek...`);
                         }
                     }
-                } else {
-                    // Use DeepSeek for all other channels (or fallback if OpenAI/Grok keys missing)
+                } else if (isDeepSeekChannelHere && config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE') {
+                    // Use DeepSeek in its designated channel
                     aiProvider = '🤖 DeepSeek';
                     const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
                     modelName = settings.ai.model;
@@ -3034,6 +3035,9 @@ client.on('messageCreate', async (message) => {
                         maxTokens: strictMaxTokens,
                         maxRetries: 1 // Don't retry on failure to save tokens
                     });
+                } else {
+                    // No valid AI channel - ignore the message
+                    return;
                 }
                 
                 const text = response.text;
