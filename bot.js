@@ -2973,7 +2973,7 @@ client.on('messageCreate', async (message) => {
                 
                 // Smart AI selection - ChatGPT ONLY in channel 1433480720776433664, Grok in another specific channel, DeepSeek everywhere else
                 const isChatGPTChannelHere = message.channel.id === '1433480720776433664';
-                const isGrokChannelHere = message.channel.id === '1437534647239311551';
+                const isGrokChannelHere = message.channel.id === '1437545574026186938';
                 
                 let aiProvider, modelName, response;
                 
