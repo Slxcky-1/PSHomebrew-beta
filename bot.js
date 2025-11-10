@@ -2929,9 +2929,6 @@ client.on('messageCreate', async (message) => {
         // Process AI (async, non-blocking)
         (async () => {
             try {
-                // Show typing indicator immediately for faster perceived response
-                await message.channel.sendTyping();
-                
                 // AGGRESSIVE search detection - search for almost any technical question
                 const shouldSearch = /\b(latest|recent|current|today|news|what's new|search|look up|find|202[45]|who is|what is|when is|where|download|get|install|jailbreak|hack|exploit|firmware|cfw|ofw|homebrew|pkg|rap|license|tool|app|emulator|ps[12345]|psp|vita|error|code|fix|solve|guide|tutorial|how to|explain|step|instruction|verify|trusted|source|site|website|link|repo|github|update|version|compatible|work|support|available|best|recommend|game|backup)\b/i.test(message.content);
                 
