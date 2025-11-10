@@ -3007,7 +3007,20 @@ client.on('messageCreate', async (message) => {
                             model: grok(modelName),
                             messages,
                             temperature: settings.ai.temperature,
-                            maxTokens: toneConfig.maxTokens
+                            maxTokens: toneConfig.maxTokens,
+                            providerOptions: {
+                                xai: {
+                                    searchParameters: {
+                                        mode: 'auto', // Let Grok decide when to search
+                                        returnCitations: true,
+                                        maxSearchResults: 5,
+                                        sources: [
+                                            { type: 'web' },
+                                            { type: 'news' }
+                                        ]
+                                    }
+                                }
+                            }
                         });
                         console.log('✅ Grok API call successful');
                     } catch (grokError) {
