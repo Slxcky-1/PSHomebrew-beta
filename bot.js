@@ -2929,42 +2929,50 @@ client.on('messageCreate', async (message) => {
         // Process AI (async, non-blocking)
         (async () => {
             try {
+                // Show typing indicator immediately for faster perceived response
+                await message.channel.sendTyping();
+                
                 // AGGRESSIVE search detection - search for almost any technical question
-                let searchContext = '';
-                let searchResults = null;
                 const shouldSearch = /\b(latest|recent|current|today|news|what's new|search|look up|find|202[45]|who is|what is|when is|where|download|get|install|jailbreak|hack|exploit|firmware|cfw|ofw|homebrew|pkg|rap|license|tool|app|emulator|ps[12345]|psp|vita|error|code|fix|solve|guide|tutorial|how to|explain|step|instruction|verify|trusted|source|site|website|link|repo|github|update|version|compatible|work|support|available|best|recommend|game|backup)\b/i.test(message.content);
                 
+                // Start web search in parallel (don't await yet)
+                const searchPromise = shouldSearch ? searchWeb(message.content) : Promise.resolve(null);
+                
+                // Build message array while search runs in background
+                let searchContext = '';
+                const messages = [
+                    { role: 'system', content: `${settings.ai.systemPrompt}\n\n${toneConfig.instruction}` },
+                    ...aiConversations[channelId].map(m => ({ role: m.role, content: m.content }))
+                ];
+                
+                // Wait for search to complete and add context if available
                 if (shouldSearch) {
-                    const results = await searchWeb(message.content);
+                    const results = await searchPromise;
                     if (results?.length) {
-                        searchResults = results; // Already validated by searchWeb
                         // Provide full context to AI including URLs with live status
-                        const liveLinks = searchResults.filter(r => r.isLive);
-                        const deadLinks = searchResults.filter(r => !r.isLive);
+                        const liveLinks = results.filter(r => r.isLive);
+                        const deadLinks = results.filter(r => !r.isLive);
                         
                         searchContext = '\n\n🔗 VERIFIED SOURCES - YOU MUST INCLUDE THESE LINKS IN YOUR RESPONSE:\n';
                         
                         if (liveLinks.length > 0) {
-                            searchContext += 'LIVE LINKS (? Verified accessible):\n' + liveLinks.map((r, i) => 
+                            searchContext += 'LIVE LINKS (✅ Verified accessible):\n' + liveLinks.map((r, i) => 
                                 `${i + 1}. ${r.title}\n   ${r.description}\n   🔗 Link: ${r.url} ${r.status}`
                             ).join('\n\n');
                         }
                         
                         if (deadLinks.length > 0) {
-                            searchContext += '\n\n? DEAD LINKS (DO NOT RECOMMEND THESE):\n' + deadLinks.map((r, i) => 
+                            searchContext += '\n\n❌ DEAD LINKS (DO NOT RECOMMEND THESE):\n' + deadLinks.map((r, i) => 
                                 `${i + 1}. ${r.title} - ${r.url} (NOT ACCESSIBLE)`
                             ).join('\n');
                         }
                         
-                        searchContext += '\n\n⚠️ CRITICAL: Always include 2-3 relevant website links in your response. ONLY recommend LIVE LINKS (✅). DO NOT include dead/broken links (❌). Format links as PLAIN URLs ONLY (just the URL, no markdown brackets). Discord will auto-format them. DO NOT use [text](url) syntax. Example: ✅ https://wololo.net/category/ps5/ | ? [Wololo](https://wololo.net). Users need direct access to download pages, guides, and tools.';
+                        searchContext += '\n\n⚠️ CRITICAL: Always include 2-3 relevant website links in your response. ONLY recommend LIVE LINKS (✅). DO NOT include dead/broken links (❌). Format links as PLAIN URLs ONLY (just the URL, no markdown brackets). Discord will auto-format them. DO NOT use [text](url) syntax. Example: ✅ https://wololo.net/category/ps5/ | ❌ [Wololo](https://wololo.net). Users need direct access to download pages, guides, and tools.';
+                        
+                        // Update system message with search context
+                        messages[0].content += searchContext;
                     }
                 }
-                
-                // Build message array (strip metadata for token efficiency)
-                const messages = [
-                    { role: 'system', content: `${settings.ai.systemPrompt}\n\n${toneConfig.instruction}${searchContext}` },
-                    ...aiConversations[channelId].map(m => ({ role: m.role, content: m.content }))
-                ];
                 
                 // Smart AI selection - ChatGPT ONLY in channel 1433480720776433664, Grok in another specific channel, DeepSeek everywhere else
                 const isChatGPTChannelHere = message.channel.id === '1433480720776433664';
@@ -3103,17 +3111,24 @@ client.on('messageCreate', async (message) => {
                 aiConversations[channelId].push({ role: 'assistant', content: compressedResponse, timestamp: now });
 
                 // Send response with OUTPUT token usage only (not total tokens)
-                const tokenFooter = aiProvider === '✅ ChatGPT' 
+                const tokenFooter = aiProvider.includes('ChatGPT') 
                     ? `\n\n*💬 ChatGPT: ${outputTokens} tokens*`
+                    : aiProvider.includes('Grok')
+                    ? `\n\n*🚀 Grok: ${outputTokens} tokens*`
                     : `\n\n*🤖 DeepSeek: ${outputTokens} tokens*`;
                 
                 const finalResponse = safeText + linkReminderMessage + tokenFooter;
                 
-                if (finalResponse.length > 1900) {
-                    const chunks = finalResponse.match(/[\s\S]{1,1900}/g) || [];
+                // Optimized message splitting - send immediately without unnecessary iteration
+                if (finalResponse.length > 2000) {
+                    const chunks = [];
+                    for (let i = 0; i < finalResponse.length; i += 2000) {
+                        chunks.push(finalResponse.slice(i, i + 2000));
+                    }
                     await message.reply(chunks[0]);
-                    for (let i = 1; i < chunks.length - 1; i++) await message.channel.send(chunks[i]);
-                    await message.channel.send(chunks[chunks.length - 1]);
+                    for (let i = 1; i < chunks.length; i++) {
+                        await message.channel.send(chunks[i]);
+                    }
                 } else {
                     await message.reply(finalResponse);
                 }
