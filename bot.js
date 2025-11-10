@@ -2822,6 +2822,11 @@ client.on('messageCreate', async (message) => {
         // Don't respond to users in automated message channel
         if (message.channel.id === '920750934085222470') return;
         
+        // Don't respond if message mentions other users (not the bot)
+        const mentionsOtherUsers = message.mentions.users.size > 0 && 
+                                   !message.mentions.users.has(client.user.id);
+        if (mentionsOtherUsers) return;
+        
         const userId = message.author.id;
         const channelId = message.channel.id;
         const now = Date.now();
