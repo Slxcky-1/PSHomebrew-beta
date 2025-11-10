@@ -2807,12 +2807,12 @@ client.on('messageCreate', async (message) => {
     }
     
     // AI Chat in designated channel - Optimized (includes ChatGPT channel)
-    const isChatGPTChannel = message.channel.id === '1433480720776433664';
+    // AI response system - channel-specific providers (ChatGPT, Grok, DeepSeek)
+    const isAIChatChannel = message.channel.id === '1433480720776433664' || // ChatGPT
+                           message.channel.id === '1437545574026186938' || // Grok
+                           message.channel.id === '1431740126546890843';   // DeepSeek
     
-    // DEBUG: Check AI settings
-    console.log(`🔍 AI Check: enabled=${settings.ai?.enabled}, channelName=${settings.ai?.channelName}, channelId=${settings.ai?.channelId}, isChatGPT=${isChatGPTChannel}`);
-    
-    if (settings.ai?.enabled && (message.channel.name === settings.ai.channelName || message.channel.id === settings.ai.channelId || isChatGPTChannel)) {
+    if (isAIChatChannel && settings.ai?.enabled) {
         console.log(`🤖 AI triggered in channel: ${message.channel.name} (${message.channel.id})`);
         if (message.author.bot || !config.deepseekApiKey || config.deepseekApiKey === 'YOUR_DEEPSEEK_API_KEY_HERE') {
             console.log(`❌ AI blocked: bot=${message.author.bot}, hasKey=${!!config.deepseekApiKey}`);
