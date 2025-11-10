@@ -2976,10 +2976,13 @@ client.on('messageCreate', async (message) => {
                 const isGrokChannelHere = message.channel.id === '1437545574026186938';
                 const isDeepSeekChannelHere = message.channel.id === '1431740126546890843';
                 
+                console.log(`🔍 Channel check: ChatGPT=${isChatGPTChannelHere}, Grok=${isGrokChannelHere}, DeepSeek=${isDeepSeekChannelHere}`);
+                
                 let aiProvider, modelName, response;
                 
                 if (isChatGPTChannelHere && config.openaiApiKey && config.openaiApiKey !== 'YOUR_OPENAI_API_KEY_HERE') {
                     // Use ChatGPT exclusively in the designated channel
+                    console.log('✅ Using ChatGPT');
                     aiProvider = '✅ ChatGPT';
                     const openai = createOpenAI({ apiKey: config.openaiApiKey });
                     modelName = 'gpt-4o-mini';
@@ -2991,6 +2994,7 @@ client.on('messageCreate', async (message) => {
                     });
                 } else if (isGrokChannelHere && config.grokApiKey && config.grokApiKey !== 'YOUR_GROK_API_KEY_HERE') {
                     // Use Grok in its designated channel
+                    console.log('✅ Using Grok - API Key exists:', !!config.grokApiKey);
                     aiProvider = '🚀 Grok';
                     const grok = createOpenAI({ 
                         apiKey: config.grokApiKey,
