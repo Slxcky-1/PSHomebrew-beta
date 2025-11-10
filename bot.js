@@ -1950,12 +1950,12 @@ client.once('clientReady', async () => {
         }
         console.log(`🤖 AI: ${activeCount.ai} | Leveling: ${activeCount.leveling} | Tickets: ${activeCount.tickets}`);
         
-        // Apply server-specific customizations to all servers
+        // Apply server-specific customizations to all servers (deferred)
         console.log('⚙️ Applying server customizations...');
         client.guilds.cache.forEach(async (guild) => {
             await applyServerCustomization(guild);
         });
-    }, 2000);
+    }, 500); // Reduced from 2000ms to 500ms for faster startup
     
     // Check if bot was restarted via /update command
     try {
@@ -2064,7 +2064,7 @@ client.once('clientReady', async () => {
         startCFWKnowledgeScraper();
         startAutomatedMessages();
         checkGiveaways(); // Start giveaway checker
-    }, 3000);
+    }, 1000); // Reduced from 3000ms to 1000ms for faster feature initialization
 });
 
 // Memory cleanup for AI conversations and cooldowns
@@ -2193,8 +2193,8 @@ function startYouTubeMonitoring() {
         }
     }
     
-    // Initial check after 30 seconds
-    setTimeout(checkYouTubeChannels, 30000);
+    // Initial check after 2 minutes (deferred to reduce startup load)
+    setTimeout(checkYouTubeChannels, 120000); // Changed from 30s to 120s
     
     // Set up periodic checking (will use each guild's interval)
     setInterval(async () => {
@@ -16267,8 +16267,8 @@ async function updateAIKnowledge() {
     }
 }
 
-// Run AI knowledge update on startup (reduced to 5 seconds for faster updates)
-setTimeout(() => updateAIKnowledge(), 5000); // 5 seconds after bot starts
+// Run AI knowledge update on startup (deferred to 60 seconds for faster bot startup)
+setTimeout(() => updateAIKnowledge(), 60000); // 60 seconds after bot starts - allows bot to be ready faster
 
 // Schedule 24-hour updates (runs every day to keep AI knowledge fresh)
 setInterval(() => {
