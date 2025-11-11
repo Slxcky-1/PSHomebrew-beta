@@ -2613,9 +2613,11 @@ client.on('messageCreate', async (message) => {
         
         if (hasImage) {
             try {
-                // React in order: ❤️ 💯 🔥
+                // React in order: ❤️ 💯 🔥 with small delays
                 await message.react('❤️');
+                await new Promise(resolve => setTimeout(resolve, 300));
                 await message.react('💯');
+                await new Promise(resolve => setTimeout(resolve, 300));
                 await message.react('🔥');
             } catch (error) {
                 console.error('Error adding vouches reactions:', error);
