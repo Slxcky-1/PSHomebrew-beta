@@ -2604,6 +2604,25 @@ client.on('messageCreate', async (message) => {
     const day = messageDate.getDay(); // 0 = Sunday, 6 = Saturday
     analytics.messages.byHour[hour]++;
     analytics.messages.byDay[day]++;
+
+    // Auto-reactions for vouches channel (1433555607176085565)
+    if (message.channel.id === '1433555607176085565') {
+        const hasImage = message.attachments.size > 0 && message.attachments.some(att => 
+            att.contentType && att.contentType.startsWith('image/')
+        );
+        
+        if (hasImage) {
+            try {
+                // React in order: ❤️ 💯 🔥
+                await message.react('❤️');
+                await message.react('💯');
+                await message.react('🔥');
+            } catch (error) {
+                console.error('Error adding vouches reactions:', error);
+            }
+        }
+    }
+
 // Auto-thread channel (1094846351101132872) - Create thread for images, delete text-only messages
     if (message.channel.id === '1094846351101132872') {
         const hasImage = message.attachments.size > 0 && message.attachments.some(att => 
