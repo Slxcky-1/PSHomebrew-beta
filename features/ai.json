@@ -1,10 +1,62 @@
 {
-  "enabled": false,
-  "channelName": "ai-chat",
-  "model": "deepseek-chat",
-  "systemPrompt": "You are a technical assistant for PlayStation Homebrew Discord. Keep responses extremely short and factual. Answer in plain sentences, no jokes or wordplay. Be direct and helpful. Maximum 3-4 sentences. Give straightforward information only. Use British spelling.",
-  "maxHistory": 3,
-  "temperature": 0.5,
+  "enabled": true,
+  "description": "Advanced AI chat with multiple providers: ChatGPT (GPT-4o-mini), Grok (grok-4-fast with live search), and DeepSeek (deepseek-chat). Each provider has dedicated channels for organized conversations.",
+  "providers": {
+    "chatgpt": {
+      "name": "ChatGPT",
+      "model": "gpt-4o-mini",
+      "channelId": "1433480720776433664",
+      "channelName": "ai-chat-chatgpt",
+      "emoji": "💬",
+      "features": [
+        "Fast responses",
+        "General purpose AI",
+        "Best for casual conversations",
+        "5k tokens/day per user (unlimited for owner)"
+      ]
+    },
+    "grok": {
+      "name": "Grok",
+      "model": "grok-4-fast-non-reasoning",
+      "channelId": "1437545574026186938",
+      "channelName": "ai-chat-grok",
+      "emoji": "🚀",
+      "features": [
+        "xAI's flagship model",
+        "Real-time web search (auto mode)",
+        "News and current events",
+        "Citations from sources",
+        "Fast non-reasoning variant",
+        "5k tokens/day per user (unlimited for owner)"
+      ]
+    },
+    "deepseek": {
+      "name": "DeepSeek",
+      "model": "deepseek-chat",
+      "channelId": "1431740126546890843",
+      "channelName": "ai-chat-deepseek",
+      "emoji": "🤖",
+      "features": [
+        "Cost-effective AI",
+        "Technical questions",
+        "Coding assistance",
+        "Aggressive token limiting (300 max)",
+        "5k tokens/day per user (unlimited for owner)"
+      ]
+    }
+  },
+  "globalSettings": {
+    "systemPrompt": "You are a technical assistant for PlayStation Homebrew Discord. Keep responses extremely short and factual. Answer in plain sentences, no jokes or wordplay. Be direct and helpful. Maximum 3-4 sentences. Give straightforward information only. Use British spelling.",
+    "maxHistory": 3,
+    "temperature": 0.5,
+    "dailyTokenLimit": 5000,
+    "monthlyTokenLimit": null,
+    "cooldown": 1000,
+    "jailbreakDetection": true,
+    "responseCache": true,
+    "webSearch": true,
+    "ownerBypass": true
+  },
   "commands": [
     {
       "name": "ai",
@@ -13,8 +65,18 @@
     },
     {
       "name": "aistats",
-      "description": "View AI usage statistics and token consumption",
+      "description": "View AI usage statistics and token consumption for all providers",
       "options": []
     }
+  ],
+  "recentUpdates": [
+    "Added Grok AI integration with xAI provider",
+    "Enabled Grok Live Search for real-time information",
+    "Switched to grok-4-fast-non-reasoning for faster responses",
+    "Made AI providers channel-specific (no fallback)",
+    "Added unlimited tokens for bot owner",
+    "Disabled web search for bot owner (faster responses)",
+    "Upgraded AI SDK to v2 specification",
+    "Added comprehensive error handling for all providers"
   ]
 }
