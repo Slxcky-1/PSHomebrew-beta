@@ -1,8 +1,55 @@
 {
-    "commands": [
-        {
-            "name": "leveling",
-            "description": "Interactive leveling system setup panel (Admin only)"
-        }
+  "enabled": true,
+  "description": "Advanced XP and leveling system with customizable rewards, multipliers, and leaderboards.",
+  "features": {
+    "xpGain": "Earn XP from messages (cooldown-based)",
+    "levelUp": "Level up and receive announcements",
+    "rewards": "Assign roles automatically on level milestones",
+    "leaderboard": "View top ranked members",
+    "multipliers": "Bonus XP for boosters and special roles",
+    "stack": "View your current level and XP progress",
+    "customization": "Admin control over XP rates, cooldowns, and rewards"
+  },
+  "xpSystem": {
+    "baseXP": "15-25 XP per message",
+    "cooldown": "60 seconds between XP gains",
+    "formula": "XP required = level * 100",
+    "boosterBonus": "+50% XP for server boosters",
+    "voiceXP": "Optional voice channel XP gain"
+  },
+  "rewards": {
+    "type": "Role assignments",
+    "customizable": true,
+    "examples": [
+      "Level 5 → Bronze Member",
+      "Level 10 → Silver Member",
+      "Level 25 → Gold Member",
+      "Level 50 → Platinum Member"
     ]
+  },
+  "commands": [
+    {
+      "name": "leveling",
+      "description": "Interactive leveling system setup panel - configure XP rates, rewards, and settings (Admin only)"
+    },
+    {
+      "name": "rank",
+      "description": "View your or another user's rank card with level, XP, and progress"
+    },
+    {
+      "name": "leaderboard",
+      "description": "View server XP/level leaderboard with top ranked members"
+    }
+  ],
+  "adminFeatures": [
+    "Enable/disable system",
+    "Set XP gain range",
+    "Configure cooldown",
+    "Add level role rewards",
+    "Remove level rewards",
+    "Set announcement channel",
+    "Toggle level-up messages",
+    "Reset user XP",
+    "Bulk XP modifications"
+  ]
 }

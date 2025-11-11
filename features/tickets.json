@@ -1,8 +1,91 @@
 {
-    "commands": [
-        {
-            "name": "ticket",
-            "description": "Open a support ticket"
-        }
+  "enabled": true,
+  "description": "Professional ticket system for support requests with category selection, transcripts, and staff management.",
+  "features": {
+    "ticketCreation": "Users create tickets with category selection",
+    "privateChannels": "Each ticket gets a private channel",
+    "staffPing": "Auto-ping support staff on ticket creation",
+    "categories": "Organize tickets by support type",
+    "transcripts": "Save full ticket conversations",
+    "closing": "Staff can close and archive tickets",
+    "claiming": "Staff can claim tickets for assignment",
+    "userLimit": "Prevent ticket spam (1 open ticket per user)"
+  },
+  "categories": [
+    {
+      "name": "General Support",
+      "emoji": "❓",
+      "description": "General questions and help"
+    },
+    {
+      "name": "Technical Issue",
+      "emoji": "🔧",
+      "description": "Bug reports and technical problems"
+    },
+    {
+      "name": "Account Issue",
+      "emoji": "👤",
+      "description": "Account related problems"
+    },
+    {
+      "name": "Report User",
+      "emoji": "⚠️",
+      "description": "Report rule violations"
+    },
+    {
+      "name": "Other",
+      "emoji": "📝",
+      "description": "Other inquiries"
+    }
+  },
+  "commands": [
+    {
+      "name": "ticket",
+      "description": "Create a new support ticket - opens category selection menu"
+    },
+    {
+      "name": "ticketsetup",
+      "description": "Configure ticket system settings (Admin only)",
+      "settings": [
+        "Set support role",
+        "Set ticket category",
+        "Set log channel",
+        "Enable/disable system",
+        "Configure transcript saving"
+      ]
+    }
+  ],
+  "ticketActions": {
+    "claim": "Staff member claims the ticket",
+    "close": "Close ticket and create transcript",
+    "transcript": "Save conversation to text file",
+    "delete": "Permanently delete ticket channel"
+  },
+  "permissions": {
+    "users": [
+      "Create tickets",
+      "View their own tickets",
+      "Send messages in tickets"
+    ],
+    "staff": [
+      "View all tickets",
+      "Claim tickets",
+      "Close tickets",
+      "Delete tickets",
+      "Access transcripts"
     ]
+  },
+  "storage": {
+    "file": "data/ticketData.json",
+    "transcripts": "Saved as text attachments",
+    "tracks": [
+      "Ticket ID",
+      "Creator",
+      "Category",
+      "Status",
+      "Claimed by",
+      "Created timestamp",
+      "Closed timestamp"
+    ]
+  }
 }

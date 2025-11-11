@@ -1,8 +1,85 @@
 {
-    "commands": [
-        {
-            "name": "moderator",
-            "description": "Configure moderation settings (Admin only)"
-        }
+  "enabled": true,
+  "description": "Comprehensive moderation tools including warnings, kicks, bans, mutes, and automated logging.",
+  "features": {
+    "warnings": "Issue warnings to users with reason tracking",
+    "kicks": "Remove users from server temporarily",
+    "bans": "Permanently ban users with reason logging",
+    "mutes": "Timeout users temporarily",
+    "infractions": "Track user infraction history",
+    "automod": "Automated spam and raid protection",
+    "logging": "Detailed moderation action logs",
+    "appeals": "Users can view their infractions"
+  },
+  "commands": [
+    {
+      "name": "moderator",
+      "description": "Main moderation control panel - access all mod tools via interactive buttons (Admin only)",
+      "subFeatures": [
+        "Warn users",
+        "Kick members",
+        "Ban members",
+        "Mute/timeout users",
+        "View infractions",
+        "Clear infractions",
+        "Configure settings"
+      ]
+    },
+    {
+      "name": "warn",
+      "description": "Issue a warning to a user with optional reason"
+    },
+    {
+      "name": "kick",
+      "description": "Kick a member from the server"
+    },
+    {
+      "name": "ban",
+      "description": "Ban a member from the server"
+    },
+    {
+      "name": "mute",
+      "description": "Timeout a member for specified duration"
+    },
+    {
+      "name": "infractions",
+      "description": "View a user's moderation history"
+    },
+    {
+      "name": "clearinfractions",
+      "description": "Clear a user's moderation history"
+    }
+  ],
+  "logging": {
+    "actions": [
+      "Warns",
+      "Kicks",
+      "Bans",
+      "Mutes",
+      "Message deletes",
+      "Bulk deletes",
+      "Member joins/leaves",
+      "Role changes",
+      "Channel updates"
+    ],
+    "format": "Detailed embeds with timestamps, moderator info, and reasons"
+  },
+  "automation": {
+    "raidProtection": "Auto-kick rapid joins",
+    "spamFilter": "Detect and timeout spammers",
+    "imageSpam": "Prevent rapid image posting across channels",
+    "linkFilter": "Optional suspicious link detection",
+    "massModeration": "Bulk moderation tools"
+  },
+  "dataTracking": {
+    "storage": "data/moderationData.json",
+    "fields": [
+      "User ID",
+      "Action type",
+      "Moderator",
+      "Reason",
+      "Timestamp",
+      "Duration (for mutes)"
     ]
+  }
 }

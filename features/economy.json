@@ -1,10 +1,94 @@
 {
   "enabled": true,
-  "economy": {},
+  "description": "Complete economy system with earning, gambling, shopping, trading, and competitive features.",
+  "currency": {
+    "name": "Dollars",
+    "symbol": "$",
+    "emoji": "💵"
+  },
+  "features": {
+    "wallet": "Store your active money",
+    "bank": "Store money safely (can't be robbed)",
+    "daily": "Claim daily rewards (cooldown applies)",
+    "work": "Work jobs to earn money",
+    "rob": "Rob other users (risk getting caught)",
+    "gamble": "Play casino games (blackjack, slots, coinflip, dice)",
+    "shop": "Buy special items and power-ups",
+    "inventory": "Manage your owned items",
+    "trade": "Trade items with other users",
+    "leaderboard": "Compete for top richest user",
+    "lottery": "Buy tickets for jackpot draws",
+    "pay": "Send money to other users",
+    "achievements": "Unlock economy achievements"
+  },
+  "items": [
+    {
+      "name": "XP Boost",
+      "emoji": "⚡",
+      "price": 5000,
+      "duration": "1 hour",
+      "effect": "Double XP gain"
+    },
+    {
+      "name": "Rob Protection",
+      "emoji": "🛡️",
+      "price": 3000,
+      "duration": "24 hours",
+      "effect": "Protect from robberies"
+    },
+    {
+      "name": "Lucky Charm",
+      "emoji": "🍀",
+      "price": 10000,
+      "duration": "30 minutes",
+      "effect": "Increased gambling wins"
+    }
+  ],
+  "games": [
+    {
+      "name": "Blackjack",
+      "emoji": "🃏",
+      "minBet": 100,
+      "maxBet": 10000,
+      "description": "Classic card game - get 21 or closer than dealer"
+    },
+    {
+      "name": "Slots",
+      "emoji": "🎰",
+      "minBet": 50,
+      "maxBet": 5000,
+      "description": "Spin the slots - match symbols to win"
+    },
+    {
+      "name": "Coinflip",
+      "emoji": "🪙",
+      "minBet": 100,
+      "maxBet": 50000,
+      "description": "Heads or tails - 50/50 odds"
+    },
+    {
+      "name": "Dice",
+      "emoji": "🎲",
+      "minBet": 100,
+      "maxBet": 20000,
+      "description": "Roll dice and beat the house"
+    }
+  ],
   "commands": [
     {
       "name": "economy",
-      "description": "Economy system control panel"
+      "description": "Main economy control panel with all features accessible via buttons"
     }
-  ]
+  ],
+  "settings": {
+    "dailyReward": "Varies based on streak and luck",
+    "workCooldown": "1 hour",
+    "dailyCooldown": "24 hours",
+    "robCooldown": "4 hours",
+    "robSuccessRate": "60%",
+    "robPenalty": "Fine if caught",
+    "bankCapacity": "Unlimited",
+    "tradingEnabled": true,
+    "lotteryEnabled": true
+  }
 }

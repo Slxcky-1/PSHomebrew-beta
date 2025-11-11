@@ -1,10 +1,47 @@
 {
   "enabled": true,
-  "giveaways": {},
+  "description": "Interactive giveaway system with automatic winner selection, reaction entries, and scheduled endings.",
+  "features": {
+    "creation": "Create giveaways with custom prizes and durations",
+    "reactionEntry": "Users enter by clicking 🎉 reaction",
+    "autoWinner": "Automatic random winner selection",
+    "reroll": "Reroll if winner doesn't respond",
+    "announcements": "Winner announcements in giveaway channel",
+    "requirements": "Optional role or level requirements",
+    "endTimer": "Automatic countdown and ending",
+    "hosting": "Track who hosted each giveaway"
+  },
   "commands": [
     {
       "name": "giveaway",
-      "description": "Manage giveaways (Admin only)"
+      "description": "Interactive giveaway management panel (Admin only)",
+      "actions": [
+        "Start new giveaway",
+        "End giveaway early",
+        "Reroll winner",
+        "List active giveaways",
+        "Cancel giveaway"
+      ]
     }
-  ]
+  ],
+  "giveawaySettings": {
+    "entry": "React with 🎉 emoji",
+    "duration": "Customizable (minutes/hours/days)",
+    "winners": "1 or multiple winners",
+    "requirements": "Optional (role, level, account age)",
+    "announcement": "DM winner + channel announcement"
+  },
+  "storage": {
+    "file": "data/giveawayData.json",
+    "tracks": [
+      "Giveaway ID",
+      "Prize",
+      "Host",
+      "Channel",
+      "End time",
+      "Entries",
+      "Winner(s)",
+      "Status"
+    ]
+  }
 }
