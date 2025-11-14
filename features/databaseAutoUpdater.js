@@ -16,13 +16,33 @@ class DatabaseAutoUpdater {
     async start() {
         console.log('📡 Starting database auto-updater...');
         
-        // Check immediately on startup
-        await this.checkForUpdates();
+        // Schedule to run at 9 PM (21:00) every day
+        this.scheduleDaily9PM();
+    }
+
+    scheduleDaily9PM() {
+        const now = new Date();
+        const target = new Date();
+        target.setHours(21, 0, 0, 0); // 9 PM
         
-        // Then check every 24 hours
-        setInterval(async () => {
+        // If 9 PM has already passed today, schedule for tomorrow
+        if (now > target) {
+            target.setDate(target.getDate() + 1);
+        }
+        
+        const timeUntilRun = target.getTime() - now.getTime();
+        
+        console.log(`⏰ Next database check scheduled for: ${target.toLocaleString()}`);
+        
+        // Schedule first run
+        setTimeout(async () => {
             await this.checkForUpdates();
-        }, this.checkInterval);
+            
+            // Then run every 24 hours at 9 PM
+            setInterval(async () => {
+                await this.checkForUpdates();
+            }, 24 * 60 * 60 * 1000);
+        }, timeUntilRun);
     }
 
     async checkForUpdates() {
