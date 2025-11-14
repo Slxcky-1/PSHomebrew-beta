@@ -4004,7 +4004,7 @@ client.on('interactionCreate', async (interaction) => {
         const featuresEmbed = new EmbedBuilder()
             .setTitle('⚙️ PSHomebrew Bot - Features')
             .setDescription('Welcome to the PSHomebrew Discord Bot! Here\'s everything this bot can do.')
-            .setColor(0x00FF88)
+            .setColor(65416)
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
