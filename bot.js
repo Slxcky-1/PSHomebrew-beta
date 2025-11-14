@@ -2588,21 +2588,30 @@ function buildYouTubeManagerView(guild, guildConfig, statusMessage = null) {
 
     const rows = [controlsRow];
 
-    // Add second row with View Channel button if channel is configured
+    // Add second row with View Channel button and Refresh if channel is configured
+    const secondRowButtons = [];
+    
     if (guildConfig.notificationChannelId) {
-        const channel = guild?.channels?.cache?.get(guildConfig.notificationChannelId);
-        if (channel) {
-            rows.push(
-                new ActionRowBuilder().addComponents(
-                    new ButtonBuilder()
-                        .setLabel('View Channel')
-                        .setStyle(ButtonStyle.Link)
-                        .setURL(`https://discord.com/channels/${guild.id}/${guildConfig.notificationChannelId}`)
-                        .setEmoji('👁️')
-                )
-            );
-        }
+        secondRowButtons.push(
+            new ButtonBuilder()
+                .setLabel('View Channel')
+                .setStyle(ButtonStyle.Link)
+                .setURL(`https://discord.com/channels/${guild.id}/${guildConfig.notificationChannelId}`)
+                .setEmoji('👁️')
+        );
     }
+    
+    secondRowButtons.push(
+        new ButtonBuilder()
+            .setCustomId('ytnotif_refresh')
+            .setLabel('Refresh')
+            .setStyle(ButtonStyle.Secondary)
+            .setEmoji('🔄')
+    );
+    
+    rows.push(new ActionRowBuilder().addComponents(secondRowButtons));
+
+    rows.push(new ActionRowBuilder().addComponents(secondRowButtons));
 
     if (feeds.length > 0) {
         const removalOptions = feeds.slice(0, 25).map(feed => ({
@@ -2622,16 +2631,6 @@ function buildYouTubeManagerView(guild, guildConfig, statusMessage = null) {
             )
         );
     }
-
-    rows.push(
-        new ActionRowBuilder().addComponents(
-            new ButtonBuilder()
-                .setCustomId('ytnotif_refresh')
-                .setLabel('Refresh')
-                .setStyle(ButtonStyle.Secondary)
-                .setEmoji('🔄')
-        )
-    );
 
     return { content: null, embeds: [embed], components: rows };
 }
