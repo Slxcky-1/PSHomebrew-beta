@@ -4117,11 +4117,6 @@ client.on('interactionCreate', async (interaction) => {
                     inline: true
                 },
                 {
-                    name: '\u200B',
-                    value: '\u200B',
-                    inline: false
-                },
-                {
                     name: '🎮 PlayStation Trivia',
                     value: `• **Earn money playing trivia**\n\n21 questions, 6 categories\nPS3, PS4, PS5, PSP, Vita\n$100 reward per correct answer`,
                     inline: true
@@ -4139,15 +4134,6 @@ client.on('interactionCreate', async (interaction) => {
             )
             .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for AI token tracking' })
             .setTimestamp();
-        
-        // Ensure the embed stays within Discord's 25-field limit by dropping the last spacer if necessary
-        const featuresFields = featuresEmbed.data?.fields ?? [];
-        if (featuresFields.length > 25) {
-            const lastSpacerIndex = [...featuresFields].reverse().findIndex(field => field.name === '\u200B' && field.value === '\u200B');
-            const removeIndex = lastSpacerIndex !== -1 ? featuresFields.length - 1 - lastSpacerIndex : featuresFields.length - 1;
-            featuresFields.splice(removeIndex, 1);
-            featuresEmbed.setFields(featuresFields);
-        }
         
         await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
     }
