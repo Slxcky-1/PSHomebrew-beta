@@ -323,6 +323,85 @@ function getYouTubeNotificationStatus(guildId) {
     return { configured, active, channelId, channelCount };
 }
 
+const DEFAULT_YOUTUBE_CHECK_INTERVAL = 10 * 60 * 1000;
+const DEFAULT_YOUTUBE_MESSAGE = '📺 **{channelName}** uploaded **{title}**\n{url}';
+const DEFAULT_YOUTUBE_COMMAND_DEFINITION = [
+    {
+        name: 'youtubenotifications',
+        description: 'Manage YouTube channel notifications with RSS feeds'
+    }
+];
+
+function loadYouTubeConfigFile() {
+    try {
+        if (!fsSync.existsSync(youtubeConfigPath)) {
+            return { commands: structuredClone(DEFAULT_YOUTUBE_COMMAND_DEFINITION) };
+        }
+        const raw = fsSync.readFileSync(youtubeConfigPath, 'utf8');
+        const parsed = raw ? JSON.parse(raw) : {};
+        if (!parsed.commands || !Array.isArray(parsed.commands)) {
+            parsed.commands = structuredClone(DEFAULT_YOUTUBE_COMMAND_DEFINITION);
+        }
+        return parsed;
+    } catch (error) {
+        console.error('❌ Failed to load YouTube notification config:', error.message);
+        return { commands: structuredClone(DEFAULT_YOUTUBE_COMMAND_DEFINITION) };
+    }
+}
+
+function ensureYouTubeGuildConfig(config, guildId) {
+    let changed = false;
+
+    if (!config[guildId] || typeof config[guildId] !== 'object') {
+        config[guildId] = {
+            enabled: false,
+            notificationChannelId: null,
+            customMessage: DEFAULT_YOUTUBE_MESSAGE,
+            checkInterval: DEFAULT_YOUTUBE_CHECK_INTERVAL,
+            channels: [],
+            lastChecked: {}
+        };
+        changed = true;
+    }
+
+    const guildConfig = config[guildId];
+    if (!Array.isArray(guildConfig.channels)) {
+        guildConfig.channels = [];
+        changed = true;
+    } else {
+        const filtered = guildConfig.channels.filter(ch => ch && typeof ch === 'object' && ch.channelId);
+        if (filtered.length !== guildConfig.channels.length) {
+            guildConfig.channels = filtered;
+            changed = true;
+        }
+    }
+
+    if (!guildConfig.lastChecked || typeof guildConfig.lastChecked !== 'object') {
+        guildConfig.lastChecked = {};
+        changed = true;
+    }
+
+    if (typeof guildConfig.customMessage !== 'string' || !guildConfig.customMessage.trim()) {
+        guildConfig.customMessage = DEFAULT_YOUTUBE_MESSAGE;
+        changed = true;
+    }
+
+    if (!Number.isFinite(guildConfig.checkInterval) || guildConfig.checkInterval <= 0) {
+        guildConfig.checkInterval = DEFAULT_YOUTUBE_CHECK_INTERVAL;
+        changed = true;
+    }
+
+    return { guildConfig, changed };
+}
+
+function saveYouTubeConfigFile(config) {
+    const success = saveJSON(youtubeConfigPath, config);
+    if (success) {
+        invalidateYouTubeStatusCache();
+    }
+    return success;
+}
+
 // AI conversation history (stored in memory only, not persisted)
 let aiConversations = {}; // { channelId: [ { role: 'user'|'assistant', content: 'message', userId?: string } ] }
 let aiCooldowns = {}; // { userId: timestamp} - Track cooldowns per user
@@ -2439,6 +2518,116 @@ function startYouTubeMonitoring() {
         if (!fsSync.existsSync(ytDataPath)) {
             return;
         }
+
+
+function buildYouTubeManagerView(guild, guildConfig, statusMessage = null) {
+    const youtubeStatus = getYouTubeNotificationStatus(guild?.id);
+    const statusLabel = youtubeStatus.active
+        ? '✅ Enabled'
+        : youtubeStatus.configured
+        ? '⚠️ Needs setup'
+        : '❌ Disabled';
+    const statusColor = youtubeStatus.active ? 0x57F287 : youtubeStatus.configured ? 0xFEE75C : 0xED4245;
+
+    const channelId = guildConfig.notificationChannelId;
+    let discordChannelText = 'Not configured';
+    if (channelId) {
+        const channel = guild?.channels?.cache?.get(channelId);
+        discordChannelText = channel ? `<#${channelId}> (${channel.name})` : `ID: ${channelId}`;
+    }
+
+    const feeds = guildConfig.channels;
+    const feedLines = feeds.slice(0, 10).map((feed, index) => {
+        const label = feed.name && feed.name.trim().length > 0 ? feed.name.trim() : feed.channelId;
+        return `${index + 1}. **${label}** • ${feed.channelId}`;
+    });
+    if (feeds.length > 10) {
+        feedLines.push(`...and ${feeds.length - 10} more channel${feeds.length - 10 === 1 ? '' : 's'}`);
+    }
+    const feedSummary = feedLines.length > 0 ? feedLines.join('\n') : '_No YouTube channels subscribed yet._';
+
+    const messagePreview = guildConfig.customMessage.length > 250
+        ? `${guildConfig.customMessage.slice(0, 247)}...`
+        : guildConfig.customMessage;
+    const safeMessagePreview = messagePreview.replace(/```/g, "``'");
+    const messageBlock = `\`\`\`\n${safeMessagePreview}\n\`\`\``;
+
+    const lastCheckedCount = Object.keys(guildConfig.lastChecked || {}).length;
+    const checkIntervalMinutes = Math.round(guildConfig.checkInterval / 60000);
+
+    const embed = new EmbedBuilder()
+        .setTitle('📺 YouTube Notifications')
+        .setColor(statusColor)
+        .setDescription('Manage automated RSS notifications for new YouTube uploads.')
+        .addFields(
+            { name: 'Status', value: statusLabel, inline: true },
+            { name: 'Discord Channel', value: discordChannelText, inline: true },
+            { name: 'Subscribed Feeds', value: `${feeds.length} channel${feeds.length === 1 ? '' : 's'} tracked`, inline: true },
+            { name: 'Feed Details', value: feedSummary, inline: false },
+            { name: 'Custom Message', value: messageBlock, inline: false },
+            { name: 'Health', value: `Interval: every ${checkIntervalMinutes} min\nCached videos: ${lastCheckedCount}`, inline: true }
+        )
+        .setTimestamp();
+
+    const defaultFooter = 'Placeholders: {channelName}, {title}, {url}, {description}';
+    embed.setFooter({ text: statusMessage || defaultFooter });
+
+    const controlsRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setCustomId('ytnotif_toggle')
+            .setLabel(guildConfig.enabled ? 'Disable Alerts' : 'Enable Alerts')
+            .setStyle(guildConfig.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
+            .setEmoji(guildConfig.enabled ? '🛑' : '✅'),
+        new ButtonBuilder()
+            .setCustomId('ytnotif_set_channel')
+            .setLabel('Set Discord Channel')
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji('💬'),
+        new ButtonBuilder()
+            .setCustomId('ytnotif_add_feed')
+            .setLabel('Add YouTube Feed')
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji('➕'),
+        new ButtonBuilder()
+            .setCustomId('ytnotif_edit_message')
+            .setLabel('Edit Message')
+            .setStyle(ButtonStyle.Secondary)
+            .setEmoji('📝')
+    );
+
+    const rows = [controlsRow];
+
+    if (feeds.length > 0) {
+        const removalOptions = feeds.slice(0, 25).map(feed => ({
+            label: (feed.name && feed.name.trim().length > 0 ? feed.name.trim() : feed.channelId).slice(0, 100),
+            value: feed.channelId,
+            description: feed.name && feed.name.trim().length > 0 ? feed.channelId : 'Remove this feed'
+        }));
+
+        rows.push(
+            new ActionRowBuilder().addComponents(
+                new StringSelectMenuBuilder()
+                    .setCustomId('ytnotif_remove_select')
+                    .setPlaceholder('Remove subscribed channel(s)')
+                    .setMinValues(1)
+                    .setMaxValues(Math.min(removalOptions.length, 5))
+                    .addOptions(removalOptions)
+            )
+        );
+    }
+
+    rows.push(
+        new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId('ytnotif_refresh')
+                .setLabel('Refresh')
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('🔄')
+        )
+    );
+
+    return { content: null, embeds: [embed], components: rows };
+}
 
         let ytData;
         try {
@@ -5148,11 +5337,14 @@ const now = Date.now();
     // YouTube Notifications Command
     if (interaction.commandName === 'youtubenotifications') {
         if (!requireAdmin(interaction)) return;
-        
-        await interaction.reply({ 
-            content: '📺 YouTube RSS Notifications - Feature coming soon!\n\nThis will allow automatic notifications when subscribed YouTube channels upload new videos.',
-            ephemeral: true 
-        });
+        const ytConfig = loadYouTubeConfigFile();
+        const { guildConfig, changed } = ensureYouTubeGuildConfig(ytConfig, interaction.guild.id);
+        if (changed) {
+            saveYouTubeConfigFile(ytConfig);
+        }
+
+        const managerView = buildYouTubeManagerView(interaction.guild, guildConfig);
+        await interaction.reply({ ...managerView, ephemeral: true });
         return;
     }
     
@@ -11659,6 +11851,32 @@ const now = Date.now();
         await interaction.update({ content: `? Auto-action set to: **${actionText}**`, components: [] });
         return;
     }
+
+    if (interaction.isStringSelectMenu() && interaction.customId === 'ytnotif_remove_select') {
+        if (!requireAdmin(interaction)) return;
+
+        const guild = interaction.guild;
+        const guildId = guild.id;
+        const toRemove = new Set(interaction.values);
+
+        const ytConfig = loadYouTubeConfigFile();
+        const { guildConfig, changed } = ensureYouTubeGuildConfig(ytConfig, guildId);
+
+        const originalLength = guildConfig.channels.length;
+        guildConfig.channels = guildConfig.channels.filter(feed => !toRemove.has(feed.channelId));
+        const removedCount = originalLength - guildConfig.channels.length;
+
+        if (removedCount > 0 || changed) {
+            saveYouTubeConfigFile(ytConfig);
+        }
+
+        const statusMessage = removedCount > 0
+            ? `Removed ${removedCount} YouTube channel${removedCount === 1 ? '' : 's'} from monitoring.`
+            : 'No channels were removed.';
+
+        await interaction.update(buildYouTubeManagerView(guild, guildConfig, statusMessage));
+        return;
+    }
     
     // Welcome system button handlers
     if (interaction.customId.startsWith('welcome_')) {
@@ -11757,6 +11975,93 @@ const now = Date.now();
         }
     }
     
+    // YouTube notification button handlers
+    if (interaction.customId.startsWith('ytnotif_')) {
+        if (!requireAdmin(interaction)) return;
+
+        const guild = interaction.guild;
+        const guildId = guild.id;
+        const ytConfig = loadYouTubeConfigFile();
+        const { guildConfig, changed } = ensureYouTubeGuildConfig(ytConfig, guildId);
+        let shouldSave = changed;
+        let statusMessage = null;
+
+        if (interaction.customId === 'ytnotif_toggle') {
+            guildConfig.enabled = !guildConfig.enabled;
+            shouldSave = true;
+            statusMessage = guildConfig.enabled
+                ? 'YouTube alerts enabled. Ensure a Discord channel and at least one feed are configured.'
+                : 'YouTube alerts disabled.';
+        } else if (interaction.customId === 'ytnotif_set_channel') {
+            const modal = new ModalBuilder()
+                .setCustomId('ytnotif_channel_modal')
+                .setTitle('Set Notification Channel')
+                .addComponents(
+                    new ActionRowBuilder().addComponents(
+                        new TextInputBuilder()
+                            .setCustomId('discord_channel_input')
+                            .setLabel('Channel mention or ID')
+                            .setPlaceholder('#alerts or 123456789012345678')
+                            .setStyle(TextInputStyle.Short)
+                            .setRequired(true)
+                    )
+                );
+            await interaction.showModal(modal);
+            return;
+        } else if (interaction.customId === 'ytnotif_add_feed') {
+            const modal = new ModalBuilder()
+                .setCustomId('ytnotif_add_modal')
+                .setTitle('Add YouTube Channel')
+                .addComponents(
+                    new ActionRowBuilder().addComponents(
+                        new TextInputBuilder()
+                            .setCustomId('youtube_channel_id')
+                            .setLabel('YouTube Channel ID')
+                            .setPlaceholder('UC_x5XG1OV2P6uZZ5FSM9Ttw')
+                            .setStyle(TextInputStyle.Short)
+                            .setRequired(true)
+                    ),
+                    new ActionRowBuilder().addComponents(
+                        new TextInputBuilder()
+                            .setCustomId('youtube_channel_name')
+                            .setLabel('Display Name (optional)')
+                            .setPlaceholder('Channel name shown in alerts')
+                            .setStyle(TextInputStyle.Short)
+                            .setRequired(false)
+                    )
+                );
+            await interaction.showModal(modal);
+            return;
+        } else if (interaction.customId === 'ytnotif_edit_message') {
+            const modal = new ModalBuilder()
+                .setCustomId('ytnotif_message_modal')
+                .setTitle('Edit Notification Message')
+                .addComponents(
+                    new ActionRowBuilder().addComponents(
+                        new TextInputBuilder()
+                            .setCustomId('youtube_message_template')
+                            .setLabel('Message Template')
+                            .setPlaceholder(DEFAULT_YOUTUBE_MESSAGE)
+                            .setValue(guildConfig.customMessage.substring(0, 4000))
+                            .setStyle(TextInputStyle.Paragraph)
+                            .setRequired(true)
+                    )
+                );
+            await interaction.showModal(modal);
+            return;
+        } else if (interaction.customId === 'ytnotif_refresh') {
+            statusMessage = 'YouTube alert status refreshed.';
+        }
+
+        if (shouldSave) {
+            saveYouTubeConfigFile(ytConfig);
+        }
+
+        const updatedView = buildYouTubeManagerView(guild, guildConfig, statusMessage);
+        await interaction.update(updatedView);
+        return;
+    }
+
     // Leave system button handlers
     if (interaction.customId.startsWith('leave_')) {
         if (!requireAdmin(interaction)) return;
@@ -15413,6 +15718,95 @@ const now = Date.now();
                         });
                     }
                     
+                    // YouTube notification modals
+                    else if (interaction.customId === 'ytnotif_channel_modal') {
+                        if (!requireAdmin(interaction)) return;
+
+                        const channelInput = interaction.fields.getTextInputValue('discord_channel_input').trim();
+                        const channelMatch = channelInput.match(/(\d{17,19})/);
+                        if (!channelMatch) {
+                            await interaction.reply({ content: '❌ Invalid channel. Provide a channel mention or ID.', ephemeral: true });
+                            return;
+                        }
+
+                        const channelId = channelMatch[1];
+                        const guild = interaction.guild;
+                        const channel = guild.channels.cache.get(channelId);
+                        const textCapable = channel && typeof channel.isTextBased === 'function' ? channel.isTextBased() : false;
+                        if (!textCapable) {
+                            await interaction.reply({ content: '❌ Please choose a text channel I can send messages to.', ephemeral: true });
+                            return;
+                        }
+
+                        const ytConfig = loadYouTubeConfigFile();
+                        const { guildConfig } = ensureYouTubeGuildConfig(ytConfig, guild.id);
+                        guildConfig.notificationChannelId = channelId;
+                        saveYouTubeConfigFile(ytConfig);
+
+                        const label = channel ? `#${channel.name}` : `ID ${channelId}`;
+                        await interaction.reply({
+                            ...buildYouTubeManagerView(guild, guildConfig, `Notifications will post in ${label}.`),
+                            ephemeral: true
+                        });
+                    }
+                    else if (interaction.customId === 'ytnotif_add_modal') {
+                        if (!requireAdmin(interaction)) return;
+
+                        const rawChannelId = interaction.fields.getTextInputValue('youtube_channel_id').trim();
+                        const sanitizedId = rawChannelId.replace(/[^A-Za-z0-9_-]/g, '');
+                        if (sanitizedId.length < 6) {
+                            await interaction.reply({ content: '❌ Provide a valid YouTube channel ID.', ephemeral: true });
+                            return;
+                        }
+
+                        const displayNameInput = interaction.fields.getTextInputValue('youtube_channel_name').trim();
+                        const displayName = displayNameInput.length > 0 ? displayNameInput.slice(0, 100) : null;
+
+                        const ytConfig = loadYouTubeConfigFile();
+                        const { guildConfig } = ensureYouTubeGuildConfig(ytConfig, interaction.guild.id);
+
+                        if (guildConfig.channels.some(feed => feed.channelId === sanitizedId)) {
+                            await interaction.reply({ content: '❌ That channel is already being monitored.', ephemeral: true });
+                            return;
+                        }
+
+                        if (guildConfig.channels.length >= 25) {
+                            await interaction.reply({ content: '❌ You can monitor up to 25 channels per server.', ephemeral: true });
+                            return;
+                        }
+
+                        guildConfig.channels.push({ channelId: sanitizedId, name: displayName });
+                        saveYouTubeConfigFile(ytConfig);
+
+                        const friendlyName = displayName || sanitizedId;
+                        await interaction.reply({
+                            ...buildYouTubeManagerView(interaction.guild, guildConfig, `Added YouTube channel: ${friendlyName}`),
+                            ephemeral: true
+                        });
+                    }
+                    else if (interaction.customId === 'ytnotif_message_modal') {
+                        if (!requireAdmin(interaction)) return;
+
+                        const template = interaction.fields.getTextInputValue('youtube_message_template').trim();
+                        if (template.length === 0) {
+                            await interaction.reply({ content: '❌ Message template cannot be empty.', ephemeral: true });
+                            return;
+                        }
+
+                        const ytConfig = loadYouTubeConfigFile();
+                        const { guildConfig } = ensureYouTubeGuildConfig(ytConfig, interaction.guild.id);
+                        guildConfig.customMessage = template.slice(0, 4000);
+                        saveYouTubeConfigFile(ytConfig);
+
+                        const statusMessage = template.includes('{url}')
+                            ? 'Notification message updated.'
+                            : 'Message updated. Tip: include {url} so members can open the video quickly.';
+
+                        await interaction.reply({
+                            ...buildYouTubeManagerView(interaction.guild, guildConfig, statusMessage),
+                            ephemeral: true
+                        });
+                    }
                     // Auto-nickname modals
                     else if (interaction.customId === 'autonick_prefix_modal') {
                         const prefixText = interaction.fields.getTextInputValue('prefix_text').trim();
