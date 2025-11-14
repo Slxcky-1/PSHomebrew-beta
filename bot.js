@@ -5040,17 +5040,17 @@ const now = Date.now();
                     .setCustomId('autonick_set_prefix')
                     .setLabel('Set Prefix')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    .setEmoji('📝'),
                 new ButtonBuilder()
                     .setCustomId('autonick_set_suffix')
                     .setLabel('Set Suffix')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    .setEmoji('📝'),
                 new ButtonBuilder()
                     .setCustomId('autonick_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅')
+                    .setEmoji('🔄')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1], ephemeral: true });
