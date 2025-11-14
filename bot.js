@@ -5065,7 +5065,8 @@ const now = Date.now();
     
     // YouTube Notifications Command
     if (interaction.commandName === 'youtubenotifications') {
-        if (!requireAdmin(interaction)) return;
+        try {
+            if (!requireAdmin(interaction)) return;
         
         const ytDataPath = './features/youtubeNotifications.json';
         let ytData = {};
@@ -5146,6 +5147,10 @@ const now = Date.now();
             );
         
         await interaction.reply({ embeds: [embed], components: [buttons, buttons2], ephemeral: true });
+        } catch (error) {
+            console.error('YouTube notifications error:', error);
+            await interaction.reply({ content: `❌ Error: ${error.message}`, ephemeral: true }).catch(() => {});
+        }
         return;
     }
     
