@@ -5336,23 +5336,33 @@ const now = Date.now();
     
     // YouTube Notifications Command
     if (interaction.commandName === 'youtubenotifications') {
+        console.log('📺 YouTube notifications command triggered');
         if (!requireAdmin(interaction)) return;
         
         try {
+            console.log('📺 Loading YouTube config...');
             const ytConfig = loadYouTubeConfigFile();
+            console.log('📺 Config loaded, ensuring guild config...');
             const { guildConfig, changed } = ensureYouTubeGuildConfig(ytConfig, interaction.guild.id);
             if (changed) {
+                console.log('📺 Guild config changed, saving...');
                 saveYouTubeConfigFile(ytConfig);
             }
 
+            console.log('📺 Building manager view...');
             const managerView = buildYouTubeManagerView(interaction.guild, guildConfig);
+            console.log('📺 Sending reply with embed and components...');
             await interaction.reply({ ...managerView, ephemeral: true });
+            console.log('📺 YouTube notifications panel sent successfully');
         } catch (error) {
-            console.error('YouTube notifications command error:', error);
+            console.error('❌ YouTube notifications command error:', error);
+            console.error('Stack trace:', error.stack);
             await interaction.reply({ 
-                content: '❌ An error occurred loading YouTube notifications. Please check the logs.', 
+                content: `❌ Error: ${error.message}`, 
                 ephemeral: true 
-            }).catch(() => {});
+            }).catch((replyError) => {
+                console.error('Failed to send error reply:', replyError);
+            });
         }
         return;
     }
