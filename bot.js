@@ -4002,15 +4002,39 @@ client.on('interactionCreate', async (interaction) => {
         const youtubeEnabled = true;
         
         const featuresEmbed = new EmbedBuilder()
-            .setTitle('PSHomebrew Bot - Features')
-            .setDescription('Welcome to the PSHomebrew Discord Bot!')
+            .setTitle('⚙️ PSHomebrew Bot - Features')
+            .setDescription('Welcome to the PSHomebrew Discord Bot! Here\'s everything this bot can do.')
             .setColor(0x00FF88)
+            .setThumbnail(client.user.displayAvatarURL())
             .addFields(
-                { name: 'Leveling System', value: 'Gamified progression system', inline: true },
-                { name: 'Error Codes', value: 'PS3/PS4 code lookup', inline: true },
-                { name: 'AI Chat', value: 'Powered by DeepSeek + ChatGPT + Grok', inline: true }
+                { name: '📊 Leveling System', value: '• **Gamified progression system**\n\nReward active members automatically\nUnlock roles as you rank up', inline: true },
+                { name: '⚠️ Error Codes', value: '• **Instant PS3/PS4 code lookup**\n\n351 error codes in database\nAutomated troubleshooting assistant', inline: true },
+                { name: '🤖 AI Chat', value: '• **Powered by DeepSeek + ChatGPT + Grok**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily', inline: true },
+                { name: '\u200B', value: '\u200B', inline: false },
+                { name: '👋 Welcome Messages', value: '• **Professional member onboarding**\n\nFully customizable greetings\nMake great first impressions', inline: true },
+                { name: '👋 Leave Messages', value: '• **Elegant farewell system**\n\nCustom goodbye messages\nTrack member departures', inline: true },
+                { name: '🎫 Ticket System', value: '• **Advanced support platform**\n\nOrganized help desk solution\nProfessional ticket management', inline: true },
+                { name: '\u200B', value: '\u200B', inline: false },
+                { name: '🛡️ Raid Protection', value: '• **Military-grade server defense**\n\nAI-powered spam detection\nReal-time threat neutralization', inline: true },
+                { name: '✏️ Auto Nickname', value: '• **Smart member branding**\n\nAutomatic **PS** prefix system\nProfessional server identity', inline: true },
+                { name: '📺 YouTube Notifs', value: '• **Content update alerts**\n\nInstant new video notifications\nNever miss an upload', inline: true },
+                { name: '\u200B', value: '\u200B', inline: false },
+                { name: '📊 Server Stats', value: '• **Real-time analytics dashboard**\n\nLive member tracking\nDynamic voice channel stats', inline: true },
+                { name: '⚙️ Custom Commands', value: '• **Interactive command builder**\n\nCreate clickable buttons\nNo coding required', inline: true },
+                { name: '📝 Moderation Logging', value: '• **Complete audit system**\n\nFull action history tracking\nAccountability & transparency', inline: true },
+                { name: '\u200B', value: '\u200B', inline: false },
+                { name: '🌍 Multi-Language', value: '• **Global language support**\n\n6 languages available\nEN, ES, FR, DE, PT, JA\nServer-wide translation', inline: true },
+                { name: '⚡ AI Optimization', value: '• **Performance & efficiency**\n\nResponse caching system\n30-50% API cost reduction\n5k tokens per user daily', inline: true },
+                { name: '🎨 Bot Customization', value: '• **Per-server branding**\n\nCustom bot nicknames\nProfessional server identity\nPersonalized experience', inline: true },
+                { name: '\u200B', value: '\u200B', inline: false },
+                { name: '🎉 Giveaway System', value: '• **Automated prize distribution**\n\nAutomatic winner selection\nRole & level requirements\nMultiple winners support\nAuto-DM winners', inline: true },
+                { name: '💰 Economy System', value: '• **Full currency system**\n\nDaily rewards & work jobs\nGambling (coinflip/dice/slots)\nRob users & item shop\nInventory & boosts', inline: true },
+                { name: '\u200B', value: '\u200B', inline: false },
+                { name: '🎮 PlayStation Trivia', value: '• **Earn money playing trivia**\n\n21 questions, 6 categories\nPS3, PS4, PS5, PSP, Vita\n$100 reward per correct answer', inline: true },
+                { name: '📊 Interactive Polls', value: '• **Community voting system**\n\nUp to 10 poll options\nCustom durations (1h-1w)\nReal-time vote tracking', inline: true },
+                { name: '🎯 Game Database', value: '• **PlayStation game lookup**\n\n14 games in database\nSearch by title or ID\nCFW compatibility info', inline: true }
             )
-            .setFooter({ text: 'Use /viewsettings to see all server settings' })
+            .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for AI token tracking' })
             .setTimestamp();
         
             await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
