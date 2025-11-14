@@ -11,6 +11,7 @@ const fsSync = require('fs');
 const fs = require('fs').promises;
 const path = require('path');
 const consoleErrorCodes = require('./features/consoleErrorCodes.json');
+const PUBLIC_ERROR_CODE_COUNT = Object.keys(consoleErrorCodes).filter(code => !code.startsWith('_')).length;
 // Lazy loader for discord-gamecord to reduce startup memory/CPU
 let __gamecord;
 function getGamecord() {
@@ -280,6 +281,47 @@ const giveawayDataFile = './data/giveawayData.json';
 // Economy data
 let economyData = {};
 const economyDataFile = './data/economyData.json';
+
+// YouTube notification configuration cache
+const youtubeConfigPath = path.join(__dirname, 'features', 'youtubeNotifications.json');
+const YOUTUBE_STATUS_CACHE_TTL = 30 * 1000; // 30 seconds
+const youtubeStatusCache = { timestamp: 0, data: null };
+
+function invalidateYouTubeStatusCache() {
+    youtubeStatusCache.timestamp = 0;
+    youtubeStatusCache.data = null;
+}
+
+function getYouTubeNotificationStatus(guildId) {
+    if (!guildId) {
+        return { configured: false, active: false, channelId: null, channelCount: 0 };
+    }
+
+    const now = Date.now();
+    const cacheExpired = now - youtubeStatusCache.timestamp > YOUTUBE_STATUS_CACHE_TTL;
+
+    if (!youtubeStatusCache.data || cacheExpired) {
+        try {
+            if (fsSync.existsSync(youtubeConfigPath)) {
+                youtubeStatusCache.data = JSON.parse(fsSync.readFileSync(youtubeConfigPath, 'utf8'));
+            } else {
+                youtubeStatusCache.data = {};
+            }
+        } catch (error) {
+            console.error('Error reading YouTube notification status:', error.message);
+            youtubeStatusCache.data = {};
+        }
+        youtubeStatusCache.timestamp = now;
+    }
+
+    const config = youtubeStatusCache.data?.[guildId];
+    const channelCount = Array.isArray(config?.channels) ? config.channels.length : 0;
+    const channelId = config?.notificationChannelId ?? null;
+    const configured = Boolean(config?.enabled);
+    const active = Boolean(config?.enabled && channelId && channelCount > 0);
+
+    return { configured, active, channelId, channelCount };
+}
 
 // AI conversation history (stored in memory only, not persisted)
 let aiConversations = {}; // { channelId: [ { role: 'user'|'assistant', content: 'message', userId?: string } ] }
@@ -2394,68 +2436,113 @@ function startYouTubeMonitoring() {
     const ytDataPath = './features/youtubeNotifications.json';
     
     async function checkYouTubeChannels() {
+        if (!fsSync.existsSync(ytDataPath)) {
+            return;
+        }
+
+        let ytData;
         try {
-            const ytData = JSON.parse(fsSync.readFileSync(ytDataPath, 'utf8'));
-            
-            for (const [guildId, config] of Object.entries(ytData)) {
-                if (!config.enabled || !config.notificationChannelId || config.channels.length === 0) continue;
-                
-                const guild = client.guilds.cache.get(guildId);
-                if (!guild) continue;
-                
-                const notifChannel = guild.channels.cache.get(config.notificationChannelId);
-                if (!notifChannel) continue;
-                
-                for (const ytChannel of config.channels) {
-                    try {
-                        const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${ytChannel.channelId}`;
-                        const feed = await rssParser.parseURL(feedUrl);
-                        
-                        if (!feed.items || feed.items.length === 0) continue;
-                        
-                        const latestVideo = feed.items[0];
-                        const videoId = latestVideo.id.split(':')[2];
-                        const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-                        
-                        // Check if we've already posted this video
-                        if (config.lastChecked[ytChannel.channelId] === videoId) continue;
-                        
-                        // Update last checked
-                        config.lastChecked[ytChannel.channelId] = videoId;
-                        fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
-                        
-                        // Build custom message
-                        let customMsg = config.customMessage
-                            .replace(/{channelName}/g, ytChannel.name)
-                            .replace(/{title}/g, latestVideo.title)
-                            .replace(/{url}/g, videoUrl)
-                            .replace(/{description}/g, latestVideo.contentSnippet || 'No description');
-                        
-                        // Create embed
-                        const embed = new EmbedBuilder()
-                            .setTitle(latestVideo.title)
-                            .setURL(videoUrl)
-                            .setDescription(latestVideo.contentSnippet?.substring(0, 200) || 'No description available')
-                            .setColor(0xFF0000)
-                            .setAuthor({ name: ytChannel.name, iconURL: 'https://www.youtube.com/s/desktop/d743f786/img/favicon_144x144.png' })
-                            .setThumbnail(latestVideo.media?.thumbnail?.url || null)
-                            .setTimestamp(new Date(latestVideo.pubDate))
-                            .setFooter({ text: 'YouTube' });
-                        
-                        await notifChannel.send({ content: customMsg, embeds: [embed] });
-                        console.log(`📹 Posted new video from ${ytChannel.name} in ${guild.name}`);
-                        
-                    } catch (error) {
-                        console.error(`❌ Error checking YouTube channel ${ytChannel.name}:`, error.message);
-                        await logCriticalError(error, `YouTube Monitor - ${ytChannel.name}`, guildId);
+            const raw = fsSync.readFileSync(ytDataPath, 'utf8');
+            ytData = raw ? JSON.parse(raw) : {};
+        } catch (error) {
+            console.error('❌ YouTube monitoring error: failed to read configuration', error.message);
+            await logCriticalError(error, 'YouTube Monitoring System - Read Config', null);
+            return;
+        }
+
+        if (!ytData || typeof ytData !== 'object') {
+            return;
+        }
+
+        let hasConfigChanges = false;
+
+        for (const [guildId, config] of Object.entries(ytData)) {
+            if (!config || typeof config !== 'object') continue;
+
+            let channels = Array.isArray(config.channels) ? config.channels.filter(ch => ch && ch.channelId) : [];
+            if (!Array.isArray(config.channels) || channels.length !== config.channels?.length) {
+                config.channels = channels;
+                hasConfigChanges = true;
+            }
+
+            if (!config.enabled || !config.notificationChannelId || channels.length === 0) {
+                continue;
+            }
+
+            const guild = client.guilds.cache.get(guildId);
+            if (!guild) continue;
+
+            const notifChannel = guild.channels.cache.get(config.notificationChannelId);
+            const isTextChannel = typeof notifChannel?.isTextBased === 'function' ? notifChannel.isTextBased() : false;
+            if (!isTextChannel) continue;
+
+            if (!config.lastChecked || typeof config.lastChecked !== 'object') {
+                config.lastChecked = {};
+                hasConfigChanges = true;
+            }
+
+            const defaultMessage = '📺 **{channelName}** just uploaded **{title}**\n{url}';
+
+            for (const ytChannel of channels) {
+                try {
+                    const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${ytChannel.channelId}`;
+                    const feed = await rssParser.parseURL(feedUrl);
+                    if (!feed?.items?.length) continue;
+
+                    const latestVideo = feed.items[0];
+                    const videoId = latestVideo?.id?.split(':').pop();
+                    const videoUrl = videoId ? `https://www.youtube.com/watch?v=${videoId}` : latestVideo?.link?.trim();
+                    const uniqueVideoKey = videoId || videoUrl;
+                    if (!uniqueVideoKey || config.lastChecked[ytChannel.channelId] === uniqueVideoKey) {
+                        continue;
                     }
+
+                    config.lastChecked[ytChannel.channelId] = uniqueVideoKey;
+                    hasConfigChanges = true;
+
+                    const channelDisplayName = ytChannel.name || latestVideo?.author || feed?.title || 'Unknown channel';
+                    const baseMessage = typeof config.customMessage === 'string' && config.customMessage.trim()
+                        ? config.customMessage
+                        : defaultMessage;
+
+                    const descriptionSource = latestVideo?.contentSnippet ?? latestVideo?.summary ?? '';
+                    const safeDescriptionRaw = typeof descriptionSource === 'string' && descriptionSource.trim().length > 0
+                        ? descriptionSource.trim()
+                        : 'No description available';
+                    const customMsg = baseMessage
+                        .replace(/{channelName}/g, channelDisplayName)
+                        .replace(/{title}/g, latestVideo?.title || 'Untitled video')
+                        .replace(/{url}/g, videoUrl || 'https://www.youtube.com')
+                        .replace(/{description}/g, safeDescriptionRaw);
+
+                    const description = safeDescriptionRaw.length > 200 ? `${safeDescriptionRaw.slice(0, 197)}...` : safeDescriptionRaw;
+                    const embed = new EmbedBuilder()
+                        .setTitle(latestVideo?.title || 'New upload')
+                        .setURL(videoUrl || 'https://www.youtube.com')
+                        .setDescription(description)
+                        .setColor(0xFF0000)
+                        .setAuthor({ name: channelDisplayName, iconURL: 'https://www.youtube.com/s/desktop/d743f786/img/favicon_144x144.png' })
+                        .setTimestamp(latestVideo?.pubDate ? new Date(latestVideo.pubDate) : new Date())
+                        .setFooter({ text: 'YouTube' });
+
+                    const thumbnailUrl = latestVideo?.media?.thumbnail?.url;
+                    if (typeof thumbnailUrl === 'string' && thumbnailUrl.length > 0) {
+                        embed.setThumbnail(thumbnailUrl);
+                    }
+
+                    await notifChannel.send({ content: customMsg, embeds: [embed] });
+                    console.log(`📹 Posted new video from ${channelDisplayName} in ${guild.name}`);
+
+                } catch (error) {
+                    console.error(`❌ Error checking YouTube channel ${ytChannel?.name || ytChannel?.channelId}:`, error.message);
+                    await logCriticalError(error, `YouTube Monitor - ${ytChannel?.name || ytChannel?.channelId}`, guildId);
                 }
             }
-        } catch (error) {
-            // Ignore if file doesn't exist yet
-            if (error.code !== 'ENOENT') {
-                console.error('❌ YouTube monitoring error:', error);
-                await logCriticalError(error, 'YouTube Monitoring System', null);
+        }
+
+        if (hasConfigChanges) {
+            if (saveJSON(ytDataPath, ytData)) {
+                invalidateYouTubeStatusCache();
             }
         }
     }
@@ -2469,7 +2556,7 @@ function startYouTubeMonitoring() {
             const ytData = JSON.parse(fsSync.readFileSync(ytDataPath, 'utf8'));
             for (const [guildId, config] of Object.entries(ytData)) {
                 if (config.enabled) {
-                    checkYouTubeChannels();
+                    await checkYouTubeChannels();
                     break; // Only need to call once for all guilds
                 }
             }
@@ -3875,9 +3962,16 @@ client.on('interactionCreate', async (interaction) => {
     // Features command - Detailed feature information
     if (interaction.commandName === 'features') {
         const settings = getGuildSettings(interaction.guild.id);
-        
-        // YouTube status - hardcoded as enabled since it's functional
-        const youtubeEnabled = true;
+        const youtubeStatus = getYouTubeNotificationStatus(interaction.guild?.id);
+        const youtubeStatusLabel = youtubeStatus.active
+            ? '✅ Enabled'
+            : youtubeStatus.configured
+            ? '⚠️ Needs setup'
+            : '❌ Disabled';
+        const youtubeChannelMention = youtubeStatus.channelId ? `<#${youtubeStatus.channelId}>` : 'Not set';
+        const youtubeChannelSummary = youtubeStatus.channelCount > 0
+            ? `${youtubeStatus.channelCount} channel${youtubeStatus.channelCount > 1 ? 's' : ''}`
+            : 'No channels added';
         
         const featuresEmbed = new EmbedBuilder()
             .setTitle('⚙️ PSHomebrew Bot - Features')
@@ -3892,7 +3986,7 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '🛠️ Error Codes',
-                    value: `**Status:** ${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDetects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
+                    value: `**Status:** ${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDetects **${PUBLIC_ERROR_CODE_COUNT} PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
                     inline: true
                 },
                 {
@@ -3937,7 +4031,7 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '📺 YouTube Alerts',
-                    value: `**Status:** ${youtubeEnabled ? '✅ Enabled' : '❌ Disabled'}\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
+                    value: `**Status:** ${youtubeStatusLabel}\n\nWatching: ${youtubeChannelSummary}\nChannel: ${youtubeChannelMention}\nUse **/youtubenotifications** to manage`,
                     inline: true
                 },
                 {
