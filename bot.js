@@ -2611,8 +2611,6 @@ function buildYouTubeManagerView(guild, guildConfig, statusMessage = null) {
     
     rows.push(new ActionRowBuilder().addComponents(secondRowButtons));
 
-    rows.push(new ActionRowBuilder().addComponents(secondRowButtons));
-
     if (feeds.length > 0) {
         const removalOptions = feeds.slice(0, 25).map(feed => ({
             label: (feed.name && feed.name.trim().length > 0 ? feed.name.trim() : feed.channelId).slice(0, 100),
