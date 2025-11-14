@@ -159,19 +159,9 @@ class DatabaseAutoUpdater {
                     const guild = this.bot.guilds.cache.get(guildId);
                     if (!guild) continue;
 
-                    // Find a channel to send notifications (prefer logs channel)
-                    let notifyChannel = null;
-                    if (settings.logs?.channelId) {
-                        notifyChannel = guild.channels.cache.get(settings.logs.channelId);
-                    }
+                    // Send to specific database update channel
+                    const notifyChannel = guild.channels.cache.get('920750934085222470');
                     
-                    if (!notifyChannel) {
-                        // Fallback to first text channel bot can access
-                        notifyChannel = guild.channels.cache.find(c => 
-                            c.isTextBased() && c.permissionsFor(guild.members.me).has('SendMessages')
-                        );
-                    }
-
                     if (notifyChannel) {
                         let message = '🔔 **Database Update Alert**\n\n';
                         
