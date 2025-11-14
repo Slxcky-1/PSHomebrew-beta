@@ -2588,6 +2588,22 @@ function buildYouTubeManagerView(guild, guildConfig, statusMessage = null) {
 
     const rows = [controlsRow];
 
+    // Add second row with View Channel button if channel is configured
+    if (guildConfig.notificationChannelId) {
+        const channel = guild?.channels?.cache?.get(guildConfig.notificationChannelId);
+        if (channel) {
+            rows.push(
+                new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setLabel('View Channel')
+                        .setStyle(ButtonStyle.Link)
+                        .setURL(`https://discord.com/channels/${guild.id}/${guildConfig.notificationChannelId}`)
+                        .setEmoji('👁️')
+                )
+            );
+        }
+    }
+
     if (feeds.length > 0) {
         const removalOptions = feeds.slice(0, 25).map(feed => ({
             label: (feed.name && feed.name.trim().length > 0 ? feed.name.trim() : feed.channelId).slice(0, 100),
