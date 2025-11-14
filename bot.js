@@ -4135,7 +4135,7 @@ client.on('interactionCreate', async (interaction) => {
                     name: '🎯 Game Database',
                     value: `• **PlayStation game lookup**\n\n14 games in database\nSearch by title or ID\nCFW compatibility info`,
                     inline: true
-                },
+                }
             )
             .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for AI token tracking' })
             .setTimestamp();
