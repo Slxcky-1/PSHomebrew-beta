@@ -3886,18 +3886,18 @@ client.on('interactionCreate', async (interaction) => {
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
-                    name: '',
+                    name: '📊',
                     value: `**Leveling System**\n${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nEarn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\n**${settings.leveling.cooldown / 1000}s** cooldown\n**${settings.leveling.maxLevel} levels** total`,
                     inline: true
                 },
                 {
-                    name: '✅',
+                    name: '⚠️',
                     value: `**Error Codes**\n${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDetects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
                     inline: true
                 },
                 {
-                    name: '✅',
-                    value: `**AI Chat**\n${settings.ai?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDeepSeek + ChatGPT\n5k tokens/user/day\nResponse caching`,
+                    name: '🤖',
+                    value: `**AI Chat**\n${settings.ai?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDeepSeek + ChatGPT + Grok\n5k tokens/user/day\nResponse caching`,
                     inline: true
                 },
                 {
@@ -3906,17 +3906,17 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '✅',
+                    name: '👋',
                     value: `**Welcome Messages**\n${settings.welcome.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nChannel: **#${settings.welcome.channelName}**\n${settings.welcome.customMessage ? '✅ Custom message' : '📝 Default message'}`,
                     inline: true
                 },
                 {
-                    name: '',
+                    name: '👋',
                     value: `**Leave Messages**\n${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nChannel: **#${settings.leave.channelName}**\n${settings.leave.customMessage ? '✅ Custom message' : '📝 Default message'}`,
                     inline: true
                 },
                 {
-                    name: '✅',
+                    name: '🎫',
                     value: `**Ticket System**\n${settings.tickets?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nSupport ticket management\nUse **/setuptickets**\nStaff and user panels`,
                     inline: true
                 },
@@ -3926,18 +3926,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '?✅',
+                    name: '🛡️',
                     value: `**Raid Protection**\n${settings.raidProtection?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nAuto-kick spam accounts\nNew account detection\nMass join protection`,
                     inline: true
                 },
                 {
-                    name: '✅',
+                    name: '✏️',
                     value: `**Auto Nickname**\n${settings.autoNickname?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nPrefix: **${settings.autoNickname?.prefix || 'PS'}**\nAuto-rename on join\nKeeps names organized`,
                     inline: true
                 },
                 {
-                    name: '✅',
-                    value: `**YouTube Notifs**\n? Enabled\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
+                    name: '📺',
+                    value: `**YouTube Notifs**\n✅ Enabled\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
                     inline: true
                 },
                 {
@@ -3946,17 +3946,17 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '✅',
+                    name: '📊',
                     value: `**Server Stats**\n${settings.serverStats?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nLive member counter\nAuto-updating channels\nMember/bot statistics`,
                     inline: true
                 },
                 {
-                    name: '✅',
+                    name: '⚙️',
                     value: `**Custom Commands**\nAlways Available\n\nClickable server commands\nUse **/pcommands**\nAdd/edit/remove easily`,
                     inline: true
                 },
                 {
-                    name: '✅',
+                    name: '📝',
                     value: `**Moderation Logging**\n${settings.logging?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nTracks all mod actions\nBans, kicks, timeouts\nAudit trail for staff`,
                     inline: true
                 },
@@ -3966,18 +3966,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '✅',
-                    value: `**Multi-Language**\n? Available\n\n6 languages supported\nUse **/language**\nEN, ES, FR, DE, PT, JA`,
+                    name: '🌍',
+                    value: `**Multi-Language**\n✅ Available\n\n6 languages supported\nUse **/language**\nEN, ES, FR, DE, PT, JA`,
                     inline: true
                 },
                 {
-                    name: '✅',
-                    value: `**AI Caching**\n? Active\n\n30-50% API savings\n40-60% storage savings\nFaster responses`,
+                    name: '⚡',
+                    value: `**AI Caching**\n✅ Active\n\n30-50% API savings\n40-60% storage savings\nFaster responses`,
                     inline: true
                 },
                 {
-                    name: '✅',
-                    value: `**Bot Customization**\n? Available\n\nCustom server nicknames\nUse **/custombot**\nPer-server branding`,
+                    name: '🎨',
+                    value: `**Bot Customization**\n✅ Available\n\nCustom server nicknames\nUse **/custombot**\nPer-server branding`,
                     inline: true
                 }
             )
@@ -4018,7 +4018,7 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '🤖 AI Chat',
-                    value: `• **Powered by DeepSeek AI + ChatGPT**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily`,
+                    value: `• **Powered by DeepSeek + ChatGPT + Grok**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily`,
                     inline: true
                 },
                 {
