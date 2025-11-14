@@ -3989,15 +3989,16 @@ client.on('interactionCreate', async (interaction) => {
     
     // Server Features command - Anyone with role can view
     if (interaction.commandName === 'serverfeatures') {
-        const allowedRoleId = '920779112270946384';
-        const hasRole = interaction.member.roles.cache.has(allowedRoleId);
-        const isOwner = interaction.user.id === config.botOwnerId;
-        
-        if (!hasRole && !isOwner) {
-            return interaction.reply({ content: '❌ You need the staff role to view features.', ephemeral: true });
-        }
-        
-        const settings = getGuildSettings(interaction.guild.id);
+        try {
+            const allowedRoleId = '920779112270946384';
+            const hasRole = interaction.member.roles.cache.has(allowedRoleId);
+            const isOwner = interaction.user.id === config.botOwnerId;
+            
+            if (!hasRole && !isOwner) {
+                return interaction.reply({ content: '❌ You need the staff role to view features.', ephemeral: true });
+            }
+            
+            const settings = getGuildSettings(interaction.guild.id);
         const youtubeEnabled = true;
         
         const featuresEmbed = new EmbedBuilder()
@@ -4140,7 +4141,11 @@ client.on('interactionCreate', async (interaction) => {
             .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for AI token tracking' })
             .setTimestamp();
         
-        await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
+            await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
+        } catch (error) {
+            console.error('ServerFeatures error:', error);
+            await interaction.reply({ content: `❌ Error: ${error.message}`, ephemeral: true }).catch(() => {});
+        }
     }
     
     // Toggle command
