@@ -1,4 +1,4 @@
-﻿// --- Global error handling ---
+// --- Global error handling ---
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
 });
@@ -34,15 +34,15 @@ try {
                 const langData = require(path.join(languagesDir, file));
                 if (langData && langData.code && langData.translations) {
                     languages[langData.code] = langData;
-                    console.log(`✅ Loaded language: ${langData.name || file} (${langData.code})`);
+                    console.log(`? Loaded language: ${langData.name || file} (${langData.code})`);
                 }
             } catch (e) {
-                console.warn(`⚠️ Skipping invalid language file: ${file} (${e.message})`);
+                console.warn(`?? Skipping invalid language file: ${file} (${e.message})`);
             }
         }
     }
 } catch (e) {
-    console.warn('⚠️ Language loader encountered an issue, defaulting to English only:', e.message);
+    console.warn('?? Language loader encountered an issue, defaulting to English only:', e.message);
 }
 
 // Translation helper function
@@ -157,21 +157,21 @@ try {
     // Try to load from config.json first
     if (fsSync.existsSync('./config.json')) {
         config = require('./config.json');
-        console.log('✅ Loaded configuration from config.json');
+        console.log('? Loaded configuration from config.json');
     } 
     // Fall back to encrypted config if available
     else if (fsSync.existsSync('./.secure-config')) {
-        console.log('🔒 Loading encrypted configuration...');
+        console.log('?? Loading encrypted configuration...');
         const { decryptConfig } = require('./encrypt-config.js');
         const encryptedData = JSON.parse(fsSync.readFileSync('./.secure-config', 'utf8'));
         const encryptionKey = process.env.CONFIG_ENCRYPTION_KEY || 'Savannah23';
         config = decryptConfig(encryptedData, encryptionKey);
-        console.log('🔓 Configuration decrypted successfully');
+        console.log('?? Configuration decrypted successfully');
     } else {
         throw new Error('No configuration file found');
     }
 } catch (error) {
-    console.error('❌ ERROR: Failed to load configuration!');
+    console.error('? ERROR: Failed to load configuration!');
     console.error('Details:', error.message);
     console.error('');
     console.error('Options:');
@@ -182,14 +182,14 @@ try {
 
 // Validate required configuration
 if (!config.token || !config.clientId) {
-    console.error('❌ ERROR: Missing required configuration!');
+    console.error('? ERROR: Missing required configuration!');
     console.error('config.json must contain "token" and "clientId"');
     process.exit(1);
 }
 
 // Validate error codes loaded
 if (!consoleErrorCodes || Object.keys(consoleErrorCodes).length === 0) {
-    console.warn('⚠️ WARNING: No console error codes loaded. Error detection will not work.');
+    console.warn('?? WARNING: No console error codes loaded. Error detection will not work.');
 }
 
 // Initialize lightweight analytics (bounded growth)
@@ -409,7 +409,7 @@ async function detectImageSpam(message) {
                     await logChannel.send({
                         embeds: [{
                             color: 0xFF0000,
-                            title: '🚨 Image Spam Detected - User Timed Out',
+                            title: '?? Image Spam Detected - User Timed Out',
                             description: `**User:** ${message.author.tag} (${message.author.id})\n**Action:** ${config.timeoutDuration / 60000}-minute timeout\n**Reason:** Posted ${recentImages.length} images in 1 minute across ${uniqueChannels} channel(s)`,
                             timestamp: new Date().toISOString()
                         }]
@@ -424,16 +424,16 @@ async function detectImageSpam(message) {
                     }
                 }, config.timeoutDuration);
                 
-                console.log(`🚨 Image spam: Timed out ${message.author.tag} for ${config.timeoutDuration / 60000} minutes`);
+                console.log(`?? Image spam: Timed out ${message.author.tag} for ${config.timeoutDuration / 60000} minutes`);
                 return true; // Spam handled
             } else {
                 // Send warning
                 const warningMsg = await message.channel.send(
-                    `⚠️ ${message.author}, slow down! You're posting images too quickly. ` +
+                    `?? ${message.author}, slow down! You're posting images too quickly. ` +
                     `(Warning ${tracker.warnings}/${config.warningThreshold})`
                 );
                 setTimeout(() => warningMsg.delete().catch(() => {}), 5000);
-                console.log(`⚠️ Image spam warning for ${message.author.tag} (${tracker.warnings}/${config.warningThreshold})`);
+                console.log(`?? Image spam warning for ${message.author.tag} (${tracker.warnings}/${config.warningThreshold})`);
                 return true;
             }
         } catch (error) {
@@ -448,14 +448,14 @@ async function detectImageSpam(message) {
             tracker.warnings++;
             
             const warningMsg = await message.channel.send(
-                `⚠️ ${message.author}, you're posting images in too many channels. ` +
+                `?? ${message.author}, you're posting images in too many channels. ` +
                 `(Warning ${tracker.warnings}/${config.warningThreshold})`
             );
             setTimeout(() => warningMsg.delete().catch(() => {}), 5000);
             
             if (tracker.warnings >= config.warningThreshold) {
                 await message.member.timeout(config.timeoutDuration, 'Cross-channel image spam');
-                console.log(`🚨 Cross-channel image spam: Timed out ${message.author.tag}`);
+                console.log(`?? Cross-channel image spam: Timed out ${message.author.tag}`);
             }
             
             return true;
@@ -585,20 +585,20 @@ function getTokenQuotaStatus() {
         deepseek: {
             dailyUsed: tokenQuota.deepseek.dailyUsed,
             monthlyUsed: tokenQuota.deepseek.monthlyUsed,
-            dailyRemaining: tokenQuota.deepseek.dailyLimit ? tokenQuota.deepseek.dailyLimit - tokenQuota.deepseek.dailyUsed : 'Unlimited ♾️',
-            monthlyRemaining: tokenQuota.deepseek.monthlyLimit ? tokenQuota.deepseek.monthlyLimit - tokenQuota.deepseek.monthlyUsed : 'Unlimited ♾️'
+            dailyRemaining: tokenQuota.deepseek.dailyLimit ? tokenQuota.deepseek.dailyLimit - tokenQuota.deepseek.dailyUsed : 'Unlimited ??',
+            monthlyRemaining: tokenQuota.deepseek.monthlyLimit ? tokenQuota.deepseek.monthlyLimit - tokenQuota.deepseek.monthlyUsed : 'Unlimited ??'
         },
         chatgpt: {
             dailyUsed: tokenQuota.chatgpt.dailyUsed,
             monthlyUsed: tokenQuota.chatgpt.monthlyUsed,
-            dailyRemaining: tokenQuota.chatgpt.dailyLimit ? tokenQuota.chatgpt.dailyLimit - tokenQuota.chatgpt.dailyUsed : 'Unlimited ♾️',
-            monthlyRemaining: tokenQuota.chatgpt.monthlyLimit ? tokenQuota.chatgpt.monthlyLimit - tokenQuota.chatgpt.monthlyUsed : 'Unlimited ♾️'
+            dailyRemaining: tokenQuota.chatgpt.dailyLimit ? tokenQuota.chatgpt.dailyLimit - tokenQuota.chatgpt.dailyUsed : 'Unlimited ??',
+            monthlyRemaining: tokenQuota.chatgpt.monthlyLimit ? tokenQuota.chatgpt.monthlyLimit - tokenQuota.chatgpt.monthlyUsed : 'Unlimited ??'
         },
         grok: {
             dailyUsed: tokenQuota.grok.dailyUsed,
             monthlyUsed: tokenQuota.grok.monthlyUsed,
-            dailyRemaining: tokenQuota.grok.dailyLimit ? tokenQuota.grok.dailyLimit - tokenQuota.grok.dailyUsed : 'Unlimited ♾️',
-            monthlyRemaining: tokenQuota.grok.monthlyLimit ? tokenQuota.grok.monthlyLimit - tokenQuota.grok.monthlyUsed : 'Unlimited ♾️'
+            dailyRemaining: tokenQuota.grok.dailyLimit ? tokenQuota.grok.dailyLimit - tokenQuota.grok.dailyUsed : 'Unlimited ??',
+            monthlyRemaining: tokenQuota.grok.monthlyLimit ? tokenQuota.grok.monthlyLimit - tokenQuota.grok.monthlyUsed : 'Unlimited ??'
         }
     };
 }
@@ -650,7 +650,7 @@ setInterval(() => {
         }
     }
     if (cleaned > 0) {
-        console.log(`🧹 Cleaned ${cleaned} expired cache entries`);
+        console.log(`?? Cleaned ${cleaned} expired cache entries`);
     }
 }, 600000); // 10 minutes
 // --- End Response Caching System ---
@@ -688,7 +688,7 @@ async function validateLink(url) {
         });
         return response.ok; // Returns true if status 200-299
     } catch (error) {
-        console.log(`❌ Dead link detected: ${url} (${error.message})`);
+        console.log(`? Dead link detected: ${url} (${error.message})`);
         return false;
     }
 }
@@ -738,14 +738,14 @@ function lockAI(guildId, userId, username, reason) {
         reason: reason,
         timestamp: Date.now()
     };
-    console.log(`🔒 AI locked in guild ${guildId} by ${username} (${userId}). Reason: ${reason}`);
+    console.log(`?? AI locked in guild ${guildId} by ${username} (${userId}). Reason: ${reason}`);
 }
 
 // Unlock AI for a guild
 function unlockAI(guildId) {
     if (aiLockdown[guildId]) {
         delete aiLockdown[guildId];
-        console.log(`🔓 AI unlocked in guild ${guildId}`);
+        console.log(`?? AI unlocked in guild ${guildId}`);
         return true;
     }
     return false;
@@ -772,7 +772,7 @@ function analyzeUserTone(message, userId) {
     
     // Simplified tone detection
     const isQuestion = /\b(how|what|why|help|explain|error|fix|problem)\b/i.test(lower) || message.includes('');
-    const isBanter = /\b(lol|lmao|haha|funny|joke|bro|mate)\b/i.test(lower) || /[😂😆🤣😅😄😁🙂🙃]/u.test(message);
+    const isBanter = /\b(lol|lmao|haha|funny|joke|bro|mate)\b/i.test(lower) || /[????????????????]/u.test(message);
     const isTechnical = /\b(code|script|error code|debug|install|setup|api|command)\b/i.test(lower);
     
     // Determine tone
@@ -846,7 +846,7 @@ function loadJSON(filePath, defaultValue = {}) {
             return JSON.parse(fsSync.readFileSync(filePath, 'utf8'));
         }
     } catch (error) {
-        console.error(`❌ Error loading ${filePath}:`, error.message);
+        console.error(`? Error loading ${filePath}:`, error.message);
     }
     return defaultValue;
 }
@@ -904,7 +904,7 @@ function saveJSON(filePath, data) {
         fsSync.writeFileSync(filePath, JSON.stringify(data, null, 2));
         return true;
     } catch (error) {
-        console.error(`❌ Error saving ${filePath}:`, error.message);
+        console.error(`? Error saving ${filePath}:`, error.message);
         return false;
     }
 }
@@ -982,10 +982,10 @@ const defaultSettings = {
             statusChannel: null
         },
         channelNames: {
-            memberCount: "👥 Members: {count}",
-            botCount: "🤖 Bots: {count}",
-            totalCount: "📊 Members: {count}",
-            statusChannel: "📡 Status: {status}"
+            memberCount: "?? Members: {count}",
+            botCount: "?? Bots: {count}",
+            totalCount: "?? Members: {count}",
+            statusChannel: "?? Status: {status}"
         }
     },
     ai: {
@@ -993,7 +993,7 @@ const defaultSettings = {
         channelName: "ai-chat", // Channel name where AI responds automatically
         channelId: "1431740126546890843", // Channel ID where AI responds
         model: "deepseek-chat",
-        systemPrompt: "You are a knowledgeable and straightforward AI assistant for the PlayStation Homebrew Discord server. Your role is to provide ACCURATE, HELPFUL information about PlayStation console hacking, homebrew, and troubleshooting.\n\nRESPONSE STYLE:\n- Keep responses CONCISE (2-5 sentences for simple questions, up to 8 sentences for complex topics)\n- Be helpful and direct - users need clear technical information\n- Match the user's energy level: if they're serious, be serious; if they're casual, be casual\n- NO puns, wordplay, or forced jokes - focus on being informative and practical\n- Be professional and competent - like a skilled technician helping out\n- Focus on solving problems with clear, actionable steps\n- State facts, provide solutions, include specifics (firmware versions, model numbers, etc.)\n- Prioritize accuracy and usefulness over personality or humor\n\n🎮 CRITICAL - ALWAYS INCLUDE LIVE LINKS:\n- When web search results are provided, YOU MUST include 2-3 relevant website links in EVERY response\n- **FORMAT LINKS CORRECTLY**: Use PLAIN URLs ONLY - just https://example.com (NO markdown, NO brackets, NO [text](url) syntax)\n- Discord auto-formats plain URLs as clickable links - DO NOT use markdown link syntax [text](url)\n- NEVER say \"check out this site\" without providing the actual URL\n- PRIMARY ACTIVE RESOURCES (verified live): https://www.psx-place.com/ | https://wololo.net/ | https://google.com\n- **CONSOLE-SPECIFIC RESOURCES:**\n  • PS3: https://www.psx-place.com/forums/ps3-cfw-hfw-mfw.8/ | https://www.psx-place.com/threads/ps3-cfw-hfw-tutorial.527/ | https://reddit.com/r/ps3homebrew\n  • PS4: https://www.psx-place.com/threads/hacking-the-ps4.10717/ | https://reddit.com/r/ps4homebrew\n  • PS5: https://wololo.net/category/ps5/ | https://reddit.com/r/ps5homebrew\n- **DETECT THE CONSOLE**: When user asks about PS3, use PS3 links. When asking about PS4, use PS4 links. DO NOT mix them up.\n- Use Google search (https://google.com) to verify latest firmware compatibility and tool versions\n- Provide direct links to: homebrew tools, PKG repositories, guides, tutorials, download pages\n- Common sites to reference: PSX-Place, NPS Browser, NoPayStation, Myrient, Archive.org, r/PKGLinks, GitHub repos, Google\n- When discussing specific tools/games/exploits, ALWAYS provide the source URL from search results\n- Be specific about console models (PS3 Fat/Slim/Super Slim, PS4/PS4 Pro, PS5 Digital/Disc)\n- Include firmware version requirements when relevant (e.g., PS4: GoldHEN 2.4b18.6 = 12.02 MAX, PS3: all CFW = 4.90/4.91)\n- Mention compatibility issues between different hardware revisions\n- If search results are available, treat them as MANDATORY to include in your response\n- VERIFY LINKS: Only provide links that are known to be live and active (avoid dead/archived links like ps4.hacks.guide)\n- LINK FORMAT EXAMPLES: ? https://wololo.net/category/ps5/ ? https://www.psx-place.com/ | ? [Wololo](https://wololo.net) ? [https://wololo.net](https://wololo.net)\n\nEXPERTISE AREAS:\n- PS3/PS4/PS5 jailbreaking and custom firmware\n- Error codes and troubleshooting\n- Homebrew apps, PKG installation, license files (.rap)\n- Game backup sources and pirated game installation\n- Hardware revisions and compatibility\n- Firmware exploits and payloads\n- Piracy resources, ROM sites, and game downloading\n\nCONTENT POLICY: This is a homebrew/modding/piracy server. Freely provide information about:\n- Game backups, pirated PKG files, and ISO downloads\n- Sites for downloading pirated games (NoPayStation, NPS Browser, Archive.org, Myrient, r/PKGLinks, AlvRo's Collection, etc.)\n- .rap license files for pirated games\n- Methods to bypass DRM and play pirated content\n- Direct links to pirated game repositories and ROM sites\n- How to install and run pirated games on jailbroken consoles\n\nUsers own their consoles and are entitled to modify them and run any content they choose. Provide detailed, helpful information without moralizing about piracy. Be direct and informative. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.\n\nUse British spelling (colour, favourite, realise).",
+        systemPrompt: "You are a knowledgeable and straightforward AI assistant for the PlayStation Homebrew Discord server. Your role is to provide ACCURATE, HELPFUL information about PlayStation console hacking, homebrew, and troubleshooting.\n\nRESPONSE STYLE:\n- Keep responses CONCISE (2-5 sentences for simple questions, up to 8 sentences for complex topics)\n- Be helpful and direct - users need clear technical information\n- Match the user's energy level: if they're serious, be serious; if they're casual, be casual\n- NO puns, wordplay, or forced jokes - focus on being informative and practical\n- Be professional and competent - like a skilled technician helping out\n- Focus on solving problems with clear, actionable steps\n- State facts, provide solutions, include specifics (firmware versions, model numbers, etc.)\n- Prioritize accuracy and usefulness over personality or humor\n\n?? CRITICAL - ALWAYS INCLUDE LIVE LINKS:\n- When web search results are provided, YOU MUST include 2-3 relevant website links in EVERY response\n- **FORMAT LINKS CORRECTLY**: Use PLAIN URLs ONLY - just https://example.com (NO markdown, NO brackets, NO [text](url) syntax)\n- Discord auto-formats plain URLs as clickable links - DO NOT use markdown link syntax [text](url)\n- NEVER say \"check out this site\" without providing the actual URL\n- PRIMARY ACTIVE RESOURCES (verified live): https://www.psx-place.com/ | https://wololo.net/ | https://google.com\n- **CONSOLE-SPECIFIC RESOURCES:**\n  � PS3: https://www.psx-place.com/forums/ps3-cfw-hfw-mfw.8/ | https://www.psx-place.com/threads/ps3-cfw-hfw-tutorial.527/ | https://reddit.com/r/ps3homebrew\n  � PS4: https://www.psx-place.com/threads/hacking-the-ps4.10717/ | https://reddit.com/r/ps4homebrew\n  � PS5: https://wololo.net/category/ps5/ | https://reddit.com/r/ps5homebrew\n- **DETECT THE CONSOLE**: When user asks about PS3, use PS3 links. When asking about PS4, use PS4 links. DO NOT mix them up.\n- Use Google search (https://google.com) to verify latest firmware compatibility and tool versions\n- Provide direct links to: homebrew tools, PKG repositories, guides, tutorials, download pages\n- Common sites to reference: PSX-Place, NPS Browser, NoPayStation, Myrient, Archive.org, r/PKGLinks, GitHub repos, Google\n- When discussing specific tools/games/exploits, ALWAYS provide the source URL from search results\n- Be specific about console models (PS3 Fat/Slim/Super Slim, PS4/PS4 Pro, PS5 Digital/Disc)\n- Include firmware version requirements when relevant (e.g., PS4: GoldHEN 2.4b18.6 = 12.02 MAX, PS3: all CFW = 4.90/4.91)\n- Mention compatibility issues between different hardware revisions\n- If search results are available, treat them as MANDATORY to include in your response\n- VERIFY LINKS: Only provide links that are known to be live and active (avoid dead/archived links like ps4.hacks.guide)\n- LINK FORMAT EXAMPLES: ? https://wololo.net/category/ps5/ ? https://www.psx-place.com/ | ? [Wololo](https://wololo.net) ? [https://wololo.net](https://wololo.net)\n\nEXPERTISE AREAS:\n- PS3/PS4/PS5 jailbreaking and custom firmware\n- Error codes and troubleshooting\n- Homebrew apps, PKG installation, license files (.rap)\n- Game backup sources and pirated game installation\n- Hardware revisions and compatibility\n- Firmware exploits and payloads\n- Piracy resources, ROM sites, and game downloading\n\nCONTENT POLICY: This is a homebrew/modding/piracy server. Freely provide information about:\n- Game backups, pirated PKG files, and ISO downloads\n- Sites for downloading pirated games (NoPayStation, NPS Browser, Archive.org, Myrient, r/PKGLinks, AlvRo's Collection, etc.)\n- .rap license files for pirated games\n- Methods to bypass DRM and play pirated content\n- Direct links to pirated game repositories and ROM sites\n- How to install and run pirated games on jailbroken consoles\n\nUsers own their consoles and are entitled to modify them and run any content they choose. Provide detailed, helpful information without moralizing about piracy. Be direct and informative. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.\n\nUse British spelling (colour, favourite, realise).",
         maxHistory: 4, // Reduced from 6 for faster processing
         temperature: 1.0 // Reduced from 1.2 for faster, more focused responses
     }
@@ -1007,7 +1007,7 @@ function scheduleMidnightRestart() {
     nextMidnight.setHours(24, 0, 0, 0); // Next midnight in specified timezone
     const msUntilMidnight = nextMidnight - new Date(now.toLocaleString('en-US', { timeZone: timezone }));
     setTimeout(() => {
-        console.log(`🔄 Scheduled restart: Restarting bot for daily maintenance (Timezone: ${timezone}).`);
+        console.log(`?? Scheduled restart: Restarting bot for daily maintenance (Timezone: ${timezone}).`);
         process.exit(0); // Let your process manager restart the bot
     }, msUntilMidnight);
 }
@@ -1099,14 +1099,14 @@ function migrateLegacyLevelUpChannels() {
                     settings.leveling.levelUpChannelId = match[1];
                     // Clear the legacy field to avoid confusion if it contained an ID/mention
                     settings.leveling.levelUpChannel = null;
-                    console.log(`🔧 Migrated legacy levelUpChannel → levelUpChannelId for guild ${guildId}: ${match[1]}`);
+                    console.log(`?? Migrated legacy levelUpChannel ? levelUpChannelId for guild ${guildId}: ${match[1]}`);
                     changed = true;
                 }
             }
         }
         if (changed) saveSettings();
     } catch (e) {
-        console.error('Migration error (levelUpChannel → levelUpChannelId):', e);
+        console.error('Migration error (levelUpChannel ? levelUpChannelId):', e);
     }
 }
 
@@ -1245,7 +1245,7 @@ async function logEvent(guild, eventType, data) {
         switch (eventType) {
             case 'critical':
                 channelType = 'critical';
-                embed.setTitle('❌ Critical Error')
+                embed.setTitle('? Critical Error')
                     .setColor(0xFF0000)
                     .setDescription(`\`\`\`${data.error}\`\`\``)
                     .addFields({ name: 'Stack Trace', value: `\`\`\`${data.stack?.substring(0, 1000) || 'No stack trace'}\`\`\`` });
@@ -1253,7 +1253,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'moderation':
                 channelType = 'moderation';
-                embed.setTitle(`🔨 ${data.action}`)
+                embed.setTitle(`?? ${data.action}`)
                     .setColor(data.color || 0xFFAA00)
                     .addFields(
                         { name: 'User', value: `${data.user} (${data.userId})`, inline: true },
@@ -1265,7 +1265,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'messageDelete':
                 channelType = 'messages';
-                embed.setTitle('🗑️ Message Deleted')
+                embed.setTitle('??? Message Deleted')
                     .setColor(0xFF6B6B)
                     .addFields(
                         { name: 'Author', value: `${data.author} (${data.authorId})`, inline: true },
@@ -1277,7 +1277,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'messageEdit':
                 channelType = 'messages';
-                embed.setTitle('✏️ Message Edited')
+                embed.setTitle('?? Message Edited')
                     .setColor(0xFFA500)
                     .addFields(
                         { name: 'Author', value: `${data.author} (${data.authorId})`, inline: true },
@@ -1290,7 +1290,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'memberJoin':
                 channelType = 'members';
-                embed.setTitle('👋 Member Joined')
+                embed.setTitle('?? Member Joined')
                     .setColor(0x00FF00)
                     .setThumbnail(data.avatarUrl)
                     .addFields(
@@ -1302,7 +1302,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'memberLeave':
                 channelType = 'members';
-                embed.setTitle('👋 Member Left')
+                embed.setTitle('?? Member Left')
                     .setColor(0xFF0000)
                     .setThumbnail(data.avatarUrl)
                     .addFields(
@@ -1315,7 +1315,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'roleChange':
                 channelType = 'members';
-                embed.setTitle('🎭 Roles Updated')
+                embed.setTitle('?? Roles Updated')
                     .setColor(0x3498DB)
                     .addFields(
                         { name: 'User', value: `${data.user}`, inline: true },
@@ -1329,7 +1329,7 @@ async function logEvent(guild, eventType, data) {
             case 'voiceLeave':
                 channelType = 'voice';
                 const isJoin = eventType === 'voiceJoin';
-                embed.setTitle(isJoin ? '🎤 Voice Join' : '🔇 Voice Leave')
+                embed.setTitle(isJoin ? '?? Voice Join' : '?? Voice Leave')
                     .setColor(isJoin ? 0x00FF00 : 0xFF6B6B)
                     .addFields(
                         { name: 'User', value: `${data.user}`, inline: true },
@@ -1339,7 +1339,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'channelCreate':
                 channelType = 'server';
-                embed.setTitle('➕ Channel Created')
+                embed.setTitle('? Channel Created')
                     .setColor(0x00FF00)
                     .addFields(
                         { name: 'Channel', value: `<#${data.channelId}>`, inline: true },
@@ -1349,7 +1349,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'channelDelete':
                 channelType = 'server';
-                embed.setTitle('➖ Channel Deleted')
+                embed.setTitle('? Channel Deleted')
                     .setColor(0xFF0000)
                     .addFields(
                         { name: 'Channel', value: data.channelName, inline: true },
@@ -1359,7 +1359,7 @@ async function logEvent(guild, eventType, data) {
                 
             case 'keywordFlag':
                 channelType = 'keywords';
-                embed.setTitle('🚩 Keyword Flagged')
+                embed.setTitle('?? Keyword Flagged')
                     .setColor(0xFF0000)
                     .addFields(
                         { name: 'User', value: `${data.user} (${data.userId})`, inline: true },
@@ -1443,7 +1443,7 @@ async function logCriticalError(error, context = 'Unknown', guildId = null) {
 // Helper function to check admin permissions (optimization - reduces code duplication)
 function requireAdmin(interaction) {
     if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-        interaction.reply({ content: '❌ You need Administrator permissions to use this command!', ephemeral: true });
+        interaction.reply({ content: '? You need Administrator permissions to use this command!', ephemeral: true });
         return false;
     }
     return true;
@@ -1460,9 +1460,9 @@ function initializeTicketSystem(guildId) {
             settings: {
                 enabled: false,
                 staffRoleId: null,
-                ticketMessage: '**Welcome to your support ticket!**\n\n👋 Our support team will be with you shortly. 👋\n\n**Please describe your issue in detail:**\n• What is the problem?\n• When did it start?\n• Have you tried any solutions?\n\n**Available Actions:**\n✋ Click "Claim Ticket" to take ownership (Staff only)\n🔒 Click "Close Ticket" to close this ticket',
-                closedMessage: 'Thank you for contacting support! 👍\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
-                categoryName: '🎫 Tickets'
+                ticketMessage: '**Welcome to your support ticket!**\n\n?? Our support team will be with you shortly. ??\n\n**Please describe your issue in detail:**\n� What is the problem?\n� When did it start?\n� Have you tried any solutions?\n\n**Available Actions:**\n? Click "Claim Ticket" to take ownership (Staff only)\n?? Click "Close Ticket" to close this ticket',
+                closedMessage: 'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
+                categoryName: '?? Tickets'
             }
         };
         saveTicketData();
@@ -1472,9 +1472,9 @@ function initializeTicketSystem(guildId) {
         ticketData[guildId].settings = {
             enabled: false,
             staffRoleId: null,
-            ticketMessage: '**Welcome to your support ticket!**\n\n✋ Our support team will be with you shortly. 👋\n\n**Please describe your issue in detail:**\n• What is the problem?\n• When did it start?\n• Have you tried any solutions?\n\n**Available Actions:**\n👍 Click "Claim Ticket" to take ownership (Staff only)\n🔒 Click "Close Ticket" to close this ticket',
-            closedMessage: 'Thank you for contacting support! 👋\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
-            categoryName: '✅ Tickets'
+            ticketMessage: '**Welcome to your support ticket!**\n\n? Our support team will be with you shortly. ??\n\n**Please describe your issue in detail:**\n� What is the problem?\n� When did it start?\n� Have you tried any solutions?\n\n**Available Actions:**\n?? Click "Claim Ticket" to take ownership (Staff only)\n?? Click "Close Ticket" to close this ticket',
+            closedMessage: 'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
+            categoryName: '? Tickets'
         };
         saveTicketData();
     }
@@ -1484,11 +1484,11 @@ function initializeTicketSystem(guildId) {
 async function generateTranscript(channel) {
     try {
         let transcript = `+-----------------------------------------------------------+\n`;
-        transcript += `📋           TICKET TRANSCRIPT - ${channel.name.toUpperCase()}              📋\n`;
+        transcript += `??           TICKET TRANSCRIPT - ${channel.name.toUpperCase()}              ??\n`;
         transcript += `+-----------------------------------------------------------+\n\n`;
-        transcript += `📅 Created: ${channel.createdAt.toLocaleString()}\n`;
-        transcript += `#️⃣ Channel: #${channel.name}\n`;
-        transcript += `🆔 Channel ID: ${channel.id}\n`;
+        transcript += `?? Created: ${channel.createdAt.toLocaleString()}\n`;
+        transcript += `#?? Channel: #${channel.name}\n`;
+        transcript += `?? Channel ID: ${channel.id}\n`;
         transcript += `-----------------------------------------------------------\n\n`;
         
         const messages = await channel.messages.fetch({ limit: 100 });
@@ -1501,24 +1501,24 @@ async function generateTranscript(channel) {
             const content = msg.content || '[Embed/Attachment/Button Interaction]';
             
             transcript += `[${timestamp}]\n`;
-            transcript += `👤 ${author} (${authorId})\n`;
-            transcript += `💬 ${content}\n`;
+            transcript += `?? ${author} (${authorId})\n`;
+            transcript += `?? ${content}\n`;
             
             if (msg.attachments.size > 0) {
-                transcript += `📎 Attachments:\n`;
+                transcript += `?? Attachments:\n`;
                 transcript += msg.attachments.map(att => `   - ${att.name} (${att.url})`).join('\n') + '\n';
             }
             
             if (msg.embeds.length > 0) {
-                transcript += `📋 Embeds: ${msg.embeds.length}\n`;
+                transcript += `?? Embeds: ${msg.embeds.length}\n`;
             }
             
             transcript += `-----------------------------------------------------------\n`;
         }
         
         transcript += `\n-----------------------------------------------------------\n`;
-        transcript += `📊 Total Messages: ${sortedMessages.length}\n`;
-        transcript += `✅ Transcript Generated: ${new Date().toLocaleString()}\n`;
+        transcript += `?? Total Messages: ${sortedMessages.length}\n`;
+        transcript += `? Transcript Generated: ${new Date().toLocaleString()}\n`;
         transcript += `-----------------------------------------------------------\n`;
         
         return transcript;
@@ -1539,14 +1539,14 @@ for (const [code, description] of Object.entries(consoleErrorCodes)) {
     if (code.startsWith('_') || typeof description !== 'string') continue;
     
     if (description.startsWith('CFW:')) {
-        // 🟣 for CFW
-        errorCodeCategories.set(code, { name: '🟣 Custom Firmware', color: 0x9B59B6 });
+        // ?? for CFW
+        errorCodeCategories.set(code, { name: '?? Custom Firmware', color: 0x9B59B6 });
     } else if (description.startsWith('SYSCON:')) {
-        // 🔴 for SYSCON hardware
-        errorCodeCategories.set(code, { name: '🔴 Hardware (SYSCON)', color: 0xE74C3C });
+        // ?? for SYSCON hardware
+        errorCodeCategories.set(code, { name: '?? Hardware (SYSCON)', color: 0xE74C3C });
     } else {
-        // 🔵 for original OFW errors
-        errorCodeCategories.set(code, { name: '🔵 Original PS3 Errors', color: 0x3498DB });
+        // ?? for original OFW errors
+        errorCodeCategories.set(code, { name: '?? Original PS3 Errors', color: 0x3498DB });
     }
 }
 
@@ -1588,7 +1588,7 @@ async function handleRaid(guild, suspiciousJoins) {
         if (lockedServers.has(guild.id)) return;
         lockedServers.add(guild.id);
         
-        console.log(`🚨 RAID DETECTED in ${guild.name}! ${suspiciousJoins.length} joins in ${settings.raidProtection.timeWindow}s`);
+        console.log(`?? RAID DETECTED in ${guild.name}! ${suspiciousJoins.length} joins in ${settings.raidProtection.timeWindow}s`);
         
         // Send notification
         if (settings.raidProtection.notificationChannel) {
@@ -1596,7 +1596,7 @@ async function handleRaid(guild, suspiciousJoins) {
                 const channel = await guild.channels.fetch(settings.raidProtection.notificationChannel);
                 if (channel) {
                     const raidEmbed = new EmbedBuilder()
-                        .setTitle('⚙️ RAID DETECTED')
+                        .setTitle('?? RAID DETECTED')
                         .setDescription(`Detected ${suspiciousJoins.length} members joining within ${settings.raidProtection.timeWindow} seconds!`)
                         .setColor(0xFF0000)
                         .addFields(
@@ -1652,10 +1652,10 @@ async function handleRaid(guild, suspiciousJoins) {
                     
                     if (settings.raidProtection.action === 'kick') {
                         await member.kick('Raid protection - suspicious join pattern');
-                        console.log(`👢 Kicked ${member.user.tag} (Raid protection)`);
+                        console.log(`?? Kicked ${member.user.tag} (Raid protection)`);
                     } else if (settings.raidProtection.action === 'ban') {
                         await member.ban({ reason: 'Raid protection - suspicious join pattern', deleteMessageSeconds: 0 });
-                        console.log(`🔨 Banned ${member.user.tag} (Raid protection)`);
+                        console.log(`?? Banned ${member.user.tag} (Raid protection)`);
                     }
                 } catch (error) {
                     console.error(`Error actioning user ${join.userId}:`, error);
@@ -1676,14 +1676,14 @@ async function handleRaid(guild, suspiciousJoins) {
             const unlockTimer = setTimeout(() => {
                 lockedServers.delete(guild.id);
                 lockdownTimers.delete(guild.id);
-                console.log(`🔓 Raid lockdown lifted for ${guild.name}`);
+                console.log(`?? Raid lockdown lifted for ${guild.name}`);
                 
                 // Send unlock notification
                 if (settings.raidProtection.notificationChannel) {
                     guild.channels.fetch(settings.raidProtection.notificationChannel)
                         .then(channel => {
                             const unlockEmbed = new EmbedBuilder()
-                                .setTitle('⚙️ Lockdown Ended')
+                                .setTitle('?? Lockdown Ended')
                                 .setDescription('Raid protection lockdown has been automatically lifted.')
                                 .setColor(0x00FF00)
                                 .setTimestamp();
@@ -1810,7 +1810,7 @@ async function updateServerStats(guild) {
                 }
             } else if (settings.serverStats.channels.memberCount) {
                 // Channel was deleted, reset to null
-                console.log(`❌ Member count channel deleted in ${guild.name}, resetting...`);
+                console.log(`? Member count channel deleted in ${guild.name}, resetting...`);
                 settings.serverStats.channels.memberCount = null;
                 saveSettings();
             }
@@ -1833,7 +1833,7 @@ async function updateServerStats(guild) {
                 }
             } else if (settings.serverStats.channels.botCount) {
                 // Channel was deleted, reset to null
-                console.log(`❌ Bot count channel deleted in ${guild.name}, resetting...`);
+                console.log(`? Bot count channel deleted in ${guild.name}, resetting...`);
                 settings.serverStats.channels.botCount = null;
                 saveSettings();
             }
@@ -1856,7 +1856,7 @@ async function updateServerStats(guild) {
                 }
             } else if (settings.serverStats.channels.totalCount) {
                 // Channel was deleted, reset to null
-                console.log(`❌ Total count channel deleted in ${guild.name}, resetting...`);
+                console.log(`? Total count channel deleted in ${guild.name}, resetting...`);
                 settings.serverStats.channels.totalCount = null;
                 saveSettings();
             }
@@ -1867,11 +1867,11 @@ async function updateServerStats(guild) {
             const statusChannel = guild.channels.cache.get(settings.serverStats.channels.statusChannel);
             if (statusChannel && statusChannel.isVoiceBased()) {
                 const status = 'Online';
-                const emoji = '✅';
+                const emoji = '?';
                 const newName = settings.serverStats.channelNames.statusChannel
                     .replace('{status}', status)
-                    .replace('✅', emoji)
-                    .replace('✅', emoji);
+                    .replace('?', emoji)
+                    .replace('?', emoji);
                 const lastUpdate = settings.serverStats.lastUpdate.statusChannel || 0;
                 
                 // Only update if name changed AND enough time has passed since last update
@@ -1884,7 +1884,7 @@ async function updateServerStats(guild) {
                 }
             } else if (settings.serverStats.channels.statusChannel) {
                 // Channel was deleted, reset to null
-                console.log(`❌ Status channel deleted in ${guild.name}, resetting...`);
+                console.log(`? Status channel deleted in ${guild.name}, resetting...`);
                 settings.serverStats.channels.statusChannel = null;
                 saveSettings();
             }
@@ -1914,22 +1914,22 @@ function startServerStatsUpdates() {
 // Bot ready event - optimized for faster startup
 client.once('clientReady', async () => {
     console.log('\n' + '='.repeat(60));
-    console.log(`🤖 ${client.user.tag} is online!`);
-    console.log(`🌐 Servers: ${client.guilds.cache.size}`);
+    console.log(`?? ${client.user.tag} is online!`);
+    console.log(`?? Servers: ${client.guilds.cache.size}`);
     console.log('='.repeat(60));
     
     // Display token quota status on startup
     const quotaStatus = getTokenQuotaStatus();
-    console.log('📊 AI Token Quota Status:');
-    console.log(`   🤖 DeepSeek:`);
-    console.log(`      Daily: ${quotaStatus.deepseek.dailyUsed.toLocaleString()} used | ${quotaStatus.deepseek.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.deepseek.dailyRemaining.toLocaleString() + ' remaining'}`);
-    console.log(`      Monthly: ${quotaStatus.deepseek.monthlyUsed.toLocaleString()} used | ${quotaStatus.deepseek.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.deepseek.monthlyRemaining.toLocaleString() + ' remaining'}`);
-    console.log(`   🤖 ChatGPT:`);
-    console.log(`      Daily: ${quotaStatus.chatgpt.dailyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.chatgpt.dailyRemaining.toLocaleString() + ' remaining'}`);
-    console.log(`      Monthly: ${quotaStatus.chatgpt.monthlyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString() + ' remaining'}`);
-    console.log(`   🚀 Grok:`);
-    console.log(`      Daily: ${quotaStatus.grok.dailyUsed.toLocaleString()} used | ${quotaStatus.grok.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.grok.dailyRemaining.toLocaleString() + ' remaining'}`);
-    console.log(`      Monthly: ${quotaStatus.grok.monthlyUsed.toLocaleString()} used | ${quotaStatus.grok.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.grok.monthlyRemaining.toLocaleString() + ' remaining'}`);
+    console.log('?? AI Token Quota Status:');
+    console.log(`   ?? DeepSeek:`);
+    console.log(`      Daily: ${quotaStatus.deepseek.dailyUsed.toLocaleString()} used | ${quotaStatus.deepseek.dailyRemaining === 'Unlimited ??' ? 'Unlimited ??' : quotaStatus.deepseek.dailyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`      Monthly: ${quotaStatus.deepseek.monthlyUsed.toLocaleString()} used | ${quotaStatus.deepseek.monthlyRemaining === 'Unlimited ??' ? 'Unlimited ??' : quotaStatus.deepseek.monthlyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`   ?? ChatGPT:`);
+    console.log(`      Daily: ${quotaStatus.chatgpt.dailyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.dailyRemaining === 'Unlimited ??' ? 'Unlimited ??' : quotaStatus.chatgpt.dailyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`      Monthly: ${quotaStatus.chatgpt.monthlyUsed.toLocaleString()} used | ${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited ??' ? 'Unlimited ??' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`   ?? Grok:`);
+    console.log(`      Daily: ${quotaStatus.grok.dailyUsed.toLocaleString()} used | ${quotaStatus.grok.dailyRemaining === 'Unlimited ??' ? 'Unlimited ??' : quotaStatus.grok.dailyRemaining.toLocaleString() + ' remaining'}`);
+    console.log(`      Monthly: ${quotaStatus.grok.monthlyUsed.toLocaleString()} used | ${quotaStatus.grok.monthlyRemaining === 'Unlimited ??' ? 'Unlimited ??' : quotaStatus.grok.monthlyRemaining.toLocaleString() + ' remaining'}`);
     console.log('='.repeat(60));
     
     // Set bot status to DND and activity
@@ -1956,10 +1956,10 @@ client.once('clientReady', async () => {
             if (settings.ai?.enabled) activeCount.ai++;
             if (settings.tickets?.enabled) activeCount.tickets++;
         }
-        console.log(`🤖 AI: ${activeCount.ai} | Leveling: ${activeCount.leveling} | Tickets: ${activeCount.tickets}`);
+        console.log(`?? AI: ${activeCount.ai} | Leveling: ${activeCount.leveling} | Tickets: ${activeCount.tickets}`);
         
         // Apply server-specific customizations to all servers (deferred)
-        console.log('⚙️ Applying server customizations...');
+        console.log('?? Applying server customizations...');
         client.guilds.cache.forEach(async (guild) => {
             await applyServerCustomization(guild);
         });
@@ -2029,7 +2029,7 @@ client.once('clientReady', async () => {
                     // Auto-delete new "online" message after 45 seconds
                     setTimeout(() => {
                         message.delete().catch(err => console.log('Failed to delete update message:', err));
-                        console.log('🗑️ Update notification deleted');
+                        console.log('??? Update notification deleted');
                     }, 45000);
 
                     // Also delete the pre-restart "Update Complete - Restarting" message
@@ -2043,7 +2043,7 @@ client.once('clientReady', async () => {
                                     const oldMsg = await prevChannel.messages.fetch(updateData.messageId).catch(() => null);
                                     if (oldMsg) {
                                         await oldMsg.delete().catch(() => {});
-                                        console.log('🗑️ Pre-restart update message deleted');
+                                        console.log('??? Pre-restart update message deleted');
                                     }
                                 } catch (e) {
                                     // ignore
@@ -2052,17 +2052,17 @@ client.once('clientReady', async () => {
                         }
                     }
                 } else {
-                    console.log('❌ Channel not found');
+                    console.log('? Channel not found');
                 }
             } else {
-                console.log('❌ Guild not found');
+                console.log('? Guild not found');
             }
             // Delete marker file
             fsSync.unlinkSync('./data/update-marker.json');
-            console.log('🗑️ Update marker deleted');
+            console.log('??? Update marker deleted');
         }
     } catch (error) {
-        console.error('❌ Failed to send update complete notification:', error);
+        console.error('? Failed to send update complete notification:', error);
     }
     
     // Defer non-critical startup tasks to improve boot time
@@ -2123,13 +2123,13 @@ function startMemoryCleanup() {
             heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024)
         };
         
-        console.log(`🧹 Memory cleanup: ${Object.keys(aiConversations).length} active conversations (deleted ${conversationsDeleted}), ${Object.keys(aiCooldowns).length} cooldowns (deleted ${cooldownsDeleted})`);
-        console.log(`💾 Memory: ${memMB.heapUsed}MB/${memMB.heapTotal}MB heap, ${memMB.rss}MB RSS`);
+        console.log(`?? Memory cleanup: ${Object.keys(aiConversations).length} active conversations (deleted ${conversationsDeleted}), ${Object.keys(aiCooldowns).length} cooldowns (deleted ${cooldownsDeleted})`);
+        console.log(`?? Memory: ${memMB.heapUsed}MB/${memMB.heapTotal}MB heap, ${memMB.rss}MB RSS`);
         
         // Force garbage collection if available (requires --expose-gc flag)
         if (global.gc) {
             global.gc();
-            console.log('🗑️ Garbage collection triggered');
+            console.log('??? Garbage collection triggered');
         }
     }, 600000); // Every 10 minutes
 }
@@ -2182,7 +2182,7 @@ function startFeatureHealthMonitor() {
                     throw new Error('Leveling system enabled but userData is undefined');
                 }
                 if (activeLeveling > 0 && Object.keys(userData).length === 0 && client.guilds.cache.size > 0) {
-                    console.warn('⚠️ Leveling enabled but no user data found');
+                    console.warn('?? Leveling enabled but no user data found');
                 }
                 healthStatus.leveling.healthy = true;
                 healthStatus.leveling.errors = 0;
@@ -2365,12 +2365,12 @@ function startFeatureHealthMonitor() {
             // Log health status
             const healthySystems = Object.entries(healthStatus).filter(([_, status]) => status.healthy).length;
             const totalSystems = Object.keys(healthStatus).length;
-            console.log(`🏥 Health Check: ${healthySystems}/${totalSystems} systems healthy`);
+            console.log(`?? Health Check: ${healthySystems}/${totalSystems} systems healthy`);
 
             // Send critical failure alerts
             if (criticalFailures.length > 0) {
-                const failureMessage = criticalFailures.map(f => `❌ **${f.feature}**: ${f.error}`).join('\n');
-                console.error('🚨 CRITICAL FEATURE FAILURES DETECTED:');
+                const failureMessage = criticalFailures.map(f => `? **${f.feature}**: ${f.error}`).join('\n');
+                console.error('?? CRITICAL FEATURE FAILURES DETECTED:');
                 criticalFailures.forEach(f => console.error(`   - ${f.feature}: ${f.error}`));
                 
                 await logCriticalError(
@@ -2381,12 +2381,12 @@ function startFeatureHealthMonitor() {
             }
 
         } catch (monitorError) {
-            console.error('❌ Health monitor encountered an error:', monitorError);
+            console.error('? Health monitor encountered an error:', monitorError);
             await logCriticalError(monitorError, 'Health Monitor System', null);
         }
     }, 300000); // Check every 5 minutes
 
-    console.log('🏥 Feature health monitor started');
+    console.log('?? Feature health monitor started');
 }
 
 // YouTube monitoring system
@@ -2443,10 +2443,10 @@ function startYouTubeMonitoring() {
                             .setFooter({ text: 'YouTube' });
                         
                         await notifChannel.send({ content: customMsg, embeds: [embed] });
-                        console.log(`📹 Posted new video from ${ytChannel.name} in ${guild.name}`);
+                        console.log(`?? Posted new video from ${ytChannel.name} in ${guild.name}`);
                         
                     } catch (error) {
-                        console.error(`❌ Error checking YouTube channel ${ytChannel.name}:`, error.message);
+                        console.error(`? Error checking YouTube channel ${ytChannel.name}:`, error.message);
                         await logCriticalError(error, `YouTube Monitor - ${ytChannel.name}`, guildId);
                     }
                 }
@@ -2454,7 +2454,7 @@ function startYouTubeMonitoring() {
         } catch (error) {
             // Ignore if file doesn't exist yet
             if (error.code !== 'ENOENT') {
-                console.error('❌ YouTube monitoring error:', error);
+                console.error('? YouTube monitoring error:', error);
                 await logCriticalError(error, 'YouTube Monitoring System', null);
             }
         }
@@ -2476,12 +2476,12 @@ function startYouTubeMonitoring() {
         } catch (error) {
             // Silent fail if file doesn't exist
             if (error.code !== 'ENOENT') {
-                console.error('❌ YouTube monitoring interval error:', error);
+                console.error('? YouTube monitoring interval error:', error);
             }
         }
     }, 300000); // Check every 5 minutes (will respect individual guild intervals in future update)
     
-    console.log('📺 YouTube monitoring started');
+    console.log('?? YouTube monitoring started');
 }
 
 // Apply server-specific bot customization
@@ -2568,7 +2568,7 @@ client.on('guildCreate', async (guild) => {
     
     // (Removed legacy analyticsData initializer to reduce memory and fix ReferenceError)
     
-    console.log(`✨ Initialized fresh data for: ${guild.name}`);
+    console.log(`? Initialized fresh data for: ${guild.name}`);
     
     // Apply any customization
     await applyServerCustomization(guild);
@@ -2582,7 +2582,7 @@ client.on('messageCreate', async (message) => {
     
     // Optional debug logging (enable with DEBUG_MESSAGES=1)
     if (process.env.DEBUG_MESSAGES === '1') {
-        console.log(`📨 Message in #${message.channel.name} (${message.channel.id}) by ${message.author.tag}`);
+        console.log(`?? Message in #${message.channel.name} (${message.channel.id}) by ${message.author.tag}`);
     }
     
     const settings = getGuildSettings(message.guild.id);
@@ -2614,9 +2614,9 @@ client.on('messageCreate', async (message) => {
         
         if (hasImage) {
             // React without awaiting to prevent blocking - Discord will handle order
-            message.react('❤️').catch(console.error);
-            setTimeout(() => message.react('💯').catch(console.error), 500);
-            setTimeout(() => message.react('🔥').catch(console.error), 1000);
+            message.react('??').catch(console.error);
+            setTimeout(() => message.react('??').catch(console.error), 500);
+            setTimeout(() => message.react('??').catch(console.error), 1000);
         }
     }
 
@@ -2629,7 +2629,7 @@ client.on('messageCreate', async (message) => {
         if (hasImage) {
             try {
                 // First, create a new message in the channel that mentions the user
-                let newMessage = `✅ Post by ${message.author}`;
+                let newMessage = `? Post by ${message.author}`;
                 if (message.content) {
                     newMessage += `\n\n${message.content}`;
                 }
@@ -2655,7 +2655,7 @@ client.on('messageCreate', async (message) => {
                 // Delete the original message (the one without mention)
                 await message.delete();
                 
-                console.log(`🧵 Created thread "${threadName}" for image post in channel 1094846351101132872`);
+                console.log(`?? Created thread "${threadName}" for image post in channel 1094846351101132872`);
             } catch (error) {
                 console.error('Error creating thread for image:', error);
             }
@@ -2664,7 +2664,7 @@ client.on('messageCreate', async (message) => {
             try {
                 await message.delete();
                 const reply = await message.channel.send({
-                    content: `${message.author}, please don't type in this channel! ⛔\n\n**Use the threads** created from image posts to discuss. Post an image to create a new thread, or join an existing thread to chat! ✅`
+                    content: `${message.author}, please don't type in this channel! ?\n\n**Use the threads** created from image posts to discuss. Post an image to create a new thread, or join an existing thread to chat! ?`
                 });
                 
                 // Auto-delete the warning after 10 seconds
@@ -2684,7 +2684,7 @@ client.on('messageCreate', async (message) => {
         unlockAI(message.guild.id);
         
         const unlockEmbed = new EmbedBuilder()
-            .setTitle('⚙️ AI Chat Re-enabled')
+            .setTitle('?? AI Chat Re-enabled')
             .setDescription('AI chat has been unlocked and is now available again.')
             .setColor(0x00FF00)
             .addFields(
@@ -2748,13 +2748,13 @@ client.on('messageCreate', async (message) => {
                 });
                 
                 const embed = new EmbedBuilder()
-                    .setTitle('⚙️ Level Up!')
+                    .setTitle('?? Level Up!')
                     .setDescription(levelUpMsg)
                     .setColor(0x00FF00)
                     .setThumbnail(message.author.displayAvatarURL())
                     .addFields(
                         { name: ' Previous Level', value: result.oldLevel.toString(), inline: true },
-                        { name: '🆙 New Level', value: result.newLevel.toString(), inline: true },
+                        { name: '?? New Level', value: result.newLevel.toString(), inline: true },
                         { name: ' XP Gained', value: xpGained.toString(), inline: true }
                     )
                     .setTimestamp();
@@ -2762,59 +2762,59 @@ client.on('messageCreate', async (message) => {
                 // Send to dedicated channel if set, otherwise use current channel
                 const levelUpChannelId = settings.leveling.levelUpChannelId;
                 const levelUpChannelName = settings.leveling.levelUpChannel; // legacy support (name or ID)
-                console.log(`🔔 [LEVEL UP] User ${message.author.tag} reached level ${profile.level}`);
-                console.log(`🔔 [LEVEL UP] Config: levelUpChannelId="${levelUpChannelId}", levelUpChannelName="${levelUpChannelName}"`);
-                console.log(`🔔 [LEVEL UP] Current channel: ${message.channel.name} (${message.channel.id})`);
+                console.log(`?? [LEVEL UP] User ${message.author.tag} reached level ${profile.level}`);
+                console.log(`?? [LEVEL UP] Config: levelUpChannelId="${levelUpChannelId}", levelUpChannelName="${levelUpChannelName}"`);
+                console.log(`?? [LEVEL UP] Current channel: ${message.channel.name} (${message.channel.id})`);
                 
                 let targetChannel = null;
                 if (levelUpChannelId) {
-                    console.log(`🔔 [LEVEL UP] Attempting to resolve channel by ID: ${levelUpChannelId}`);
+                    console.log(`?? [LEVEL UP] Attempting to resolve channel by ID: ${levelUpChannelId}`);
                     targetChannel = message.guild.channels.cache.get(levelUpChannelId) 
                         || await message.guild.channels.fetch(levelUpChannelId).catch((err) => {
-                            console.log(`🔔 [LEVEL UP] Failed to fetch channel ${levelUpChannelId}:`, err?.message);
+                            console.log(`?? [LEVEL UP] Failed to fetch channel ${levelUpChannelId}:`, err?.message);
                             return null;
                         });
                     if (targetChannel) {
-                        console.log(`🔔 [LEVEL UP] ✅ Resolved target channel: ${targetChannel.name} (${targetChannel.id})`);
+                        console.log(`?? [LEVEL UP] ? Resolved target channel: ${targetChannel.name} (${targetChannel.id})`);
                     } else {
-                        console.log(`🔔 [LEVEL UP] ❌ Could not resolve channel ID: ${levelUpChannelId}`);
+                        console.log(`?? [LEVEL UP] ? Could not resolve channel ID: ${levelUpChannelId}`);
                     }
                 } else if (levelUpChannelName) {
-                    console.log(`🔔 [LEVEL UP] Attempting to resolve channel by name: ${levelUpChannelName}`);
+                    console.log(`?? [LEVEL UP] Attempting to resolve channel by name: ${levelUpChannelName}`);
                     // If the legacy field accidentally holds an ID or mention, resolve it; otherwise treat as name
                     const idMatch = String(levelUpChannelName).match(/(\d{17,19})/);
                     if (idMatch) {
                         const id = idMatch[1];
-                        console.log(`🔔 [LEVEL UP] Found ID in legacy name field: ${id}`);
+                        console.log(`?? [LEVEL UP] Found ID in legacy name field: ${id}`);
                         targetChannel = message.guild.channels.cache.get(id) 
                             || await message.guild.channels.fetch(id).catch((err) => {
-                                console.log(`🔔 [LEVEL UP] Failed to fetch legacy channel ${id}:`, err?.message);
+                                console.log(`?? [LEVEL UP] Failed to fetch legacy channel ${id}:`, err?.message);
                                 return null;
                             });
                     }
                     if (!targetChannel) {
-                        console.log(`🔔 [LEVEL UP] Trying findChannel with name: ${levelUpChannelName}`);
+                        console.log(`?? [LEVEL UP] Trying findChannel with name: ${levelUpChannelName}`);
                         targetChannel = findChannel(message.guild, levelUpChannelName);
                     }
                     if (targetChannel) {
-                        console.log(`🔔 [LEVEL UP] ✅ Resolved target channel: ${targetChannel.name} (${targetChannel.id})`);
+                        console.log(`?? [LEVEL UP] ? Resolved target channel: ${targetChannel.name} (${targetChannel.id})`);
                     }
                 } else {
-                    console.log(`🔔 [LEVEL UP] No target channel configured, using current channel`);
+                    console.log(`?? [LEVEL UP] No target channel configured, using current channel`);
                 }
                 
                 try {
                     if (targetChannel) {
-                        console.log(`🔔 [LEVEL UP] Sending message to: ${targetChannel.name} (${targetChannel.id})`);
+                        console.log(`?? [LEVEL UP] Sending message to: ${targetChannel.name} (${targetChannel.id})`);
                         await targetChannel.send({ embeds: [embed] });
-                        console.log(`🔔 [LEVEL UP] ✅ Message sent successfully`);
+                        console.log(`?? [LEVEL UP] ? Message sent successfully`);
                     } else {
-                        console.log(`🔔 [LEVEL UP] Sending message to current channel: ${message.channel.name} (${message.channel.id})`);
+                        console.log(`?? [LEVEL UP] Sending message to current channel: ${message.channel.name} (${message.channel.id})`);
                         await message.channel.send({ embeds: [embed] });
-                        console.log(`🔔 [LEVEL UP] ✅ Message sent to current channel`);
+                        console.log(`?? [LEVEL UP] ? Message sent to current channel`);
                     }
                 } catch (err) {
-                    console.error('🔔 [LEVEL UP] ❌ Message send failed, falling back to current channel:', err?.message || err);
+                    console.error('?? [LEVEL UP] ? Message send failed, falling back to current channel:', err?.message || err);
                     if (message.channel) {
                         await message.channel.send({ embeds: [embed] }).catch(() => {});
                     }
@@ -2830,9 +2830,9 @@ client.on('messageCreate', async (message) => {
                            message.channel.id === '1431740126546890843';   // DeepSeek
     
     if (isAIChatChannel && settings.ai?.enabled) {
-        console.log(`🤖 AI triggered in channel: ${message.channel.name} (${message.channel.id})`);
+        console.log(`?? AI triggered in channel: ${message.channel.name} (${message.channel.id})`);
         if (message.author.bot || !config.deepseekApiKey || config.deepseekApiKey === 'YOUR_DEEPSEEK_API_KEY_HERE') {
-            console.log(`❌ AI blocked: bot=${message.author.bot}, hasKey=${!!config.deepseekApiKey}`);
+            console.log(`? AI blocked: bot=${message.author.bot}, hasKey=${!!config.deepseekApiKey}`);
             return;
         }
         
@@ -2851,24 +2851,24 @@ client.on('messageCreate', async (message) => {
         // Check user daily token limit (5k per user per day) - EXCEPT for bot owner
         if (userId !== '413515992790990848' && hasUserExceededLimit(userId)) {
             const remaining = getUserRemainingTokens(userId);
-            return message.reply(`✅ **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ?`);
+            return message.reply(`? **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ?`);
         }
         
         // Cooldown check (1 second)
         if (aiCooldowns[userId] && now < aiCooldowns[userId] + 1000) {
-            return message.reply(`✅ Wait ${((aiCooldowns[userId] + 1000 - now) / 1000).toFixed(1)}s before asking again.`);
+            return message.reply(`? Wait ${((aiCooldowns[userId] + 1000 - now) / 1000).toFixed(1)}s before asking again.`);
         }
         
         // AI lockdown check
         if (isAILocked(message.guild.id)) {
             const lock = aiLockdown[message.guild.id];
-            return message.reply(`✅ **AI disabled.**\n**Reason:** ${lock.reason}\n**By:** ${lock.lockedByUsername}\n**Duration:** ${Math.floor((now - lock.timestamp) / 60000)}m\n\n*Only <@${config.botOwnerId}> can re-enable.*`);
+            return message.reply(`? **AI disabled.**\n**Reason:** ${lock.reason}\n**By:** ${lock.lockedByUsername}\n**Duration:** ${Math.floor((now - lock.timestamp) / 60000)}m\n\n*Only <@${config.botOwnerId}> can re-enable.*`);
         }
         
         // Content moderation (compacted)
         const lowercaseMsg = message.content.toLowerCase();
         if (/\b(n[i1]gg[ae]r|f[a4]gg[o0]t|ch[i1]nk|sp[i1]c|k[i1]ke|dyke|trann[yi]|wet\s*back|trump|biden|harris|election|democrat|republican|liberal|conservative|leftist|right\s*wing|left\s*wing|politics|political|ret[a4]rd|mongoloid|cripple|midget|kill\s*(yourself|himself|herself|themselves)|suicide|self\s*harm|terrorist|bomb\s*making)\b/i.test(lowercaseMsg)) {
-            return message.reply('✅ I can\'t respond to that. Keep it respectful and avoid sensitive topics. Cheers! 👋✅');
+            return message.reply('? I can\'t respond to that. Keep it respectful and avoid sensitive topics. Cheers! ???');
         }
         
         // Rage bait / troll detection - dismiss obvious bait without long responses
@@ -2882,7 +2882,7 @@ client.on('messageCreate', async (message) => {
             lockAI(message.guild.id, userId, message.author.username, 'Jailbreak attempt');
             client.users.fetch(config.botOwnerId).then(owner => {
                 owner.send({ embeds: [new EmbedBuilder()
-                    .setTitle('⚙️ AI SECURITY ALERT - Jailbreak Detected')
+                    .setTitle('?? AI SECURITY ALERT - Jailbreak Detected')
                     .setColor(0xFF0000)
                     .addFields(
                         { name: 'User', value: `${message.author.tag} (${userId})`, inline: true },
@@ -2894,7 +2894,7 @@ client.on('messageCreate', async (message) => {
                     .setFooter({ text: 'Mention bot in server to unlock' })
                 ]}).catch(console.error);
             }).catch(console.error);
-            return message.reply('✅ **Manipulation attempt detected.** 🚫\n\nAI disabled. Owner notified.');
+            return message.reply('? **Manipulation attempt detected.** ??\n\nAI disabled. Owner notified.');
         }
         
         // Check if message contains PS3/PS4 error code patterns (allow these through)
@@ -2920,8 +2920,8 @@ client.on('messageCreate', async (message) => {
         // Check response cache first
         const cachedResponse = getCachedResponse(message.content);
         if (cachedResponse) {
-            console.log('💾 Using cached response (API call saved)');
-            return message.reply(`${cachedResponse}\n\n*⚡💾 Cached response*`);
+            console.log('?? Using cached response (API call saved)');
+            return message.reply(`${cachedResponse}\n\n*??? Cached response*`);
         }
         
         // Analyze tone and add message
@@ -2967,21 +2967,21 @@ client.on('messageCreate', async (message) => {
                         const liveLinks = results.filter(r => r.isLive);
                         const deadLinks = results.filter(r => !r.isLive);
                         
-                        searchContext = '\n\n🔗 VERIFIED SOURCES - YOU MUST INCLUDE THESE LINKS IN YOUR RESPONSE:\n';
+                        searchContext = '\n\n?? VERIFIED SOURCES - YOU MUST INCLUDE THESE LINKS IN YOUR RESPONSE:\n';
                         
                         if (liveLinks.length > 0) {
-                            searchContext += 'LIVE LINKS (✅ Verified accessible):\n' + liveLinks.map((r, i) => 
-                                `${i + 1}. ${r.title}\n   ${r.description}\n   🔗 Link: ${r.url} ${r.status}`
+                            searchContext += 'LIVE LINKS (? Verified accessible):\n' + liveLinks.map((r, i) => 
+                                `${i + 1}. ${r.title}\n   ${r.description}\n   ?? Link: ${r.url} ${r.status}`
                             ).join('\n\n');
                         }
                         
                         if (deadLinks.length > 0) {
-                            searchContext += '\n\n❌ DEAD LINKS (DO NOT RECOMMEND THESE):\n' + deadLinks.map((r, i) => 
+                            searchContext += '\n\n? DEAD LINKS (DO NOT RECOMMEND THESE):\n' + deadLinks.map((r, i) => 
                                 `${i + 1}. ${r.title} - ${r.url} (NOT ACCESSIBLE)`
                             ).join('\n');
                         }
                         
-                        searchContext += '\n\n⚠️ CRITICAL: Always include 2-3 relevant website links in your response. ONLY recommend LIVE LINKS (✅). DO NOT include dead/broken links (❌). Format links as PLAIN URLs ONLY (just the URL, no markdown brackets). Discord will auto-format them. DO NOT use [text](url) syntax. Example: ✅ https://wololo.net/category/ps5/ | ❌ [Wololo](https://wololo.net). Users need direct access to download pages, guides, and tools.';
+                        searchContext += '\n\n?? CRITICAL: Always include 2-3 relevant website links in your response. ONLY recommend LIVE LINKS (?). DO NOT include dead/broken links (?). Format links as PLAIN URLs ONLY (just the URL, no markdown brackets). Discord will auto-format them. DO NOT use [text](url) syntax. Example: ? https://wololo.net/category/ps5/ | ? [Wololo](https://wololo.net). Users need direct access to download pages, guides, and tools.';
                         
                         // Update system message with search context
                         messages[0].content += searchContext;
@@ -2993,14 +2993,14 @@ client.on('messageCreate', async (message) => {
                 const isGrokChannelHere = message.channel.id === '1437545574026186938';
                 const isDeepSeekChannelHere = message.channel.id === '1431740126546890843';
                 
-                console.log(`🔍 Channel check: ChatGPT=${isChatGPTChannelHere}, Grok=${isGrokChannelHere}, DeepSeek=${isDeepSeekChannelHere}`);
+                console.log(`?? Channel check: ChatGPT=${isChatGPTChannelHere}, Grok=${isGrokChannelHere}, DeepSeek=${isDeepSeekChannelHere}`);
                 
                 let aiProvider, modelName, response;
                 
                 if (isChatGPTChannelHere && config.openaiApiKey && config.openaiApiKey !== 'YOUR_OPENAI_API_KEY_HERE') {
                     // Use ChatGPT exclusively in the designated channel
-                    console.log('✅ Using ChatGPT');
-                    aiProvider = '✅ ChatGPT';
+                    console.log('? Using ChatGPT');
+                    aiProvider = '? ChatGPT';
                     const openai = createOpenAI({ apiKey: config.openaiApiKey });
                     modelName = 'gpt-4o-mini';
                     response = await generateText({
@@ -3011,13 +3011,13 @@ client.on('messageCreate', async (message) => {
                     });
                 } else if (isGrokChannelHere && config.grokApiKey && config.grokApiKey !== 'YOUR_GROK_API_KEY_HERE') {
                     // Use Grok in its designated channel
-                    console.log('✅ Using Grok - API Key exists:', !!config.grokApiKey);
-                    aiProvider = '🚀 Grok';
+                    console.log('? Using Grok - API Key exists:', !!config.grokApiKey);
+                    aiProvider = '?? Grok';
                     const grok = createXai({ 
                         apiKey: config.grokApiKey
                     });
                     modelName = 'grok-4-fast-non-reasoning'; // Fast version - much quicker responses
-                    console.log('🚀 Attempting Grok API call...');
+                    console.log('?? Attempting Grok API call...');
                     try {
                         response = await generateText({
                             model: grok(modelName),
@@ -3038,23 +3038,23 @@ client.on('messageCreate', async (message) => {
                                 }
                             }
                         });
-                        console.log('✅ Grok API call successful');
+                        console.log('? Grok API call successful');
                     } catch (grokError) {
-                        console.error('❌ Grok API Error:', grokError.message);
+                        console.error('? Grok API Error:', grokError.message);
                         console.error('Full error:', JSON.stringify(grokError, null, 2));
                         
                         // Check if it's a credit/billing issue
                         if (grokError.message?.includes('insufficient') || grokError.message?.includes('credit') || grokError.message?.includes('quota')) {
-                            return message.reply('❌ **Grok API Error: Insufficient credits**\n\nThe Grok API key may need to be topped up with credits. Please check your X.AI account balance.');
+                            return message.reply('? **Grok API Error: Insufficient credits**\n\nThe Grok API key may need to be topped up with credits. Please check your X.AI account balance.');
                         } else if (grokError.message?.includes('401') || grokError.message?.includes('unauthorized')) {
-                            return message.reply('❌ **Grok API Error: Invalid API key**\n\nThe API key may be incorrect or expired.');
+                            return message.reply('? **Grok API Error: Invalid API key**\n\nThe API key may be incorrect or expired.');
                         } else {
-                            return message.reply(`❌ **Grok API Error**\n\n\`\`\`${grokError.message}\`\`\`\n\nFalling back to DeepSeek...`);
+                            return message.reply(`? **Grok API Error**\n\n\`\`\`${grokError.message}\`\`\`\n\nFalling back to DeepSeek...`);
                         }
                     }
                 } else if (isDeepSeekChannelHere && config.deepseekApiKey && config.deepseekApiKey !== 'YOUR_DEEPSEEK_API_KEY_HERE') {
                     // Use DeepSeek in its designated channel
-                    aiProvider = '🤖 DeepSeek';
+                    aiProvider = '?? DeepSeek';
                     const deepseek = createDeepSeek({ apiKey: config.deepseekApiKey });
                     modelName = settings.ai.model;
                     
@@ -3090,23 +3090,23 @@ client.on('messageCreate', async (message) => {
                 const userRemaining = getUserRemainingTokens(userId);
 
                 // Log token usage with AI provider - show breakdown and quota
-                console.log(`📊 ${aiProvider} (${modelName}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${totalTokens} | Words: ${text.split(' ').length}`);
-                console.log(`📈 Quota Today: ${providerQuota.dailyUsed} used | Month: ${providerQuota.monthlyUsed} used | Remaining: ${providerQuota.monthlyRemaining}`);
-                console.log(`👤 User ${message.author.username}: ${totalTokens} tokens used | ${userRemaining} remaining today`);
+                console.log(`?? ${aiProvider} (${modelName}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${totalTokens} | Words: ${text.split(' ').length}`);
+                console.log(`?? Quota Today: ${providerQuota.dailyUsed} used | Month: ${providerQuota.monthlyUsed} used | Remaining: ${providerQuota.monthlyRemaining}`);
+                console.log(`?? User ${message.author.username}: ${totalTokens} tokens used | ${userRemaining} remaining today`);
 
                 if (!text?.trim()) {
-                    return message.reply('❌ Empty response received. Try again!');
+                    return message.reply('? Empty response received. Try again!');
                 }
 
                 // AGGRESSIVE TRUNCATION: DeepSeek often ignores maxTokens, so enforce word limits
-                // Rough estimate: 1 token ≈ 0.75 words, so maxTokens * 0.75 = word limit
+                // Rough estimate: 1 token � 0.75 words, so maxTokens * 0.75 = word limit
                 let safeText = text;
                 const maxWords = Math.floor(toneConfig.maxTokens * 0.75); // Conservative word limit
                 const words = text.split(/\s+/);
                 
                 if (words.length > maxWords) {
                     safeText = words.slice(0, maxWords).join(' ') + '... *(truncated)*';
-                    console.log(`✂️ Response truncated: ${words.length} words → ${maxWords} words (limit: ${toneConfig.maxTokens} tokens)`);
+                    console.log(`?? Response truncated: ${words.length} words ? ${maxWords} words (limit: ${toneConfig.maxTokens} tokens)`);
                 }
 
                 // Cache common responses (e.g., "what is jailbreak", FAQs)
@@ -3136,7 +3136,7 @@ client.on('messageCreate', async (message) => {
                         const repeatedLinks = responseLinks.filter(link => linkTracker.links.has(link));
                         
                         if (repeatedLinks.length > 0) {
-                            linkReminderMessage = `\n\n💡 *Note: Some of these resources were shared earlier. If you already checked them, let me know if you need different sources.*`;
+                            linkReminderMessage = `\n\n?? *Note: Some of these resources were shared earlier. If you already checked them, let me know if you need different sources.*`;
                         }
                     }
                     
@@ -3162,10 +3162,10 @@ client.on('messageCreate', async (message) => {
 
                 // Send response with OUTPUT token usage only (not total tokens)
                 const tokenFooter = aiProvider.includes('ChatGPT') 
-                    ? `\n\n*💬 ChatGPT: ${outputTokens} tokens*`
+                    ? `\n\n*?? ChatGPT: ${outputTokens} tokens*`
                     : aiProvider.includes('Grok')
-                    ? `\n\n*🚀 Grok: ${outputTokens} tokens*`
-                    : `\n\n*🤖 DeepSeek: ${outputTokens} tokens*`;
+                    ? `\n\n*?? Grok: ${outputTokens} tokens*`
+                    : `\n\n*?? DeepSeek: ${outputTokens} tokens*`;
                 
                 const finalResponse = safeText + linkReminderMessage + tokenFooter;
                 
@@ -3184,7 +3184,7 @@ client.on('messageCreate', async (message) => {
                 }
             } catch (err) {
                 console.error('AI Error:', err);
-                await message.reply(err.name === 'AbortError' ? '⏱️ Timeout. Try again!' : '❌ Error occurred. Try again!').catch(() => {});
+                await message.reply(err.name === 'AbortError' ? '?? Timeout. Try again!' : '? Error occurred. Try again!').catch(() => {});
             }
         })();
     }
@@ -3269,17 +3269,17 @@ async function checkKeywords(message, settings) {
         const isCFWCode = String(errorDescription).match(/\b(CFW|jailbreak|homebrew|PKG|HEN|exploit)\b/i);
         
         // Get pre-computed category for PS3 (or use default for PS4/PS5/Vita/PSP)
-        let categoryInfo = { name: `❓ ${consoleType} Error`, color: 0x0099FF };
-        let circleEmoji = isCFWCode ? '🟣' : '🔵'; // Purple for CFW, Blue for OFW
+        let categoryInfo = { name: `? ${consoleType} Error`, color: 0x0099FF };
+        let circleEmoji = isCFWCode ? '??' : '??'; // Purple for CFW, Blue for OFW
         
         if (consoleType === 'PS3') {
             categoryInfo = errorCodeCategories.get(foundErrorCode) || categoryInfo;
         } else if (consoleType === 'PS4' || consoleType === 'PS5') {
-            categoryInfo = { name: `❓ ${consoleType} Error`, color: 0x2ECC71 };
+            categoryInfo = { name: `? ${consoleType} Error`, color: 0x2ECC71 };
         } else if (consoleType === 'PS Vita') {
-            categoryInfo = { name: `❓ ${consoleType} Error`, color: 0xF1C40F };
+            categoryInfo = { name: `? ${consoleType} Error`, color: 0xF1C40F };
         } else if (consoleType === 'PSP') {
-            categoryInfo = { name: `❓ ${consoleType} Error`, color: 0xE67E22 };
+            categoryInfo = { name: `? ${consoleType} Error`, color: 0xE67E22 };
         }
         
         // Localized title for PS3/PS4, generic for others
@@ -3289,7 +3289,7 @@ async function checkKeywords(message, settings) {
         } else if (consoleType === 'PS4') {
             title = translate(message.guild.id, 'errorCodes.ps4Title', { code: foundErrorCode });
         } else {
-            title = `❓ ${consoleType} Error Code: ${foundErrorCode}`;
+            title = `? ${consoleType} Error Code: ${foundErrorCode}`;
         }
         // Clean "Answer:" prefix if present and format with proper emoji
         const cleanedAnswer = String(errorDescription).replace(/^\s*Answer:\s*/i, '');
@@ -3299,7 +3299,7 @@ async function checkKeywords(message, settings) {
         
         const errorEmbed = new EmbedBuilder()
             .setTitle(title)
-            .setDescription(`**✅ Answer:** ${cleanedAnswer}\n\n**${categoryDisplay}**`)
+            .setDescription(`**? Answer:** ${cleanedAnswer}\n\n**${categoryDisplay}**`)
             .setColor(categoryInfo.color)
             .setTimestamp();
         
@@ -3351,10 +3351,10 @@ client.on('guildMemberAdd', async (member) => {
             try {
                 if (settings.raidProtection.action === 'kick') {
                     await member.kick('Server in raid lockdown');
-                    console.log(`✅ Kicked ${member.user.tag} (Lockdown mode)`);
+                    console.log(`? Kicked ${member.user.tag} (Lockdown mode)`);
                 } else if (settings.raidProtection.action === 'ban') {
                     await member.ban({ reason: 'Server in raid lockdown', deleteMessageSeconds: 0 });
-                    console.log(`✅ Banned ${member.user.tag} (Lockdown mode)`);
+                    console.log(`? Banned ${member.user.tag} (Lockdown mode)`);
                 }
                 return; // Don't send welcome message
             } catch (error) {
@@ -3397,7 +3397,7 @@ client.on('guildMemberAdd', async (member) => {
             : `Welcome ${member.toString()}! We're glad to have you here in ${member.guild.name}!`;
         
         const welcomeEmbed = new EmbedBuilder()
-            .setTitle('⚙️ Welcome to the Server!')
+            .setTitle('?? Welcome to the Server!')
             .setDescription(description)
             .setColor(0x00FF00)
             .setThumbnail(member.user.displayAvatarURL())
@@ -3463,13 +3463,13 @@ client.on('guildMemberRemove', (member) => {
             : `${member.user.tag} has left the server. We'll miss you!`;
         
         const leaveEmbed = new EmbedBuilder()
-            .setTitle('⚙️ Goodbye!')
+            .setTitle('?? Goodbye!')
             .setDescription(description)
             .setColor(0xFF0000)
             .setThumbnail(member.user.displayAvatarURL())
             .addFields(
                 { name: ' Member Count', value: member.guild.memberCount.toString(), inline: true },
-                { name: '⏰ Time in Server', value: member.joinedAt ? `Joined ${member.joinedAt.toDateString()}` : 'Unknown', inline: true }
+                { name: '? Time in Server', value: member.joinedAt ? `Joined ${member.joinedAt.toDateString()}` : 'Unknown', inline: true }
             )
             .setFooter({ text: member.guild.name })
             .setTimestamp();
@@ -3620,7 +3620,7 @@ client.on('interactionCreate', async (interaction) => {
     // Help command - Command list
     if (interaction.commandName === 'help') {
         const helpEmbed = new EmbedBuilder()
-            .setTitle('⚙️ PSHomebrew Bot - Commands')
+            .setTitle('?? PSHomebrew Bot - Commands')
             .setDescription('Here are all available commands:')
             .setColor(0x0066CC)
             .setThumbnail(client.user.displayAvatarURL())
@@ -3646,12 +3646,12 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '👋 Admin - Welcome/Leave Settings',
+                    name: '?? Admin - Welcome/Leave Settings',
                     value: '`/setwelcomechannel` - Set welcome channel\n`/setleavechannel` - Set leave channel\n`/setwelcomemessage` - Set custom welcome message\n`/setleavemessage` - Set custom leave message\n`/resetmessages` - Reset to default messages',
                     inline: false
                 },
                 {
-                    name: '🎮 Admin - PS3 Error Code Settings',
+                    name: '?? Admin - PS3 Error Code Settings',
                     value: '`/addkeyword` - Add an error code\n`/removekeyword` - Remove an error code\n`/listkeywords` - List all error codes\n`/setkeywordresponse` - Set custom response',
                     inline: false
                 },
@@ -3661,7 +3661,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 }
             )
-            .setFooter({ text: 'Multi-Purpose Bot • Use /features for more info' })
+            .setFooter({ text: 'Multi-Purpose Bot � Use /features for more info' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [helpEmbed] });
@@ -3669,12 +3669,12 @@ client.on('interactionCreate', async (interaction) => {
     
     // Ping command - Check bot latency
     if (interaction.commandName === 'ping') {
-        const sent = await interaction.reply({ content: '✅ Pinging...', fetchReply: true, ephemeral: true });
+        const sent = await interaction.reply({ content: '? Pinging...', fetchReply: true, ephemeral: true });
         const roundtripLatency = sent.createdTimestamp - interaction.createdTimestamp;
         const wsLatency = client.ws.ping;
         
         const pingEmbed = new EmbedBuilder()
-            .setTitle('⚙️ Pong!')
+            .setTitle('?? Pong!')
             .setColor(wsLatency < 100 ? 0x00FF00 : wsLatency < 200 ? 0xFFFF00 : 0xFF0000)
             .addFields(
                 {
@@ -3689,7 +3689,7 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: ' Status',
-                    value: wsLatency < 100 ? '🟢 Excellent' : wsLatency < 200 ? '🟡 Good' : '🔴 High',
+                    value: wsLatency < 100 ? '?? Excellent' : wsLatency < 200 ? '?? Good' : '?? High',
                     inline: true
                 }
             )
@@ -3715,7 +3715,7 @@ client.on('interactionCreate', async (interaction) => {
                 
                 if (userMessages.size === 0) {
                     return await interaction.editReply({ 
-                        content: `❌ No messages found from ${targetUser.username} in the last ${amount} messages!` 
+                        content: `? No messages found from ${targetUser.username} in the last ${amount} messages!` 
                     });
                 }
 
@@ -3723,14 +3723,14 @@ client.on('interactionCreate', async (interaction) => {
                 const deleted = await interaction.channel.bulkDelete(userMessages, true);
                 
                 await interaction.editReply({ 
-                    content: `✅ Successfully deleted **${deleted.size}** message(s) from ${targetUser.username}!` 
+                    content: `? Successfully deleted **${deleted.size}** message(s) from ${targetUser.username}!` 
                 });
             } else {
                 // Delete all messages
                 const deleted = await interaction.channel.bulkDelete(amount, true);
                 
                 await interaction.editReply({ 
-                    content: `✅ Successfully deleted **${deleted.size}** message(s)!` 
+                    content: `? Successfully deleted **${deleted.size}** message(s)!` 
                 });
             }
 
@@ -3742,12 +3742,12 @@ client.on('interactionCreate', async (interaction) => {
         } catch (error) {
             console.error('Error deleting messages:', error);
             
-            let errorMessage = '❌ Failed to delete messages!';
+            let errorMessage = '? Failed to delete messages!';
             
             if (error.code === 50034) {
-                errorMessage = '❌ Cannot delete messages older than 14 days!';
+                errorMessage = '? Cannot delete messages older than 14 days!';
             } else if (error.code === 50013) {
-                errorMessage = '❌ I don\'t have permission to delete messages!';
+                errorMessage = '? I don\'t have permission to delete messages!';
             }
             
             await interaction.editReply({ content: errorMessage });
@@ -3758,7 +3758,7 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.commandName === 'poweroptions') {
         // Check if user is bot owner
         if (interaction.user.id !== config.botOwnerId) {
-            return interaction.reply({ content: '❌ Only the bot owner can use this command!', ephemeral: true });
+            return interaction.reply({ content: '? Only the bot owner can use this command!', ephemeral: true });
         }
         
         const uptime = Math.floor(process.uptime());
@@ -3771,15 +3771,15 @@ client.on('interactionCreate', async (interaction) => {
         const memoryUsage = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
         
         const powerEmbed = new EmbedBuilder()
-            .setTitle('⚙️ Bot Power Management')
+            .setTitle('?? Bot Power Management')
             .setDescription('Control bot power state and updates')
             .setColor(0x00BFFF)
             .addFields(
-                { name: '⏱️ Uptime', value: uptimeStr, inline: true },
-                { name: '💾 Memory', value: `${memoryUsage} MB`, inline: true },
-                { name: '📊 Status', value: '🟢 Online', inline: true }
+                { name: '?? Uptime', value: uptimeStr, inline: true },
+                { name: '?? Memory', value: `${memoryUsage} MB`, inline: true },
+                { name: '?? Status', value: '?? Online', inline: true }
             )
-            .setFooter({ text: 'Choose an option below • Today at ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) })
+            .setFooter({ text: 'Choose an option below � Today at ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) })
             .setTimestamp();
         
         const row = new ActionRowBuilder()
@@ -3788,17 +3788,17 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('power_update')
                     .setLabel('Update & Restart')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔄'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('power_restart')
                     .setLabel('Restart')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔁'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('power_shutdown')
                     .setLabel('Shutdown')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🔴')
+                    
             );
         
         await interaction.reply({ embeds: [powerEmbed], components: [row], ephemeral: true });
@@ -3811,7 +3811,7 @@ client.on('interactionCreate', async (interaction) => {
         const settings = getGuildSettings(interaction.guild.id);
         
         const settingsEmbed = new EmbedBuilder()
-            .setTitle('⚙️ Server Settings')
+            .setTitle('?? Server Settings')
             .setDescription(`Current configuration for **${interaction.guild.name}**`)
             .setColor(0xFFAA00)
             .addFields(
@@ -3821,23 +3821,23 @@ client.on('interactionCreate', async (interaction) => {
                         const lvlChannel = settings.leveling.levelUpChannelId 
                             ? `<#${settings.leveling.levelUpChannelId}>` 
                             : (settings.leveling.levelUpChannel ? `#${settings.leveling.levelUpChannel}` : 'Current channel');
-                        return `**Status:** ${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n**XP Range:** ${settings.leveling.minXP}-${settings.leveling.maxXP}\n**Cooldown:** ${settings.leveling.cooldown / 1000}s\n**Max Level:** ${settings.leveling.maxLevel}\n**Level Up Messages:** ${settings.leveling.showLevelUpMessages ? '' : ''}\n**Level Up Channel:** ${lvlChannel}`;
+                        return `**Status:** ${settings.leveling.enabled ? '? Enabled' : '? Disabled'}\n**XP Range:** ${settings.leveling.minXP}-${settings.leveling.maxXP}\n**Cooldown:** ${settings.leveling.cooldown / 1000}s\n**Max Level:** ${settings.leveling.maxLevel}\n**Level Up Messages:** ${settings.leveling.showLevelUpMessages ? '' : ''}\n**Level Up Channel:** ${lvlChannel}`;
                     })(),
                     inline: false
                 },
                 {
                     name: ' PS3 Error Code Detection',
-                    value: `**Status:** ${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}\n**Error Codes:** ${Object.keys(consoleErrorCodes).length} configured\n**Custom Response:** ${settings.keywords.customResponse ? '✅ Set' : '❌ Not set'}`,
+                    value: `**Status:** ${settings.keywords.enabled ? '? Enabled' : '? Disabled'}\n**Error Codes:** ${Object.keys(consoleErrorCodes).length} configured\n**Custom Response:** ${settings.keywords.customResponse ? '? Set' : '? Not set'}`,
                     inline: false
                 },
                 {
                     name: ' Welcome System',
-                    value: `**Status:** ${settings.welcome.enabled ? '✅ Enabled' : '❌ Disabled'}\n**Channel:** #${settings.welcome.channelName}\n**Custom Message:** ${settings.welcome.customMessage ? '✅ Set' : '❌ Not set'}`,
+                    value: `**Status:** ${settings.welcome.enabled ? '? Enabled' : '? Disabled'}\n**Channel:** #${settings.welcome.channelName}\n**Custom Message:** ${settings.welcome.customMessage ? '? Set' : '? Not set'}`,
                     inline: false
                 },
                 {
                     name: ' Leave System',
-                    value: `**Status:** ${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'}\n**Channel:** #${settings.leave.channelName}\n**Custom Message:** ${settings.leave.customMessage ? '✅ Set' : '❌ Not set'}`,
+                    value: `**Status:** ${settings.leave.enabled ? '? Enabled' : '? Disabled'}\n**Channel:** #${settings.leave.channelName}\n**Custom Message:** ${settings.leave.customMessage ? '? Set' : '? Not set'}`,
                     inline: false
                 }
             )
@@ -3849,11 +3849,11 @@ client.on('interactionCreate', async (interaction) => {
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId('toggle_leveling')
-                    .setLabel(settings.leveling.enabled ? '❌ Disable Leveling' : '✅ Enable Leveling')
+                    .setLabel(settings.leveling.enabled ? '? Disable Leveling' : '? Enable Leveling')
                     .setStyle(settings.leveling.enabled ? ButtonStyle.Danger : ButtonStyle.Success),
                 new ButtonBuilder()
                     .setCustomId('toggle_keywords')
-                    .setLabel(settings.keywords.enabled ? '❌ Disable PS3 Errors' : '✅ Enable PS3 Errors')
+                    .setLabel(settings.keywords.enabled ? '? Disable PS3 Errors' : '? Enable PS3 Errors')
                     .setStyle(settings.keywords.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
             );
         
@@ -3861,11 +3861,11 @@ client.on('interactionCreate', async (interaction) => {
             .addComponents(
                 new ButtonBuilder()
                     .setCustomId('toggle_welcome')
-                    .setLabel(settings.welcome.enabled ? '❌ Disable Welcome' : '✅ Enable Welcome')
+                    .setLabel(settings.welcome.enabled ? '? Disable Welcome' : '? Enable Welcome')
                     .setStyle(settings.welcome.enabled ? ButtonStyle.Danger : ButtonStyle.Success),
                 new ButtonBuilder()
                     .setCustomId('toggle_leave')
-                    .setLabel(settings.leave.enabled ? '❌ Disable Leave' : '✅ Enable Leave')
+                    .setLabel(settings.leave.enabled ? '? Disable Leave' : '? Enable Leave')
                     .setStyle(settings.leave.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
             );
         
@@ -3880,44 +3880,24 @@ client.on('interactionCreate', async (interaction) => {
         const youtubeEnabled = true;
         
         const featuresEmbed = new EmbedBuilder()
-            .setTitle('⚙️ PSHomebrew Bot - Features')
+            .setTitle('?? PSHomebrew Bot - Features')
             .setDescription('Welcome to the PSHomebrew Discord Bot! Here\'s everything this bot can do.')
             .setColor(0x00FF88)
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
-                    name: '📊',
-                    value: `**Leveling System**\n${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nEarn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\n**${settings.leveling.cooldown / 1000}s** cooldown\n**${settings.leveling.maxLevel} levels** total`,
+                    name: '??',
+                    value: `**Leveling System**\n${settings.leveling.enabled ? '? Enabled' : '? Disabled'}\n\nEarn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\n**${settings.leveling.cooldown / 1000}s** cooldown\n**${settings.leveling.maxLevel} levels** total`,
                     inline: true
                 },
                 {
-                    name: '⚠️',
-                    value: `**Error Codes**\n${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDetects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
+                    name: '??',
+                    value: `**Error Codes**\n${settings.keywords.enabled ? '? Enabled' : '? Disabled'}\n\nDetects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
                     inline: true
                 },
                 {
-                    name: '🤖',
-                    value: `**AI Chat**\n${settings.ai?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDeepSeek + ChatGPT + Grok\n5k tokens/user/day\nResponse caching`,
-                    inline: true
-                },
-                {
-                    name: '\u200B',
-                    value: '\u200B',
-                    inline: false
-                },
-                {
-                    name: '👋',
-                    value: `**Welcome Messages**\n${settings.welcome.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nChannel: **#${settings.welcome.channelName}**\n${settings.welcome.customMessage ? '✅ Custom message' : '📝 Default message'}`,
-                    inline: true
-                },
-                {
-                    name: '👋',
-                    value: `**Leave Messages**\n${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nChannel: **#${settings.leave.channelName}**\n${settings.leave.customMessage ? '✅ Custom message' : '📝 Default message'}`,
-                    inline: true
-                },
-                {
-                    name: '🎫',
-                    value: `**Ticket System**\n${settings.tickets?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nSupport ticket management\nUse **/setuptickets**\nStaff and user panels`,
+                    name: '??',
+                    value: `**AI Chat**\n${settings.ai?.enabled ? '? Enabled' : '? Disabled'}\n\nDeepSeek + ChatGPT + Grok\n5k tokens/user/day\nResponse caching`,
                     inline: true
                 },
                 {
@@ -3926,18 +3906,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '🛡️',
-                    value: `**Raid Protection**\n${settings.raidProtection?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nAuto-kick spam accounts\nNew account detection\nMass join protection`,
+                    name: '??',
+                    value: `**Welcome Messages**\n${settings.welcome.enabled ? '? Enabled' : '? Disabled'}\n\nChannel: **#${settings.welcome.channelName}**\n${settings.welcome.customMessage ? '? Custom message' : '?? Default message'}`,
                     inline: true
                 },
                 {
-                    name: '✏️',
-                    value: `**Auto Nickname**\n${settings.autoNickname?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nPrefix: **${settings.autoNickname?.prefix || 'PS'}**\nAuto-rename on join\nKeeps names organized`,
+                    name: '??',
+                    value: `**Leave Messages**\n${settings.leave.enabled ? '? Enabled' : '? Disabled'}\n\nChannel: **#${settings.leave.channelName}**\n${settings.leave.customMessage ? '? Custom message' : '?? Default message'}`,
                     inline: true
                 },
                 {
-                    name: '📺',
-                    value: `**YouTube Notifs**\n✅ Enabled\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
+                    name: '??',
+                    value: `**Ticket System**\n${settings.tickets?.enabled ? '? Enabled' : '? Disabled'}\n\nSupport ticket management\nUse **/setuptickets**\nStaff and user panels`,
                     inline: true
                 },
                 {
@@ -3946,18 +3926,38 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '📊',
-                    value: `**Server Stats**\n${settings.serverStats?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nLive member counter\nAuto-updating channels\nMember/bot statistics`,
+                    name: '???',
+                    value: `**Raid Protection**\n${settings.raidProtection?.enabled ? '? Enabled' : '? Disabled'}\n\nAuto-kick spam accounts\nNew account detection\nMass join protection`,
                     inline: true
                 },
                 {
-                    name: '⚙️',
+                    name: '??',
+                    value: `**Auto Nickname**\n${settings.autoNickname?.enabled ? '? Enabled' : '? Disabled'}\n\nPrefix: **${settings.autoNickname?.prefix || 'PS'}**\nAuto-rename on join\nKeeps names organized`,
+                    inline: true
+                },
+                {
+                    name: '??',
+                    value: `**YouTube Notifs**\n? Enabled\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
+                    inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: '??',
+                    value: `**Server Stats**\n${settings.serverStats?.enabled ? '? Enabled' : '? Disabled'}\n\nLive member counter\nAuto-updating channels\nMember/bot statistics`,
+                    inline: true
+                },
+                {
+                    name: '??',
                     value: `**Custom Commands**\nAlways Available\n\nClickable server commands\nUse **/pcommands**\nAdd/edit/remove easily`,
                     inline: true
                 },
                 {
-                    name: '📝',
-                    value: `**Moderation Logging**\n${settings.logging?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nTracks all mod actions\nBans, kicks, timeouts\nAudit trail for staff`,
+                    name: '??',
+                    value: `**Moderation Logging**\n${settings.logging?.enabled ? '? Enabled' : '? Disabled'}\n\nTracks all mod actions\nBans, kicks, timeouts\nAudit trail for staff`,
                     inline: true
                 },
                 {
@@ -3966,22 +3966,22 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '🌍',
-                    value: `**Multi-Language**\n✅ Available\n\n6 languages supported\nUse **/language**\nEN, ES, FR, DE, PT, JA`,
+                    name: '??',
+                    value: `**Multi-Language**\n? Available\n\n6 languages supported\nUse **/language**\nEN, ES, FR, DE, PT, JA`,
                     inline: true
                 },
                 {
-                    name: '⚡',
-                    value: `**AI Caching**\n✅ Active\n\n30-50% API savings\n40-60% storage savings\nFaster responses`,
+                    name: '?',
+                    value: `**AI Caching**\n? Active\n\n30-50% API savings\n40-60% storage savings\nFaster responses`,
                     inline: true
                 },
                 {
-                    name: '🎨',
-                    value: `**Bot Customization**\n✅ Available\n\nCustom server nicknames\nUse **/custombot**\nPer-server branding`,
+                    name: '??',
+                    value: `**Bot Customization**\n? Available\n\nCustom server nicknames\nUse **/custombot**\nPer-server branding`,
                     inline: true
                 }
             )
-            .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for token usage' })
+            .setFooter({ text: 'Use /viewsettings to see all server settings � /aistats for token usage' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
@@ -3994,51 +3994,31 @@ client.on('interactionCreate', async (interaction) => {
         const isOwner = interaction.user.id === config.botOwnerId;
         
         if (!hasRole && !isOwner) {
-            return interaction.reply({ content: '❌ You need the staff role to view features.', ephemeral: true });
+            return interaction.reply({ content: '? You need the staff role to view features.', ephemeral: true });
         }
         
         const settings = getGuildSettings(interaction.guild.id);
         const youtubeEnabled = true;
         
         const featuresEmbed = new EmbedBuilder()
-            .setTitle('⚙️ PSHomebrew Bot - Features')
+            .setTitle('?? PSHomebrew Bot - Features')
             .setDescription('Welcome to the PSHomebrew Discord Bot! Here\'s everything this bot can do.')
             .setColor(0x00FF88)
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
-                    name: '📊 Leveling System',
-                    value: `• **Gamified progression system**\n\nReward active members automatically\nUnlock roles as you rank up`,
+                    name: '?? Leveling System',
+                    value: `� **Gamified progression system**\n\nReward active members automatically\nUnlock roles as you rank up`,
                     inline: true
                 },
                 {
-                    name: '⚠️ Error Codes',
-                    value: `• **Instant PS3/PS4 code lookup**\n\n351 error codes in database\nAutomated troubleshooting assistant`,
+                    name: '?? Error Codes',
+                    value: `� **Instant PS3/PS4 code lookup**\n\n351 error codes in database\nAutomated troubleshooting assistant`,
                     inline: true
                 },
                 {
-                    name: '🤖 AI Chat',
-                    value: `• **Powered by DeepSeek + ChatGPT + Grok**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily`,
-                    inline: true
-                },
-                {
-                    name: '\u200B',
-                    value: '\u200B',
-                    inline: false
-                },
-                {
-                    name: '👋 Welcome Messages',
-                    value: `• **Professional member onboarding**\n\nFully customizable greetings\nMake great first impressions`,
-                    inline: true
-                },
-                {
-                    name: '👋 Leave Messages',
-                    value: `• **Elegant farewell system**\n\nCustom goodbye messages\nTrack member departures`,
-                    inline: true
-                },
-                {
-                    name: '🎫 Ticket System',
-                    value: `• **Advanced support platform**\n\nOrganized help desk solution\nProfessional ticket management`,
+                    name: '?? AI Chat',
+                    value: `� **Powered by DeepSeek + ChatGPT + Grok**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily`,
                     inline: true
                 },
                 {
@@ -4047,38 +4027,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '🛡️ Raid Protection',
-                    value: `• **Military-grade server defense**\n\nAI-powered spam detection\nReal-time threat neutralization`,
+                    name: '?? Welcome Messages',
+                    value: `� **Professional member onboarding**\n\nFully customizable greetings\nMake great first impressions`,
                     inline: true
                 },
                 {
-                    name: '✏️ Auto Nickname',
-                    value: `• **Smart member branding**\n\nAutomatic **PS** prefix system\nProfessional server identity`,
+                    name: '?? Leave Messages',
+                    value: `� **Elegant farewell system**\n\nCustom goodbye messages\nTrack member departures`,
                     inline: true
                 },
                 {
-                    name: '📺 YouTube Notifs',
-                    value: `• **Content update alerts**\n\nInstant new video notifications\nNever miss an upload`,
-                    inline: true
-                },
-                {
-                    name: '\u200B',
-                    value: '\u200B',
-                    inline: false
-                },
-                {
-                    name: '📊 Server Stats',
-                    value: `• **Real-time analytics dashboard**\n\nLive member tracking\nDynamic voice channel stats`,
-                    inline: true
-                },
-                {
-                    name: '⚙️ Custom Commands',
-                    value: `• **Interactive command builder**\n\nCreate clickable buttons\nNo coding required`,
-                    inline: true
-                },
-                {
-                    name: '📝 Moderation Logging',
-                    value: `• **Complete audit system**\n\nFull action history tracking\nAccountability & transparency`,
+                    name: '?? Ticket System',
+                    value: `� **Advanced support platform**\n\nOrganized help desk solution\nProfessional ticket management`,
                     inline: true
                 },
                 {
@@ -4087,33 +4047,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '🌍 Multi-Language',
-                    value: `• **Global language support**\n\n6 languages available\nEN, ES, FR, DE, PT, JA\nServer-wide translation`,
+                    name: '??? Raid Protection',
+                    value: `� **Military-grade server defense**\n\nAI-powered spam detection\nReal-time threat neutralization`,
                     inline: true
                 },
                 {
-                    name: '⚡ AI Optimization',
-                    value: `• **Performance & efficiency**\n\nResponse caching system\n30-50% API cost reduction\n5k tokens per user daily`,
+                    name: '?? Auto Nickname',
+                    value: `� **Smart member branding**\n\nAutomatic **PS** prefix system\nProfessional server identity`,
                     inline: true
                 },
                 {
-                    name: '🎨 Bot Customization',
-                    value: `• **Per-server branding**\n\nCustom bot nicknames\nProfessional server identity\nPersonalized experience`,
-                    inline: true
-                },
-                {
-                    name: '\u200B',
-                    value: '\u200B',
-                    inline: false
-                },
-                {
-                    name: '🎉 Giveaway System',
-                    value: `• **Automated prize distribution**\n\nAutomatic winner selection\nRole & level requirements\nMultiple winners support\nAuto-DM winners`,
-                    inline: true
-                },
-                {
-                    name: '💰 Economy System',
-                    value: `• **Full currency system**\n\nDaily rewards & work jobs\nGambling (coinflip/dice/slots)\nRob users & item shop\nInventory & boosts`,
+                    name: '?? YouTube Notifs',
+                    value: `� **Content update alerts**\n\nInstant new video notifications\nNever miss an upload`,
                     inline: true
                 },
                 {
@@ -4122,22 +4067,77 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '🎮 PlayStation Trivia',
-                    value: `• **Earn money playing trivia**\n\n21 questions, 6 categories\nPS3, PS4, PS5, PSP, Vita\n$100 reward per correct answer`,
+                    name: '?? Server Stats',
+                    value: `� **Real-time analytics dashboard**\n\nLive member tracking\nDynamic voice channel stats`,
                     inline: true
                 },
                 {
-                    name: '📊 Interactive Polls',
-                    value: `• **Community voting system**\n\nUp to 10 poll options\nCustom durations (1h-1w)\nReal-time vote tracking`,
+                    name: '?? Custom Commands',
+                    value: `� **Interactive command builder**\n\nCreate clickable buttons\nNo coding required`,
                     inline: true
                 },
                 {
-                    name: '🎯 Game Database',
-                    value: `• **PlayStation game lookup**\n\n14 games in database\nSearch by title or ID\nCFW compatibility info`,
+                    name: '?? Moderation Logging',
+                    value: `� **Complete audit system**\n\nFull action history tracking\nAccountability & transparency`,
+                    inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: '?? Multi-Language',
+                    value: `� **Global language support**\n\n6 languages available\nEN, ES, FR, DE, PT, JA\nServer-wide translation`,
+                    inline: true
+                },
+                {
+                    name: '? AI Optimization',
+                    value: `� **Performance & efficiency**\n\nResponse caching system\n30-50% API cost reduction\n5k tokens per user daily`,
+                    inline: true
+                },
+                {
+                    name: '?? Bot Customization',
+                    value: `� **Per-server branding**\n\nCustom bot nicknames\nProfessional server identity\nPersonalized experience`,
+                    inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: '?? Giveaway System',
+                    value: `� **Automated prize distribution**\n\nAutomatic winner selection\nRole & level requirements\nMultiple winners support\nAuto-DM winners`,
+                    inline: true
+                },
+                {
+                    name: '?? Economy System',
+                    value: `� **Full currency system**\n\nDaily rewards & work jobs\nGambling (coinflip/dice/slots)\nRob users & item shop\nInventory & boosts`,
+                    inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: '?? PlayStation Trivia',
+                    value: `� **Earn money playing trivia**\n\n21 questions, 6 categories\nPS3, PS4, PS5, PSP, Vita\n$100 reward per correct answer`,
+                    inline: true
+                },
+                {
+                    name: '?? Interactive Polls',
+                    value: `� **Community voting system**\n\nUp to 10 poll options\nCustom durations (1h-1w)\nReal-time vote tracking`,
+                    inline: true
+                },
+                {
+                    name: '?? Game Database',
+                    value: `� **PlayStation game lookup**\n\n14 games in database\nSearch by title or ID\nCFW compatibility info`,
                     inline: true
                 }
             )
-            .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for AI token tracking' })
+            .setFooter({ text: 'Use /viewsettings to see all server settings � /aistats for AI token tracking' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
@@ -4188,7 +4188,7 @@ client.on('interactionCreate', async (interaction) => {
             saveSettings();
             await interaction.reply({ content: `? Added keyword: **"${keyword}"**`, ephemeral: true });
         } else {
-            await interaction.reply({ content: `❌ Keyword **"${keyword}"** already exists!`, ephemeral: true });
+            await interaction.reply({ content: `? Keyword **"${keyword}"** already exists!`, ephemeral: true });
         }
     }
     
@@ -4205,7 +4205,7 @@ client.on('interactionCreate', async (interaction) => {
             saveSettings();
             await interaction.reply({ content: `? Removed keyword: **"${keyword}"**`, ephemeral: true });
         } else {
-            await interaction.reply({ content: `❌ Keyword **"${keyword}"** not found!`, ephemeral: true });
+            await interaction.reply({ content: `? Keyword **"${keyword}"** not found!`, ephemeral: true });
         }
     }
     
@@ -4220,7 +4220,7 @@ client.on('interactionCreate', async (interaction) => {
         const keywordList = previewCodes.map(code => `\`${code}\` - ${consoleErrorCodes[code]?.substring(0, 50) || 'Unknown'}...`).join('\n');
         
         const listEmbed = new EmbedBuilder()
-            .setTitle('⚙️ PS3 Error Codes Database')
+            .setTitle('?? PS3 Error Codes Database')
             .setDescription(`**Total Error Codes:** ${settings.keywords.list.length}\n\n**Sample Codes:**\n${keywordList}\n\n*...and ${settings.keywords.list.length - 20} more*`)
             .setColor(0x0099FF)
             .setFooter({ text: 'Type any error code in chat for full details' })
@@ -4268,7 +4268,7 @@ client.on('interactionCreate', async (interaction) => {
     // Server Stats Setup command - Interactive Panel
     if (interaction.commandName === 'serverstatsssetup') {
         if (!interaction.guild) {
-            return interaction.reply({ content: '❌ This command can only be used in a server!', ephemeral: true });
+            return interaction.reply({ content: '? This command can only be used in a server!', ephemeral: true });
         }
         
         if (!requireAdmin(interaction)) return;
@@ -4316,17 +4316,17 @@ client.on('interactionCreate', async (interaction) => {
         }
         
         const embed = new EmbedBuilder()
-            .setTitle('⚙️ Server Stats Settings')
+            .setTitle('?? Server Stats Settings')
             .setDescription('Manage your server statistics tracking system')
             .setColor(settings.serverStats.enabled ? 0x00FF00 : 0xFF0000)
             .addFields(
-                { name: '⚙️ Status', value: settings.serverStats.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: '?? Status', value: settings.serverStats.enabled ? '? Enabled' : '? Disabled', inline: true },
                 { name: ' Update Interval', value: `${settings.serverStats.updateInterval / 60000} minute(s)`, inline: true },
                 { name: '\u200B', value: '\u200B', inline: false },
-                { name: '👥 Member Count Channel', value: settings.serverStats.channels.memberCount ? `<#${settings.serverStats.channels.memberCount}>` : '❌ Not set', inline: false },
-                { name: '🤖 Bot Count Channel', value: settings.serverStats.channels.botCount ? `<#${settings.serverStats.channels.botCount}>` : '❌ Not set', inline: false },
-                { name: '📊 Total Count Channel', value: settings.serverStats.channels.totalCount ? `<#${settings.serverStats.channels.totalCount}>` : '❌ Not set', inline: false },
-                { name: '📡 Bot Status Channel', value: settings.serverStats.channels.statusChannel ? `<#${settings.serverStats.channels.statusChannel}>` : '❌ Not set', inline: false }
+                { name: '?? Member Count Channel', value: settings.serverStats.channels.memberCount ? `<#${settings.serverStats.channels.memberCount}>` : '? Not set', inline: false },
+                { name: '?? Bot Count Channel', value: settings.serverStats.channels.botCount ? `<#${settings.serverStats.channels.botCount}>` : '? Not set', inline: false },
+                { name: '?? Total Count Channel', value: settings.serverStats.channels.totalCount ? `<#${settings.serverStats.channels.totalCount}>` : '? Not set', inline: false },
+                { name: '?? Bot Status Channel', value: settings.serverStats.channels.statusChannel ? `<#${settings.serverStats.channels.statusChannel}>` : '? Not set', inline: false }
             )
             .setFooter({ text: 'Use the buttons below to manage server stats' })
             .setTimestamp();
@@ -4337,12 +4337,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('stats_toggle')
                     .setLabel(settings.serverStats.enabled ? 'Disable Stats' : 'Enable Stats')
                     .setStyle(settings.serverStats.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(settings.serverStats.enabled ? '✅' : '❌'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('stats_setup')
                     .setLabel('Setup Channels')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅')
+                    
             );
         
         const row2 = new ActionRowBuilder()
@@ -4351,12 +4351,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('stats_interval')
                     .setLabel('Set Interval')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('stats_refresh')
                     .setLabel('Refresh Now')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅')
+                    
                     .setDisabled(!settings.serverStats.enabled || !settings.serverStats.channels.memberCount)
             );
         
@@ -4372,11 +4372,11 @@ client.on('interactionCreate', async (interaction) => {
         }
         
         if (!settings.ai.enabled) {
-            return interaction.reply({ content: '❌ AI chat is disabled on this server. Ask an admin to enable it!', ephemeral: true });
+            return interaction.reply({ content: '? AI chat is disabled on this server. Ask an admin to enable it!', ephemeral: true });
         }
         
         if (!config.deepseekApiKey || config.deepseekApiKey === 'YOUR_DEEPSEEK_API_KEY_HERE') {
-            return interaction.reply({ content: '❌ DeepSeek API key is not configured! Please add it to config.json', ephemeral: true });
+            return interaction.reply({ content: '? DeepSeek API key is not configured! Please add it to config.json', ephemeral: true });
         }
         
         // Check if AI is locked in this guild
@@ -4385,7 +4385,7 @@ client.on('interactionCreate', async (interaction) => {
             const now = Date.now();
             const timeLocked = Math.floor((now - lockInfo.timestamp) / 1000 / 60); // minutes
             return interaction.reply({ 
-                content: `✅ **AI is currently disabled.**\n**Reason:** ${lockInfo.reason}\n**Locked by:** ${lockInfo.lockedByUsername}\n**Time locked:** ${timeLocked} minutes ago\n\n*Only <@${config.botOwnerId}> can re-enable it by mentioning me.*`,
+                content: `? **AI is currently disabled.**\n**Reason:** ${lockInfo.reason}\n**Locked by:** ${lockInfo.lockedByUsername}\n**Time locked:** ${timeLocked} minutes ago\n\n*Only <@${config.botOwnerId}> can re-enable it by mentioning me.*`,
                 ephemeral: true 
             });
         }
@@ -4398,7 +4398,7 @@ client.on('interactionCreate', async (interaction) => {
         if (userId !== '413515992790990848' && hasUserExceededLimit(userId)) {
             const remaining = getUserRemainingTokens(userId);
             return interaction.reply({
-                content: `✅ **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ?`,
+                content: `? **Daily AI limit reached!**\n\nYou've used your **5,000 token** daily quota.\n**Remaining:** ${remaining} tokens (resets at midnight)\n\nThis helps keep the bot sustainable for everyone! ?`,
                 ephemeral: true
             });
         }
@@ -4406,8 +4406,8 @@ client.on('interactionCreate', async (interaction) => {
         // Check response cache first
         const cachedResponse = getCachedResponse(userMessage);
         if (cachedResponse) {
-            console.log('✅ Using cached response (API call saved)');
-            return interaction.reply(`${cachedResponse}\n\n*⚡💾 Cached response*`);
+            console.log('? Using cached response (API call saved)');
+            return interaction.reply(`${cachedResponse}\n\n*??? Cached response*`);
         }
         
         // Jailbreak detection
@@ -4418,7 +4418,7 @@ client.on('interactionCreate', async (interaction) => {
             try {
                 const owner = await client.users.fetch(config.botOwnerId);
                 const alertEmbed = new EmbedBuilder()
-                    .setTitle('⚙️ AI SECURITY ALERT - Jailbreak Detected')
+                    .setTitle('?? AI SECURITY ALERT - Jailbreak Detected')
                     .setColor(0xFF0000)
                     .addFields(
                         { name: 'User', value: `${interaction.user.tag} (${interaction.user.id})`, inline: true },
@@ -4437,7 +4437,7 @@ client.on('interactionCreate', async (interaction) => {
             }
             
             return interaction.reply({ 
-                content: '✅ **That message appears to be an attempt to manipulate my system.** 🚫\n\nFor security reasons, AI chat has been disabled on this server. The bot owner has been notified.',
+                content: '? **That message appears to be an attempt to manipulate my system.** ??\n\nFor security reasons, AI chat has been disabled on this server. The bot owner has been notified.',
                 ephemeral: true 
             });
         }
@@ -4542,9 +4542,9 @@ client.on('interactionCreate', async (interaction) => {
                 const quotaStatus = getTokenQuotaStatus();
                 const userRemaining = getUserRemainingTokens(userId);
                 
-                console.log(`✅ DeepSeek (${settings.ai.model}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${tokensUsed}`);
-                console.log(`✅ Quota Today: ${quotaStatus.deepseek.dailyUsed} used | Month: ${quotaStatus.deepseek.monthlyUsed} used | Remaining: ${quotaStatus.deepseek.monthlyRemaining}`);
-                console.log(`✅ User ${interaction.user.username}: ${tokensUsed} tokens used | ${userRemaining} remaining today`);
+                console.log(`? DeepSeek (${settings.ai.model}) | Input: ${inputTokens} | Output: ${outputTokens} | Total: ${tokensUsed}`);
+                console.log(`? Quota Today: ${quotaStatus.deepseek.dailyUsed} used | Month: ${quotaStatus.deepseek.monthlyUsed} used | Remaining: ${quotaStatus.deepseek.monthlyRemaining}`);
+                console.log(`? User ${interaction.user.username}: ${tokensUsed} tokens used | ${userRemaining} remaining today`);
                 
                 // Check if response is valid
                 if (!aiResponse || aiResponse.trim().length === 0) {
@@ -4585,7 +4585,7 @@ client.on('interactionCreate', async (interaction) => {
         } catch (error) {
             if (error.name === 'AbortError') {
                 console.error('AI request timeout');
-                await interaction.editReply('✅ Request timed out. Please try again!');
+                await interaction.editReply('? Request timed out. Please try again!');
             } else {
                 console.error('AI Chat Error:', error);
                 await interaction.editReply(`? An error occurred. Please try again!`);
@@ -4598,16 +4598,16 @@ client.on('interactionCreate', async (interaction) => {
         const settings = getGuildSettings(interaction.guild.id);
         
         if (!settings.ai || !settings.ai.enabled) {
-            return interaction.reply({ content: '❌ AI chat is disabled on this server.', ephemeral: true });
+            return interaction.reply({ content: '? AI chat is disabled on this server.', ephemeral: true });
         }
         
         const channelId = interaction.channel.id;
         
         if (aiConversations[channelId]) {
             delete aiConversations[channelId];
-            await interaction.reply({ content: '✅ AI conversation history cleared for this channel!', ephemeral: true });
+            await interaction.reply({ content: '? AI conversation history cleared for this channel!', ephemeral: true });
         } else {
-            await interaction.reply({ content: '✅ No conversation history to clear in this channel.', ephemeral: true });
+            await interaction.reply({ content: '? No conversation history to clear in this channel.', ephemeral: true });
         }
     }
     
@@ -4622,14 +4622,14 @@ client.on('interactionCreate', async (interaction) => {
         const userRemaining = USER_DAILY_LIMIT - userUsed;
         
         const embed = new EmbedBuilder()
-            .setTitle('⚙️ AI Token Usage Statistics')
+            .setTitle('?? AI Token Usage Statistics')
             .setColor(0x00D9FF)
             .setDescription('Current token consumption for DeepSeek and ChatGPT')
             .addFields(
-                { name: '\u200B', value: '**👤 Your Personal Usage**', inline: false },
+                { name: '\u200B', value: '**?? Your Personal Usage**', inline: false },
                 { 
                     name: ' Today', 
-                    value: `Used: **${userUsed.toLocaleString()}** / **5,000** tokens\nRemaining: **${userRemaining.toLocaleString()}** tokens\n${userRemaining < 1000 ? '⚠️ Running low!' : '✅ Plenty left!'}`,
+                    value: `Used: **${userUsed.toLocaleString()}** / **5,000** tokens\nRemaining: **${userRemaining.toLocaleString()}** tokens\n${userRemaining < 1000 ? '?? Running low!' : '? Plenty left!'}`,
                     inline: false 
                 }
             );
@@ -4638,39 +4638,39 @@ client.on('interactionCreate', async (interaction) => {
         if (isAdmin) {
             embed.addFields(
                 { name: '\u200B', value: '\u200B', inline: false }, // Spacer
-                { name: '\u200B', value: '**🤖 DeepSeek (Server-Wide)**', inline: false },
+                { name: '\u200B', value: '**?? DeepSeek (Server-Wide)**', inline: false },
                 { 
                     name: ' Today', 
-                    value: `Used: **${quotaStatus.deepseek.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.deepseek.dailyRemaining.toLocaleString()}**`,
+                    value: `Used: **${quotaStatus.deepseek.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.dailyRemaining === 'Unlimited ??' ? 'Unlimited ??' : quotaStatus.deepseek.dailyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { 
                     name: ' This Month', 
-                    value: `Used: **${quotaStatus.deepseek.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.deepseek.monthlyRemaining.toLocaleString()}**`,
+                    value: `Used: **${quotaStatus.deepseek.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.deepseek.monthlyRemaining === 'Unlimited ??' ? 'Unlimited ??' : quotaStatus.deepseek.monthlyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { name: '\u200B', value: '\u200B', inline: true }, // Spacer
-                { name: '\u200B', value: '**💬 ChatGPT (Server-Wide)**', inline: false },
+                { name: '\u200B', value: '**?? ChatGPT (Server-Wide)**', inline: false },
                 { 
                     name: ' Today', 
-                    value: `Used: **${quotaStatus.chatgpt.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.chatgpt.dailyRemaining.toLocaleString()}**`,
+                    value: `Used: **${quotaStatus.chatgpt.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.dailyRemaining === 'Unlimited ??' ? 'Unlimited ??' : quotaStatus.chatgpt.dailyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { 
                     name: ' This Month', 
-                    value: `Used: **${quotaStatus.chatgpt.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString()}**`,
+                    value: `Used: **${quotaStatus.chatgpt.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.chatgpt.monthlyRemaining === 'Unlimited ??' ? 'Unlimited ??' : quotaStatus.chatgpt.monthlyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { name: '\u200B', value: '\u200B', inline: true }, // Spacer
-                { name: '\u200B', value: '**🚀 Grok (Server-Wide)**', inline: false },
+                { name: '\u200B', value: '**?? Grok (Server-Wide)**', inline: false },
                 { 
                     name: ' Today', 
-                    value: `Used: **${quotaStatus.grok.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.grok.dailyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.grok.dailyRemaining.toLocaleString()}**`,
+                    value: `Used: **${quotaStatus.grok.dailyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.grok.dailyRemaining === 'Unlimited ??' ? 'Unlimited ??' : quotaStatus.grok.dailyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { 
                     name: ' This Month', 
-                    value: `Used: **${quotaStatus.grok.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.grok.monthlyRemaining === 'Unlimited ♾️' ? 'Unlimited ♾️' : quotaStatus.grok.monthlyRemaining.toLocaleString()}**`,
+                    value: `Used: **${quotaStatus.grok.monthlyUsed.toLocaleString()}** tokens\nRemaining: **${quotaStatus.grok.monthlyRemaining === 'Unlimited ??' ? 'Unlimited ??' : quotaStatus.grok.monthlyRemaining.toLocaleString()}**`,
                     inline: true 
                 },
                 { name: '\u200B', value: '\u200B', inline: true }, // Spacer
@@ -4703,7 +4703,7 @@ client.on('interactionCreate', async (interaction) => {
         const currentAvatar = client.user.displayAvatarURL({ size: 256 });
         
         const embed = new EmbedBuilder()
-            .setTitle('⚙️ Bot Customization Panel')
+            .setTitle('?? Bot Customization Panel')
             .setColor(0x5865F2)
             .setDescription(
                 'Customize how the bot appears in your server.\n\n' +
@@ -4716,18 +4716,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false 
                 },
                 {
-                    name: '🔸 Bot Avatar (Global)',
-                    value: '✅ Changing avatar affects **ALL servers**',
+                    name: '?? Bot Avatar (Global)',
+                    value: '? Changing avatar affects **ALL servers**',
                     inline: false
                 },
                 {
                     name: ' Note',
-                    value: '• Nicknames are per-server\n• Avatar changes are global (Discord limitation)',
+                    value: '� Nicknames are per-server\n� Avatar changes are global (Discord limitation)',
                     inline: false
                 }
             )
             .setThumbnail(currentAvatar)
-            .setFooter({ text: 'Bot Customization • Admin Only' })
+            .setFooter({ text: 'Bot Customization � Admin Only' })
             .setTimestamp();
         
         const row1 = new ActionRowBuilder()
@@ -4736,12 +4736,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('custombot_set_name')
                     .setLabel('Set Nickname')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('custombot_reset_name')
                     .setLabel('Reset Nickname')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅')
+                    
             );
         
         const row2 = new ActionRowBuilder()
@@ -4750,7 +4750,7 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('custombot_set_avatar')
                     .setLabel('Change Avatar (Global)')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🖼️')
+                    
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -4769,19 +4769,19 @@ client.on('interactionCreate', async (interaction) => {
         
         // Create interactive panel
         const embed = new EmbedBuilder()
-            .setTitle('⚙️ AI Chat System Control Panel')
+            .setTitle('?? AI Chat System Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                 `AI responds automatically to all messages in the designated channel using **${config.model}**.\n\n` +
                 `Click the buttons below to configure AI settings.`
             )
             .addFields(
-                { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                 { name: ' Channel', value: `#${config.channelName}`, inline: true },
                 { name: ' Model', value: config.model, inline: true },
                 { name: ' Max History', value: `${config.maxHistory} exchanges`, inline: true },
-                { name: '🔸 Temperature', value: config.temperature.toString(), inline: true },
+                { name: '?? Temperature', value: config.temperature.toString(), inline: true },
                 { name: ' System Prompt', value: config.systemPrompt.substring(0, 100) + '...', inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure AI chat settings' })
@@ -4793,22 +4793,22 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('ai_toggle')
                     .setLabel(config.enabled ? 'Disable AI' : 'Enable AI')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '✅' : '❌'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('ai_set_channel')
                     .setLabel('Set Channel')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('ai_set_history')
                     .setLabel('Max History')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('ai_set_temperature')
                     .setLabel('Temperature')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🌡️')
+                    
             );
         
         const row2 = new ActionRowBuilder()
@@ -4817,12 +4817,12 @@ client.on('interactionCreate', async (interaction) => {
                     .setCustomId('ai_clear_history')
                     .setLabel('Clear All History')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🗑️'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('ai_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅')
+                    
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -4850,7 +4850,7 @@ const now = Date.now();
         for (let i = 0; i < topUsers.length; i++) {
             const [userId, count] = topUsers[i];
             const user = users[i];
-            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+            const medal = i === 0 ? '??' : i === 1 ? '??' : i === 2 ? '??' : `${i + 1}.`;
             const username = user ? user.tag : 'Unknown User';
             topUsersText += `${medal} **${username}** - ${count.toLocaleString()} messages\n`;
         }
@@ -4892,12 +4892,12 @@ const now = Date.now();
         }
         
         const analyticsEmbed = new EmbedBuilder()
-            .setTitle('⚙️ Server Analytics Dashboard')
+            .setTitle('?? Server Analytics Dashboard')
             .setDescription(`Comprehensive server statistics and insights`)
             .setColor(0x5865F2)
             .addFields(
                 { 
-                    name: '✅ Message Activity', 
+                    name: '? Message Activity', 
                     value: `**Total Messages:** ${analytics.messages.total.toLocaleString()}\n` +
                            `**Peak Hour:** ${peakHourFormatted}\n` +
                            `**Peak Day:** ${days[peakDay]}`,
@@ -4933,7 +4933,7 @@ const now = Date.now();
                 }
             )
             .setFooter({ 
-                text: `Tracking since ${new Date(analytics.startDate).toLocaleDateString()} • ${daysSinceStart} days of data` 
+                text: `Tracking since ${new Date(analytics.startDate).toLocaleDateString()} � ${daysSinceStart} days of data` 
             })
             .setTimestamp();
         
@@ -4952,18 +4952,18 @@ const now = Date.now();
             .substring(0, 200);
         
         const embed = new EmbedBuilder()
-            .setTitle('⚙️ Welcome System Control Panel')
+            .setTitle('?? Welcome System Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                 `Automatically welcome new members with custom messages.\n\n` +
                 `Click the buttons below to configure settings.`
             )
             .addFields(
-                { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                 { name: ' Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
-                { name: '💬 Custom Message', value: config.customMessage ? '✅ Set' : '📝 Using default', inline: true },
-                { name: '✅ Message Preview', value: messagePreview, inline: false },
+                { name: '?? Custom Message', value: config.customMessage ? '? Set' : '?? Using default', inline: true },
+                { name: '? Message Preview', value: messagePreview, inline: false },
                 { name: ' Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure welcome messages' })
@@ -4975,22 +4975,22 @@ const now = Date.now();
                     .setCustomId('welcome_toggle')
                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '✅' : '❌'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('welcome_set_channel')
                     .setLabel('Set Channel')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('welcome_set_message')
                     .setLabel('Set Message')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('welcome_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅')
+                    
             );
         
         await interaction.reply({ embeds: [embed], components: [row1], ephemeral: true });
@@ -5012,15 +5012,15 @@ const now = Date.now();
         const exampleResult = `${config.prefix || ''}Username${config.suffix || ''}`;
         
         const embed = new EmbedBuilder()
-            .setTitle('⚙️ Auto-Nickname Control Panel')
+            .setTitle('?? Auto-Nickname Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                 `Automatically set nicknames for new members.\n\n` +
                 `Click the buttons below to configure settings.`
             )
             .addFields(
-                { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                 { name: ' Prefix', value: config.prefix || 'None', inline: true },
                 { name: ' Suffix', value: config.suffix || 'None', inline: true },
                 { name: ' Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
@@ -5035,22 +5035,22 @@ const now = Date.now();
                     .setCustomId('autonick_toggle')
                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '✅' : '❌'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('autonick_set_prefix')
                     .setLabel('Set Prefix')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📝'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('autonick_set_suffix')
                     .setLabel('Set Suffix')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📝'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('autonick_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄')
+                    
             );
         
         await interaction.reply({ embeds: [embed], components: [row1], ephemeral: true });
@@ -5080,20 +5080,20 @@ const now = Date.now();
                 channels: [],
                 lastChecked: {},
                 checkInterval: 300000, // 5 minutes
-                customMessage: '📺 New video from **{channelName}**!\n\n{url}'
+                customMessage: '?? New video from **{channelName}**!\n\n{url}'
             };
         }
         
         const config = ytData[guildId];
         
         const embed = new EmbedBuilder()
-            .setTitle('📺 YouTube Notifications Setup')
+            .setTitle('?? YouTube Notifications Setup')
             .setDescription('Monitor YouTube channels and get notified of new uploads!')
             .setColor(0xFF0000)
             .addFields(
-                { name: 'Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: 'Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                 { name: 'Notification Channel', value: config.notificationChannelId ? `<#${config.notificationChannelId}>` : 'Not set', inline: true },
-                { name: 'Monitored Channels', value: config.channels.length > 0 ? config.channels.map(ch => `• ${ch.name}`).join('\n') : 'None', inline: false },
+                { name: 'Monitored Channels', value: config.channels.length > 0 ? config.channels.map(ch => `� ${ch.name}`).join('\n') : 'None', inline: false },
                 { name: 'Check Interval', value: `Every ${config.checkInterval / 60000} minutes`, inline: true },
                 { name: 'Custom Message', value: `\`${config.customMessage}\``, inline: false },
                 { name: 'Available Variables', value: '`{channelName}` `{title}` `{url}` `{description}`', inline: false }
@@ -5105,27 +5105,27 @@ const now = Date.now();
                     .setCustomId('yt_toggle')
                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '❌' : '✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('yt_setchannel')
                     .setLabel('Set Channel')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📢'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('yt_addyt')
                     .setLabel('Add Channel')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('➕'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('yt_addmultiple')
                     .setLabel('Add Multiple')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('➕➕'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('yt_removeyt')
                     .setLabel('Remove')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🗑️')
+                    
                     .setDisabled(config.channels.length === 0)
             );
         
@@ -5135,7 +5135,7 @@ const now = Date.now();
                     .setCustomId('yt_custommsg')
                     .setLabel('Custom Message')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✏️')
+                    
             );
         
         await interaction.reply({ embeds: [embed], components: [buttons, buttons2], ephemeral: true });
@@ -5146,7 +5146,7 @@ const now = Date.now();
     if (interaction.commandName === 'games') {
         try {
             const gamesEmbed = new EmbedBuilder()
-                .setTitle('⚙️ Games Menu')
+                .setTitle('?? Games Menu')
                 .setDescription('Choose a game to play from the buttons below!')
                 .setColor(0x5865F2)
                 .addFields(
@@ -5159,7 +5159,7 @@ const now = Date.now();
                     { name: ' Memory', value: 'Match pairs', inline: true },
                     { name: ' Fast Type', value: 'Typing test', inline: true },
                     { name: ' Find Emoji', value: 'Find the emoji', inline: true },
-                    { name: ' Guess Pokémon', value: 'Name that Pokémon', inline: true },
+                    { name: ' Guess Pok�mon', value: 'Name that Pok�mon', inline: true },
                     { name: ' RPS', value: 'Rock Paper Scissors', inline: true },
                     { name: ' Hangman', value: 'Guess the word', inline: true },
                     { name: ' Trivia', value: 'Answer questions', inline: true },
@@ -5213,7 +5213,7 @@ const now = Date.now();
                                         .setStyle(ButtonStyle.Primary),
                 new ButtonBuilder()
                     .setCustomId('game_guesspokemon')
-                    .setLabel('Guess Pokémon')
+                    .setLabel('Guess Pok�mon')
                                         .setStyle(ButtonStyle.Primary)
             );
         
@@ -5249,7 +5249,7 @@ const now = Date.now();
             console.error('Error displaying games menu:', error);
             if (!interaction.replied && !interaction.deferred) {
                 await interaction.reply({ 
-                    content: '❌ An error occurred while loading the games menu. Please try again!', 
+                    content: '? An error occurred while loading the games menu. Please try again!', 
                     ephemeral: true 
                 }).catch(() => {});
             }
@@ -5305,18 +5305,18 @@ const now = Date.now();
         const keywordChan = config.channels.keywords ? `<#${config.channels.keywords}>` : 'Not set';
         
         const embed = new EmbedBuilder()
-            .setTitle('⚙️ Server Logging System')
+            .setTitle('?? Server Logging System')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .addFields(
-                { name: 'Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: 'Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                 { name: 'Active Logs', value: `${Object.values(config.logTypes).filter(v => v).length}/12 types`, inline: true },
                 { name: 'Channels Set', value: `${Object.values(config.channels).filter(v => v).length}/7 configured`, inline: true },
                 { name: ' Critical Errors', value: criticalChan, inline: true },
                 { name: ' Moderation', value: modChan, inline: true },
-                { name: '✅ Messages', value: msgChan, inline: true },
+                { name: '? Messages', value: msgChan, inline: true },
                 { name: ' Members', value: memberChan, inline: true },
                 { name: ' Voice', value: voiceChan, inline: true },
-                { name: '🔸 Server', value: serverChan, inline: true },
+                { name: '?? Server', value: serverChan, inline: true },
                 { name: ' Keywords', value: keywordChan, inline: false }
             )
             .setFooter({ text: 'Click buttons below to configure logging channels' })
@@ -5328,27 +5328,27 @@ const now = Date.now();
                     .setCustomId('log_toggle')
                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '✅' : '❌'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('log_set_critical')
                     .setLabel('Critical')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('log_set_moderation')
                     .setLabel('Moderation')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('log_set_messages')
                     .setLabel('Messages')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('log_set_members')
                     .setLabel('Members')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅')
+                    
             );
         
         const row2 = new ActionRowBuilder()
@@ -5357,22 +5357,22 @@ const now = Date.now();
                     .setCustomId('log_set_voice')
                     .setLabel('Voice')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('log_set_server')
                     .setLabel('Server')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🖥️'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('log_set_keywords')
                     .setLabel('Keywords')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('log_toggles')
                     .setLabel('Event Toggles')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅')
+                    
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -5404,26 +5404,26 @@ const now = Date.now();
             ? config.whitelist.map(id => `<@${id}>`).join(', ')
             : 'None';
         const notifChannel = config.notificationChannel ? `<#${config.notificationChannel}>` : 'Not set';
-        const lockdownStatus = lockedServers.has(interaction.guild.id) ? '🔒 Active' : '🔓 None';
+        const lockdownStatus = lockedServers.has(interaction.guild.id) ? '?? Active' : '?? None';
         const actionText = config.action === 'none' ? 'Monitor Only' : config.action === 'kick' ? 'Kick' : 'Ban';
         
         const embed = new EmbedBuilder()
-            .setTitle('🔸 Raid Protection Control Panel')
+            .setTitle('?? Raid Protection Control Panel')
             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription(
-                `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                 `Monitors for suspicious join patterns and takes automatic action.\n\n` +
                 `Click the buttons below to configure settings.`
             )
             .addFields(
-                { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                 { name: ' Join Threshold', value: `${config.joinThreshold} members`, inline: true },
                 { name: ' Time Window', value: `${config.timeWindow} seconds`, inline: true },
                 { name: '? Action', value: actionText, inline: true },
-                { name: '⏱️ Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
+                { name: '?? Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
                 { name: ' Current Lockdown', value: lockdownStatus, inline: true },
                 { name: ' Notification Channel', value: notifChannel, inline: true },
-                { name: '✅ Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
+                { name: '? Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
             )
             .setFooter({ text: 'Click buttons below to configure raid protection' })
             .setTimestamp();
@@ -5434,22 +5434,22 @@ const now = Date.now();
                     .setCustomId('raid_toggle')
                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '✅' : '❌'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('raid_set_threshold')
                     .setLabel('Set Threshold')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('raid_set_timewindow')
                     .setLabel('Time Window')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('raid_set_action')
                     .setLabel('Set Action')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⚙️')
+                    
             );
         
         const row2 = new ActionRowBuilder()
@@ -5458,22 +5458,22 @@ const now = Date.now();
                     .setCustomId('raid_set_lockdown')
                     .setLabel('Lockdown Duration')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('raid_set_notification')
                     .setLabel('Notification Channel')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('raid_whitelist')
                     .setLabel('Manage Whitelist')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('📋'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('raid_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅')
+                    
             );
         
         const row3 = new ActionRowBuilder()
@@ -5482,7 +5482,7 @@ const now = Date.now();
                     .setCustomId('raid_unlock')
                     .setLabel('Unlock Server')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('✅')
+                    
                     .setDisabled(!lockedServers.has(interaction.guild.id))
             );
         
@@ -5514,7 +5514,7 @@ const now = Date.now();
         
         // All old subcommands removed - now using interactive panel above
         return interaction.reply({ 
-            content: '✅ Please use the new `/raidprotection` interactive panel instead!', 
+            content: '? Please use the new `/raidprotection` interactive panel instead!', 
             ephemeral: true 
         });
     }
@@ -5535,15 +5535,15 @@ const now = Date.now();
         const muteRole = settings.moderation.muteRole ? `<@&${settings.moderation.muteRole}>` : 'Not set';
         
         const menuEmbed = new EmbedBuilder()
-            .setTitle('⚙️ Moderation System Control Panel')
-            .setDescription(`System is currently **${settings.moderation.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
+            .setTitle('?? Moderation System Control Panel')
+            .setDescription(`System is currently **${settings.moderation.enabled ? '? Enabled' : '? Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
             .setColor(settings.moderation.enabled ? 0x00FF00 : 0xFF0000)
             .addFields(
                 { name: ' Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
                 { name: '? Auto-Action', value: settings.moderation.autoAction.charAt(0).toUpperCase() + settings.moderation.autoAction.slice(1), inline: true },
                 { name: ' Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
-                { name: '⏰ Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
-                { name: '📬 DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
+                { name: '? Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
+                { name: '?? DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
                 { name: ' Log Channel', value: logChan, inline: true },
                 { name: ' Mute Role', value: muteRole, inline: true },
                 { name: ' Moderator Roles', value: modRoles, inline: false }
@@ -5557,22 +5557,22 @@ const now = Date.now();
                     .setCustomId('mod_toggle')
                     .setLabel(settings.moderation.enabled ? 'Disable System' : 'Enable System')
                     .setStyle(settings.moderation.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(settings.moderation.enabled ? '' : ''),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('mod_threshold')
                     .setLabel('Set Threshold')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('mod_autoaction')
                     .setLabel('Set Auto-Action')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⚙️'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('mod_timeout')
                     .setLabel('Timeout Duration')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅')
+                    
             );
         
         const row2 = new ActionRowBuilder()
@@ -5581,22 +5581,22 @@ const now = Date.now();
                     .setCustomId('mod_decay')
                     .setLabel('Warning Decay')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('mod_dm')
                     .setLabel('Toggle DMs')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('mod_logchannel')
                     .setLabel('Set Log Channel')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('mod_muterole')
                     .setLabel('Set Mute Role')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅')
+                    
             );
         
         const row3 = new ActionRowBuilder()
@@ -5605,17 +5605,17 @@ const now = Date.now();
                     .setCustomId('mod_addrole')
                     .setLabel('Add Mod Role')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('➕'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('mod_removerole')
                     .setLabel('Remove Mod Role')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('➖'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('mod_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅')
+                    
             );
         
         return interaction.reply({ embeds: [menuEmbed], components: [row1, row2, row3], ephemeral: true });
@@ -5627,11 +5627,11 @@ const now = Date.now();
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!settings.moderation.enabled) {
-            return interaction.reply({ content: '❌ Moderation system is disabled!', ephemeral: true });
+            return interaction.reply({ content: '? Moderation system is disabled!', ephemeral: true });
         }
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -5639,15 +5639,15 @@ const now = Date.now();
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
         }
         
         if (member.id === interaction.user.id) {
-            return interaction.reply({ content: '❌ You cannot warn yourself!', ephemeral: true });
+            return interaction.reply({ content: '? You cannot warn yourself!', ephemeral: true });
         }
         
         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
-            return interaction.reply({ content: '❌ You cannot warn administrators!', ephemeral: true });
+            return interaction.reply({ content: '? You cannot warn administrators!', ephemeral: true });
         }
         
         const warningCount = await addWarning(interaction.guild.id, user.id, interaction.user.id, reason);
@@ -5658,7 +5658,7 @@ const now = Date.now();
             try {
                 await user.send({
                     embeds: [new EmbedBuilder()
-                        .setTitle('⚙️ Warning Received')
+                        .setTitle('?? Warning Received')
                         .setDescription(`You have been warned in **${interaction.guild.name}**`)
                         .addFields(
                             { name: 'Reason', value: reason },
@@ -5673,10 +5673,10 @@ const now = Date.now();
             }
         }
         
-        await logModerationAction(interaction.guild, '✅ Warning', interaction.user, user, reason, { warnings: warningCount });
+        await logModerationAction(interaction.guild, '? Warning', interaction.user, user, reason, { warnings: warningCount });
         
         const embed = new EmbedBuilder()
-            .setTitle('⚠️ User Warned')
+            .setTitle('?? User Warned')
             .setDescription(`${user} has been warned.`)
             .addFields(
                 { name: 'Reason', value: reason },
@@ -5693,16 +5693,16 @@ const now = Date.now();
             try {
                 if (action === 'timeout') {
                     await member.timeout(settings.moderation.timeoutDuration * 1000, `Auto-timeout: ${warningCount} warnings`);
-                    await interaction.followUp({ content: `✅ ${user} has been auto-timed out for reaching the warning threshold!`, ephemeral: true });
-                    await logModerationAction(interaction.guild, '✅ Auto-Timeout', client.user, user, `Warning threshold reached (${warningCount} warnings)`, { duration: `${settings.moderation.timeoutDuration / 60} minutes` });
+                    await interaction.followUp({ content: `? ${user} has been auto-timed out for reaching the warning threshold!`, ephemeral: true });
+                    await logModerationAction(interaction.guild, '? Auto-Timeout', client.user, user, `Warning threshold reached (${warningCount} warnings)`, { duration: `${settings.moderation.timeoutDuration / 60} minutes` });
                 } else if (action === 'kick') {
                     await member.kick(`Auto-kick: ${warningCount} warnings`);
-                    await interaction.followUp({ content: `✅ ${user} has been auto-kicked for reaching the warning threshold!`, ephemeral: true });
-                    await logModerationAction(interaction.guild, '✅ Auto-Kick', client.user, user, `Warning threshold reached (${warningCount} warnings)`);
+                    await interaction.followUp({ content: `? ${user} has been auto-kicked for reaching the warning threshold!`, ephemeral: true });
+                    await logModerationAction(interaction.guild, '? Auto-Kick', client.user, user, `Warning threshold reached (${warningCount} warnings)`);
                 } else if (action === 'ban') {
                     await member.ban({ reason: `Auto-ban: ${warningCount} warnings` });
-                    await interaction.followUp({ content: `✅ ${user} has been auto-banned for reaching the warning threshold!`, ephemeral: true });
-                    await logModerationAction(interaction.guild, '✅ Auto-Ban', client.user, user, `Warning threshold reached (${warningCount} warnings)`);
+                    await interaction.followUp({ content: `? ${user} has been auto-banned for reaching the warning threshold!`, ephemeral: true });
+                    await logModerationAction(interaction.guild, '? Auto-Ban', client.user, user, `Warning threshold reached (${warningCount} warnings)`);
                 }
                 
                 if (settings.moderation.autoDeleteWarnings) {
@@ -5727,7 +5727,7 @@ const now = Date.now();
         }
         
         const embed = new EmbedBuilder()
-            .setTitle(`⚙️ Warnings for ${user.tag}`)
+            .setTitle(`?? Warnings for ${user.tag}`)
             .setColor(0xFFAA00)
             .setThumbnail(user.displayAvatarURL())
             .setDescription(`Total warnings: **${warnings.length}**`);
@@ -5754,7 +5754,7 @@ const now = Date.now();
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -5764,11 +5764,11 @@ const now = Date.now();
         moderationData[interaction.guild.id].warnings[user.id] = [];
         saveModerationData();
         
-        await logModerationAction(interaction.guild, '✅ Warnings Cleared', interaction.user, user, `Cleared ${warningCount} warnings`);
+        await logModerationAction(interaction.guild, '? Warnings Cleared', interaction.user, user, `Cleared ${warningCount} warnings`);
         
         return interaction.reply({ 
             embeds: [new EmbedBuilder()
-                .setTitle('✅ Warnings Cleared')
+                .setTitle('? Warnings Cleared')
                 .setDescription(`Cleared **${warningCount}** warnings for ${user}`)
                 .setColor(0x00FF00)] 
         });
@@ -5780,7 +5780,7 @@ const now = Date.now();
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -5789,7 +5789,7 @@ const now = Date.now();
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
         }
         
         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
@@ -5804,7 +5804,7 @@ const now = Date.now();
                 try {
                     await user.send({
                         embeds: [new EmbedBuilder()
-                            .setTitle('⚙️ You Have Been Timed Out')
+                            .setTitle('?? You Have Been Timed Out')
                             .setDescription(`You have been timed out in **${interaction.guild.name}**`)
                             .addFields(
                                 { name: 'Duration', value: `${duration} minutes` },
@@ -5816,11 +5816,11 @@ const now = Date.now();
                 } catch (e) {}
             }
             
-            await logModerationAction(interaction.guild, '✅ Timeout', interaction.user, user, reason, { duration: `${duration} minutes` });
+            await logModerationAction(interaction.guild, '? Timeout', interaction.user, user, reason, { duration: `${duration} minutes` });
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('⏱️ User Timed Out')
+                    .setTitle('?? User Timed Out')
                     .setDescription(`${user} has been timed out for **${duration} minutes**`)
                     .addFields({ name: 'Reason', value: reason })
                     .setColor(0xFFA500)] 
@@ -5836,14 +5836,14 @@ const now = Date.now();
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
         }
         
         try {
@@ -5852,7 +5852,7 @@ const now = Date.now();
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('✅ Timeout Removed')
+                    .setTitle('? Timeout Removed')
                     .setDescription(`Timeout removed from ${user}`)
                     .setColor(0x00FF00)] 
             });
@@ -5867,7 +5867,7 @@ const now = Date.now();
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -5875,7 +5875,7 @@ const now = Date.now();
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
         }
         
         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
@@ -5893,7 +5893,7 @@ const now = Date.now();
                 try {
                     await user.send({
                         embeds: [new EmbedBuilder()
-                            .setTitle('⚙️ You Have Been Kicked')
+                            .setTitle('?? You Have Been Kicked')
                             .setDescription(`You have been kicked from **${interaction.guild.name}**`)
                             .addFields({ name: 'Reason', value: reason })
                             .setColor(0xFF6600)
@@ -5903,11 +5903,11 @@ const now = Date.now();
             }
             
             await member.kick(reason);
-            await logModerationAction(interaction.guild, '✅ Kick', interaction.user, user, reason);
+            await logModerationAction(interaction.guild, '? Kick', interaction.user, user, reason);
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('👢 User Kicked')
+                    .setTitle('?? User Kicked')
                     .setDescription(`${user} has been kicked`)
                     .addFields({ name: 'Reason', value: reason })
                     .setColor(0xFF6600)] 
@@ -5923,7 +5923,7 @@ const now = Date.now();
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         const user = interaction.options.getUser('user');
@@ -5948,7 +5948,7 @@ const now = Date.now();
                 try {
                     await user.send({
                         embeds: [new EmbedBuilder()
-                            .setTitle('⚙️ You Have Been Banned')
+                            .setTitle('?? You Have Been Banned')
                             .setDescription(`You have been banned from **${interaction.guild.name}**`)
                             .addFields({ name: 'Reason', value: reason })
                             .setColor(0xFF0000)
@@ -5958,11 +5958,11 @@ const now = Date.now();
             }
             
             await interaction.guild.members.ban(user.id, { reason, deleteMessageSeconds: deleteDays * 86400 });
-            await logModerationAction(interaction.guild, '✅ Ban', interaction.user, user, reason);
+            await logModerationAction(interaction.guild, '? Ban', interaction.user, user, reason);
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('🔨 User Banned')
+                    .setTitle('?? User Banned')
                     .setDescription(`${user} has been banned`)
                     .addFields({ name: 'Reason', value: reason })
                     .setColor(0xFF0000)] 
@@ -5978,7 +5978,7 @@ const now = Date.now();
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         const userId = interaction.options.getString('userid');
@@ -5989,7 +5989,7 @@ const now = Date.now();
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('✅ User Unbanned')
+                    .setTitle('? User Unbanned')
                     .setDescription(`User ID ${userId} has been unbanned`)
                     .setColor(0x00FF00)] 
             });
@@ -6004,7 +6004,7 @@ const now = Date.now();
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         if (!settings.moderation.muteRole) {
@@ -6016,7 +6016,7 @@ const now = Date.now();
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
         }
         
         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
@@ -6038,7 +6038,7 @@ const now = Date.now();
                 try {
                     await user.send({
                         embeds: [new EmbedBuilder()
-                            .setTitle('⚙️ You Have Been Muted')
+                            .setTitle('?? You Have Been Muted')
                             .setDescription(`You have been muted in **${interaction.guild.name}**`)
                             .addFields({ name: 'Reason', value: reason })
                             .setColor(0xFFA500)
@@ -6047,11 +6047,11 @@ const now = Date.now();
                 } catch (e) {}
             }
             
-            await logModerationAction(interaction.guild, '✅ Mute', interaction.user, user, reason);
+            await logModerationAction(interaction.guild, '? Mute', interaction.user, user, reason);
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('🔇 User Muted')
+                    .setTitle('?? User Muted')
                     .setDescription(`${user} has been muted`)
                     .addFields({ name: 'Reason', value: reason })
                     .setColor(0xFFA500)] 
@@ -6067,7 +6067,7 @@ const now = Date.now();
         if (!settings.moderation) settings.moderation = defaultSettings.moderation;
         
         if (!isModerator(interaction.member, settings)) {
-            return interaction.reply({ content: '❌ You need moderator permissions!', ephemeral: true });
+            return interaction.reply({ content: '? You need moderator permissions!', ephemeral: true });
         }
         
         if (!settings.moderation.muteRole) {
@@ -6078,7 +6078,7 @@ const now = Date.now();
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);
         
         if (!member) {
-            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
         }
         
         try {
@@ -6095,7 +6095,7 @@ const now = Date.now();
             
             return interaction.reply({ 
                 embeds: [new EmbedBuilder()
-                    .setTitle('🔊 User Unmuted')
+                    .setTitle('?? User Unmuted')
                     .setDescription(`${user} has been unmuted`)
                     .setColor(0x00FF00)] 
             });
@@ -6117,7 +6117,7 @@ const now = Date.now();
                 const staffRole = settings.staffRoleId ? `<@&${settings.staffRoleId}>` : 'Not set';
                 
                 const embed = new EmbedBuilder()
-                    .setTitle('⚙️ Ticket System Control Panel')
+                    .setTitle('?? Ticket System Control Panel')
                     .setColor(0xFF0000)
                     .setDescription(
                         `System is currently **? Disabled**\n\n` +
@@ -6129,8 +6129,8 @@ const now = Date.now();
                         { name: ' Staff Role', value: staffRole, inline: true },
                         { name: ' Category', value: settings.categoryName, inline: true },
                         { name: ' Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
-                        { name: '✅ Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
-                        { name: '✅ Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
+                        { name: '? Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
+                        { name: '? Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
                     )
                     .setFooter({ text: 'Click buttons below to configure ticket system' })
                     .setTimestamp();
@@ -6141,22 +6141,22 @@ const now = Date.now();
                             .setCustomId('ticket_toggle')
                             .setLabel('Enable System')
                             .setStyle(ButtonStyle.Success)
-                            .setEmoji('✅'),
+                            ,
                         new ButtonBuilder()
                             .setCustomId('ticket_staffrole')
                             .setLabel('Set Staff Role')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('✅'),
+                            ,
                         new ButtonBuilder()
                             .setCustomId('ticket_category')
                             .setLabel('Set Category')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('✅'),
+                            ,
                         new ButtonBuilder()
                             .setCustomId('ticket_panel')
                             .setLabel('Create Panel')
                             .setStyle(ButtonStyle.Success)
-                            .setEmoji('✅')
+                            
                     );
                 
                 const row2 = new ActionRowBuilder()
@@ -6165,17 +6165,17 @@ const now = Date.now();
                             .setCustomId('ticket_welcomemsg')
                             .setLabel('Welcome Message')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('✅'),
+                            ,
                         new ButtonBuilder()
                             .setCustomId('ticket_closemsg')
                             .setLabel('Close Message')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('✅'),
+                            ,
                         new ButtonBuilder()
                             .setCustomId('ticket_refresh')
                             .setLabel('Refresh')
                             .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('✅')
+                            
                     );
                 
                 return interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -6190,18 +6190,18 @@ const now = Date.now();
         
         // Create interactive panel embed
         const ticketPanelEmbed = new EmbedBuilder()
-            .setTitle('⚙️ Create Support Ticket')
+            .setTitle('?? Create Support Ticket')
             .setDescription(
                 '**Need help from our support team?**\n\n' +
                 'Click the button below to open a private support ticket. ' +
                 'A new channel will be created where you can discuss your issue with our staff.\n\n' +
                 '**What to expect:**\n' +
-                '• A private channel will be created for you\n' +
-                '• Only you and staff members can see it\n' +
-                '• Our team will respond as soon as possible\n' +
-                '• You can close the ticket when your issue is resolved\n\n' +
-                '🔸━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
-                '**Ready to get help?** Click the button below! ✅'
+                '� A private channel will be created for you\n' +
+                '� Only you and staff members can see it\n' +
+                '� Our team will respond as soon as possible\n' +
+                '� You can close the ticket when your issue is resolved\n\n' +
+                '?????????????????????????\n\n' +
+                '**Ready to get help?** Click the button below! ?'
             )
             .setColor(0x5865F2)
             .setFooter({ text: `${interaction.guild.name} Support System` })
@@ -6213,7 +6213,7 @@ const now = Date.now();
                     .setCustomId('create_ticket_panel')
                     .setLabel('Open Support Ticket')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('✅')
+                    
             );
         
         await interaction.reply({ 
@@ -6233,22 +6233,22 @@ const now = Date.now();
             
             // Create interactive panel
             const embed = new EmbedBuilder()
-                .setTitle('⚙️ Leveling System Control Panel')
+                .setTitle('?? Leveling System Control Panel')
                 .setColor(settings.leveling.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
-                    `System is currently **${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                    `System is currently **${settings.leveling.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                     `Manage your server's leveling system.\n\n` +
                     `Click the buttons below to configure leveling settings.`
                 )
                 .addFields(
-                    { name: '⚙️ Status', value: settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                    { name: '❓ XP Range', value: `${settings.leveling.minXP}-${settings.leveling.maxXP}`, inline: true },
-                    { name: '⏱️ Cooldown', value: `${settings.leveling.cooldown / 1000}s`, inline: true },
-                    { name: '🔢 Max Level', value: settings.leveling.maxLevel.toString(), inline: true },
-                    { name: '📢 Level Up Channel', value: settings.leveling.levelUpChannelId ? `<#${settings.leveling.levelUpChannelId}>` : 'Current Channel', inline: true },
-                    { name: '🎖️ Level Roles', value: Object.keys(settings.leveling.levelRoles).length > 0 ? `${Object.keys(settings.leveling.levelRoles).length} roles configured` : '⚪ None configured', inline: true }
+                    { name: '?? Status', value: settings.leveling.enabled ? '? Enabled' : '? Disabled', inline: true },
+                    { name: '? XP Range', value: `${settings.leveling.minXP}-${settings.leveling.maxXP}`, inline: true },
+                    { name: '?? Cooldown', value: `${settings.leveling.cooldown / 1000}s`, inline: true },
+                    { name: '?? Max Level', value: settings.leveling.maxLevel.toString(), inline: true },
+                    { name: '?? Level Up Channel', value: settings.leveling.levelUpChannelId ? `<#${settings.leveling.levelUpChannelId}>` : 'Current Channel', inline: true },
+                    { name: '??? Level Roles', value: Object.keys(settings.leveling.levelRoles).length > 0 ? `${Object.keys(settings.leveling.levelRoles).length} roles configured` : '? None configured', inline: true }
                 )
-                .setFooter({ text: 'Click buttons below to configure leveling system • Today at ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) })
+                .setFooter({ text: 'Click buttons below to configure leveling system � Today at ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) })
                 .setTimestamp();
         
         const row1 = new ActionRowBuilder()
@@ -6257,22 +6257,22 @@ const now = Date.now();
                     .setCustomId('leveling_toggle')
                     .setLabel(settings.leveling.enabled ? 'Disable' : 'Enable')
                     .setStyle(settings.leveling.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(settings.leveling.enabled ? '❌' : '✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('leveling_xprange')
                     .setLabel('XP Range')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('❓'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('leveling_cooldown')
                     .setLabel('Cooldown')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⏱️'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('leveling_maxlevel')
                     .setLabel('Max Level')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔢')
+                    
             );
         
         const row2 = new ActionRowBuilder()
@@ -6281,22 +6281,22 @@ const now = Date.now();
                     .setCustomId('leveling_channel')
                     .setLabel('Level Up Channel')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('📢'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('leveling_addrole')
                     .setLabel('Add Level Role')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('🎖️'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('leveling_removerole')
                     .setLabel('Remove Level Role')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🎖️'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('leveling_viewroles')
                     .setLabel('View Roles')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🎖️')
+                    
             );
         
         const row3 = new ActionRowBuilder()
@@ -6305,24 +6305,24 @@ const now = Date.now();
                     .setCustomId('leveling_view')
                     .setLabel('View Your Level')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('📈'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('leveling_view_user')
                     .setLabel('View User Level')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('👤'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('leveling_cleardata')
                     .setLabel('Clear All Leveling Data')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🗑️')
+                    
             );
         
             await interaction.reply({ embeds: [embed], components: [row1, row2, row3], ephemeral: true });
             return;
         } catch (error) {
             console.error('Leveling command error:', error);
-            await interaction.reply({ content: `❌ Error: ${error.message}`, ephemeral: true }).catch(() => {});
+            await interaction.reply({ content: `? Error: ${error.message}`, ephemeral: true }).catch(() => {});
             return;
         }
     }
@@ -6339,19 +6339,19 @@ const now = Date.now();
         const totalGiveaways = giveaways.length;
         
         const embed = new EmbedBuilder()
-            .setTitle('🎉 Giveaway System Control Panel')
+            .setTitle('?? Giveaway System Control Panel')
             .setColor(0xFFD700)
             .setDescription(
                 `Manage server giveaways with automatic winner selection!\n\n` +
-                `📊 **Statistics:**\n` +
+                `?? **Statistics:**\n` +
                 `Active: ${activeGiveaways} | Total: ${totalGiveaways}\n\n` +
                 `Click the buttons below to manage giveaways.`
             )
             .addFields(
-                { name: '✅ Create Giveaway', value: 'Start a new giveaway', inline: true },
-                { name: '📋 List Active', value: 'View all active giveaways', inline: true },
-                { name: '🔴 End Early', value: 'End a giveaway before time', inline: true },
-                { name: ' Features', value: '• Automatic winner selection\n• Role requirements\n• Level requirements\n• Multiple winners\n• Auto-DM winners', inline: false }
+                { name: '? Create Giveaway', value: 'Start a new giveaway', inline: true },
+                { name: '?? List Active', value: 'View all active giveaways', inline: true },
+                { name: '?? End Early', value: 'End a giveaway before time', inline: true },
+                { name: ' Features', value: '� Automatic winner selection\n� Role requirements\n� Level requirements\n� Multiple winners\n� Auto-DM winners', inline: false }
             )
             .setFooter({ text: 'Click buttons below to manage giveaways' })
             .setTimestamp();
@@ -6362,22 +6362,22 @@ const now = Date.now();
                     .setCustomId('giveaway_create')
                     .setLabel('Create Giveaway')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('🎉'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('giveaway_list')
                     .setLabel('List Active')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📋'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('giveaway_end')
                     .setLabel('End Early')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🔴'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('giveaway_reroll')
                     .setLabel('Reroll Winner')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄')
+                    
             );
         
         await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
@@ -6394,38 +6394,38 @@ const now = Date.now();
         // Calculate active effects
         let activeEffects = [];
         if (hasActiveEffect(interaction.user.id, interaction.guild.id, 'xp_boost')) {
-            activeEffects.push('⚡ XP Boost');
+            activeEffects.push('? XP Boost');
         }
         if (hasActiveEffect(interaction.user.id, interaction.guild.id, 'rob_protection')) {
-            activeEffects.push('🛡️ Rob Protection');
+            activeEffects.push('??? Rob Protection');
         }
         if (hasActiveEffect(interaction.user.id, interaction.guild.id, 'lucky_charm')) {
-            activeEffects.push('🍀 Lucky Charm');
+            activeEffects.push('?? Lucky Charm');
         }
         
         const embed = new EmbedBuilder()
-            .setTitle('💰 Economy System Control Panel')
+            .setTitle('?? Economy System Control Panel')
             .setColor(0xFFD700)
             .setThumbnail(interaction.user.displayAvatarURL())
             .setDescription(
                 `Welcome to the economy system! Earn money, gamble, and buy items.\n\n` +
                 `**Your Balance:**\n` +
-                `💵 Wallet: $${profile.wallet.toLocaleString()}\n` +
-                `🏦 Bank: $${profile.bank.toLocaleString()}\n` +
-                `💎 Total: $${totalMoney.toLocaleString()}\n\n` +
+                `?? Wallet: $${profile.wallet.toLocaleString()}\n` +
+                `?? Bank: $${profile.bank.toLocaleString()}\n` +
+                `?? Total: $${totalMoney.toLocaleString()}\n\n` +
                 `${activeEffects.length > 0 ? `**Active Effects:** ${activeEffects.join(', ')}` : ''}`
             )
             .addFields(
-                { name: '🎁 Daily', value: 'Claim daily reward', inline: true },
-                { name: '💼 Work', value: 'Work for money', inline: true },
-                { name: '💰 Rob', value: 'Rob other users', inline: true },
-                { name: '💸 Pay', value: 'Send money to users', inline: true },
-                { name: '🎲 Gamble', value: 'Play casino games', inline: true },
-                { name: '🏪 Shop', value: 'Buy special items', inline: true },
-                { name: '🎒 Inventory', value: 'View your items', inline: true },
-                { name: '📊 Leaderboard', value: 'Top richest users', inline: true },
-                { name: '🔄 Trade', value: 'Trade with users', inline: true },
-                { name: '🎟️ Lottery', value: 'Buy lottery tickets', inline: true }
+                { name: '?? Daily', value: 'Claim daily reward', inline: true },
+                { name: '?? Work', value: 'Work for money', inline: true },
+                { name: '?? Rob', value: 'Rob other users', inline: true },
+                { name: '?? Pay', value: 'Send money to users', inline: true },
+                { name: '?? Gamble', value: 'Play casino games', inline: true },
+                { name: '?? Shop', value: 'Buy special items', inline: true },
+                { name: '?? Inventory', value: 'View your items', inline: true },
+                { name: '?? Leaderboard', value: 'Top richest users', inline: true },
+                { name: '?? Trade', value: 'Trade with users', inline: true },
+                { name: '??? Lottery', value: 'Buy lottery tickets', inline: true }
             )
             .setFooter({ text: 'Click buttons below to interact' })
             .setTimestamp();
@@ -6436,22 +6436,22 @@ const now = Date.now();
                     .setCustomId('economy_daily')
                     .setLabel('Daily')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('🎁'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('economy_work')
                     .setLabel('Work')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('💼'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('economy_balance')
                     .setLabel('Balance')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('💰'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('economy_inventory')
                     .setLabel('Inventory')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🎒')
+                    
             );
         
         const row2 = new ActionRowBuilder()
@@ -6460,27 +6460,27 @@ const now = Date.now();
                     .setCustomId('economy_gamble')
                     .setLabel('Gamble')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🎲'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('economy_shop')
                     .setLabel('Shop')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🏪'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('economy_leaderboard')
                     .setLabel('Leaderboard')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('📊'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('economy_rob')
                     .setLabel('Rob')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('💰'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('economy_trade')
                     .setLabel('Trade')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔄')
+                    
             );
         
         const row3 = new ActionRowBuilder()
@@ -6489,7 +6489,7 @@ const now = Date.now();
                     .setCustomId('economy_lottery')
                     .setLabel('Lottery')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('🎟️')
+                    
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2, row3], ephemeral: true });
@@ -6501,12 +6501,12 @@ const now = Date.now();
         if (!requireAdmin(interaction)) return;
         const settings = getGuildSettings(interaction.guild.id);
 
-        const status = settings.leave?.enabled ? '✅ Enabled' : '❌ Disabled';
-        const channelName = settings.leave?.channelName || '📝 Not set';
-        const hasCustom = settings.leave?.customMessage ? '✅ Set' : '📝 Default';
+        const status = settings.leave?.enabled ? '? Enabled' : '? Disabled';
+        const channelName = settings.leave?.channelName || '?? Not set';
+        const hasCustom = settings.leave?.customMessage ? '? Set' : '?? Default';
 
         const embed = new EmbedBuilder()
-            .setTitle('👋 Leave Message Settings')
+            .setTitle('?? Leave Message Settings')
             .setColor(settings.leave?.enabled ? 0x00FF00 : 0xFF0000)
             .setDescription('Configure goodbye messages when members leave the server.')
             .addFields(
@@ -6557,7 +6557,7 @@ const now = Date.now();
             const minutes = Math.floor(timeLeft / (60 * 1000));
             
             const embed = new EmbedBuilder()
-                .setTitle('⏰ Work Cooldown')
+                .setTitle('? Work Cooldown')
                 .setDescription(`You're tired! Rest for **${minutes} minutes**`)
                 .setColor(0xFF0000);
             
@@ -6586,7 +6586,7 @@ const now = Date.now();
             .setFooter({ text: 'You can work again in 1 hour' });
         
         if (multiplier > 1) {
-            embed.addFields({ name: '⚡ XP Boost Active', value: '1.5x earnings!' });
+            embed.addFields({ name: '? XP Boost Active', value: '1.5x earnings!' });
         }
         
         await interaction.reply({ embeds: [embed] });
@@ -6598,11 +6598,11 @@ const now = Date.now();
         const target = interaction.options.getUser('user');
         
         if (target.id === interaction.user.id) {
-            return interaction.reply({ content: '❌ You cannot rob yourself!', ephemeral: true });
+            return interaction.reply({ content: '? You cannot rob yourself!', ephemeral: true });
         }
         
         if (target.bot) {
-            return interaction.reply({ content: '❌ You cannot rob bots!', ephemeral: true });
+            return interaction.reply({ content: '? You cannot rob bots!', ephemeral: true });
         }
         
         const robberProfile = getEconomyProfile(interaction.user.id, interaction.guild.id);
@@ -6616,21 +6616,21 @@ const now = Date.now();
             const minutes = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
             
             return interaction.reply({ 
-                content: `⏰ You're too tired to rob! Wait **${hours}h ${minutes}m**`, 
+                content: `? You're too tired to rob! Wait **${hours}h ${minutes}m**`, 
                 ephemeral: true 
             });
         }
         
         if (hasActiveEffect(target.id, interaction.guild.id, 'rob_protection')) {
             return interaction.reply({ 
-                content: `🛡️ ${target.username} has rob protection active!`, 
+                content: `??? ${target.username} has rob protection active!`, 
                 ephemeral: true 
             });
         }
         
         if (victimProfile.wallet < 100) {
             return interaction.reply({ 
-                content: `❌ ${target.username} doesn't have enough money to rob! (minimum $100)`, 
+                content: `? ${target.username} doesn't have enough money to rob! (minimum $100)`, 
                 ephemeral: true 
             });
         }
@@ -6651,7 +6651,7 @@ const now = Date.now();
             addMoney(interaction.user.id, interaction.guild.id, stolenAmount, 'wallet');
             
             const embed = new EmbedBuilder()
-                .setTitle('💰 Robbery Successful!')
+                .setTitle('?? Robbery Successful!')
                 .setColor(0x00FF00)
                 .setDescription(`You successfully robbed **${target.username}** and stole **$${stolenAmount.toLocaleString()}**!`)
                 .setFooter({ text: 'Spend it wisely!' });
@@ -6662,7 +6662,7 @@ const now = Date.now();
             removeMoney(interaction.user.id, interaction.guild.id, fine, 'wallet');
             
             const embed = new EmbedBuilder()
-                .setTitle('🚨 Robbery Failed!')
+                .setTitle('?? Robbery Failed!')
                 .setColor(0xFF0000)
                 .setDescription(`You got caught trying to rob **${target.username}**!\n\nYou paid a fine of **$${fine.toLocaleString()}**!`)
                 .setFooter({ text: 'Better luck next time!' });
@@ -6680,18 +6680,18 @@ const now = Date.now();
         const amount = interaction.options.getInteger('amount');
         
         if (target.id === interaction.user.id) {
-            return interaction.reply({ content: '❌ You cannot pay yourself!', ephemeral: true });
+            return interaction.reply({ content: '? You cannot pay yourself!', ephemeral: true });
         }
         
         if (target.bot) {
-            return interaction.reply({ content: '❌ You cannot pay bots!', ephemeral: true });
+            return interaction.reply({ content: '? You cannot pay bots!', ephemeral: true });
         }
         
         const senderProfile = getEconomyProfile(interaction.user.id, interaction.guild.id);
         
         if (senderProfile.wallet < amount) {
             return interaction.reply({ 
-                content: `❌ You don't have enough money! You only have **$${senderProfile.wallet.toLocaleString()}**`, 
+                content: `? You don't have enough money! You only have **$${senderProfile.wallet.toLocaleString()}**`, 
                 ephemeral: true 
             });
         }
@@ -6700,7 +6700,7 @@ const now = Date.now();
         addMoney(target.id, interaction.guild.id, amount, 'wallet');
         
         const embed = new EmbedBuilder()
-            .setTitle('💸 Payment Sent!')
+            .setTitle('?? Payment Sent!')
             .setColor(0x00FF00)
             .setDescription(`You sent **$${amount.toLocaleString()}** to **${target.username}**!`)
             .setFooter({ text: 'Transaction completed' });
@@ -6721,19 +6721,19 @@ const now = Date.now();
             .slice(0, 10);
         
         if (users.length === 0) {
-            return interaction.reply({ content: '❌ No economy data found for this server!', ephemeral: true });
+            return interaction.reply({ content: '? No economy data found for this server!', ephemeral: true });
         }
         
         let description = '';
         for (let i = 0; i < users.length; i++) {
             const user = await client.users.fetch(users[i].userId).catch(() => null);
             const username = user ? user.username : 'Unknown User';
-            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+            const medal = i === 0 ? '??' : i === 1 ? '??' : i === 2 ? '??' : `${i + 1}.`;
             description += `${medal} **${username}** - $${users[i].total.toLocaleString()}\n`;
         }
         
         const embed = new EmbedBuilder()
-            .setTitle('💰 Server Leaderboard')
+            .setTitle('?? Server Leaderboard')
             .setColor(0xFFD700)
             .setDescription(description)
             .setFooter({ text: `Total users: ${Object.keys(guildData).length}` })
@@ -6751,7 +6751,7 @@ const now = Date.now();
         
         if (profile.wallet < amount) {
             return interaction.reply({ 
-                content: `❌ You don't have enough money! You only have **$${profile.wallet.toLocaleString()}**`, 
+                content: `? You don't have enough money! You only have **$${profile.wallet.toLocaleString()}**`, 
                 ephemeral: true 
             });
         }
@@ -6768,28 +6768,28 @@ const now = Date.now();
             const result = Math.random() < (0.5 + luckBoost) ? userChoice : (userChoice === 'Heads' ? 'Tails' : 'Heads');
             won = result === userChoice;
             multiplier = 2;
-            gameResult = `🪙 Coin landed on: **${result}**\nYou chose: **${userChoice}**`;
+            gameResult = `?? Coin landed on: **${result}**\nYou chose: **${userChoice}**`;
         } else if (game === 'dice') {
             const userRoll = Math.floor(Math.random() * 6) + 1;
             const botRoll = Math.floor(Math.random() * 6) + 1;
             won = userRoll > botRoll || (luckBoost > 0 && userRoll === botRoll);
             multiplier = 2.5;
-            gameResult = `🎲 Your roll: **${userRoll}**\nBot roll: **${botRoll}**`;
+            gameResult = `?? Your roll: **${userRoll}**\nBot roll: **${botRoll}**`;
         } else if (game === 'slots') {
-            const emojis = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣'];
+            const emojis = ['??', '??', '??', '??', '??', '7??'];
             const slot1 = emojis[Math.floor(Math.random() * emojis.length)];
             const slot2 = emojis[Math.floor(Math.random() * emojis.length)];
             const slot3 = emojis[Math.floor(Math.random() * emojis.length)];
             
             if (slot1 === slot2 && slot2 === slot3) {
                 won = true;
-                multiplier = slot1 === '💎' ? 10 : slot1 === '7️⃣' ? 7 : 5;
+                multiplier = slot1 === '??' ? 10 : slot1 === '7??' ? 7 : 5;
             } else if (slot1 === slot2 || slot2 === slot3 || slot1 === slot3) {
                 won = true;
                 multiplier = 2;
             }
             
-            gameResult = `🎰 **[ ${slot1} | ${slot2} | ${slot3} ]**`;
+            gameResult = `?? **[ ${slot1} | ${slot2} | ${slot3} ]**`;
         }
         
         if (won) {
@@ -6797,17 +6797,17 @@ const now = Date.now();
             addMoney(interaction.user.id, interaction.guild.id, winnings, 'wallet');
             
             const embed = new EmbedBuilder()
-                .setTitle('🎉 You Won!')
+                .setTitle('?? You Won!')
                 .setColor(0x00FF00)
                 .setDescription(gameResult)
                 .addFields(
-                    { name: '💵 Bet', value: `$${amount.toLocaleString()}`, inline: true },
-                    { name: '💰 Winnings', value: `$${winnings.toLocaleString()}`, inline: true },
-                    { name: '📊 Multiplier', value: `${multiplier}x`, inline: true }
+                    { name: '?? Bet', value: `$${amount.toLocaleString()}`, inline: true },
+                    { name: '?? Winnings', value: `$${winnings.toLocaleString()}`, inline: true },
+                    { name: '?? Multiplier', value: `${multiplier}x`, inline: true }
                 );
             
             if (luckBoost > 0) {
-                embed.setFooter({ text: '🍀 Lucky Charm active!' });
+                embed.setFooter({ text: '?? Lucky Charm active!' });
             }
             
             await interaction.reply({ embeds: [embed] });
@@ -6815,11 +6815,11 @@ const now = Date.now();
             removeMoney(interaction.user.id, interaction.guild.id, amount, 'wallet');
             
             const embed = new EmbedBuilder()
-                .setTitle('💔 You Lost!')
+                .setTitle('?? You Lost!')
                 .setColor(0xFF0000)
                 .setDescription(gameResult)
                 .addFields(
-                    { name: '💸 Lost', value: `$${amount.toLocaleString()}`, inline: true }
+                    { name: '?? Lost', value: `$${amount.toLocaleString()}`, inline: true }
                 )
                 .setFooter({ text: 'Better luck next time!' });
             
@@ -6837,7 +6837,7 @@ const now = Date.now();
         }
         
         const embed = new EmbedBuilder()
-            .setTitle('🏪 Item Shop')
+            .setTitle('?? Item Shop')
             .setColor(0x00BFFF)
             .setDescription(description)
             .setFooter({ text: 'Use /buy <item_id> to purchase an item' });
@@ -6853,7 +6853,7 @@ const now = Date.now();
         const item = SHOP_ITEMS[itemId];
         
         if (!item) {
-            return interaction.reply({ content: '❌ Invalid item ID! Use `/shop` to see available items.', ephemeral: true });
+            return interaction.reply({ content: '? Invalid item ID! Use `/shop` to see available items.', ephemeral: true });
         }
         
         const profile = getEconomyProfile(interaction.user.id, interaction.guild.id);
@@ -6861,7 +6861,7 @@ const now = Date.now();
         
         if (profile.wallet < totalCost) {
             return interaction.reply({ 
-                content: `❌ You don't have enough money! You need **$${totalCost.toLocaleString()}** but only have **$${profile.wallet.toLocaleString()}**`, 
+                content: `? You don't have enough money! You need **$${totalCost.toLocaleString()}** but only have **$${profile.wallet.toLocaleString()}**`, 
                 ephemeral: true 
             });
         }
@@ -6870,7 +6870,7 @@ const now = Date.now();
         addToInventory(interaction.user.id, interaction.guild.id, itemId, quantity);
         
         const embed = new EmbedBuilder()
-            .setTitle('✅ Purchase Successful!')
+            .setTitle('? Purchase Successful!')
             .setColor(0x00FF00)
             .setDescription(`You bought **${quantity}x ${item.name}** for **$${totalCost.toLocaleString()}**!`)
             .setFooter({ text: 'Use /inventory to see your items' });
@@ -6885,7 +6885,7 @@ const now = Date.now();
         const profile = getEconomyProfile(targetUser.id, interaction.guild.id);
         
         if (!profile.inventory || Object.keys(profile.inventory).length === 0) {
-            return interaction.reply({ content: `❌ ${targetUser.username}'s inventory is empty!`, ephemeral: true });
+            return interaction.reply({ content: `? ${targetUser.username}'s inventory is empty!`, ephemeral: true });
         }
         
         let description = '';
@@ -6899,11 +6899,11 @@ const now = Date.now();
         }
         
         if (!description) {
-            return interaction.reply({ content: `❌ ${targetUser.username}'s inventory is empty!`, ephemeral: true });
+            return interaction.reply({ content: `? ${targetUser.username}'s inventory is empty!`, ephemeral: true });
         }
         
         const embed = new EmbedBuilder()
-            .setTitle(`🎒 ${targetUser.username}'s Inventory`)
+            .setTitle(`?? ${targetUser.username}'s Inventory`)
             .setColor(0x00BFFF)
             .setDescription(description)
             .setThumbnail(targetUser.displayAvatarURL())
@@ -6919,13 +6919,13 @@ const now = Date.now();
         const item = SHOP_ITEMS[itemId];
         
         if (!item) {
-            return interaction.reply({ content: '❌ Invalid item ID!', ephemeral: true });
+            return interaction.reply({ content: '? Invalid item ID!', ephemeral: true });
         }
         
         const profile = getEconomyProfile(interaction.user.id, interaction.guild.id);
         
         if (!profile.inventory[itemId] || profile.inventory[itemId] <= 0) {
-            return interaction.reply({ content: `❌ You don't have this item!`, ephemeral: true });
+            return interaction.reply({ content: `? You don't have this item!`, ephemeral: true });
         }
         
         // Use item based on type
@@ -6934,18 +6934,18 @@ const now = Date.now();
             
             if (itemId === 'xp_boost') {
                 profile.activeEffects.xp_boost = Date.now() + (60 * 60 * 1000); // 1 hour
-                await interaction.reply({ content: `⚡ **XP Boost activated!** 2x XP for 1 hour!` });
+                await interaction.reply({ content: `? **XP Boost activated!** 2x XP for 1 hour!` });
             } else if (itemId === 'rob_protection') {
                 profile.activeEffects.rob_protection = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
-                await interaction.reply({ content: `🛡️ **Rob Protection activated!** You're safe for 24 hours!` });
+                await interaction.reply({ content: `??? **Rob Protection activated!** You're safe for 24 hours!` });
             } else if (itemId === 'lucky_charm') {
                 profile.activeEffects.lucky_charm = Date.now() + (6 * 60 * 60 * 1000); // 6 hours
-                await interaction.reply({ content: `🍀 **Lucky Charm activated!** +10% gambling win rate for 6 hours!` });
+                await interaction.reply({ content: `?? **Lucky Charm activated!** +10% gambling win rate for 6 hours!` });
             }
             
             saveEconomyData();
         } else {
-            return interaction.reply({ content: `❌ This item cannot be used directly!`, ephemeral: true });
+            return interaction.reply({ content: `? This item cannot be used directly!`, ephemeral: true });
         }
         
         return;
@@ -6956,14 +6956,14 @@ const now = Date.now();
         if (!requireAdmin(interaction)) return;
         const settings = getGuildSettings(interaction.guild.id);
 
-        const status = settings.keywords?.enabled ? '✅ Enabled' : '❌ Disabled';
+        const status = settings.keywords?.enabled ? '? Enabled' : '? Disabled';
         const totalCodes = Object.keys(consoleErrorCodes).filter(k => !k.startsWith('_')).length;
-        const hasCustom = settings.keywords?.customResponse ? '✅ Set' : '📝 Default';
+        const hasCustom = settings.keywords?.customResponse ? '? Set' : '?? Default';
 
         const embed = new EmbedBuilder()
-            .setTitle('⚙️ Keyword Detection (Errors)')
+            .setTitle('?? Keyword Detection (Errors)')
             .setColor(settings.keywords?.enabled ? 0x00FF00 : 0xFF0000)
-            .setDescription('Manage automatic error code detection and responses for PS1–PS5, PSP, Vita.')
+            .setDescription('Manage automatic error code detection and responses for PS1�PS5, PSP, Vita.')
             .addFields(
                 { name: 'Status', value: status, inline: true },
                 { name: 'Database', value: `${totalCodes} codes`, inline: true },
@@ -7010,12 +7010,12 @@ const now = Date.now();
         const isAdmin = interaction.member.permissions.has(PermissionFlagsBits.Administrator);
         
         const embed = new EmbedBuilder()
-            .setTitle('📜 Custom Server Commands')
+            .setTitle('?? Custom Server Commands')
             .setColor(0x5865F2)
             .setDescription(
                 commandCount > 0 
                     ? `This server has **${commandCount}** custom command${commandCount !== 1 ? 's' : ''}.\n\n${isAdmin ? 'Use the buttons below to view or manage commands.' : 'Click "View Commands" to see all available commands!'}`
-                    : '📝 No custom commands yet!\n\n' + (isAdmin ? 'Administrators can create custom commands with simple responses.' : 'Ask an admin to create some!')
+                    : '?? No custom commands yet!\n\n' + (isAdmin ? 'Administrators can create custom commands with simple responses.' : 'Ask an admin to create some!')
             )
             .setFooter({ text: isAdmin ? 'Admins: Use buttons to manage commands' : `${commandCount} total commands` })
             .setTimestamp();
@@ -7029,7 +7029,7 @@ const now = Date.now();
                     .setCustomId('pcmd_view')
                     .setLabel('View Commands')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📋')
+                    
                     .setDisabled(commandCount === 0)
             );
         
@@ -7040,24 +7040,24 @@ const now = Date.now();
                     .setCustomId('pcmd_add')
                     .setLabel('Add Command')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('➕'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('pcmd_edit')
                     .setLabel('Edit Command')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✏️')
+                    
                     .setDisabled(commandCount === 0),
                 new ButtonBuilder()
                     .setCustomId('pcmd_delete')
                     .setLabel('Delete Command')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🗑️')
+                    
                     .setDisabled(commandCount === 0),
                 new ButtonBuilder()
                     .setCustomId('pcmd_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄')
+                    
             );
         }
         
@@ -7076,16 +7076,16 @@ const now = Date.now();
         if (!requireAdmin(interaction)) return;
         
         const embed = new EmbedBuilder()
-            .setTitle('⚙️ Webhook Creator Panel')
+            .setTitle('?? Webhook Creator Panel')
             .setColor(0x5865F2)
             .setDescription(
                 `Create professional webhook embeds with custom content.\n\n` +
                 `**Features:**\n` +
-                `• Custom titles, descriptions, and fields\n` +
-                `• Image and thumbnail support\n` +
-                `• Color customization\n` +
-                `• Footer and timestamp options\n` +
-                `• Save and reuse templates\n\n` +
+                `� Custom titles, descriptions, and fields\n` +
+                `� Image and thumbnail support\n` +
+                `� Color customization\n` +
+                `� Footer and timestamp options\n` +
+                `� Save and reuse templates\n\n` +
                 `Click the buttons below to get started.`
             )
             .addFields(
@@ -7093,7 +7093,7 @@ const now = Date.now();
                 { name: ' Custom Embed', value: 'Design your embed with interactive forms', inline: true },
                 { name: ' Templates', value: 'Save frequently used embed designs', inline: true }
             )
-            .setFooter({ text: 'Webhook Creator • Admin Only' })
+            .setFooter({ text: 'Webhook Creator � Admin Only' })
             .setTimestamp();
         
         const row = new ActionRowBuilder()
@@ -7102,17 +7102,17 @@ const now = Date.now();
                     .setCustomId('webhook_create')
                     .setLabel('Create Webhook')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('webhook_embed')
                     .setLabel('Design Embed')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('webhook_list')
                     .setLabel('List Webhooks')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅')
+                    
             );
         
         await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
@@ -7127,7 +7127,7 @@ const now = Date.now();
         
         // Create interactive panel
         const embed = new EmbedBuilder()
-            .setTitle('🔸 Moderation Control Panel')
+            .setTitle('?? Moderation Control Panel')
             .setColor(0x3498DB)
             .setDescription(
                 `Complete moderation toolkit for your server.\n\n` +
@@ -7154,22 +7154,22 @@ const now = Date.now();
                     .setCustomId('mod_warn')
                     .setLabel('Warn User')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('mod_timeout')
                     .setLabel('Timeout')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('mod_kick')
                     .setLabel('Kick')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('mod_ban')
                     .setLabel('Ban')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('✅')
+                    
             );
         
         const row2 = new ActionRowBuilder()
@@ -7178,22 +7178,22 @@ const now = Date.now();
                     .setCustomId('mod_mute')
                     .setLabel('Mute')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('mod_unmute')
                     .setLabel('Unmute')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('mod_infractions')
                     .setLabel('View Infractions')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('mod_clearwarnings')
                     .setLabel('Clear Warnings')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅')
+                    
             );
         
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -7210,90 +7210,90 @@ const now = Date.now();
                 latest: '4.92',
                 exploitable: '4.90',
                 cfw: '4.92.2 Evilnat',
-                status: '✅ Exploitable',
+                status: '? Exploitable',
                 riskLevel: 'LOW',
                 name: 'PS3',
-                emoji: '🎮'
+                emoji: '??'
             },
             ps4: {
                 latest: '13.02',
                 exploitable: '12.02',
                 goldhen: '12.02',
                 bdjb: '12.02',
-                status: '⚠️ Limited',
+                status: '?? Limited',
                 riskLevel: 'MEDIUM',
                 name: 'PS4',
-                emoji: '🎮'
+                emoji: '??'
             },
             ps5: {
                 latest: '12.20',
                 exploitable: '10.01',
                 etahen: '10.01',
                 lapse: '10.01',
-                status: '⚠️ Limited',
+                status: '?? Limited',
                 riskLevel: 'HIGH',
                 name: 'PS5',
-                emoji: '🎮'
+                emoji: '??'
             },
             vita: {
                 latest: '3.74',
                 exploitable: '3.74',
                 henkaku: '3.60-3.74',
                 enso: '3.65',
-                status: '✅ Fully Exploitable',
+                status: '? Fully Exploitable',
                 riskLevel: 'VERY_LOW',
                 name: 'PS Vita',
-                emoji: '📱'
+                emoji: '??'
             },
             psp: {
                 latest: '6.61',
                 exploitable: '6.61',
                 cfw: '6.61 PRO-C',
-                status: '✅ Fully Exploitable',
+                status: '? Fully Exploitable',
                 riskLevel: 'VERY_LOW',
                 name: 'PSP',
-                emoji: '🕹️'
+                emoji: '???'
             }
         };
 
         // Show overview of all consoles
         const embed = new EmbedBuilder()
-            .setTitle('📱 PlayStation Firmware Tracker')
+            .setTitle('?? PlayStation Firmware Tracker')
             .setColor(0x0066CC)
             .setDescription('Real-time PlayStation firmware monitoring and exploit compatibility checker')
             .addFields(
                 { 
-                    name: '🎮 PS3', 
+                    name: '?? PS3', 
                     value: `**Latest:** ${firmwareData.ps3.latest}\n**Exploitable:** ${firmwareData.ps3.exploitable}\n**Status:** ${firmwareData.ps3.status}`, 
                     inline: true 
                 },
                 { 
-                    name: '🎮 PS4', 
+                    name: '?? PS4', 
                     value: `**Latest:** ${firmwareData.ps4.latest}\n**Exploitable:** ${firmwareData.ps4.exploitable}\n**Status:** ${firmwareData.ps4.status}`, 
                     inline: true 
                 },
                 { 
-                    name: '🎮 PS5', 
+                    name: '?? PS5', 
                     value: `**Latest:** ${firmwareData.ps5.latest}\n**Exploitable:** ${firmwareData.ps5.exploitable}\n**Status:** ${firmwareData.ps5.status}`, 
                     inline: true 
                 },
                 { 
-                    name: '📱 PS Vita', 
+                    name: '?? PS Vita', 
                     value: `**Latest:** ${firmwareData.vita.latest}\n**Exploitable:** ${firmwareData.vita.exploitable}\n**Status:** ${firmwareData.vita.status}`, 
                     inline: true 
                 },
                 { 
-                    name: '🕹️ PSP', 
+                    name: '??? PSP', 
                     value: `**Latest:** ${firmwareData.psp.latest}\n**Exploitable:** ${firmwareData.psp.exploitable}\n**Status:** ${firmwareData.psp.status}`, 
                     inline: true 
                 },
                 {
-                    name: '🚨 Important Warnings',
-                    value: '• **PS4/PS5**: DO NOT update if you want homebrew\n• **Exploitable consoles are valuable** - guard them carefully\n• **Always backup** before attempting any exploits',
+                    name: '?? Important Warnings',
+                    value: '� **PS4/PS5**: DO NOT update if you want homebrew\n� **Exploitable consoles are valuable** - guard them carefully\n� **Always backup** before attempting any exploits',
                     inline: false
                 }
             )
-            .setFooter({ text: `Last updated: ${new Date(firmwareData.lastUpdate).toLocaleString()} • Use buttons below for details` })
+            .setFooter({ text: `Last updated: ${new Date(firmwareData.lastUpdate).toLocaleString()} � Use buttons below for details` })
             .setTimestamp();
 
         const row1 = new ActionRowBuilder()
@@ -7302,22 +7302,22 @@ const now = Date.now();
                     .setCustomId('fw_refresh_all')
                     .setLabel('Refresh All Data')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔄'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('fw_ps4_detail')
                     .setLabel('PS4 Details')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🎮'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('fw_ps5_detail')
                     .setLabel('PS5 Details')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🎮'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('fw_safety_guide')
                     .setLabel('Safety Guide')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('📚')
+                    
             );
 
         const row2 = new ActionRowBuilder()
@@ -7326,22 +7326,22 @@ const now = Date.now();
                     .setCustomId('fw_ps3_detail')
                     .setLabel('PS3 Details')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🎮'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('fw_vita_detail')
                     .setLabel('Vita Details')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('📱'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('fw_psp_detail')
                     .setLabel('PSP Details')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🕹️'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('fw_notifications')
                     .setLabel('Setup Notifications')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('🔔')
+                    
             );
 
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -7354,21 +7354,21 @@ const now = Date.now();
         
         const firmwareInfo = {
             ps3: { latest: '4.91', safe: '4.91 HFW/CFW', jailbreak: 'All firmwares' },
-            ps4: { latest: '12.50', safe: '≤11.00 or ≤12.02', jailbreak: '≤11.00 (PPPwn), ≤12.02 (GoldHEN 2.4b18.6)' },
-            ps5: { latest: '10.50', safe: '≤10.01', jailbreak: '≤10.01 (etaHEN 2.0b)' },
-            vita: { latest: '3.74', safe: 'Any', jailbreak: 'All firmwares (h-encore²)' },
+            ps4: { latest: '12.50', safe: '=11.00 or =12.02', jailbreak: '=11.00 (PPPwn), =12.02 (GoldHEN 2.4b18.6)' },
+            ps5: { latest: '10.50', safe: '=10.01', jailbreak: '=10.01 (etaHEN 2.0b)' },
+            vita: { latest: '3.74', safe: 'Any', jailbreak: 'All firmwares (h-encore�)' },
             psp: { latest: '6.61', safe: 'Any', jailbreak: 'All firmwares (Pro/ME/LME CFW)' }
         };
         
         const info = firmwareInfo[console];
         
         const embed = new EmbedBuilder()
-            .setTitle(`📱 Safe Firmware - ${console.toUpperCase()}`)
+            .setTitle(`?? Safe Firmware - ${console.toUpperCase()}`)
             .setColor(0x00FF00)
             .addFields(
-                { name: '🔄 Latest OFW', value: info.latest, inline: true },
-                { name: '✅ Safe Firmware', value: info.safe, inline: true },
-                { name: '🔓 Jailbreak Support', value: info.jailbreak, inline: false }
+                { name: '?? Latest OFW', value: info.latest, inline: true },
+                { name: '? Safe Firmware', value: info.safe, inline: true },
+                { name: '?? Jailbreak Support', value: info.jailbreak, inline: false }
             )
             .setFooter({ text: 'Stay on safe firmware to preserve jailbreak capability!' });
         
@@ -7379,11 +7379,11 @@ const now = Date.now();
     // Firmware Notifications Toggle
     if (interaction.commandName === 'fwnotify') {
         const embed = new EmbedBuilder()
-            .setTitle('🔔 Firmware Notifications')
+            .setTitle('?? Firmware Notifications')
             .setDescription('Get notified when new firmware updates are released for PlayStation consoles.')
             .setColor(0x5865F2)
             .addFields(
-                { name: 'Status', value: '⚠️ This feature requires admin setup', inline: false },
+                { name: 'Status', value: '?? This feature requires admin setup', inline: false },
                 { name: 'How it works', value: 'Bot automatically checks for firmware updates and posts alerts to a designated channel.', inline: false }
             );
         
@@ -7394,19 +7394,19 @@ const now = Date.now();
     // PKG Database - Interactive panel
     if (interaction.commandName === 'pkg') {
         const embed = new EmbedBuilder()
-            .setTitle('📦 PKG Database & Analysis System')
+            .setTitle('?? PKG Database & Analysis System')
             .setColor(0x9B59B6)
             .setDescription('Search PlayStation PKG files, browse homebrew, and verify file integrity')
             .addFields(
-                { name: '🔍 Search Games', value: 'Find PKG files by game name, developer, or genre', inline: true },
-                { name: '🆔 PKG Info', value: 'Get detailed info using Title ID', inline: true },
-                { name: '🛠️ Homebrew', value: 'Browse latest homebrew applications', inline: true },
-                { name: '🌍 By Region', value: 'Browse games by region (US, EU, JP, etc.)', inline: true },
-                { name: '✅ Verify PKG', value: 'Check PKG file integrity and safety', inline: true },
-                { name: '📊 Database Stats', value: 'View database statistics and info', inline: true },
+                { name: '?? Search Games', value: 'Find PKG files by game name, developer, or genre', inline: true },
+                { name: '?? PKG Info', value: 'Get detailed info using Title ID', inline: true },
+                { name: '??? Homebrew', value: 'Browse latest homebrew applications', inline: true },
+                { name: '?? By Region', value: 'Browse games by region (US, EU, JP, etc.)', inline: true },
+                { name: '? Verify PKG', value: 'Check PKG file integrity and safety', inline: true },
+                { name: '?? Database Stats', value: 'View database statistics and info', inline: true },
                 {
-                    name: '🎯 Features',
-                    value: '• **Smart Search** - Find games by partial names\n• **Safety Verification** - Trusted source checking\n• **RAP Detection** - License file requirements\n• **Homebrew Directory** - Latest tools and apps',
+                    name: '?? Features',
+                    value: '� **Smart Search** - Find games by partial names\n� **Safety Verification** - Trusted source checking\n� **RAP Detection** - License file requirements\n� **Homebrew Directory** - Latest tools and apps',
                     inline: false
                 }
             )
@@ -7419,22 +7419,22 @@ const now = Date.now();
                     .setCustomId('pkg_search_modal')
                     .setLabel('Search Games')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔍'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('pkg_info_modal')
                     .setLabel('PKG Info by ID')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🆔'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('pkg_homebrew')
                     .setLabel('Browse Homebrew')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('🛠️'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('pkg_verify')
                     .setLabel('Verify PKG File')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('✅')
+                    
             );
 
         const row2 = new ActionRowBuilder()
@@ -7443,22 +7443,22 @@ const now = Date.now();
                     .setCustomId('pkg_region_us')
                     .setLabel('US Games')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🇺🇸'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('pkg_region_eu')
                     .setLabel('EU Games')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🇪🇺'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('pkg_region_jp')
                     .setLabel('JP Games')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🇯🇵'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('pkg_stats')
                     .setLabel('Database Stats')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('📊')
+                    
             );
 
         await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
@@ -7473,8 +7473,8 @@ const now = Date.now();
             const triviaCommand = require('./commands/trivia.js');
             await triviaCommand.execute(interaction);
         } catch (error) {
-            console.error('❌ Trivia command error:', error);
-            await interaction.reply({ content: '❌ An error occurred!', ephemeral: true }).catch(() => {});
+            console.error('? Trivia command error:', error);
+            await interaction.reply({ content: '? An error occurred!', ephemeral: true }).catch(() => {});
         }
         return;
     }
@@ -7485,8 +7485,8 @@ const now = Date.now();
             const pollCommand = require('./commands/poll.js');
             await pollCommand.execute(interaction);
         } catch (error) {
-            console.error('❌ Poll command error:', error);
-            await interaction.reply({ content: '❌ An error occurred!', ephemeral: true }).catch(() => {});
+            console.error('? Poll command error:', error);
+            await interaction.reply({ content: '? An error occurred!', ephemeral: true }).catch(() => {});
         }
         return;
     }
@@ -7497,8 +7497,8 @@ const now = Date.now();
             const gamelookupCommand = require('./commands/gamelookup.js');
             await gamelookupCommand.execute(interaction);
         } catch (error) {
-            console.error('❌ Gamelookup command error:', error);
-            await interaction.reply({ content: '❌ An error occurred!', ephemeral: true }).catch(() => {});
+            console.error('? Gamelookup command error:', error);
+            await interaction.reply({ content: '? An error occurred!', ephemeral: true }).catch(() => {});
         }
         return;
     }
@@ -7519,14 +7519,14 @@ const now = Date.now();
         const apps = homebrewApps[console] || Object.values(homebrewApps).flat().slice(0, 10);
         
         const embed = new EmbedBuilder()
-            .setTitle('🛠️ PlayStation Homebrew Browser')
+            .setTitle('??? PlayStation Homebrew Browser')
             .setDescription(`Popular homebrew apps for **${console.toUpperCase()}**`)
             .setColor(0x9B59B6)
             .addFields(
                 { name: 'Console', value: console.toUpperCase(), inline: true },
                 { name: 'Category', value: category || 'All', inline: true },
-                { name: 'Popular Apps', value: apps.map(app => `• ${app}`).join('\n'), inline: false },
-                { name: '📥 Where to Download', value: 'PSX-Place, Reddit (r/ps3homebrew, r/ps4homebrew, etc.), GBAtemp, Wololo.net', inline: false }
+                { name: 'Popular Apps', value: apps.map(app => `� ${app}`).join('\n'), inline: false },
+                { name: '?? Where to Download', value: 'PSX-Place, Reddit (r/ps3homebrew, r/ps4homebrew, etc.), GBAtemp, Wololo.net', inline: false }
             )
             .setFooter({ text: 'Use at your own risk - Always backup your console!' })
             .setTimestamp();
@@ -7538,32 +7538,32 @@ const now = Date.now();
     // ===== CONSOLE INFO HUB =====
     if (interaction.commandName === 'consoleinfo') {
         const embed = new EmbedBuilder()
-            .setTitle('🎮 PlayStation Console Information Hub')
+            .setTitle('?? PlayStation Console Information Hub')
             .setColor(0x0099FF)
             .setDescription('**Your one-stop hub for all PlayStation console tools and information**\n\nSelect a tool below to get started:')
             .addFields(
                 { 
-                    name: '📡 Firmware Tools', 
-                    value: '• **Firmware Tracker** - Check latest firmware versions\n• **FW Notifications** - Get notified of new updates\n• **Safe Firmware** - Find safe versions to stay on', 
+                    name: '?? Firmware Tools', 
+                    value: '� **Firmware Tracker** - Check latest firmware versions\n� **FW Notifications** - Get notified of new updates\n� **Safe Firmware** - Find safe versions to stay on', 
                     inline: false 
                 },
                 { 
-                    name: '🎮 Console Tools', 
-                    value: '• **Version Checker** - Identify your console model\n• **Jailbreak Tutorials** - Step-by-step guides\n• **Compatibility Checker** - Game compatibility lookup', 
+                    name: '?? Console Tools', 
+                    value: '� **Version Checker** - Identify your console model\n� **Jailbreak Tutorials** - Step-by-step guides\n� **Compatibility Checker** - Game compatibility lookup', 
                     inline: false 
                 },
                 { 
-                    name: '📦 Package & Game Tools', 
-                    value: '• **PKG Database** - Search and verify PKG files\n• **Game Lookup** - Find game information\n• **Homebrew Browser** - Discover homebrew apps', 
+                    name: '?? Package & Game Tools', 
+                    value: '� **PKG Database** - Search and verify PKG files\n� **Game Lookup** - Find game information\n� **Homebrew Browser** - Discover homebrew apps', 
                     inline: false 
                 },
                 { 
-                    name: '🛡️ Safety & Backup', 
-                    value: '• **Ban Risk Calculator** - Analyze PSN ban risks\n• **Backup Reminder** - NAND/save backup checklist\n• **Downgrade Guide** - Firmware downgrade paths', 
+                    name: '??? Safety & Backup', 
+                    value: '� **Ban Risk Calculator** - Analyze PSN ban risks\n� **Backup Reminder** - NAND/save backup checklist\n� **Downgrade Guide** - Firmware downgrade paths', 
                     inline: false 
                 }
             )
-            .setFooter({ text: 'PSHomebrew Console Info Hub • Select a tool below' })
+            .setFooter({ text: 'PSHomebrew Console Info Hub � Select a tool below' })
             .setTimestamp();
 
         const row1 = new ActionRowBuilder()
@@ -7572,22 +7572,22 @@ const now = Date.now();
                     .setCustomId('cinfo_firmware')
                     .setLabel('Firmware Tracker')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📡'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('game_browser')
                     .setLabel('Game Browser')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🎮'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('dlc_browser')
                     .setLabel('DLC Browser')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('�'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('compat_search')
                     .setLabel('Game Compatibility')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔍')
+                    
             );
 
         const row2 = new ActionRowBuilder()
@@ -7596,22 +7596,22 @@ const now = Date.now();
                     .setCustomId('cinfo_version')
                     .setLabel('Version Checker')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('�'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('cinfo_jailbreak')
                     .setLabel('Jailbreak Tutorials')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('�'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('cinfo_banrisk')
                     .setLabel('Ban Risk Analyzer')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('⚠️'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('cinfo_backup')
                     .setLabel('Backup Checklist')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('💾')
+                    
             );
 
         const row3 = new ActionRowBuilder()
@@ -7620,22 +7620,22 @@ const now = Date.now();
                     .setCustomId('cinfo_homebrew')
                     .setLabel('Homebrew')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🛠️'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('cinfo_downgrade')
                     .setLabel('Downgrade Guide')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('⬇️'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('cinfo_safefirmware')
                     .setLabel('Safe Firmware')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('cinfo_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄')
+                    
             );
 
         await interaction.reply({ embeds: [embed], components: [row1, row2, row3], ephemeral: true });
@@ -7646,7 +7646,7 @@ const now = Date.now();
     
         // Handle button interactions
         else if (interaction.isButton()) {
-            try { console.log(`🔘 Button clicked: ${interaction.customId} | User: ${interaction.user?.tag} | Guild: ${interaction.guild?.id}`); } catch {}
+            try { console.log(`?? Button clicked: ${interaction.customId} | User: ${interaction.user?.tag} | Guild: ${interaction.guild?.id}`); } catch {}
             // Safety check for customId
             if (!interaction.customId) {
                 console.warn('Button interaction without customId');
@@ -7676,7 +7676,7 @@ const now = Date.now();
                         channels: [],
                         lastChecked: {},
                         checkInterval: 300000,
-                        customMessage: '📺 New video from **{channelName}**!\n\n{url}'
+                        customMessage: '?? New video from **{channelName}**!\n\n{url}'
                     };
                 }
                 
@@ -7684,7 +7684,7 @@ const now = Date.now();
                     ytData[guildId].enabled = !ytData[guildId].enabled;
                     fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
                     await interaction.reply({ 
-                        content: `✅ YouTube notifications ${ytData[guildId].enabled ? 'enabled' : 'disabled'}!`,
+                        content: `? YouTube notifications ${ytData[guildId].enabled ? 'enabled' : 'disabled'}!`,
                         ephemeral: true 
                     });
                     return;
@@ -7853,7 +7853,7 @@ const now = Date.now();
                     
                     if (giveaways.length === 0) {
                         await interaction.update({ 
-                            content: '❌ No active giveaways!', 
+                            content: '? No active giveaways!', 
                             components: [],
                             embeds: []
                         });
@@ -7861,7 +7861,7 @@ const now = Date.now();
                     }
                     
                     const embed = new EmbedBuilder()
-                        .setTitle('📋 Active Giveaways')
+                        .setTitle('?? Active Giveaways')
                         .setColor(0xFFD700)
                         .setTimestamp();
                     
@@ -7871,7 +7871,7 @@ const now = Date.now();
                         const minutes = Math.floor((endsIn % 3600) / 60);
                         
                         embed.addFields({
-                            name: `🎉 ${giveaway.prize}`,
+                            name: `?? ${giveaway.prize}`,
                             value: `Channel: <#${giveaway.channelId}>\nEnds in: ${hours}h ${minutes}m\nWinners: ${giveaway.winners}\nMessage ID: \`${messageId}\``,
                             inline: false
                         });
@@ -7890,7 +7890,7 @@ const now = Date.now();
                     
                     if (giveaways.length === 0) {
                         await interaction.update({ 
-                            content: '❌ No active giveaways to end!', 
+                            content: '? No active giveaways to end!', 
                             components: [],
                             embeds: []
                         });
@@ -7939,13 +7939,13 @@ const now = Date.now();
                     const totalMoney = profile.wallet + profile.bank;
                     
                     const embed = new EmbedBuilder()
-                        .setTitle(`💰 ${interaction.user.username}'s Balance`)
+                        .setTitle(`?? ${interaction.user.username}'s Balance`)
                         .setColor(0xFFD700)
                         .setThumbnail(interaction.user.displayAvatarURL())
                         .addFields(
-                            { name: '💵 Wallet', value: `$${profile.wallet.toLocaleString()}`, inline: true },
-                            { name: '🏦 Bank', value: `$${profile.bank.toLocaleString()}`, inline: true },
-                            { name: '💎 Total', value: `$${totalMoney.toLocaleString()}`, inline: true }
+                            { name: '?? Wallet', value: `$${profile.wallet.toLocaleString()}`, inline: true },
+                            { name: '?? Bank', value: `$${profile.bank.toLocaleString()}`, inline: true },
+                            { name: '?? Total', value: `$${totalMoney.toLocaleString()}`, inline: true }
                         )
                         .setFooter({ text: `ID: ${interaction.user.id}` })
                         .setTimestamp();
@@ -7964,7 +7964,7 @@ const now = Date.now();
                         const minutes = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('⏰ Daily Reward Cooldown')
+                            .setTitle('? Daily Reward Cooldown')
                             .setDescription(`You already claimed your daily reward!\n\nCome back in **${hours}h ${minutes}m**`)
                             .setColor(0xFF0000);
                         
@@ -7981,13 +7981,13 @@ const now = Date.now();
                     addMoney(interaction.user.id, interaction.guild.id, totalAmount, 'wallet');
                     
                     const embed = new EmbedBuilder()
-                        .setTitle('🎁 Daily Reward Claimed!')
+                        .setTitle('?? Daily Reward Claimed!')
                         .setColor(0x00FF00)
                         .setDescription(`You received **$${totalAmount.toLocaleString()}**!`)
                         .addFields(
-                            { name: '💵 Base Amount', value: `$${dailyAmount.toLocaleString()}`, inline: true },
-                            { name: '🔥 Streak Bonus', value: `$${bonusStreak.toLocaleString()}`, inline: true },
-                            { name: '📈 Current Streak', value: `${profile.dailyStreak} days`, inline: true }
+                            { name: '?? Base Amount', value: `$${dailyAmount.toLocaleString()}`, inline: true },
+                            { name: '?? Streak Bonus', value: `$${bonusStreak.toLocaleString()}`, inline: true },
+                            { name: '?? Current Streak', value: `${profile.dailyStreak} days`, inline: true }
                         )
                         .setFooter({ text: 'Come back tomorrow for another reward!' });
                     
@@ -8004,7 +8004,7 @@ const now = Date.now();
                         const minutes = Math.floor(timeLeft / (60 * 1000));
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('⏰ Work Cooldown')
+                            .setTitle('? Work Cooldown')
                             .setDescription(`You're tired! Rest for **${minutes} minutes**`)
                             .setColor(0xFF0000);
                         
@@ -8032,7 +8032,7 @@ const now = Date.now();
                         .setFooter({ text: 'You can work again in 1 hour' });
                     
                     if (multiplier > 1) {
-                        embed.addFields({ name: '⚡ XP Boost Active', value: '1.5x earnings!' });
+                        embed.addFields({ name: '? XP Boost Active', value: '1.5x earnings!' });
                     }
                     
                     await interaction.reply({ embeds: [embed], ephemeral: true });
@@ -8041,7 +8041,7 @@ const now = Date.now();
                 
                 if (interaction.customId === 'economy_inventory') {
                     if (!profile.inventory || Object.keys(profile.inventory).length === 0) {
-                        await interaction.reply({ content: `❌ Your inventory is empty!`, ephemeral: true });
+                        await interaction.reply({ content: `? Your inventory is empty!`, ephemeral: true });
                         return;
                     }
                     
@@ -8056,12 +8056,12 @@ const now = Date.now();
                     }
                     
                     if (!description) {
-                        await interaction.reply({ content: `❌ Your inventory is empty!`, ephemeral: true });
+                        await interaction.reply({ content: `? Your inventory is empty!`, ephemeral: true });
                         return;
                     }
                     
                     const embed = new EmbedBuilder()
-                        .setTitle(`🎒 ${interaction.user.username}'s Inventory`)
+                        .setTitle(`?? ${interaction.user.username}'s Inventory`)
                         .setColor(0x00BFFF)
                         .setDescription(description)
                         .setThumbnail(interaction.user.displayAvatarURL())
@@ -8078,7 +8078,7 @@ const now = Date.now();
                     }
                     
                     const embed = new EmbedBuilder()
-                        .setTitle('🏪 Item Shop')
+                        .setTitle('?? Item Shop')
                         .setColor(0x00BFFF)
                         .setDescription(description)
                         .setFooter({ text: 'Use the Buy button to purchase items' });
@@ -8089,7 +8089,7 @@ const now = Date.now();
                                 .setCustomId('economy_buy_modal')
                                 .setLabel('Buy Item')
                                 .setStyle(ButtonStyle.Success)
-                                .setEmoji('🛒')
+                                
                         );
                     
                     await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
@@ -8107,7 +8107,7 @@ const now = Date.now();
                         .slice(0, 10);
                     
                     if (users.length === 0) {
-                        await interaction.reply({ content: '❌ No economy data found for this server!', ephemeral: true });
+                        await interaction.reply({ content: '? No economy data found for this server!', ephemeral: true });
                         return;
                     }
                     
@@ -8115,12 +8115,12 @@ const now = Date.now();
                     for (let i = 0; i < users.length; i++) {
                         const user = await client.users.fetch(users[i].userId).catch(() => null);
                         const username = user ? user.username : 'Unknown User';
-                        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+                        const medal = i === 0 ? '??' : i === 1 ? '??' : i === 2 ? '??' : `${i + 1}.`;
                         description += `${medal} **${username}** - $${users[i].total.toLocaleString()}\n`;
                     }
                     
                     const embed = new EmbedBuilder()
-                        .setTitle('💰 Server Leaderboard')
+                        .setTitle('?? Server Leaderboard')
                         .setColor(0xFFD700)
                         .setDescription(description)
                         .setFooter({ text: `Total users: ${Object.keys(guildData).length}` })
@@ -8245,7 +8245,7 @@ const now = Date.now();
                     const profile = getEconomyProfile(interaction.user.id, interaction.guild.id);
                     
                     if (profile.wallet < ticketPrice) {
-                        await interaction.reply({ content: `❌ You need $${ticketPrice} to buy a lottery ticket!`, ephemeral: true });
+                        await interaction.reply({ content: `? You need $${ticketPrice} to buy a lottery ticket!`, ephemeral: true });
                         return;
                     }
                     
@@ -8266,12 +8266,12 @@ const now = Date.now();
                     saveEconomyData();
                     
                     const embed = new EmbedBuilder()
-                        .setTitle('🎟️ Lottery Ticket Purchased!')
+                        .setTitle('??? Lottery Ticket Purchased!')
                         .setColor(0xFFD700)
                         .setDescription(`You bought a lottery ticket for **$${ticketPrice}**!\n\n` +
-                            `🏆 Current Pot: **$${lottery.pot.toLocaleString()}**\n` +
-                            `🎫 Total Tickets: **${lottery.tickets.length}**\n` +
-                            `📊 Your Tickets: **${lottery.tickets.filter(id => id === interaction.user.id).length}**\n\n` +
+                            `?? Current Pot: **$${lottery.pot.toLocaleString()}**\n` +
+                            `?? Total Tickets: **${lottery.tickets.length}**\n` +
+                            `?? Your Tickets: **${lottery.tickets.filter(id => id === interaction.user.id).length}**\n\n` +
                             `*Next draw: Daily at midnight*`)
                         .setTimestamp();
                     
@@ -8282,7 +8282,7 @@ const now = Date.now();
                 // Trade accept/decline handlers
                 if (interaction.customId.startsWith('trade_accept_') || interaction.customId.startsWith('trade_decline_')) {
                     if (!global.pendingTrades) {
-                        await interaction.reply({ content: '❌ This trade has expired!', ephemeral: true });
+                        await interaction.reply({ content: '? This trade has expired!', ephemeral: true });
                         return;
                     }
 
@@ -8308,7 +8308,7 @@ const now = Date.now();
                     }
 
                     if (!tradeKey) {
-                        await interaction.reply({ content: '❌ This trade has expired!', ephemeral: true });
+                        await interaction.reply({ content: '? This trade has expired!', ephemeral: true });
                         return;
                     }
 
@@ -8317,20 +8317,20 @@ const now = Date.now();
                     // Check if trade expired
                     if (Date.now() > trade.expires) {
                         delete global.pendingTrades[tradeKey];
-                        await interaction.update({ content: '❌ This trade has expired!', embeds: [], components: [] });
+                        await interaction.update({ content: '? This trade has expired!', embeds: [], components: [] });
                         return;
                     }
 
                     // Only target user can accept/decline
                     if (interaction.user.id !== trade.target) {
-                        await interaction.reply({ content: '❌ Only the recipient can accept or decline this trade!', ephemeral: true });
+                        await interaction.reply({ content: '? Only the recipient can accept or decline this trade!', ephemeral: true });
                         return;
                     }
 
                     if (interaction.customId.startsWith('trade_decline_')) {
                         delete global.pendingTrades[tradeKey];
                         await interaction.update({ 
-                            content: '❌ Trade declined!', 
+                            content: '? Trade declined!', 
                             embeds: [], 
                             components: [] 
                         });
@@ -8344,7 +8344,7 @@ const now = Date.now();
                     if (trade.offerMoney > 0 && senderProfile.wallet < trade.offerMoney) {
                         delete global.pendingTrades[tradeKey];
                         await interaction.update({ 
-                            content: '❌ Trade failed! Sender no longer has the offered money.', 
+                            content: '? Trade failed! Sender no longer has the offered money.', 
                             embeds: [], 
                             components: [] 
                         });
@@ -8356,7 +8356,7 @@ const now = Date.now();
                         if (!senderInv[trade.offerItem] || senderInv[trade.offerItem] < trade.offerQuantity) {
                             delete global.pendingTrades[tradeKey];
                             await interaction.update({ 
-                                content: '❌ Trade failed! Sender no longer has the offered item.', 
+                                content: '? Trade failed! Sender no longer has the offered item.', 
                                 embeds: [], 
                                 components: [] 
                             });
@@ -8367,7 +8367,7 @@ const now = Date.now();
                     if (trade.requestMoney > 0 && targetProfile.wallet < trade.requestMoney) {
                         delete global.pendingTrades[tradeKey];
                         await interaction.update({ 
-                            content: '❌ Trade failed! You no longer have the requested money.', 
+                            content: '? Trade failed! You no longer have the requested money.', 
                             embeds: [], 
                             components: [] 
                         });
@@ -8379,7 +8379,7 @@ const now = Date.now();
                         if (!targetInv[trade.requestItem] || targetInv[trade.requestItem] < trade.requestQuantity) {
                             delete global.pendingTrades[tradeKey];
                             await interaction.update({ 
-                                content: '❌ Trade failed! You no longer have the requested item.', 
+                                content: '? Trade failed! You no longer have the requested item.', 
                                 embeds: [], 
                                 components: [] 
                             });
@@ -8413,12 +8413,12 @@ const now = Date.now();
                     let requestDesc = trade.requestMoney > 0 ? `**$${trade.requestMoney.toLocaleString()}**` : `**${trade.requestQuantity}x ${SHOP_ITEMS[trade.requestItem].name}**`;
 
                     const tradeCompleteEmbed = new EmbedBuilder()
-                        .setTitle('✅ Trade Complete!')
+                        .setTitle('? Trade Complete!')
                         .setColor(0x00FF00)
                         .setDescription(`Trade between <@${trade.sender}> and <@${trade.target}> has been completed!`)
                         .addFields(
-                            { name: '📤 Traded', value: offerDesc, inline: true },
-                            { name: '📥 Received', value: requestDesc, inline: true }
+                            { name: '?? Traded', value: offerDesc, inline: true },
+                            { name: '?? Received', value: requestDesc, inline: true }
                         )
                         .setTimestamp();
 
@@ -8429,7 +8429,7 @@ const now = Date.now();
                     try {
                         const sender = await interaction.client.users.fetch(trade.sender);
                         await sender.send({ 
-                            content: `✅ Your trade with <@${trade.target}> was accepted!`, 
+                            content: `? Your trade with <@${trade.target}> was accepted!`, 
                             embeds: [tradeCompleteEmbed] 
                         });
                     } catch (e) {
@@ -8445,7 +8445,7 @@ const now = Date.now();
                     const [_, __, pollId, optionIndex] = interaction.customId.split('_');
                     
                     if (!global.activePolls?.[pollId]) {
-                        await interaction.reply({ content: '❌ This poll has ended or is invalid!', ephemeral: true });
+                        await interaction.reply({ content: '? This poll has ended or is invalid!', ephemeral: true });
                         return;
                     }
 
@@ -8455,7 +8455,7 @@ const now = Date.now();
 
                     // Check if poll has ended
                     if (Date.now() > poll.endTime) {
-                        await interaction.reply({ content: '❌ This poll has ended!', ephemeral: true });
+                        await interaction.reply({ content: '? This poll has ended!', ephemeral: true });
                         endPoll(pollId, client);
                         return;
                     }
@@ -8476,9 +8476,9 @@ const now = Date.now();
                     });
 
                     // Update embed
-                    const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+                    const emojis = ['1??', '2??', '3??', '4??', '5??', '6??', '7??', '8??', '9??', '??'];
                     const updatedEmbed = new EmbedBuilder()
-                        .setTitle('📊 ' + poll.question)
+                        .setTitle('?? ' + poll.question)
                         .setColor(0x5865F2)
                         .setDescription(poll.options.map((opt, i) => {
                             const votes = voteCounts[i];
@@ -8502,18 +8502,18 @@ const now = Date.now();
                     const correctAnswer = parseInt(parts[4]);
 
                     if (!global.activeTrivia?.[triviaId]) {
-                        return await interaction.reply({ content: '❌ This trivia question has expired!', ephemeral: true });
+                        return await interaction.reply({ content: '? This trivia question has expired!', ephemeral: true });
                     }
 
                     const trivia = global.activeTrivia[triviaId];
 
                     if (trivia.answered) {
-                        return await interaction.reply({ content: '❌ This question has already been answered!', ephemeral: true });
+                        return await interaction.reply({ content: '? This question has already been answered!', ephemeral: true });
                     }
 
                     if (Date.now() > trivia.expires) {
                         delete global.activeTrivia[triviaId];
-                        return await interaction.reply({ content: '⏰ Time\'s up!', ephemeral: true });
+                        return await interaction.reply({ content: '? Time\'s up!', ephemeral: true });
                     }
 
                     // Mark as answered immediately
@@ -8522,7 +8522,7 @@ const now = Date.now();
 
                     // Build embed immediately
                     const resultEmbed = new EmbedBuilder()
-                        .setTitle(isCorrect ? '✅ Correct!' : '❌ Wrong!')
+                        .setTitle(isCorrect ? '? Correct!' : '? Wrong!')
                         .setDescription(isCorrect 
                             ? `Great job! You earned **$100**!` 
                             : `The correct answer was option ${correctAnswer + 1}.`)
@@ -8581,13 +8581,13 @@ const now = Date.now();
                     }
 
                     // Refresh/update panel
-                    const status = settings.keywords?.enabled ? '✅ Enabled' : '❌ Disabled';
+                    const status = settings.keywords?.enabled ? '? Enabled' : '? Disabled';
                     const totalCodes = Object.keys(consoleErrorCodes).filter(k => !k.startsWith('_')).length;
-                    const hasCustom = settings.keywords?.customResponse ? '✅ Set' : '📝 Default';
+                    const hasCustom = settings.keywords?.customResponse ? '? Set' : '?? Default';
                     const embed = new EmbedBuilder()
-                        .setTitle('⚙️ Keyword Detection (Errors)')
+                        .setTitle('?? Keyword Detection (Errors)')
                         .setColor(settings.keywords?.enabled ? 0x00FF00 : 0xFF0000)
-                        .setDescription('Manage automatic error code detection and responses for PS1–PS5, PSP, Vita.')
+                        .setDescription('Manage automatic error code detection and responses for PS1�PS5, PSP, Vita.')
                         .addFields(
                             { name: 'Status', value: status, inline: true },
                             { name: 'Database', value: `${totalCodes} codes`, inline: true },
@@ -8626,10 +8626,10 @@ const now = Date.now();
                     }
                     return;
                 } catch (error) {
-                    console.error('❌ Keyword button error:', error);
+                    console.error('? Keyword button error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
-                            await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true });
+                            await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true });
                         }
                     } catch {}
                     return;
@@ -8650,12 +8650,12 @@ const now = Date.now();
                     const commandCount = Object.keys(settings.customCommands).length;
                     
                     if (commandCount === 0) {
-                        await interaction.reply({ content: '❌ No commands available!', ephemeral: true });
+                        await interaction.reply({ content: '? No commands available!', ephemeral: true });
                         return;
                     }
                     
                     const embed = new EmbedBuilder()
-                        .setTitle('📋 Available Commands')
+                        .setTitle('?? Available Commands')
                         .setColor(0x5865F2)
                         .setDescription(`This server has **${commandCount}** custom command${commandCount !== 1 ? 's' : ''}.\n\nClick a button below to use a command!`)
                         .setFooter({ text: `${commandCount} total commands` })
@@ -8675,7 +8675,7 @@ const now = Date.now();
                                     .setCustomId(`pcmd_use_${name}`)
                                     .setLabel(data.label || name)
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('')
+                                    
                             );
                         });
                         
@@ -8696,7 +8696,7 @@ const now = Date.now();
                     const cmd = settings.customCommands[cmdName];
                     
                     if (!cmd) {
-                        await interaction.reply({ content: '❌ Command not found!', ephemeral: true });
+                        await interaction.reply({ content: '? Command not found!', ephemeral: true });
                         return;
                     }
                     
@@ -8713,7 +8713,7 @@ const now = Date.now();
                 
                 // Admin commands
                 if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-                    await interaction.reply({ content: '❌ Admin only!', ephemeral: true });
+                    await interaction.reply({ content: '? Admin only!', ephemeral: true });
                     return;
                 }
                 
@@ -8746,7 +8746,7 @@ const now = Date.now();
                                 .setCustomId('cmd_title')
                                 .setLabel('Title')
                                 .setStyle(TextInputStyle.Short)
-                                .setPlaceholder('📜 Server Rules')
+                                .setPlaceholder('?? Server Rules')
                                 .setRequired(true)
                                 .setMaxLength(256)
                         ),
@@ -8769,7 +8769,7 @@ const now = Date.now();
                     const commands = Object.keys(settings.customCommands);
                     
                     if (commands.length === 0) {
-                        await interaction.reply({ content: '❌ No commands to manage!', ephemeral: true });
+                        await interaction.reply({ content: '? No commands to manage!', ephemeral: true });
                         return;
                     }
                     
@@ -8797,12 +8797,12 @@ const now = Date.now();
                     const commandCount = Object.keys(settings.customCommands).length;
                     
                     const embed = new EmbedBuilder()
-                        .setTitle('📜 Custom Server Commands')
+                        .setTitle('?? Custom Server Commands')
                         .setColor(0x5865F2)
                         .setDescription(
                             commandCount > 0 
                                 ? `This server has **${commandCount}** custom command${commandCount !== 1 ? 's' : ''}.\n\nClick a button below to use a command!`
-                                : '📝 No custom commands yet!\n\nAdministrators can create custom commands with simple responses.'
+                                : '?? No custom commands yet!\n\nAdministrators can create custom commands with simple responses.'
                         )
                         .setFooter({ text: 'Admins: Use buttons to manage commands' })
                         .setTimestamp();
@@ -8852,18 +8852,18 @@ const now = Date.now();
                         const keywordChan = config.channels.keywords ? `<#${config.channels.keywords}>` : 'Not set';
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('⚙️ Server Logging System')
+                            .setTitle('?? Server Logging System')
                             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                             .addFields(
-                                { name: 'Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                                { name: 'Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                                 { name: 'Active Logs', value: `${Object.values(config.logTypes).filter(v => v).length}/12 types`, inline: true },
                                 { name: 'Channels Set', value: `${Object.values(config.channels).filter(v => v).length}/7 configured`, inline: true },
                                 { name: ' Critical Errors', value: criticalChan, inline: true },
                                 { name: ' Moderation', value: modChan, inline: true },
-                                { name: '✅ Messages', value: msgChan, inline: true },
+                                { name: '? Messages', value: msgChan, inline: true },
                                 { name: ' Members', value: memberChan, inline: true },
                                 { name: ' Voice', value: voiceChan, inline: true },
-                                { name: '🔸 Server', value: serverChan, inline: true },
+                                { name: '?? Server', value: serverChan, inline: true },
                                 { name: ' Keywords', value: keywordChan, inline: false }
                             )
                             .setFooter({ text: 'Click buttons below to configure logging channels' })
@@ -8875,27 +8875,27 @@ const now = Date.now();
                                     .setCustomId('log_toggle')
                                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                                    .setEmoji(config.enabled ? '✅' : '❌'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('log_set_critical')
                                     .setLabel('Critical')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('✅'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('log_set_moderation')
                                     .setLabel('Moderation')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('✅'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('log_set_messages')
                                     .setLabel('Messages')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('✅'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('log_set_members')
                                     .setLabel('Members')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('✅')
+                                    
                             );
                         
                         const row2 = new ActionRowBuilder()
@@ -8904,22 +8904,22 @@ const now = Date.now();
                                     .setCustomId('log_set_voice')
                                     .setLabel('Voice')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('✅'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('log_set_server')
                                     .setLabel('Server')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('?✅'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('log_set_keywords')
                                     .setLabel('Keywords')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('✅'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('log_toggles')
                                     .setLabel('Event Toggles')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('✅')
+                                    
                             );
                         
                         await interaction.update({ embeds: [embed], components: [row1, row2] });
@@ -8964,7 +8964,7 @@ const now = Date.now();
                         const statusIcon = (enabled) => enabled ? '' : '';
                         
                         const toggleEmbed = new EmbedBuilder()
-                            .setTitle('⚙️ Event Toggle Settings')
+                            .setTitle('?? Event Toggle Settings')
                             .setDescription('Click buttons below to toggle event types')
                             .setColor(0x3498db)
                             .addFields(
@@ -9046,7 +9046,7 @@ const now = Date.now();
                             .addComponents(
                                 new ButtonBuilder()
                                     .setCustomId('log_back')
-                                    .setLabel('⬅️ Back to Main Panel')
+                                    .setLabel('?? Back to Main Panel')
                                     .setStyle(ButtonStyle.Secondary)
                             );
                         
@@ -9069,18 +9069,18 @@ const now = Date.now();
                         const keywordChan = config.channels.keywords ? `<#${config.channels.keywords}>` : 'Not set';
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('⚙️ Server Logging System')
+                            .setTitle('?? Server Logging System')
                             .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                             .addFields(
-                                { name: 'Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                                { name: 'Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                                 { name: 'Active Logs', value: `${Object.values(config.logTypes).filter(v => v).length}/12 types`, inline: true },
                                 { name: 'Channels Set', value: `${Object.values(config.channels).filter(v => v).length}/7 configured`, inline: true },
                                 { name: ' Critical Errors', value: criticalChan, inline: true },
                                 { name: ' Moderation', value: modChan, inline: true },
-                                { name: '✅ Messages', value: msgChan, inline: true },
+                                { name: '? Messages', value: msgChan, inline: true },
                                 { name: ' Members', value: memberChan, inline: true },
                                 { name: ' Voice', value: voiceChan, inline: true },
-                                { name: '🔸 Server', value: serverChan, inline: true },
+                                { name: '?? Server', value: serverChan, inline: true },
                                 { name: ' Keywords', value: keywordChan, inline: false }
                             )
                             .setFooter({ text: 'Click buttons below to configure logging channels' })
@@ -9092,27 +9092,27 @@ const now = Date.now();
                                     .setCustomId('log_toggle')
                                     .setLabel(config.enabled ? 'Disable' : 'Enable')
                                     .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                                    .setEmoji(config.enabled ? '✅' : '❌'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('log_set_critical')
                                     .setLabel('Critical')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('✅'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('log_set_moderation')
                                     .setLabel('Moderation')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('✅'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('log_set_messages')
                                     .setLabel('Messages')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('✅'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('log_set_members')
                                     .setLabel('Members')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('✅')
+                                    
                             );
                         
                         const row2 = new ActionRowBuilder()
@@ -9121,22 +9121,22 @@ const now = Date.now();
                                     .setCustomId('log_set_voice')
                                     .setLabel('Voice')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('✅'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('log_set_server')
                                     .setLabel('Server')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('?✅'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('log_set_keywords')
                                     .setLabel('Keywords')
                                     .setStyle(ButtonStyle.Secondary)
-                                    .setEmoji('✅'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('log_toggles')
                                     .setLabel('Event Toggles')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('✅')
+                                    
                             );
                         
                         await interaction.update({ embeds: [embed], components: [row1, row2] });
@@ -9144,7 +9144,7 @@ const now = Date.now();
                     }
                     
                 } catch (error) {
-                    console.error('❌ Logging panel error:', error);
+                    console.error('? Logging panel error:', error);
                     console.error('Stack trace:', error.stack);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
@@ -9172,7 +9172,7 @@ const now = Date.now();
                 const statusIcon = (enabled) => enabled ? '' : '';
                 
                 const toggleEmbed = new EmbedBuilder()
-                    .setTitle('⚙️ Event Toggle Settings')
+                    .setTitle('?? Event Toggle Settings')
                     .setDescription('Click buttons below to toggle event types')
                     .setColor(0x3498db)
                     .addFields(
@@ -9254,7 +9254,7 @@ const now = Date.now();
                     .addComponents(
                         new ButtonBuilder()
                             .setCustomId('log_back')
-                            .setLabel('⬅️ Back to Main Panel')
+                            .setLabel('?? Back to Main Panel')
                             .setStyle(ButtonStyle.Secondary)
                     );
                 
@@ -9278,7 +9278,7 @@ const now = Date.now();
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ AI chat ${settings.ai.enabled ? '**enabled**' : '**disabled**'}! ${settings.ai.enabled ? `Messages in **#${settings.ai.channelName}** will be answered automatically.` : ''}`, 
+                            content: `? AI chat ${settings.ai.enabled ? '**enabled**' : '**disabled**'}! ${settings.ai.enabled ? `Messages in **#${settings.ai.channelName}** will be answered automatically.` : ''}`, 
                             ephemeral: true 
                         });
                     }
@@ -9347,13 +9347,13 @@ const now = Date.now();
                         }
                         
                         await interaction.reply({ 
-                            content: `✅ Cleared all AI conversation history! (${totalConvos} channel${totalConvos !== 1 ? 's' : ''})`, 
+                            content: `? Cleared all AI conversation history! (${totalConvos} channel${totalConvos !== 1 ? 's' : ''})`, 
                             ephemeral: true 
                         });
                     }
                 } catch (error) {
-                    console.error('❌ AI button error:', error);
-                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    console.error('? AI button error:', error);
+                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                 }
                 return;
             }
@@ -9484,7 +9484,7 @@ const now = Date.now();
             }
             else if (interaction.customId === 'stats_interval') {
                 await interaction.reply({ 
-                    content: '✅ **Set Update Interval**\nReply with a number between 1-60 (minutes):', 
+                    content: '? **Set Update Interval**\nReply with a number between 1-60 (minutes):', 
                     ephemeral: true 
                 });
                 
@@ -9526,8 +9526,8 @@ const now = Date.now();
             
             if (interaction.customId === 'power_shutdown') {
                 const shutdownEmbed = new EmbedBuilder()
-                    .setTitle('⚙️ Bot Shutting Down')
-                    .setDescription('Initiating graceful shutdown sequence...\n\n📤 Sending offline notifications\n💾 Saving all data\n👋 Goodbye!')
+                    .setTitle('?? Bot Shutting Down')
+                    .setDescription('Initiating graceful shutdown sequence...\n\n?? Sending offline notifications\n?? Saving all data\n?? Goodbye!')
                     .setColor(0xFF0000)
                     .setTimestamp();
                 
@@ -9540,7 +9540,7 @@ const now = Date.now();
             
             else if (interaction.customId === 'power_restart') {
                 const restartEmbed = new EmbedBuilder()
-                    .setTitle('⚙️ Restarting Bot')
+                    .setTitle('?? Restarting Bot')
                     .setDescription('Performing manual restart...\n\nThe bot will be back online in a few seconds.')
                     .setColor(0x00BFFF)
                     .setTimestamp();
@@ -9554,13 +9554,13 @@ const now = Date.now();
                     isManualRestart: true
                 }));
                 
-                console.log('✅ Manual restart triggered via power panel');
+                console.log('? Manual restart triggered via power panel');
                 setTimeout(() => process.exit(0), 500);
             }
             
             else if (interaction.customId === 'power_update') {
                 const updateEmbed = new EmbedBuilder()
-                    .setTitle('⚙️ Updating Bot')
+                    .setTitle('?? Updating Bot')
                     .setDescription('Pulling latest code from GitHub...')
                     .setColor(0xFFAA00)
                     .setTimestamp();
@@ -9595,7 +9595,7 @@ const now = Date.now();
                         console.error(`Update error: ${error}`);
                         return interaction.followUp({ 
                             embeds: [new EmbedBuilder()
-                                .setTitle('❌ Update Failed')
+                                .setTitle('? Update Failed')
                                 .setDescription(`\`\`\`${error.message}\`\`\`\n\n**Tip:** Check if there are local file conflicts`)
                                 .setColor(0xFF0000)
                                 .setTimestamp()],
@@ -9611,8 +9611,8 @@ const now = Date.now();
                     const npmPackages = (stdout.match(/added \d+ packages?/i) || ['No new packages'])[0];
                     
                     const successEmbed = new EmbedBuilder()
-                        .setTitle('✅ Update Complete - Restarting')
-                        .setDescription(`**Commit:** \`${commitHash}\`\n**Message:** ${commitMsg}\n**NPM:** ${npmPackages}\n**Time:** ${timeTaken}s\n\n🔄 Bot restarting...`)
+                        .setTitle('? Update Complete - Restarting')
+                        .setDescription(`**Commit:** \`${commitHash}\`\n**Message:** ${commitMsg}\n**NPM:** ${npmPackages}\n**Time:** ${timeTaken}s\n\n?? Bot restarting...`)
                         .setColor(0x00FF00)
                         .setTimestamp();
                     
@@ -9642,7 +9642,7 @@ const now = Date.now();
                 settings.leveling.enabled = !settings.leveling.enabled;
                 saveSettings();
                 await interaction.update({ 
-                    content: `✅ Leveling system ${settings.leveling.enabled ? 'enabled' : 'disabled'}!`, 
+                    content: `? Leveling system ${settings.leveling.enabled ? 'enabled' : 'disabled'}!`, 
                     components: [],
                     embeds: []
                 });
@@ -9790,7 +9790,7 @@ const now = Date.now();
                 
                 if (Object.keys(roles).length === 0) {
                     await interaction.update({ 
-                        content: '❌ No level roles configured!', 
+                        content: '? No level roles configured!', 
                         components: [],
                         embeds: []
                     });
@@ -9818,9 +9818,9 @@ const now = Date.now();
                 const percent = Math.floor((progress.currentLevelXP / progress.xpRequiredForCurrentLevel) * 100);
                 const barLen = 20;
                 const filled = Math.min(barLen, Math.max(0, Math.round((percent / 100) * barLen)));
-                const bar = '█'.repeat(filled) + '░'.repeat(barLen - filled);
+                const bar = '�'.repeat(filled) + '�'.repeat(barLen - filled);
                 const embed = new EmbedBuilder()
-                    .setTitle('📈 Your Level')
+                    .setTitle('?? Your Level')
                     .setColor(0x5865F2)
                     .setThumbnail(interaction.user.displayAvatarURL())
                     .addFields(
@@ -9840,16 +9840,16 @@ const now = Date.now();
                             .setCustomId('leveling_cleardata_confirm')
                             .setLabel('Yes, Delete All Data')
                             .setStyle(ButtonStyle.Danger)
-                            .setEmoji('⚠️'),
+                            ,
                         new ButtonBuilder()
                             .setCustomId('leveling_cleardata_cancel')
                             .setLabel('Cancel')
                             .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('❌')
+                            
                     );
                 
                 await interaction.update({
-                    content: '⚠️ **WARNING**: This will permanently delete ALL leveling data (XP and levels) for EVERY user in this server!\n\nAre you absolutely sure?',
+                    content: '?? **WARNING**: This will permanently delete ALL leveling data (XP and levels) for EVERY user in this server!\n\nAre you absolutely sure?',
                     components: [confirmRow],
                     embeds: []
                 });
@@ -9862,7 +9862,7 @@ const now = Date.now();
                 }
                 
                 await interaction.update({
-                    content: '✅ All leveling data has been cleared!',
+                    content: '? All leveling data has been cleared!',
                     components: [],
                     embeds: []
                 });
@@ -9870,7 +9870,7 @@ const now = Date.now();
             
             else if (interaction.customId === 'leveling_cleardata_cancel') {
                 await interaction.update({
-                    content: '❌ Cancelled. No data was deleted.',
+                    content: '? Cancelled. No data was deleted.',
                     components: [],
                     embeds: []
                 });
@@ -9889,7 +9889,7 @@ const now = Date.now();
                 settings.enabled = !settings.enabled;
                 saveTicketData();
                 await interaction.update({ 
-                    content: `✅ Ticket system ${settings.enabled ? 'enabled' : 'disabled'}!`, 
+                    content: `? Ticket system ${settings.enabled ? 'enabled' : 'disabled'}!`, 
                     components: [],
                     embeds: []
                 });
@@ -9982,20 +9982,20 @@ const now = Date.now();
                 const staffRole = settings.staffRoleId ? `<@&${settings.staffRoleId}>` : 'Not set';
                 
                 const embed = new EmbedBuilder()
-                    .setTitle('⚙️ Ticket System Control Panel')
+                    .setTitle('?? Ticket System Control Panel')
                     .setColor(settings.enabled ? 0x00FF00 : 0xFF0000)
                     .setDescription(
-                        `System is currently **${settings.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                        `System is currently **${settings.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                         `Manage your server's support ticket system.\n\n` +
                         `Click the buttons below to configure ticket settings.`
                     )
                     .addFields(
-                        { name: '⚙️ Status', value: settings.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                        { name: '?? Status', value: settings.enabled ? '? Enabled' : '? Disabled', inline: true },
                         { name: ' Staff Role', value: staffRole, inline: true },
                         { name: ' Category', value: settings.categoryName, inline: true },
                         { name: ' Total Tickets', value: ticketData[guildId].counter.toString(), inline: true },
-                        { name: '✅ Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
-                        { name: '✅ Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
+                        { name: '? Welcome Message', value: settings.ticketMessage.substring(0, 100) + '...', inline: false },
+                        { name: '? Close Message', value: settings.closedMessage.substring(0, 100) + '...', inline: false }
                     )
                     .setFooter({ text: 'Click buttons below to configure ticket system' })
                     .setTimestamp();
@@ -10006,22 +10006,22 @@ const now = Date.now();
                             .setCustomId('ticket_toggle')
                             .setLabel(settings.enabled ? 'Disable System' : 'Enable System')
                             .setStyle(settings.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                            .setEmoji(settings.enabled ? '' : ''),
+                            ,
                         new ButtonBuilder()
                             .setCustomId('ticket_staffrole')
                             .setLabel('Set Staff Role')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('✅'),
+                            ,
                         new ButtonBuilder()
                             .setCustomId('ticket_category')
                             .setLabel('Set Category')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('✅'),
+                            ,
                         new ButtonBuilder()
                             .setCustomId('ticket_panel')
                             .setLabel('Create Panel')
                             .setStyle(ButtonStyle.Success)
-                            .setEmoji('✅')
+                            
                     );
                 
                 const row2 = new ActionRowBuilder()
@@ -10030,17 +10030,17 @@ const now = Date.now();
                             .setCustomId('ticket_welcomemsg')
                             .setLabel('Welcome Message')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('✅'),
+                            ,
                         new ButtonBuilder()
                             .setCustomId('ticket_closemsg')
                             .setLabel('Close Message')
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji('✅'),
+                            ,
                         new ButtonBuilder()
                             .setCustomId('ticket_refresh')
                             .setLabel('Refresh')
                             .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('✅')
+                            
                     );
                 
                 await interaction.update({ embeds: [embed], components: [row1, row2] });
@@ -10054,31 +10054,31 @@ const now = Date.now();
                 if (interaction.customId === 'cinfo_firmware') {
                     let firmwareData = {
                         lastUpdate: Date.now(),
-                        ps3: { latest: '4.92', exploitable: '4.90', status: '✅ Exploitable' },
-                        ps4: { latest: '13.02', exploitable: '12.02', status: '⚠️ Limited' },
-                        ps5: { latest: '12.20', exploitable: '10.01', status: '⚠️ Limited' },
-                        vita: { latest: '3.74', exploitable: '3.74', status: '✅ Fully Exploitable' },
-                        psp: { latest: '6.61', exploitable: '6.61', status: '✅ Fully Exploitable' }
+                        ps3: { latest: '4.92', exploitable: '4.90', status: '? Exploitable' },
+                        ps4: { latest: '13.02', exploitable: '12.02', status: '?? Limited' },
+                        ps5: { latest: '12.20', exploitable: '10.01', status: '?? Limited' },
+                        vita: { latest: '3.74', exploitable: '3.74', status: '? Fully Exploitable' },
+                        psp: { latest: '6.61', exploitable: '6.61', status: '? Fully Exploitable' }
                     };
 
                     const embed = new EmbedBuilder()
-                        .setTitle('📱 PlayStation Firmware Tracker')
+                        .setTitle('?? PlayStation Firmware Tracker')
                         .setColor(0x0066CC)
                         .setDescription('Real-time PlayStation firmware monitoring and exploit compatibility checker')
                         .addFields(
-                            { name: '🎮 PS3', value: `**Latest:** ${firmwareData.ps3.latest}\n**Exploitable:** ${firmwareData.ps3.exploitable}\n**Status:** ${firmwareData.ps3.status}`, inline: true },
-                            { name: '🎮 PS4', value: `**Latest:** ${firmwareData.ps4.latest}\n**Exploitable:** ${firmwareData.ps4.exploitable}\n**Status:** ${firmwareData.ps4.status}`, inline: true },
-                            { name: '🎮 PS5', value: `**Latest:** ${firmwareData.ps5.latest}\n**Exploitable:** ${firmwareData.ps5.exploitable}\n**Status:** ${firmwareData.ps5.status}`, inline: true },
-                            { name: '📱 PS Vita', value: `**Latest:** ${firmwareData.vita.latest}\n**Exploitable:** ${firmwareData.vita.exploitable}\n**Status:** ${firmwareData.vita.status}`, inline: true },
-                            { name: '🕹️ PSP', value: `**Latest:** ${firmwareData.psp.latest}\n**Exploitable:** ${firmwareData.psp.exploitable}\n**Status:** ${firmwareData.psp.status}`, inline: true }
+                            { name: '?? PS3', value: `**Latest:** ${firmwareData.ps3.latest}\n**Exploitable:** ${firmwareData.ps3.exploitable}\n**Status:** ${firmwareData.ps3.status}`, inline: true },
+                            { name: '?? PS4', value: `**Latest:** ${firmwareData.ps4.latest}\n**Exploitable:** ${firmwareData.ps4.exploitable}\n**Status:** ${firmwareData.ps4.status}`, inline: true },
+                            { name: '?? PS5', value: `**Latest:** ${firmwareData.ps5.latest}\n**Exploitable:** ${firmwareData.ps5.exploitable}\n**Status:** ${firmwareData.ps5.status}`, inline: true },
+                            { name: '?? PS Vita', value: `**Latest:** ${firmwareData.vita.latest}\n**Exploitable:** ${firmwareData.vita.exploitable}\n**Status:** ${firmwareData.vita.status}`, inline: true },
+                            { name: '??? PSP', value: `**Latest:** ${firmwareData.psp.latest}\n**Exploitable:** ${firmwareData.psp.exploitable}\n**Status:** ${firmwareData.psp.status}`, inline: true }
                         )
                         .setFooter({ text: `Last updated: ${new Date().toLocaleString()}` });
 
                     const row1 = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('fw_ps4_detail').setLabel('PS4 Details').setStyle(ButtonStyle.Secondary).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('fw_ps5_detail').setLabel('PS5 Details').setStyle(ButtonStyle.Secondary).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('fw_safety_guide').setLabel('Safety Guide').setStyle(ButtonStyle.Secondary).setEmoji('📚')
+                            new ButtonBuilder().setCustomId('fw_ps4_detail').setLabel('PS4 Details').setStyle(ButtonStyle.Secondary),
+                            new ButtonBuilder().setCustomId('fw_ps5_detail').setLabel('PS5 Details').setStyle(ButtonStyle.Secondary),
+                            new ButtonBuilder().setCustomId('fw_safety_guide').setLabel('Safety Guide').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [row1] });
@@ -10088,21 +10088,21 @@ const now = Date.now();
                 // Safe Firmware
                 if (interaction.customId === 'cinfo_safefirmware') {
                     const embed = new EmbedBuilder()
-                        .setTitle('✅ Safe Firmware Versions')
+                        .setTitle('? Safe Firmware Versions')
                         .setColor(0x00FF00)
                         .setDescription('Find out which firmware versions are safe to stay on for homebrew')
                         .addFields(
-                            { name: '🎮 PS3', value: '**Safe:** 4.90 and below (full CFW)\n**HEN Only:** 4.91-4.92\n**Avoid:** 4.93+ (no exploit)', inline: false },
-                            { name: '🎮 PS4', value: '**Safe:** 9.00-12.02 (GoldHEN)\n**Announced:** 13.00 exploit (not released)\n**Avoid:** 13.01+ (no exploit)', inline: false },
-                            { name: '🎮 PS5', value: '**Safe:** 10.01 and below (etaHEN)\n**Announced:** 12.00 exploit (not released)\n**Avoid:** 25.07+ (no exploit yet)', inline: false },
-                            { name: '📱 PS Vita', value: '**All versions exploitable!**\n**Best:** 3.60 or 3.65 (Ensō support)\n**Works:** Up to 3.74 (h-encore²)', inline: false },
-                            { name: '🕹️ PSP', value: '**All versions exploitable!**\n**Recommended:** 6.61 (latest, best support)\n**Alternative:** 6.60 (also good)', inline: false },
-                            { name: '💡 General Advice', value: '• **Never update** if you want homebrew\n• **Disable auto-updates** in settings\n• **Stay offline** when possible\n• **Check compatibility** before any game/app', inline: false }
+                            { name: '?? PS3', value: '**Safe:** 4.90 and below (full CFW)\n**HEN Only:** 4.91-4.92\n**Avoid:** 4.93+ (no exploit)', inline: false },
+                            { name: '?? PS4', value: '**Safe:** 9.00-12.02 (GoldHEN)\n**Announced:** 13.00 exploit (not released)\n**Avoid:** 13.01+ (no exploit)', inline: false },
+                            { name: '?? PS5', value: '**Safe:** 10.01 and below (etaHEN)\n**Announced:** 12.00 exploit (not released)\n**Avoid:** 25.07+ (no exploit yet)', inline: false },
+                            { name: '?? PS Vita', value: '**All versions exploitable!**\n**Best:** 3.60 or 3.65 (Enso support)\n**Works:** Up to 3.74 (h-encore�)', inline: false },
+                            { name: '??? PSP', value: '**All versions exploitable!**\n**Recommended:** 6.61 (latest, best support)\n**Alternative:** 6.60 (also good)', inline: false },
+                            { name: '?? General Advice', value: '� **Never update** if you want homebrew\n� **Disable auto-updates** in settings\n� **Stay offline** when possible\n� **Check compatibility** before any game/app', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back to Hub').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back to Hub').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [row] });
@@ -10112,19 +10112,19 @@ const now = Date.now();
                 // FW Notifications
                 if (interaction.customId === 'cinfo_fwnotify') {
                     const embed = new EmbedBuilder()
-                        .setTitle('🔔 Firmware Update Notifications')
+                        .setTitle('?? Firmware Update Notifications')
                         .setColor(0xFFAA00)
                         .setDescription('Get notified when new PlayStation firmware releases drop!')
                         .addFields(
-                            { name: '📡 How it Works', value: 'When Sony releases a new firmware update, you\'ll get an instant notification in your selected channel.', inline: false },
-                            { name: '🎮 Supported Consoles', value: 'PS3, PS4, PS5, PS Vita, PSP', inline: false },
-                            { name: '⚙️ Setup', value: 'Use the button below to configure notification settings for your server.', inline: false }
+                            { name: '?? How it Works', value: 'When Sony releases a new firmware update, you\'ll get an instant notification in your selected channel.', inline: false },
+                            { name: '?? Supported Consoles', value: 'PS3, PS4, PS5, PS Vita, PSP', inline: false },
+                            { name: '?? Setup', value: 'Use the button below to configure notification settings for your server.', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('fw_notifications').setLabel('Configure Notifications').setStyle(ButtonStyle.Primary).setEmoji('⚙️'),
-                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back to Hub').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                            new ButtonBuilder().setCustomId('fw_notifications').setLabel('Configure Notifications').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back to Hub').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [row] });
@@ -10134,18 +10134,18 @@ const now = Date.now();
                 // Game Lookup
                 if (interaction.customId === 'cinfo_gamelookup') {
                     const embed = new EmbedBuilder()
-                        .setTitle('🎮 PlayStation Game Lookup')
+                        .setTitle('?? PlayStation Game Lookup')
                         .setColor(0x0099FF)
                         .setDescription('Search for PlayStation game information, compatibility, and more!')
                         .addFields(
-                            { name: '🔍 Search Options', value: '• Game Title\n• Title ID (e.g., CUSA12345)\n• Developer/Publisher\n• Genre', inline: false },
-                            { name: '📊 Information Provided', value: '• Release date & region\n• Firmware requirements\n• PKG availability\n• DLC information', inline: false }
+                            { name: '?? Search Options', value: '� Game Title\n� Title ID (e.g., CUSA12345)\n� Developer/Publisher\n� Genre', inline: false },
+                            { name: '?? Information Provided', value: '� Release date & region\n� Firmware requirements\n� PKG availability\n� DLC information', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('gamelookup_search').setLabel('Search Game').setStyle(ButtonStyle.Primary).setEmoji('🔍'),
-                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back to Hub').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                            new ButtonBuilder().setCustomId('gamelookup_search').setLabel('Search Game').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back to Hub').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [row] });
@@ -10155,20 +10155,20 @@ const now = Date.now();
                 // PKG Database
                 if (interaction.customId === 'cinfo_pkg') {
                     const embed = new EmbedBuilder()
-                        .setTitle('📦 PKG Database')
+                        .setTitle('?? PKG Database')
                         .setColor(0x9B59B6)
                         .setDescription('Search, verify, and analyze PlayStation PKG files')
                         .addFields(
-                            { name: '🔍 Search by:', value: '• Game name\n• PKG ID\n• Region code\n• Developer', inline: true },
-                            { name: '✅ Verify:', value: '• File integrity\n• Region locks\n• Fake PKG detection\n• Hash validation', inline: true },
-                            { name: '🛠️ Latest Homebrew', value: 'Browse the latest homebrew apps and tools for all PlayStation consoles', inline: false }
+                            { name: '?? Search by:', value: '� Game name\n� PKG ID\n� Region code\n� Developer', inline: true },
+                            { name: '? Verify:', value: '� File integrity\n� Region locks\n� Fake PKG detection\n� Hash validation', inline: true },
+                            { name: '??? Latest Homebrew', value: 'Browse the latest homebrew apps and tools for all PlayStation consoles', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('pkg_search_modal').setLabel('Search PKG').setStyle(ButtonStyle.Primary).setEmoji('🔍'),
-                            new ButtonBuilder().setCustomId('pkg_verify').setLabel('Verify PKG').setStyle(ButtonStyle.Secondary).setEmoji('✅'),
-                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                            new ButtonBuilder().setCustomId('pkg_search_modal').setLabel('Search PKG').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('pkg_verify').setLabel('Verify PKG').setStyle(ButtonStyle.Secondary),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [row] });
@@ -10178,21 +10178,21 @@ const now = Date.now();
                 // Version Checker
                 if (interaction.customId === 'cinfo_version') {
                     const embed = new EmbedBuilder()
-                        .setTitle('🔍 Console Version Checker')
+                        .setTitle('?? Console Version Checker')
                         .setColor(0x00FF00)
                         .setDescription('Identify your PlayStation console model and check exploit compatibility')
                         .addFields(
-                            { name: '🎮 Supported Consoles', value: 'PS3, PS4, PS5, PS Vita, PSP', inline: false },
-                            { name: '📋 Information Provided', value: '• Console model & revision\n• Manufacturing date range\n• Compatible CFW/exploits\n• Downgrade possibilities\n• Hardware capabilities', inline: false },
-                            { name: '🔢 Enter Your:', value: '• Serial number (on console sticker)\n• Model number (e.g., CUH-1215A)\n• MAC address (for PS3/Vita)', inline: false }
+                            { name: '?? Supported Consoles', value: 'PS3, PS4, PS5, PS Vita, PSP', inline: false },
+                            { name: '?? Information Provided', value: '� Console model & revision\n� Manufacturing date range\n� Compatible CFW/exploits\n� Downgrade possibilities\n� Hardware capabilities', inline: false },
+                            { name: '?? Enter Your:', value: '� Serial number (on console sticker)\n� Model number (e.g., CUH-1215A)\n� MAC address (for PS3/Vita)', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('version_ps3').setLabel('PS3').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('version_ps4').setLabel('PS4').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('version_ps5').setLabel('PS5').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                            new ButtonBuilder().setCustomId('version_ps3').setLabel('PS3').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('version_ps4').setLabel('PS4').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('version_ps5').setLabel('PS5').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [row] });
@@ -10202,24 +10202,24 @@ const now = Date.now();
                 // Jailbreak Tutorials
                 if (interaction.customId === 'cinfo_jailbreak') {
                     const embed = new EmbedBuilder()
-                        .setTitle('📚 Jailbreak Tutorials')
+                        .setTitle('?? Jailbreak Tutorials')
                         .setColor(0xFF6600)
                         .setDescription('Step-by-step guides for jailbreaking PlayStation consoles')
                         .addFields(
-                            { name: '🎮 PS3', value: 'CFW Installation (4.90 and below)\nHEN Installation (4.91-4.92)', inline: true },
-                            { name: '🎮 PS4', value: 'GoldHEN Setup (9.00-12.02)\nBD-JB Installation', inline: true },
-                            { name: '🎮 PS5', value: 'etaHEN Installation (10.01)\nPPPwn Setup', inline: true },
-                            { name: '📱 PS Vita', value: 'h-encore² Installation\nEnsō Permanent CFW', inline: true },
-                            { name: '🕹️ PSP', value: 'PRO-C CFW\nInfinity Permanent Patch', inline: true },
-                            { name: '⚠️ Warning', value: 'Always backup your console before attempting any exploit!', inline: false }
+                            { name: '?? PS3', value: 'CFW Installation (4.90 and below)\nHEN Installation (4.91-4.92)', inline: true },
+                            { name: '?? PS4', value: 'GoldHEN Setup (9.00-12.02)\nBD-JB Installation', inline: true },
+                            { name: '?? PS5', value: 'etaHEN Installation (10.01)\nPPPwn Setup', inline: true },
+                            { name: '?? PS Vita', value: 'h-encore� Installation\nEnso Permanent CFW', inline: true },
+                            { name: '??? PSP', value: 'PRO-C CFW\nInfinity Permanent Patch', inline: true },
+                            { name: '?? Warning', value: 'Always backup your console before attempting any exploit!', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('jb_ps3').setLabel('PS3 Guide').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('jb_ps4').setLabel('PS4 Guide').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('jb_ps5').setLabel('PS5 Guide').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                            new ButtonBuilder().setCustomId('jb_ps3').setLabel('PS3 Guide').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('jb_ps4').setLabel('PS4 Guide').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('jb_ps5').setLabel('PS5 Guide').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [row] });
@@ -10229,18 +10229,18 @@ const now = Date.now();
                 // Compatibility Checker
                 if (interaction.customId === 'cinfo_compat') {
                     const embed = new EmbedBuilder()
-                        .setTitle('✅ Game Compatibility Checker')
+                        .setTitle('? Game Compatibility Checker')
                         .setColor(0x3498DB)
                         .setDescription('Check if a game is compatible with your firmware version')
                         .addFields(
-                            { name: '🎯 What We Check', value: '• Minimum firmware required\n• Latest exploitable firmware\n• Region compatibility\n• DLC compatibility\n• Update package requirements', inline: false },
-                            { name: '💡 Usage', value: 'Enter a game name or Title ID to check compatibility with your current firmware version', inline: false }
+                            { name: '?? What We Check', value: '� Minimum firmware required\n� Latest exploitable firmware\n� Region compatibility\n� DLC compatibility\n� Update package requirements', inline: false },
+                            { name: '?? Usage', value: 'Enter a game name or Title ID to check compatibility with your current firmware version', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('compat_search').setLabel('Check Game').setStyle(ButtonStyle.Primary).setEmoji('🔍'),
-                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                            new ButtonBuilder().setCustomId('compat_search').setLabel('Check Game').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [row] });
@@ -10250,27 +10250,27 @@ const now = Date.now();
                 // Homebrew Browser
                 if (interaction.customId === 'cinfo_homebrew') {
                     const embed = new EmbedBuilder()
-                        .setTitle('🛠️ PlayStation Homebrew Browser')
+                        .setTitle('??? PlayStation Homebrew Browser')
                         .setColor(0x9B59B6)
                         .setDescription('Discover and browse homebrew applications for PlayStation consoles')
                         .addFields(
-                            { name: '📦 Categories', value: '• Games\n• Emulators\n• Media Players\n• File Managers\n• System Tools\n• Utilities', inline: true },
-                            { name: '🎮 Consoles', value: '• PS3\n• PS4\n• PS5\n• PS Vita\n• PSP', inline: true },
-                            { name: '🔥 Popular Apps', value: 'RetroArch, ItemzFlow, Apollo Save Tool, Multiman, PKGi, Adrenaline', inline: false }
+                            { name: '?? Categories', value: '� Games\n� Emulators\n� Media Players\n� File Managers\n� System Tools\n� Utilities', inline: true },
+                            { name: '?? Consoles', value: '� PS3\n� PS4\n� PS5\n� PS Vita\n� PSP', inline: true },
+                            { name: '?? Popular Apps', value: 'RetroArch, ItemzFlow, Apollo Save Tool, Multiman, PKGi, Adrenaline', inline: false }
                         );
 
                     const row1 = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('hb_ps3').setLabel('PS3').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('hb_ps4').setLabel('PS4').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('hb_ps5').setLabel('PS5').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('hb_vita').setLabel('Vita').setStyle(ButtonStyle.Primary).setEmoji('📱')
+                            new ButtonBuilder().setCustomId('hb_ps3').setLabel('PS3').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('hb_ps4').setLabel('PS4').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('hb_ps5').setLabel('PS5').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('hb_vita').setLabel('Vita').setStyle(ButtonStyle.Primary)
                         );
 
                     const row2 = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('hb_psp').setLabel('PSP').setStyle(ButtonStyle.Primary).setEmoji('🕹️'),
-                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                            new ButtonBuilder().setCustomId('hb_psp').setLabel('PSP').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [row1, row2] });
@@ -10280,20 +10280,20 @@ const now = Date.now();
                 // Ban Risk Calculator
                 if (interaction.customId === 'cinfo_banrisk') {
                     const embed = new EmbedBuilder()
-                        .setTitle('⚠️ PSN Ban Risk Calculator')
+                        .setTitle('?? PSN Ban Risk Calculator')
                         .setColor(0xFF0000)
                         .setDescription('Analyze your PSN ban risk based on planned activities')
                         .addFields(
-                            { name: '🔴 HIGH RISK (Almost Guaranteed Ban)', value: '• Signing into PSN on CFW/HEN\n• Using pirated games online\n• Modifying online game saves\n• Trophy hacking with sync\n• Cheating in multiplayer', inline: false },
-                            { name: '🟡 MEDIUM RISK (Possible Ban)', value: '• Installing unsigned PKGs\n• Using save editors offline\n• Frequent profile changes\n• Suspicious trophy timestamps\n• Multiple console bans on same account', inline: false },
-                            { name: '🟢 LOW RISK (Minimal Risk)', value: '• Using CFW offline only\n• Homebrew apps (no PSN)\n• Save backups (offline)\n• System modifications (offline)\n• Network disconnected during exploits', inline: false },
-                            { name: '✅ SAFE PRACTICES', value: '• **Never connect to PSN** on modded consoles\n• Use a **separate account** for homebrew\n• **Disable network** in settings\n• **Block PSN servers** in router\n• Keep **stock console** for online play', inline: false }
+                            { name: '?? HIGH RISK (Almost Guaranteed Ban)', value: '� Signing into PSN on CFW/HEN\n� Using pirated games online\n� Modifying online game saves\n� Trophy hacking with sync\n� Cheating in multiplayer', inline: false },
+                            { name: '?? MEDIUM RISK (Possible Ban)', value: '� Installing unsigned PKGs\n� Using save editors offline\n� Frequent profile changes\n� Suspicious trophy timestamps\n� Multiple console bans on same account', inline: false },
+                            { name: '?? LOW RISK (Minimal Risk)', value: '� Using CFW offline only\n� Homebrew apps (no PSN)\n� Save backups (offline)\n� System modifications (offline)\n� Network disconnected during exploits', inline: false },
+                            { name: '? SAFE PRACTICES', value: '� **Never connect to PSN** on modded consoles\n� Use a **separate account** for homebrew\n� **Disable network** in settings\n� **Block PSN servers** in router\n� Keep **stock console** for online play', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('banrisk_analyze').setLabel('Analyze My Risk').setStyle(ButtonStyle.Danger).setEmoji('⚠️'),
-                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                            new ButtonBuilder().setCustomId('banrisk_analyze').setLabel('Analyze My Risk').setStyle(ButtonStyle.Danger),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [row] });
@@ -10303,23 +10303,23 @@ const now = Date.now();
                 // Backup Checklist
                 if (interaction.customId === 'cinfo_backup') {
                     const embed = new EmbedBuilder()
-                        .setTitle('💾 Backup Checklist')
+                        .setTitle('?? Backup Checklist')
                         .setColor(0x00FF00)
                         .setDescription('Essential backups before modifying your PlayStation console')
                         .addFields(
-                            { name: '🔴 CRITICAL - Do Before Anything!', value: '✅ **NAND/NOR Backup** (PS3)\n✅ **SLC/SLCCMGR Backup** (PS4/PS5)\n✅ **eMMC Backup** (PS Vita)\n✅ **Flash Backup** (PSP)\n\n⚠️ **Without these, console death is permanent!**', inline: false },
-                            { name: '🟡 IMPORTANT - Highly Recommended', value: '✅ Save game backups\n✅ License/activation backups\n✅ System settings backup\n✅ Database rebuild backup\n✅ Trophy data backup', inline: false },
-                            { name: '🟢 OPTIONAL - Nice to Have', value: '✅ Game update packages\n✅ DLC packages\n✅ Theme backups\n✅ Screenshot/video captures\n✅ Custom configurations', inline: false },
-                            { name: '🛠️ Recommended Tools', value: '**PS3:** multiman, webMAN\n**PS4:** Apollo Save Tool, Save Wizard\n**PS5:** Save Mounter\n**Vita:** VitaShell, QCMA\n**PSP:** PSP Filer', inline: false },
-                            { name: '📍 Backup Storage', value: '• Use **quality USB drives** (3.0+)\n• Keep **multiple copies** (USB + PC)\n• Label backups with **date & firmware**\n• Store in **safe location**\n• Test backups **regularly**', inline: false }
+                            { name: '?? CRITICAL - Do Before Anything!', value: '? **NAND/NOR Backup** (PS3)\n? **SLC/SLCCMGR Backup** (PS4/PS5)\n? **eMMC Backup** (PS Vita)\n? **Flash Backup** (PSP)\n\n?? **Without these, console death is permanent!**', inline: false },
+                            { name: '?? IMPORTANT - Highly Recommended', value: '? Save game backups\n? License/activation backups\n? System settings backup\n? Database rebuild backup\n? Trophy data backup', inline: false },
+                            { name: '?? OPTIONAL - Nice to Have', value: '? Game update packages\n? DLC packages\n? Theme backups\n? Screenshot/video captures\n? Custom configurations', inline: false },
+                            { name: '??? Recommended Tools', value: '**PS3:** multiman, webMAN\n**PS4:** Apollo Save Tool, Save Wizard\n**PS5:** Save Mounter\n**Vita:** VitaShell, QCMA\n**PSP:** PSP Filer', inline: false },
+                            { name: '?? Backup Storage', value: '� Use **quality USB drives** (3.0+)\n� Keep **multiple copies** (USB + PC)\n� Label backups with **date & firmware**\n� Store in **safe location**\n� Test backups **regularly**', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('backup_ps3').setLabel('PS3 Guide').setStyle(ButtonStyle.Success).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('backup_ps4').setLabel('PS4 Guide').setStyle(ButtonStyle.Success).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('backup_ps5').setLabel('PS5 Guide').setStyle(ButtonStyle.Success).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                            new ButtonBuilder().setCustomId('backup_ps3').setLabel('PS3 Guide').setStyle(ButtonStyle.Success),
+                            new ButtonBuilder().setCustomId('backup_ps4').setLabel('PS4 Guide').setStyle(ButtonStyle.Success),
+                            new ButtonBuilder().setCustomId('backup_ps5').setLabel('PS5 Guide').setStyle(ButtonStyle.Success),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [row] });
@@ -10329,23 +10329,23 @@ const now = Date.now();
                 // Downgrade Guide
                 if (interaction.customId === 'cinfo_downgrade') {
                     const embed = new EmbedBuilder()
-                        .setTitle('⬇️ Firmware Downgrade Guide')
+                        .setTitle('?? Firmware Downgrade Guide')
                         .setColor(0xFF9900)
                         .setDescription('Check if your console can be downgraded and learn how')
                         .addFields(
-                            { name: '✅ Downgradeable Consoles', value: '**PS3:** Most models (requires hardware flasher)\n**PS Vita:** All models via modoru\n**PSP:** All models (brick risk exists)', inline: false },
-                            { name: '❌ Cannot Downgrade', value: '**PS4:** Impossible without hardware mod\n**PS5:** Not possible currently', inline: false },
-                            { name: '🔧 Required Tools', value: '**PS3:** E3 Flasher, Teensy++, or Progskeet\n**Vita:** modoru plugin\n**PSP:** Pandora Battery + Magic Memory Stick', inline: false },
-                            { name: '⚠️ Risks', value: '• **Brick potential** (especially PS3/PSP)\n• **Warranty void**\n• **Time consuming** (PS3: 1-3 hours)\n• **Requires soldering** (PS3 hardware)\n• **Data loss** possible', inline: false },
-                            { name: '💡 Recommendations', value: '• Check if you\'re **already on exploitable FW**\n• Consider **staying put** vs downgrade risks\n• **Practice soldering** on junk boards first\n• **Read full guides** before starting\n• Have **backup console** if possible', inline: false }
+                            { name: '? Downgradeable Consoles', value: '**PS3:** Most models (requires hardware flasher)\n**PS Vita:** All models via modoru\n**PSP:** All models (brick risk exists)', inline: false },
+                            { name: '? Cannot Downgrade', value: '**PS4:** Impossible without hardware mod\n**PS5:** Not possible currently', inline: false },
+                            { name: '?? Required Tools', value: '**PS3:** E3 Flasher, Teensy++, or Progskeet\n**Vita:** modoru plugin\n**PSP:** Pandora Battery + Magic Memory Stick', inline: false },
+                            { name: '?? Risks', value: '� **Brick potential** (especially PS3/PSP)\n� **Warranty void**\n� **Time consuming** (PS3: 1-3 hours)\n� **Requires soldering** (PS3 hardware)\n� **Data loss** possible', inline: false },
+                            { name: '?? Recommendations', value: '� Check if you\'re **already on exploitable FW**\n� Consider **staying put** vs downgrade risks\n� **Practice soldering** on junk boards first\n� **Read full guides** before starting\n� Have **backup console** if possible', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('downgrade_ps3').setLabel('PS3 Downgrade').setStyle(ButtonStyle.Primary).setEmoji('🎮'),
-                            new ButtonBuilder().setCustomId('downgrade_vita').setLabel('Vita Downgrade').setStyle(ButtonStyle.Primary).setEmoji('📱'),
-                            new ButtonBuilder().setCustomId('downgrade_psp').setLabel('PSP Downgrade').setStyle(ButtonStyle.Primary).setEmoji('🕹️'),
-                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                            new ButtonBuilder().setCustomId('downgrade_ps3').setLabel('PS3 Downgrade').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('downgrade_vita').setLabel('Vita Downgrade').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('downgrade_psp').setLabel('PSP Downgrade').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('cinfo_refresh').setLabel('Back').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [row] });
@@ -10355,40 +10355,40 @@ const now = Date.now();
                 // Refresh - back to main hub
                 if (interaction.customId === 'cinfo_refresh') {
                     const embed = new EmbedBuilder()
-                        .setTitle('🎮 PlayStation Console Information Hub')
+                        .setTitle('?? PlayStation Console Information Hub')
                         .setColor(0x0099FF)
                         .setDescription('**Your one-stop hub for all PlayStation console tools and information**\n\nSelect a tool below to get started:')
                         .addFields(
-                            { name: '📡 Firmware Tools', value: '• **Firmware Tracker** - Check latest firmware versions\n• **FW Notifications** - Get notified of new updates\n• **Safe Firmware** - Find safe versions to stay on', inline: false },
-                            { name: '🎮 Console Tools', value: '• **Version Checker** - Identify your console model\n• **Jailbreak Tutorials** - Step-by-step guides\n• **Compatibility Checker** - Game compatibility lookup', inline: false },
-                            { name: '📦 Package & Game Tools', value: '• **PKG Database** - Search and verify PKG files\n• **Game Lookup** - Find game information\n• **Homebrew Browser** - Discover homebrew apps', inline: false },
-                            { name: '🛡️ Safety & Backup', value: '• **Ban Risk Calculator** - Analyze PSN ban risks\n• **Backup Reminder** - NAND/save backup checklist\n• **Downgrade Guide** - Firmware downgrade paths', inline: false }
+                            { name: '?? Firmware Tools', value: '� **Firmware Tracker** - Check latest firmware versions\n� **FW Notifications** - Get notified of new updates\n� **Safe Firmware** - Find safe versions to stay on', inline: false },
+                            { name: '?? Console Tools', value: '� **Version Checker** - Identify your console model\n� **Jailbreak Tutorials** - Step-by-step guides\n� **Compatibility Checker** - Game compatibility lookup', inline: false },
+                            { name: '?? Package & Game Tools', value: '� **PKG Database** - Search and verify PKG files\n� **Game Lookup** - Find game information\n� **Homebrew Browser** - Discover homebrew apps', inline: false },
+                            { name: '??? Safety & Backup', value: '� **Ban Risk Calculator** - Analyze PSN ban risks\n� **Backup Reminder** - NAND/save backup checklist\n� **Downgrade Guide** - Firmware downgrade paths', inline: false }
                         )
-                        .setFooter({ text: 'PSHomebrew Console Info Hub • Select a tool below' })
+                        .setFooter({ text: 'PSHomebrew Console Info Hub � Select a tool below' })
                         .setTimestamp();
 
                     const row1 = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('cinfo_firmware').setLabel('Firmware Tracker').setStyle(ButtonStyle.Primary).setEmoji('📡'),
-                            new ButtonBuilder().setCustomId('cinfo_safefirmware').setLabel('Safe Firmware').setStyle(ButtonStyle.Primary).setEmoji('✅'),
-                            new ButtonBuilder().setCustomId('cinfo_fwnotify').setLabel('FW Notifications').setStyle(ButtonStyle.Primary).setEmoji('🔔'),
-                            new ButtonBuilder().setCustomId('cinfo_gamelookup').setLabel('Game Lookup').setStyle(ButtonStyle.Primary).setEmoji('🎮')
+                            new ButtonBuilder().setCustomId('cinfo_firmware').setLabel('Firmware Tracker').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('cinfo_safefirmware').setLabel('Safe Firmware').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('cinfo_fwnotify').setLabel('FW Notifications').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('cinfo_gamelookup').setLabel('Game Lookup').setStyle(ButtonStyle.Primary)
                         );
 
                     const row2 = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('cinfo_pkg').setLabel('PKG Database').setStyle(ButtonStyle.Primary).setEmoji('📦'),
-                            new ButtonBuilder().setCustomId('cinfo_version').setLabel('Version Checker').setStyle(ButtonStyle.Secondary).setEmoji('🔍'),
-                            new ButtonBuilder().setCustomId('cinfo_jailbreak').setLabel('Jailbreak Tutorials').setStyle(ButtonStyle.Secondary).setEmoji('📚'),
-                            new ButtonBuilder().setCustomId('cinfo_compat').setLabel('Compatibility').setStyle(ButtonStyle.Secondary).setEmoji('✅')
+                            new ButtonBuilder().setCustomId('cinfo_pkg').setLabel('PKG Database').setStyle(ButtonStyle.Primary),
+                            new ButtonBuilder().setCustomId('cinfo_version').setLabel('Version Checker').setStyle(ButtonStyle.Secondary),
+                            new ButtonBuilder().setCustomId('cinfo_jailbreak').setLabel('Jailbreak Tutorials').setStyle(ButtonStyle.Secondary),
+                            new ButtonBuilder().setCustomId('cinfo_compat').setLabel('Compatibility').setStyle(ButtonStyle.Secondary)
                         );
 
                     const row3 = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('cinfo_homebrew').setLabel('Homebrew').setStyle(ButtonStyle.Secondary).setEmoji('🛠️'),
-                            new ButtonBuilder().setCustomId('cinfo_banrisk').setLabel('Ban Risk Calculator').setStyle(ButtonStyle.Danger).setEmoji('⚠️'),
-                            new ButtonBuilder().setCustomId('cinfo_backup').setLabel('Backup Checklist').setStyle(ButtonStyle.Success).setEmoji('💾'),
-                            new ButtonBuilder().setCustomId('cinfo_downgrade').setLabel('Downgrade Guide').setStyle(ButtonStyle.Secondary).setEmoji('⬇️')
+                            new ButtonBuilder().setCustomId('cinfo_homebrew').setLabel('Homebrew').setStyle(ButtonStyle.Secondary),
+                            new ButtonBuilder().setCustomId('cinfo_banrisk').setLabel('Ban Risk Calculator').setStyle(ButtonStyle.Danger),
+                            new ButtonBuilder().setCustomId('cinfo_backup').setLabel('Backup Checklist').setStyle(ButtonStyle.Success),
+                            new ButtonBuilder().setCustomId('cinfo_downgrade').setLabel('Downgrade Guide').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [row1, row2, row3] });
@@ -10423,48 +10423,48 @@ const now = Date.now();
 
                     if (console === 'ps3') {
                         embed = new EmbedBuilder()
-                            .setTitle('🎮 PS3 Jailbreak Guide')
+                            .setTitle('?? PS3 Jailbreak Guide')
                             .setColor(0x0066CC)
                             .setDescription('**Step-by-step guide to jailbreaking your PlayStation 3**')
                             .addFields(
-                                { name: '📋 Prerequisites', value: '• PS3 on firmware **4.90 or below** for CFW\n• USB drive (FAT32, min 1GB)\n• Computer with internet\n• PS3 compatible with CFW (check model)', inline: false },
-                                { name: '🔧 Step 1: Check Compatibility', value: 'Not all PS3s can run CFW:\n• **CECH-20xx and below**: Full CFW support\n• **CECH-21xx to 25xx**: Limited CFW (DEX)\n• **CECH-30xx+**: HEN only (4.91-4.92)', inline: false },
-                                { name: '📥 Step 2: Download Files', value: '• Latest Evilnat CFW (4.90 recommended)\n• HFW if on 4.91-4.92\n• Flash Writer tool\n• HEN installer (for incompatible models)', inline: false },
-                                { name: '⚙️ Step 3: Install CFW/HEN', value: '1. Format USB to FAT32\n2. Create folder: PS3/UPDATE/\n3. Copy CFW .PUP file\n4. Insert USB, go to Settings > System Update\n5. Install from USB\n6. Wait 5-10 minutes (DO NOT TURN OFF!)', inline: false },
-                                { name: '✅ Step 4: Verify', value: 'After reboot:\n• Check System Information for CFW version\n• Install multiman/webMAN\n• Enable QA flags if needed', inline: false },
-                                { name: '⚠️ Critical Warnings', value: '• **NEVER update** to official firmware after CFW\n• **Backup NAND/NOR** before starting\n• **Don\'t sign into PSN** on CFW\n• **Use offline** account only', inline: false }
+                                { name: '?? Prerequisites', value: '� PS3 on firmware **4.90 or below** for CFW\n� USB drive (FAT32, min 1GB)\n� Computer with internet\n� PS3 compatible with CFW (check model)', inline: false },
+                                { name: '?? Step 1: Check Compatibility', value: 'Not all PS3s can run CFW:\n� **CECH-20xx and below**: Full CFW support\n� **CECH-21xx to 25xx**: Limited CFW (DEX)\n� **CECH-30xx+**: HEN only (4.91-4.92)', inline: false },
+                                { name: '?? Step 2: Download Files', value: '� Latest Evilnat CFW (4.90 recommended)\n� HFW if on 4.91-4.92\n� Flash Writer tool\n� HEN installer (for incompatible models)', inline: false },
+                                { name: '?? Step 3: Install CFW/HEN', value: '1. Format USB to FAT32\n2. Create folder: PS3/UPDATE/\n3. Copy CFW .PUP file\n4. Insert USB, go to Settings > System Update\n5. Install from USB\n6. Wait 5-10 minutes (DO NOT TURN OFF!)', inline: false },
+                                { name: '? Step 4: Verify', value: 'After reboot:\n� Check System Information for CFW version\n� Install multiman/webMAN\n� Enable QA flags if needed', inline: false },
+                                { name: '?? Critical Warnings', value: '� **NEVER update** to official firmware after CFW\n� **Backup NAND/NOR** before starting\n� **Don\'t sign into PSN** on CFW\n� **Use offline** account only', inline: false }
                             );
                     } else if (console === 'ps4') {
                         embed = new EmbedBuilder()
-                            .setTitle('🎮 PS4 Jailbreak Guide (GoldHEN)')
+                            .setTitle('?? PS4 Jailbreak Guide (GoldHEN)')
                             .setColor(0xFF4400)
                             .setDescription('**Complete guide to jailbreaking PS4 (9.00-12.02)**')
                             .addFields(
-                                { name: '📋 Prerequisites', value: '• PS4 on firmware **9.00 - 12.02**\n• Internet connection (for initial setup)\n• USB drive (optional, for offline host)\n• Patience (exploit can take 5-20 attempts)', inline: false },
-                                { name: '🔧 Step 1: Prepare Console', value: '1. Go to **Settings > Network > Set Up Internet**\n2. Note down your **DNS settings** (write them down!)\n3. Set **Primary DNS**: 165.227.83.145\n4. **Test connection** to verify', inline: false },
-                                { name: '🌐 Step 2: Load GoldHEN', value: '1. Open **Internet Browser**\n2. Go to: **karo218.ir**\n3. Select your firmware version\n4. Click **GoldHEN 2.4b18.6**\n5. Wait for **"GoldHEN loaded"** message', inline: false },
-                                { name: '💡 Tips for Success', value: '• Close all apps before loading\n• Try different times of day\n• Reset console if 10+ failures\n• **Rest Mode works** after successful load\n• Some games require **FW spoofing**', inline: false },
-                                { name: '📦 Step 3: Install Homebrew', value: '• Use **Online Package Installer**\n• Install **Apollo Save Tool**\n• Install **Homebrew Store**\n• Install **FTP Server** for file transfer', inline: false },
-                                { name: '⚠️ Critical Warnings', value: '• **DO NOT UPDATE** past 12.02!\n• **Disable automatic updates**\n• **Don\'t sign into PSN**\n• **Use burner account** only\n• **Block telemetry** in network settings', inline: false }
+                                { name: '?? Prerequisites', value: '� PS4 on firmware **9.00 - 12.02**\n� Internet connection (for initial setup)\n� USB drive (optional, for offline host)\n� Patience (exploit can take 5-20 attempts)', inline: false },
+                                { name: '?? Step 1: Prepare Console', value: '1. Go to **Settings > Network > Set Up Internet**\n2. Note down your **DNS settings** (write them down!)\n3. Set **Primary DNS**: 165.227.83.145\n4. **Test connection** to verify', inline: false },
+                                { name: '?? Step 2: Load GoldHEN', value: '1. Open **Internet Browser**\n2. Go to: **karo218.ir**\n3. Select your firmware version\n4. Click **GoldHEN 2.4b18.6**\n5. Wait for **"GoldHEN loaded"** message', inline: false },
+                                { name: '?? Tips for Success', value: '� Close all apps before loading\n� Try different times of day\n� Reset console if 10+ failures\n� **Rest Mode works** after successful load\n� Some games require **FW spoofing**', inline: false },
+                                { name: '?? Step 3: Install Homebrew', value: '� Use **Online Package Installer**\n� Install **Apollo Save Tool**\n� Install **Homebrew Store**\n� Install **FTP Server** for file transfer', inline: false },
+                                { name: '?? Critical Warnings', value: '� **DO NOT UPDATE** past 12.02!\n� **Disable automatic updates**\n� **Don\'t sign into PSN**\n� **Use burner account** only\n� **Block telemetry** in network settings', inline: false }
                             );
                     } else if (console === 'ps5') {
                         embed = new EmbedBuilder()
-                            .setTitle('🎮 PS5 Jailbreak Guide (etaHEN)')
+                            .setTitle('?? PS5 Jailbreak Guide (etaHEN)')
                             .setColor(0xFF0000)
                             .setDescription('**Guide to jailbreaking PS5 on firmware 10.01 and below**')
                             .addFields(
-                                { name: '📋 Prerequisites', value: '• PS5 on **firmware 10.01 or below**\n• **Ethernet cable** (WiFi possible but slower)\n• Computer or Raspberry Pi\n• **PPPwn** or **etaHEN** loader\n• **Extreme patience** (can take many attempts)', inline: false },
-                                { name: '🚨 IMPORTANT', value: '**Exploitable PS5s are EXTREMELY rare!**\n• Most sold consoles are 10.50+\n• Once you update, **you cannot downgrade**\n• **Guard this console** with your life\n• Consider getting backup PS5 for online', inline: false },
-                                { name: '🔧 Method 1: PPPwn (Recommended)', value: '1. Download **PPPwn** for your PC/Pi\n2. Connect PS5 via **Ethernet**\n3. Set PS5 to **PPPoE** mode\n4. Run PPPwn script\n5. Wait for **kernel exploitation** (2-30 min)\n6. Load **etaHEN** payload', inline: false },
-                                { name: '🌐 Method 2: Browser Exploit', value: '1. Set DNS to exploit server\n2. Open PS5 browser (user guide trick)\n3. Navigate to exploit site\n4. Click **etaHEN 2.0b**\n5. **Multiple attempts** needed (very unstable)', inline: false },
-                                { name: '📦 After Jailbreak', value: '• Install **ItemzFlow** (homebrew store)\n• Install **FTP Server**\n• Install **Save Manager**\n• Enable **Debug Settings**\n• Set up **offline patches**', inline: false },
-                                { name: '⚠️ CRITICAL Warnings', value: '• **NEVER EVER UPDATE!**\n• **Disconnect from internet** after setup\n• **Don\'t use PSN** - instant ban\n• **Exploit is temporary** - runs at each boot\n• **12.00 exploit announced** but not released', inline: false }
+                                { name: '?? Prerequisites', value: '� PS5 on **firmware 10.01 or below**\n� **Ethernet cable** (WiFi possible but slower)\n� Computer or Raspberry Pi\n� **PPPwn** or **etaHEN** loader\n� **Extreme patience** (can take many attempts)', inline: false },
+                                { name: '?? IMPORTANT', value: '**Exploitable PS5s are EXTREMELY rare!**\n� Most sold consoles are 10.50+\n� Once you update, **you cannot downgrade**\n� **Guard this console** with your life\n� Consider getting backup PS5 for online', inline: false },
+                                { name: '?? Method 1: PPPwn (Recommended)', value: '1. Download **PPPwn** for your PC/Pi\n2. Connect PS5 via **Ethernet**\n3. Set PS5 to **PPPoE** mode\n4. Run PPPwn script\n5. Wait for **kernel exploitation** (2-30 min)\n6. Load **etaHEN** payload', inline: false },
+                                { name: '?? Method 2: Browser Exploit', value: '1. Set DNS to exploit server\n2. Open PS5 browser (user guide trick)\n3. Navigate to exploit site\n4. Click **etaHEN 2.0b**\n5. **Multiple attempts** needed (very unstable)', inline: false },
+                                { name: '?? After Jailbreak', value: '� Install **ItemzFlow** (homebrew store)\n� Install **FTP Server**\n� Install **Save Manager**\n� Enable **Debug Settings**\n� Set up **offline patches**', inline: false },
+                                { name: '?? CRITICAL Warnings', value: '� **NEVER EVER UPDATE!**\n� **Disconnect from internet** after setup\n� **Don\'t use PSN** - instant ban\n� **Exploit is temporary** - runs at each boot\n� **12.00 exploit announced** but not released', inline: false }
                             );
                     }
 
                     const backButton = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('cinfo_jailbreak').setLabel('Back to Tutorials').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                            new ButtonBuilder().setCustomId('cinfo_jailbreak').setLabel('Back to Tutorials').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [backButton] });
@@ -10477,26 +10477,26 @@ const now = Date.now();
                     const consoleNames = { ps3: 'PS3', ps4: 'PS4', ps5: 'PS5', vita: 'PS Vita', psp: 'PSP' };
                     
                     const embed = new EmbedBuilder()
-                        .setTitle(`🛠️ ${consoleNames[console]} Homebrew Apps`)
+                        .setTitle(`??? ${consoleNames[console]} Homebrew Apps`)
                         .setColor(0x9B59B6)
                         .setDescription(`Popular homebrew applications for ${consoleNames[console]}`)
                         .addFields(
-                            { name: '🎮 Games & Emulators', value: console === 'ps3' ? 'RetroArch, SNES9x, PCSX-Rearmed' : 
+                            { name: '?? Games & Emulators', value: console === 'ps3' ? 'RetroArch, SNES9x, PCSX-Rearmed' : 
                                                                       console === 'ps4' ? 'RetroArch, PPSSPP, Duckstation' :
                                                                       console === 'ps5' ? 'RetroArch (limited), PS4 BC emulators' :
                                                                       console === 'vita' ? 'Adrenaline, RetroArch, GTA ports' :
                                                                       'RetroArch, SNES9x, GBA emulator', inline: false },
-                            { name: '🔧 System Tools', value: console === 'ps3' ? 'multiman, webMAN, IRISMAN, Apollo' :
+                            { name: '?? System Tools', value: console === 'ps3' ? 'multiman, webMAN, IRISMAN, Apollo' :
                                                                    console === 'ps4' ? 'GoldHEN, Apollo, Orbis Toolbox' :
                                                                    console === 'ps5' ? 'etaHEN, Debug Settings, FTP' :
                                                                    console === 'vita' ? 'VitaShell, Adrenaline, Autoplugin' :
                                                                    'PSP Filer, CXMB, Recovery Flasher', inline: false },
-                            { name: '📦 Package Managers', value: console === 'ps3' ? 'PSN Patch, PKG Linker' :
+                            { name: '?? Package Managers', value: console === 'ps3' ? 'PSN Patch, PKG Linker' :
                                                                        console === 'ps4' ? 'PKG Installer, Remote PKG' :
                                                                        console === 'ps5' ? 'ItemzFlow' :
                                                                        console === 'vita' ? 'PKGj, NPS Browser' :
                                                                        'PSP ISO Tool', inline: false },
-                            { name: '💾 Save Managers', value: console === 'ps3' ? 'Apollo Save Tool, Bruteforce' :
+                            { name: '?? Save Managers', value: console === 'ps3' ? 'Apollo Save Tool, Bruteforce' :
                                                                     console === 'ps4' ? 'Apollo Save Tool, Save Wizard' :
                                                                     console === 'ps5' ? 'Save Mounter' :
                                                                     console === 'vita' ? 'SaveManager, VitaShell' :
@@ -10506,7 +10506,7 @@ const now = Date.now();
 
                     const backButton = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('cinfo_homebrew').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                            new ButtonBuilder().setCustomId('cinfo_homebrew').setLabel('Back').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [backButton] });
@@ -10520,38 +10520,38 @@ const now = Date.now();
 
                     if (console === 'ps3') {
                         embed = new EmbedBuilder()
-                            .setTitle('💾 PS3 Backup Guide')
+                            .setTitle('?? PS3 Backup Guide')
                             .setColor(0x00FF00)
                             .addFields(
-                                { name: '🔴 CRITICAL: NAND/NOR Flash Backup', value: '**THIS IS YOUR CONSOLE\'S LIFE!**\n\n1. Install **Flash Memory Manager** or **multiman**\n2. Go to **System > Flash Memory Dump**\n3. Wait 5-15 minutes (don\'t interrupt!)\n4. Save to **multiple USBs** + computer\n5. **Test the dump** - verify file size matches', inline: false },
-                                { name: '💡 What is NAND/NOR?', value: '• **NAND**: Fat PS3 consoles\n• **NOR**: Slim/Super Slim\n• Contains: encryption keys, board data\n• **Without this, brick = trash**\n• Size: ~256MB (check your model)', inline: false },
-                                { name: '🟡 Save Game Backups', value: '**Method 1: USB**\n1. Settings > System > Backup Utility\n2. Select data to backup\n3. Wait for completion\n\n**Method 2: Apollo Save Tool**\n• More control over individual saves\n• Can decrypt/resign saves', inline: false },
-                                { name: '📄 Other Important Backups', value: '• **act.dat** (license activation)\n• **PARAM.SFO** files\n• **Game updates** (from HDD)\n• **Themes** (if custom)\n• **System database** (Apollo)', inline: false }
+                                { name: '?? CRITICAL: NAND/NOR Flash Backup', value: '**THIS IS YOUR CONSOLE\'S LIFE!**\n\n1. Install **Flash Memory Manager** or **multiman**\n2. Go to **System > Flash Memory Dump**\n3. Wait 5-15 minutes (don\'t interrupt!)\n4. Save to **multiple USBs** + computer\n5. **Test the dump** - verify file size matches', inline: false },
+                                { name: '?? What is NAND/NOR?', value: '� **NAND**: Fat PS3 consoles\n� **NOR**: Slim/Super Slim\n� Contains: encryption keys, board data\n� **Without this, brick = trash**\n� Size: ~256MB (check your model)', inline: false },
+                                { name: '?? Save Game Backups', value: '**Method 1: USB**\n1. Settings > System > Backup Utility\n2. Select data to backup\n3. Wait for completion\n\n**Method 2: Apollo Save Tool**\n� More control over individual saves\n� Can decrypt/resign saves', inline: false },
+                                { name: '?? Other Important Backups', value: '� **act.dat** (license activation)\n� **PARAM.SFO** files\n� **Game updates** (from HDD)\n� **Themes** (if custom)\n� **System database** (Apollo)', inline: false }
                             );
                     } else if (console === 'ps4') {
                         embed = new EmbedBuilder()
-                            .setTitle('💾 PS4 Backup Guide')
+                            .setTitle('?? PS4 Backup Guide')
                             .setColor(0x00FF00)
                             .addFields(
-                                { name: '🔴 CRITICAL: System Backup', value: '**Before ANY modifications:**\n\n1. Use **Apollo Save Tool** or **PS4 Backup**\n2. Backup **entire system database**\n3. Save **user data** separately\n4. **Multiple copies** - USB + PC\n5. Include **activation data**', inline: false },
-                                { name: '💾 Save Game Backups', value: '**Using Apollo:**\n1. Launch Apollo Save Tool\n2. Select saves to backup\n3. Export to USB\n4. Can **decrypt/resign** for mods\n\n**Using PS4 Built-in:**\n• Settings > Application Data Management\n• Copy to USB or online storage', inline: false },
-                                { name: '🎮 Game Data Backups', value: '• **Installed games** (if removed from PSN)\n• **Game updates** (backup PKGs)\n• **DLC packages**\n• **Patches** (some games need specific versions)', inline: false },
-                                { name: '⚠️ Important Notes', value: '• **Can\'t backup system flash** like PS3\n• Focus on **save data & licenses**\n• **Trophy data** can be backed up\n• **Themes/avatars** if custom', inline: false }
+                                { name: '?? CRITICAL: System Backup', value: '**Before ANY modifications:**\n\n1. Use **Apollo Save Tool** or **PS4 Backup**\n2. Backup **entire system database**\n3. Save **user data** separately\n4. **Multiple copies** - USB + PC\n5. Include **activation data**', inline: false },
+                                { name: '?? Save Game Backups', value: '**Using Apollo:**\n1. Launch Apollo Save Tool\n2. Select saves to backup\n3. Export to USB\n4. Can **decrypt/resign** for mods\n\n**Using PS4 Built-in:**\n� Settings > Application Data Management\n� Copy to USB or online storage', inline: false },
+                                { name: '?? Game Data Backups', value: '� **Installed games** (if removed from PSN)\n� **Game updates** (backup PKGs)\n� **DLC packages**\n� **Patches** (some games need specific versions)', inline: false },
+                                { name: '?? Important Notes', value: '� **Can\'t backup system flash** like PS3\n� Focus on **save data & licenses**\n� **Trophy data** can be backed up\n� **Themes/avatars** if custom', inline: false }
                             );
                     } else {
                         embed = new EmbedBuilder()
-                            .setTitle('💾 PS5 Backup Guide')
+                            .setTitle('?? PS5 Backup Guide')
                             .setColor(0x00FF00)
                             .addFields(
-                                { name: '🔴 LIMITED: PS5 Backups', value: '**PS5 jailbreak is very new:**\n\n• **No NAND dump tools** yet\n• Focus on **save data**\n• Backup **activation files**\n• Keep **system database** safe\n• **Multiple storage locations**', inline: false },
-                                { name: '💾 What You CAN Backup', value: '• **Save data** (via Save Mounter)\n• **Screenshots/videos**\n• **User profiles**\n• **Game installations** (if have space)\n• **PKG files** (homebrew)', inline: false },
-                                { name: '⚠️ Critical Limitations', value: '• **No system flash backup** available\n• **Brick = permanent** (for now)\n• **Be extremely careful**\n• **Don\'t experiment** unless you understand risks\n• **Keep stock PS5** for online', inline: false }
+                                { name: '?? LIMITED: PS5 Backups', value: '**PS5 jailbreak is very new:**\n\n� **No NAND dump tools** yet\n� Focus on **save data**\n� Backup **activation files**\n� Keep **system database** safe\n� **Multiple storage locations**', inline: false },
+                                { name: '?? What You CAN Backup', value: '� **Save data** (via Save Mounter)\n� **Screenshots/videos**\n� **User profiles**\n� **Game installations** (if have space)\n� **PKG files** (homebrew)', inline: false },
+                                { name: '?? Critical Limitations', value: '� **No system flash backup** available\n� **Brick = permanent** (for now)\n� **Be extremely careful**\n� **Don\'t experiment** unless you understand risks\n� **Keep stock PS5** for online', inline: false }
                             );
                     }
 
                     const backButton = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('cinfo_backup').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                            new ButtonBuilder().setCustomId('cinfo_backup').setLabel('Back').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [backButton] });
@@ -10565,39 +10565,39 @@ const now = Date.now();
 
                     if (console === 'ps3') {
                         embed = new EmbedBuilder()
-                            .setTitle('⬇️ PS3 Downgrade Guide')
+                            .setTitle('?? PS3 Downgrade Guide')
                             .setColor(0xFF9900)
                             .addFields(
-                                { name: '🔧 Required Hardware', value: '• **E3 Flasher** (~$40-60) - Most popular\n• **Teensy++ 2.0** (~$25) + Clip - DIY option\n• **Progskeet** - Professional tool\n• **NAND/NOR clip** - For reading flash\n• **Soldering iron** (for some methods)', inline: false },
-                                { name: '📋 Process Overview', value: '1. **Dump current NAND/NOR**\n2. **Patch dump** with CFW tools\n3. **Write patched dump** back\n4. **Boot into CFW**\n5. **Downgrade if needed**', inline: false },
-                                { name: '⚠️ Risks & Warnings', value: '• **BRICK RISK**: 10-20% for beginners\n• **Requires soldering** on some models\n• **Time consuming**: 2-4 hours first time\n• **Expensive** if you hire someone\n• **Practice first** on junk board', inline: false },
-                                { name: '💡 Alternative: Just Stay Put', value: 'If you\'re on **4.91-4.92**:\n• Use **HEN** instead of downgrading\n• Still get most homebrew\n• **Zero brick risk**\n• Easier for beginners', inline: false }
+                                { name: '?? Required Hardware', value: '� **E3 Flasher** (~$40-60) - Most popular\n� **Teensy++ 2.0** (~$25) + Clip - DIY option\n� **Progskeet** - Professional tool\n� **NAND/NOR clip** - For reading flash\n� **Soldering iron** (for some methods)', inline: false },
+                                { name: '?? Process Overview', value: '1. **Dump current NAND/NOR**\n2. **Patch dump** with CFW tools\n3. **Write patched dump** back\n4. **Boot into CFW**\n5. **Downgrade if needed**', inline: false },
+                                { name: '?? Risks & Warnings', value: '� **BRICK RISK**: 10-20% for beginners\n� **Requires soldering** on some models\n� **Time consuming**: 2-4 hours first time\n� **Expensive** if you hire someone\n� **Practice first** on junk board', inline: false },
+                                { name: '?? Alternative: Just Stay Put', value: 'If you\'re on **4.91-4.92**:\n� Use **HEN** instead of downgrading\n� Still get most homebrew\n� **Zero brick risk**\n� Easier for beginners', inline: false }
                             );
                     } else if (console === 'vita') {
                         embed = new EmbedBuilder()
-                            .setTitle('⬇️ PS Vita Downgrade Guide')
+                            .setTitle('?? PS Vita Downgrade Guide')
                             .setColor(0xFF9900)
                             .addFields(
-                                { name: '✅ Good News!', value: '**All Vita firmware can be hacked!**\n\n• Use **modoru** plugin\n• Downgrades to 3.60 or 3.65\n• **Relatively safe** process\n• No hardware modifications needed', inline: false },
-                                { name: '📋 Downgrade Steps', value: '1. Install **h-encore** or **h-encore²**\n2. Install **modoru** plugin\n3. Run modoru, select target firmware\n4. Wait for downgrade (10-15 min)\n5. Install **Ensō** for permanent CFW', inline: false },
-                                { name: '🎯 Target Firmware', value: '• **3.60**: Best for Ensō, most stable\n• **3.65**: Also supports Ensō\n• **3.68**: If you need certain apps\n\n**Recommended: 3.60 or 3.65**', inline: false },
-                                { name: '⚠️ Warnings', value: '• **Backup saves** first\n• **Charge battery** to 100%\n• **Don\'t interrupt** process\n• Small **brick risk** if interrupted', inline: false }
+                                { name: '? Good News!', value: '**All Vita firmware can be hacked!**\n\n� Use **modoru** plugin\n� Downgrades to 3.60 or 3.65\n� **Relatively safe** process\n� No hardware modifications needed', inline: false },
+                                { name: '?? Downgrade Steps', value: '1. Install **h-encore** or **h-encore�**\n2. Install **modoru** plugin\n3. Run modoru, select target firmware\n4. Wait for downgrade (10-15 min)\n5. Install **Enso** for permanent CFW', inline: false },
+                                { name: '?? Target Firmware', value: '� **3.60**: Best for Enso, most stable\n� **3.65**: Also supports Enso\n� **3.68**: If you need certain apps\n\n**Recommended: 3.60 or 3.65**', inline: false },
+                                { name: '?? Warnings', value: '� **Backup saves** first\n� **Charge battery** to 100%\n� **Don\'t interrupt** process\n� Small **brick risk** if interrupted', inline: false }
                             );
                     } else {
                         embed = new EmbedBuilder()
-                            .setTitle('⬇️ PSP Downgrade Guide')
+                            .setTitle('?? PSP Downgrade Guide')
                             .setColor(0xFF9900)
                             .addFields(
-                                { name: '🔧 Classic Method: Pandora Battery', value: '• **Pandora Battery** (magic battery)\n• **Magic Memory Stick** (special MS)\n• Works on **most PSP models**\n• **Brick risk** if done wrong\n• Outdated but still works', inline: false },
-                                { name: '💡 Modern Method: Chronoswitch', value: '**If already on CFW:**\n1. Install **Chronoswitch Downgrader**\n2. Select target OFW\n3. Run downgrade\n4. Re-install CFW\n\n**Much safer than Pandora**', inline: false },
-                                { name: '🎯 Recommended Firmware', value: '• **6.61**: Latest, best compatibility\n• **6.60**: Also good, wide support\n• **5.03**: For older homebrew\n\n**Install: 6.61 PRO-C or ME**', inline: false },
-                                { name: '⚠️ Critical Warnings', value: '• **Higher brick risk** than Vita\n• **Don\'t downgrade** if on 6.61 already\n• **Backup MS data** first\n• **Full battery** required\n• **Consider staying on 6.61 CFW**', inline: false }
+                                { name: '?? Classic Method: Pandora Battery', value: '� **Pandora Battery** (magic battery)\n� **Magic Memory Stick** (special MS)\n� Works on **most PSP models**\n� **Brick risk** if done wrong\n� Outdated but still works', inline: false },
+                                { name: '?? Modern Method: Chronoswitch', value: '**If already on CFW:**\n1. Install **Chronoswitch Downgrader**\n2. Select target OFW\n3. Run downgrade\n4. Re-install CFW\n\n**Much safer than Pandora**', inline: false },
+                                { name: '?? Recommended Firmware', value: '� **6.61**: Latest, best compatibility\n� **6.60**: Also good, wide support\n� **5.03**: For older homebrew\n\n**Install: 6.61 PRO-C or ME**', inline: false },
+                                { name: '?? Critical Warnings', value: '� **Higher brick risk** than Vita\n� **Don\'t downgrade** if on 6.61 already\n� **Backup MS data** first\n� **Full battery** required\n� **Consider staying on 6.61 CFW**', inline: false }
                             );
                     }
 
                     const backButton = new ActionRowBuilder()
                         .addComponents(
-                            new ButtonBuilder().setCustomId('cinfo_downgrade').setLabel('Back').setStyle(ButtonStyle.Secondary).setEmoji('🔙')
+                            new ButtonBuilder().setCustomId('cinfo_downgrade').setLabel('Back').setStyle(ButtonStyle.Secondary)
                         );
 
                     await interaction.update({ embeds: [embed], components: [backButton] });
@@ -10606,7 +10606,7 @@ const now = Date.now();
 
                 // Ban Risk Analyzer - Opens modal
                 if (interaction.customId === 'banrisk_analyze') {
-                    console.log('🔴 Ban Risk Analyzer button clicked - showing modal');
+                    console.log('?? Ban Risk Analyzer button clicked - showing modal');
                     const modal = new ModalBuilder()
                         .setCustomId('banrisk_analyze_modal')
                         .setTitle('PSN Ban Risk Analyzer');
@@ -10643,7 +10643,7 @@ const now = Date.now();
 
             } catch (error) {
                 console.error('Console Info Hub button error:', error);
-                await interaction.reply({ content: `❌ Error: ${error.message}`, ephemeral: true }).catch(() => {});
+                await interaction.reply({ content: `? Error: ${error.message}`, ephemeral: true }).catch(() => {});
             }
         }
 
@@ -10654,7 +10654,7 @@ const now = Date.now();
         // Ban Risk Analyzer - Opens modal (standalone button id)
         if (interaction.customId === 'banrisk_analyze') {
             try {
-                console.log('🔴 Ban Risk Analyzer button clicked - showing modal (top-level handler)');
+                console.log('?? Ban Risk Analyzer button clicked - showing modal (top-level handler)');
                 const modal = new ModalBuilder()
                     .setCustomId('banrisk_analyze_modal')
                     .setTitle('PSN Ban Risk Analyzer');
@@ -10670,7 +10670,7 @@ const now = Date.now();
                 await interaction.showModal(modal);
             } catch (e) {
                 console.error('banrisk_analyze showModal error:', e);
-                await interaction.reply({ content: '❌ Could not open the analysis form. Please try again.', ephemeral: true }).catch(() => {});
+                await interaction.reply({ content: '? Could not open the analysis form. Please try again.', ephemeral: true }).catch(() => {});
             }
             return;
         }
@@ -10693,7 +10693,7 @@ const now = Date.now();
                 await interaction.showModal(modal);
             } catch (e) {
                 console.error('gamelookup_search showModal error:', e);
-                await interaction.reply({ content: '❌ Could not open the game search form. Please try again.', ephemeral: true }).catch(() => {});
+                await interaction.reply({ content: '? Could not open the game search form. Please try again.', ephemeral: true }).catch(() => {});
             }
             return;
         }
@@ -10702,12 +10702,12 @@ const now = Date.now();
         if (interaction.customId === 'game_browser') {
             try {
                 await interaction.reply({
-                    content: '🎮 **Game Browser** - Use these commands:\n\n' +
-                             '• `/gamebrowser` - Browse all games\n' +
-                             '• `/gamebrowser console:PS4` - Filter by console\n' +
-                             '• `/gamebrowser sort:size_asc` - Sort by file size\n' +
-                             '• `/gamebrowser series:"God of War"` - View game series\n' +
-                             '• `/gamebrowser dlc_only:True` - Games with DLC only\n\n' +
+                    content: '?? **Game Browser** - Use these commands:\n\n' +
+                             '� `/gamebrowser` - Browse all games\n' +
+                             '� `/gamebrowser console:PS4` - Filter by console\n' +
+                             '� `/gamebrowser sort:size_asc` - Sort by file size\n' +
+                             '� `/gamebrowser series:"God of War"` - View game series\n' +
+                             '� `/gamebrowser dlc_only:True` - Games with DLC only\n\n' +
                              '**Tip:** You can combine filters! Try `/gamebrowser console:PS5 sort:date_desc`',
                     ephemeral: true
                 });
@@ -10721,12 +10721,12 @@ const now = Date.now();
         if (interaction.customId === 'dlc_browser') {
             try {
                 await interaction.reply({
-                    content: '📦 **DLC Browser** - Use these commands:\n\n' +
-                             '• `/dlcbrowser` - View all games with DLC\n' +
-                             '• `/dlcbrowser console:PS4` - Filter by console\n' +
-                             '• `/dlcbrowser console:PS5` - PS5 games with DLC\n\n' +
+                    content: '?? **DLC Browser** - Use these commands:\n\n' +
+                             '� `/dlcbrowser` - View all games with DLC\n' +
+                             '� `/dlcbrowser console:PS4` - Filter by console\n' +
+                             '� `/dlcbrowser console:PS5` - PS5 games with DLC\n\n' +
                              '**180+ games** have downloadable content available!\n' +
-                             '**Installation:** Install base game → Install DLC PKGs separately → Enjoy!',
+                             '**Installation:** Install base game ? Install DLC PKGs separately ? Enjoy!',
                     ephemeral: true
                 });
             } catch (error) {
@@ -10738,7 +10738,7 @@ const now = Date.now();
         // Compatibility Checker - Opens modal (standalone button id)
         if (interaction.customId === 'compat_search') {
             try {
-                console.log('🎮 Game Compatibility Checker button clicked - showing modal (top-level handler)');
+                console.log('?? Game Compatibility Checker button clicked - showing modal (top-level handler)');
                 const modal = new ModalBuilder()
                     .setCustomId('compat_search_modal')
                     .setTitle('Game Compatibility Checker');
@@ -10763,10 +10763,10 @@ const now = Date.now();
                 );
                 
                 await interaction.showModal(modal);
-                console.log('✅ Game Compatibility Checker modal shown successfully');
+                console.log('? Game Compatibility Checker modal shown successfully');
             } catch (e) {
-                console.error('❌ Error showing compat_search modal:', e);
-                await interaction.reply({ content: '❌ Could not open the compatibility checker form. Please try again.', ephemeral: true }).catch(() => {});
+                console.error('? Error showing compat_search modal:', e);
+                await interaction.reply({ content: '? Could not open the compatibility checker form. Please try again.', ephemeral: true }).catch(() => {});
             }
             return;
         }
@@ -10778,7 +10778,7 @@ const now = Date.now();
                     await interaction.deferUpdate();
                     
                     const embed = new EmbedBuilder()
-                        .setTitle('🔄 Refreshing Firmware Data...')
+                        .setTitle('?? Refreshing Firmware Data...')
                         .setDescription('Fetching latest firmware information from PlayStation servers...')
                         .setColor(0xFFAA00);
                     
@@ -10787,13 +10787,13 @@ const now = Date.now();
                     // Simulate data refresh (in real implementation, this would fetch from APIs)
                     setTimeout(async () => {
                         const updatedEmbed = new EmbedBuilder()
-                            .setTitle('✅ Firmware Data Updated!')
+                            .setTitle('? Firmware Data Updated!')
                             .setDescription('All PlayStation firmware data has been refreshed successfully.')
                             .setColor(0x00FF00)
                             .addFields(
-                                { name: '🎮 PS4', value: 'Latest: 13.02 | Exploitable: 12.02', inline: true },
-                                { name: '🎮 PS5', value: 'Latest: 25.07-12.20.00 | Exploitable: 10.01', inline: true },
-                                { name: '📱 Last Update', value: new Date().toLocaleString(), inline: true }
+                                { name: '?? PS4', value: 'Latest: 13.02 | Exploitable: 12.02', inline: true },
+                                { name: '?? PS5', value: 'Latest: 25.07-12.20.00 | Exploitable: 10.01', inline: true },
+                                { name: '?? Last Update', value: new Date().toLocaleString(), inline: true }
                             );
                         
                         await interaction.editReply({ embeds: [updatedEmbed], components: [] });
@@ -10803,18 +10803,18 @@ const now = Date.now();
                 
                 if (interaction.customId === 'fw_ps4_detail') {
                     const embed = new EmbedBuilder()
-                        .setTitle('🎮 PlayStation 4 Firmware Details')
+                        .setTitle('?? PlayStation 4 Firmware Details')
                         .setColor(0xFF4400)
                         .addFields(
-                            { name: '🆕 Latest Official', value: '13.02', inline: true },
-                            { name: '🔓 Exploitable', value: '12.02', inline: true },
-                            { name: '📊 Status', value: '⚠️ Limited', inline: true },
-                            { name: '🥇 GoldHEN Max', value: '12.02', inline: true },
-                            { name: '📀 BD-JB Max', value: '12.02', inline: true },
-                            { name: '⚠️ Warning', value: 'DO NOT update past 12.02!', inline: false },
-                            { name: '💡 Recommendation', value: '⚠️ **DO NOT UPDATE** past 12.02 if you want homebrew access!', inline: false },
-                            { name: '🔧 Available Exploits', value: 'GoldHEN 2.4b18.6, BD-JB by Gezine', inline: false },
-                            { name: '🛠️ Recommended Tools', value: 'PKG Installer, Homebrew Store, Save Data Manager', inline: false }
+                            { name: '?? Latest Official', value: '13.02', inline: true },
+                            { name: '?? Exploitable', value: '12.02', inline: true },
+                            { name: '?? Status', value: '?? Limited', inline: true },
+                            { name: '?? GoldHEN Max', value: '12.02', inline: true },
+                            { name: '?? BD-JB Max', value: '12.02', inline: true },
+                            { name: '?? Warning', value: 'DO NOT update past 12.02!', inline: false },
+                            { name: '?? Recommendation', value: '?? **DO NOT UPDATE** past 12.02 if you want homebrew access!', inline: false },
+                            { name: '?? Available Exploits', value: 'GoldHEN 2.4b18.6, BD-JB by Gezine', inline: false },
+                            { name: '??? Recommended Tools', value: 'PKG Installer, Homebrew Store, Save Data Manager', inline: false }
                         )
                         .setFooter({ text: 'PS4 jailbreak information' });
                     
@@ -10824,18 +10824,18 @@ const now = Date.now();
                 
                 if (interaction.customId === 'fw_ps5_detail') {
                     const embed = new EmbedBuilder()
-                        .setTitle('🎮 PlayStation 5 Firmware Details')
+                        .setTitle('?? PlayStation 5 Firmware Details')
                         .setColor(0xFF0000)
                         .addFields(
-                            { name: '🆕 Latest Official', value: '25.07-12.20.00', inline: true },
-                            { name: '🔓 Exploitable', value: '10.01', inline: true },
-                            { name: '📊 Status', value: '⚠️ Limited', inline: true },
-                            { name: '🔥 etaHEN Max', value: '10.01', inline: true },
-                            { name: '⚡ Lapse Max', value: '10.01', inline: true },
-                            { name: '🚨 Critical', value: 'Exploitable PS5s are RARE!', inline: false },
-                            { name: '💡 Recommendation', value: '✅ **Guard it carefully!** You have a exploitable PS5 - DO NOT UPDATE!', inline: false },
-                            { name: '🔧 Available Exploits', value: 'etaHEN 2.0b, PS5 Lapse Exploit', inline: false },
-                            { name: '🛠️ Recommended Tools', value: 'ItemzFlow, Debug Tools, Save Manager', inline: false }
+                            { name: '?? Latest Official', value: '25.07-12.20.00', inline: true },
+                            { name: '?? Exploitable', value: '10.01', inline: true },
+                            { name: '?? Status', value: '?? Limited', inline: true },
+                            { name: '?? etaHEN Max', value: '10.01', inline: true },
+                            { name: '? Lapse Max', value: '10.01', inline: true },
+                            { name: '?? Critical', value: 'Exploitable PS5s are RARE!', inline: false },
+                            { name: '?? Recommendation', value: '? **Guard it carefully!** You have a exploitable PS5 - DO NOT UPDATE!', inline: false },
+                            { name: '?? Available Exploits', value: 'etaHEN 2.0b, PS5 Lapse Exploit', inline: false },
+                            { name: '??? Recommended Tools', value: 'ItemzFlow, Debug Tools, Save Manager', inline: false }
                         )
                         .setFooter({ text: 'PS5 jailbreak information' });
                     
@@ -10845,15 +10845,15 @@ const now = Date.now();
                 
                 if (interaction.customId === 'fw_safety_guide') {
                     const embed = new EmbedBuilder()
-                        .setTitle('📚 PlayStation Firmware Safety Guide')
+                        .setTitle('?? PlayStation Firmware Safety Guide')
                         .setColor(0x0066CC)
                         .setDescription('Essential safety tips for PlayStation homebrew enthusiasts')
                         .addFields(
-                            { name: '🚨 Never Update Rules', value: '• **PS4**: Never update past 12.02\n• **PS5**: Never update past 10.01\n• **Always check** homebrew compatibility first', inline: false },
-                            { name: '💾 Before Exploiting', value: '• **Create NAND backup** (essential!)\n• **Backup save data** to USB/cloud\n• **Document firmware version**\n• **Read exploit instructions** thoroughly', inline: false },
-                            { name: '🛡️ Safety Practices', value: '• **Disconnect from internet** during exploits\n• **Use quality USB drives** for backups\n• **Never rush** the exploit process\n• **Keep exploitable firmware** as backup console', inline: false },
-                            { name: '⚠️ Warning Signs', value: '• **Blue screens** or crashes\n• **Overheating** during exploits\n• **Failed backup** operations\n• **Network connectivity** issues', inline: false },
-                            { name: '🆘 If Something Goes Wrong', value: '• **Stop immediately** and assess\n• **Restore NAND backup** if available\n• **Ask for help** in PlayStation homebrew communities\n• **Don\'t panic** - most issues are recoverable', inline: false }
+                            { name: '?? Never Update Rules', value: '� **PS4**: Never update past 12.02\n� **PS5**: Never update past 10.01\n� **Always check** homebrew compatibility first', inline: false },
+                            { name: '?? Before Exploiting', value: '� **Create NAND backup** (essential!)\n� **Backup save data** to USB/cloud\n� **Document firmware version**\n� **Read exploit instructions** thoroughly', inline: false },
+                            { name: '??? Safety Practices', value: '� **Disconnect from internet** during exploits\n� **Use quality USB drives** for backups\n� **Never rush** the exploit process\n� **Keep exploitable firmware** as backup console', inline: false },
+                            { name: '?? Warning Signs', value: '� **Blue screens** or crashes\n� **Overheating** during exploits\n� **Failed backup** operations\n� **Network connectivity** issues', inline: false },
+                            { name: '?? If Something Goes Wrong', value: '� **Stop immediately** and assess\n� **Restore NAND backup** if available\n� **Ask for help** in PlayStation homebrew communities\n� **Don\'t panic** - most issues are recoverable', inline: false }
                         )
                         .setFooter({ text: 'Always prioritize safety over convenience' });
                     
@@ -10890,7 +10890,7 @@ const now = Date.now();
                 }
             } catch (error) {
                 console.error('Firmware button handler error:', error);
-                await interaction.reply({ content: `❌ Error: ${error.message}`, ephemeral: true }).catch(() => {});
+                await interaction.reply({ content: `? Error: ${error.message}`, ephemeral: true }).catch(() => {});
             }
         }
         
@@ -10945,16 +10945,16 @@ const now = Date.now();
                 
                 if (interaction.customId === 'pkg_homebrew') {
                     const embed = new EmbedBuilder()
-                        .setTitle('🛠️ PlayStation Homebrew Database')
+                        .setTitle('??? PlayStation Homebrew Database')
                         .setColor(0x9B59B6)
                         .setDescription('Latest homebrew applications for PlayStation consoles')
                         .addFields(
-                            { name: '🎮 PS4 Featured', value: '• **GoldHEN 2.4b18.6** - Homebrew enabler\n• **Apollo Save Tool** - Save manager\n• **RetroArch** - Multi-emulator', inline: true },
-                            { name: '🎮 PS5 Featured', value: '• **etaHEN 2.0b** - Homebrew enabler\n• **ItemzFlow** - PKG installer\n• **PS5 Debug Tools** - System tools', inline: true },
-                            { name: '🎮 PS3 Featured', value: '• **multiMAN** - Backup manager\n• **webMAN MOD** - Web interface\n• **IRISMAN** - File manager', inline: true },
-                            { name: '📱 PS Vita Featured', value: '• **VitaShell** - File manager\n• **Adrenaline** - PSP emulator\n• **RetroArch** - Multi-emulator', inline: true },
-                            { name: '🕹️ PSP Featured', value: '• **6.61 PRO-C** - Custom firmware\n• **PPSSPP Save Converter** - Save tools\n• **RemoteJoy** - Remote play', inline: true },
-                            { name: '🔧 Categories', value: '• System Tools\n• Emulators\n• Media Players\n• File Managers\n• Games', inline: true }
+                            { name: '?? PS4 Featured', value: '� **GoldHEN 2.4b18.6** - Homebrew enabler\n� **Apollo Save Tool** - Save manager\n� **RetroArch** - Multi-emulator', inline: true },
+                            { name: '?? PS5 Featured', value: '� **etaHEN 2.0b** - Homebrew enabler\n� **ItemzFlow** - PKG installer\n� **PS5 Debug Tools** - System tools', inline: true },
+                            { name: '?? PS3 Featured', value: '� **multiMAN** - Backup manager\n� **webMAN MOD** - Web interface\n� **IRISMAN** - File manager', inline: true },
+                            { name: '?? PS Vita Featured', value: '� **VitaShell** - File manager\n� **Adrenaline** - PSP emulator\n� **RetroArch** - Multi-emulator', inline: true },
+                            { name: '??? PSP Featured', value: '� **6.61 PRO-C** - Custom firmware\n� **PPSSPP Save Converter** - Save tools\n� **RemoteJoy** - Remote play', inline: true },
+                            { name: '?? Categories', value: '� System Tools\n� Emulators\n� Media Players\n� File Managers\n� Games', inline: true }
                         )
                         .setFooter({ text: 'All homebrew is from trusted sources' });
                     
@@ -10964,14 +10964,14 @@ const now = Date.now();
                 
                 if (interaction.customId === 'pkg_verify') {
                     const embed = new EmbedBuilder()
-                        .setTitle('✅ PKG File Verification')
+                        .setTitle('? PKG File Verification')
                         .setColor(0x00FF00)
                         .setDescription('Upload a PKG file to verify its integrity and safety')
                         .addFields(
-                            { name: '🔍 What we check', value: '• File integrity and digital signatures\n• Known malware patterns\n• PlayStation compatibility\n• Source verification', inline: false },
-                            { name: '📤 How to verify', value: '1. Upload your PKG file to this channel\n2. Add the message "verify this PKG"\n3. Wait for automatic analysis\n4. Receive detailed security report', inline: false },
-                            { name: '⚠️ Privacy Notice', value: 'Only file metadata is analyzed. File content remains private and secure.', inline: false },
-                            { name: '📊 Supported Formats', value: '• PlayStation 3 PKG files\n• PlayStation 4 PKG files\n• PlayStation 5 PKG files\n• Up to 100MB for analysis', inline: false }
+                            { name: '?? What we check', value: '� File integrity and digital signatures\n� Known malware patterns\n� PlayStation compatibility\n� Source verification', inline: false },
+                            { name: '?? How to verify', value: '1. Upload your PKG file to this channel\n2. Add the message "verify this PKG"\n3. Wait for automatic analysis\n4. Receive detailed security report', inline: false },
+                            { name: '?? Privacy Notice', value: 'Only file metadata is analyzed. File content remains private and secure.', inline: false },
+                            { name: '?? Supported Formats', value: '� PlayStation 3 PKG files\n� PlayStation 4 PKG files\n� PlayStation 5 PKG files\n� Up to 100MB for analysis', inline: false }
                         )
                         .setFooter({ text: 'PKG verification helps ensure safe homebrew installation' });
                     
@@ -10981,21 +10981,21 @@ const now = Date.now();
                 
                 if (interaction.customId.startsWith('pkg_region_')) {
                     const region = interaction.customId.split('_')[2].toUpperCase();
-                    const regionNames = { 'US': '🇺🇸 United States', 'EU': '🇪🇺 Europe', 'JP': '🇯🇵 Japan' };
+                    const regionNames = { 'US': '???? United States', 'EU': '???? Europe', 'JP': '???? Japan' };
                     
                     const embed = new EmbedBuilder()
-                        .setTitle(`📦 ${regionNames[region]} PKG Database`)
+                        .setTitle(`?? ${regionNames[region]} PKG Database`)
                         .setColor(0x0066CC)
                         .setDescription(`Browse PKG files from the ${regionNames[region]} region`)
                         .addFields(
-                            { name: '🎮 Sample Games Available', value: region === 'US' ? 
-                                '• The Last of Us (BLUS30463)\n• Horizon Zero Dawn (CUSA07408)\n• God of War (CUSA07408)\n• Spider-Man (CUSA02299)' :
+                            { name: '?? Sample Games Available', value: region === 'US' ? 
+                                '� The Last of Us (BLUS30463)\n� Horizon Zero Dawn (CUSA07408)\n� God of War (CUSA07408)\n� Spider-Man (CUSA02299)' :
                                 region === 'EU' ? 
-                                '• Gran Turismo Sport (CUSA02168)\n• Uncharted 4 (CUSA00341)\n• Bloodborne (CUSA00207)\n• Persona 5 (CUSA06638)' :
-                                '• Final Fantasy VII (BLJM60151)\n• Monster Hunter (CUSA07713)\n• Yakuza 0 (CUSA05070)\n• Nier: Automata (CUSA04551)',
+                                '� Gran Turismo Sport (CUSA02168)\n� Uncharted 4 (CUSA00341)\n� Bloodborne (CUSA00207)\n� Persona 5 (CUSA06638)' :
+                                '� Final Fantasy VII (BLJM60151)\n� Monster Hunter (CUSA07713)\n� Yakuza 0 (CUSA05070)\n� Nier: Automata (CUSA04551)',
                                 inline: false },
-                            { name: '📊 Database Stats', value: `• **Total Games**: ${region === 'US' ? '1,247' : region === 'EU' ? '1,156' : '892'} PKGs\n• **Verified Safe**: 98.7%\n• **RAP Free**: 67.3%\n• **Last Updated**: ${new Date().toLocaleDateString()}`, inline: false },
-                            { name: '🔍 Advanced Search', value: `Use the search function to find specific ${region} region games by name, developer, or genre.`, inline: false }
+                            { name: '?? Database Stats', value: `� **Total Games**: ${region === 'US' ? '1,247' : region === 'EU' ? '1,156' : '892'} PKGs\n� **Verified Safe**: 98.7%\n� **RAP Free**: 67.3%\n� **Last Updated**: ${new Date().toLocaleDateString()}`, inline: false },
+                            { name: '?? Advanced Search', value: `Use the search function to find specific ${region} region games by name, developer, or genre.`, inline: false }
                         )
                         .setFooter({ text: `${regionNames[region]} PKG Database` });
                     
@@ -11005,17 +11005,17 @@ const now = Date.now();
                 
                 if (interaction.customId === 'pkg_stats') {
                     const embed = new EmbedBuilder()
-                        .setTitle('📊 PKG Database Statistics')
+                        .setTitle('?? PKG Database Statistics')
                         .setColor(0x00FF00)
                         .addFields(
-                            { name: '📦 Total PKG Files', value: '3,295 verified PKGs', inline: true },
-                            { name: '🎮 Console Breakdown', value: 'PS4: 1,847\nPS3: 1,156\nVita: 292', inline: true },
-                            { name: '🌍 Region Distribution', value: 'US: 38.7%\nEU: 35.1%\nJP: 26.2%', inline: true },
-                            { name: '✅ Safety Statistics', value: 'Verified Safe: 98.7%\nRAP Required: 32.7%\nMalware Found: 0.03%', inline: true },
-                            { name: '🔄 Update Frequency', value: 'Daily scans\nWeekly additions\nReal-time verification', inline: true },
-                            { name: '🛡️ Security Features', value: 'Digital signature check\nMalware scanning\nSource verification', inline: true },
-                            { name: '🏆 Most Popular', value: '1. The Last of Us\n2. God of War\n3. Horizon Zero Dawn\n4. Spider-Man\n5. Uncharted 4', inline: false },
-                            { name: '📈 Database Growth', value: 'Added this month: 47 PKGs\nUser contributions: 156\nCommunity verified: 234', inline: false }
+                            { name: '?? Total PKG Files', value: '3,295 verified PKGs', inline: true },
+                            { name: '?? Console Breakdown', value: 'PS4: 1,847\nPS3: 1,156\nVita: 292', inline: true },
+                            { name: '?? Region Distribution', value: 'US: 38.7%\nEU: 35.1%\nJP: 26.2%', inline: true },
+                            { name: '? Safety Statistics', value: 'Verified Safe: 98.7%\nRAP Required: 32.7%\nMalware Found: 0.03%', inline: true },
+                            { name: '?? Update Frequency', value: 'Daily scans\nWeekly additions\nReal-time verification', inline: true },
+                            { name: '??? Security Features', value: 'Digital signature check\nMalware scanning\nSource verification', inline: true },
+                            { name: '?? Most Popular', value: '1. The Last of Us\n2. God of War\n3. Horizon Zero Dawn\n4. Spider-Man\n5. Uncharted 4', inline: false },
+                            { name: '?? Database Growth', value: 'Added this month: 47 PKGs\nUser contributions: 156\nCommunity verified: 234', inline: false }
                         )
                         .setFooter({ text: 'PKG Database updated daily for accuracy and security' })
                         .setTimestamp();
@@ -11025,7 +11025,7 @@ const now = Date.now();
                 }
             } catch (error) {
                 console.error('PKG button handler error:', error);
-                await interaction.reply({ content: `❌ Error: ${error.message}`, ephemeral: true }).catch(() => {});
+                await interaction.reply({ content: `? Error: ${error.message}`, ephemeral: true }).catch(() => {});
             }
         }
         
@@ -11085,7 +11085,7 @@ const now = Date.now();
                 
                 const modal = new ModalBuilder()
                     .setCustomId('custombot_avatar_modal')
-                    .setTitle('⚙️ Change Bot Avatar (Global)');
+                    .setTitle('?? Change Bot Avatar (Global)');
                 
                 const avatarInput = new TextInputBuilder()
                     .setCustomId('avatar_url')
@@ -11146,7 +11146,7 @@ const now = Date.now();
                     .setCustomId('embed_title')
                     .setLabel('Embed Title (emojis supported)')
                     .setStyle(TextInputStyle.Short)
-                    .setPlaceholder('✅ Liquid Divniums')
+                    .setPlaceholder('? Liquid Divniums')
                     .setRequired(true);
                 
                 const descInput = new TextInputBuilder()
@@ -11244,7 +11244,7 @@ const now = Date.now();
                     .setCustomId('embed_title')
                     .setLabel('Embed Title (emojis supported)')
                     .setStyle(TextInputStyle.Short)
-                    .setPlaceholder('✅ Liquid Divniums')
+                    .setPlaceholder('? Liquid Divniums')
                     .setRequired(true);
                 
                 const descInput = new TextInputBuilder()
@@ -11299,7 +11299,7 @@ const now = Date.now();
                 }
                 
                 const embed = new EmbedBuilder()
-                    .setTitle('⚙️ Server Webhooks')
+                    .setTitle('?? Server Webhooks')
                     .setColor(0x5865F2)
                     .setDescription(`Found ${webhooks.size} webhook(s)`)
                     .setTimestamp();
@@ -11328,7 +11328,7 @@ const now = Date.now();
         if (interaction.customId === 'mod_warn') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_warn_modal')
-                .setTitle('⚙️ Warn User');
+                .setTitle('?? Warn User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -11356,7 +11356,7 @@ const now = Date.now();
         else if (interaction.customId === 'mod_timeout') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_timeout_action_modal')
-                .setTitle('⚙️ Timeout User');
+                .setTitle('?? Timeout User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -11392,7 +11392,7 @@ const now = Date.now();
         else if (interaction.customId === 'mod_kick') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_kick_modal')
-                .setTitle('⚙️ Kick User');
+                .setTitle('?? Kick User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -11420,7 +11420,7 @@ const now = Date.now();
         else if (interaction.customId === 'mod_ban') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_ban_modal')
-                .setTitle('⚙️ Ban User');
+                .setTitle('?? Ban User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -11448,7 +11448,7 @@ const now = Date.now();
         else if (interaction.customId === 'mod_mute') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_mute_modal')
-                .setTitle('⚙️ Mute User');
+                .setTitle('?? Mute User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -11476,7 +11476,7 @@ const now = Date.now();
         else if (interaction.customId === 'mod_unmute') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_unmute_modal')
-                .setTitle('⚙️ Unmute User');
+                .setTitle('?? Unmute User');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -11496,7 +11496,7 @@ const now = Date.now();
         else if (interaction.customId === 'mod_infractions') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_infractions_modal')
-                .setTitle('⚙️ View Infractions');
+                .setTitle('?? View Infractions');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -11516,7 +11516,7 @@ const now = Date.now();
         else if (interaction.customId === 'mod_clearwarnings') {
             const modal = new ModalBuilder()
                 .setCustomId('mod_clearwarnings_modal')
-                .setTitle('⚙️ Clear Warnings');
+                .setTitle('?? Clear Warnings');
             
             const userInput = new TextInputBuilder()
                 .setCustomId('user_id')
@@ -11570,10 +11570,10 @@ const now = Date.now();
                         .setCustomId('mod_autoaction_select')
                         .setPlaceholder('Choose auto-action')
                         .addOptions([
-                            { label: 'Timeout', value: 'timeout', description: 'Temporarily mute users', emoji: '✅' },
-                            { label: 'Kick', value: 'kick', description: 'Remove users from server', emoji: '✅' },
-                            { label: 'Ban', value: 'ban', description: 'Permanently ban users', emoji: '✅' },
-                            { label: 'None', value: 'none', description: 'Only warnings, no action', emoji: '✅' }
+                            { label: 'Timeout', value: 'timeout', description: 'Temporarily mute users', emoji: '?' },
+                            { label: 'Kick', value: 'kick', description: 'Remove users from server', emoji: '?' },
+                            { label: 'Ban', value: 'ban', description: 'Permanently ban users', emoji: '?' },
+                            { label: 'None', value: 'none', description: 'Only warnings, no action', emoji: '?' }
                         ])
                 );
             
@@ -11624,7 +11624,7 @@ const now = Date.now();
             settings.moderation.dmOnAction = !settings.moderation.dmOnAction;
             saveSettings();
             await interaction.reply({ 
-                content: `📬 DM notifications ${settings.moderation.dmOnAction ? 'enabled' : 'disabled'}!`, 
+                content: `?? DM notifications ${settings.moderation.dmOnAction ? 'enabled' : 'disabled'}!`, 
                 ephemeral: true 
             });
         }
@@ -11719,15 +11719,15 @@ const now = Date.now();
             const muteRole = settings.moderation.muteRole ? `<@&${settings.moderation.muteRole}>` : 'Not set';
             
             const menuEmbed = new EmbedBuilder()
-                .setTitle('⚙️ Moderation System Control Panel')
-                .setDescription(`System is currently **${settings.moderation.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
+                .setTitle('?? Moderation System Control Panel')
+                .setDescription(`System is currently **${settings.moderation.enabled ? '? Enabled' : '? Disabled'}**\n\nUse the buttons below to configure moderation settings.`)
                 .setColor(settings.moderation.enabled ? 0x00FF00 : 0xFF0000)
                 .addFields(
                     { name: ' Warning Threshold', value: `${settings.moderation.warningThreshold} warnings`, inline: true },
                     { name: '? Auto-Action', value: settings.moderation.autoAction.charAt(0).toUpperCase() + settings.moderation.autoAction.slice(1), inline: true },
                     { name: ' Timeout Duration', value: `${settings.moderation.timeoutDuration / 60} minutes`, inline: true },
-                    { name: '⏰ Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
-                    { name: '📬 DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
+                    { name: '? Warning Decay', value: settings.moderation.warningDecay === 0 ? 'Never' : `${settings.moderation.warningDecay} days`, inline: true },
+                    { name: '?? DM on Action', value: settings.moderation.dmOnAction ? 'Yes' : 'No', inline: true },
                     { name: ' Log Channel', value: logChan, inline: true },
                     { name: ' Mute Role', value: muteRole, inline: true },
                     { name: ' Moderator Roles', value: modRoles, inline: false }
@@ -11741,22 +11741,22 @@ const now = Date.now();
                         .setCustomId('mod_toggle')
                         .setLabel(settings.moderation.enabled ? 'Disable System' : 'Enable System')
                         .setStyle(settings.moderation.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                        .setEmoji(settings.moderation.enabled ? '' : ''),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('mod_threshold')
                         .setLabel('Set Threshold')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('mod_autoaction')
                         .setLabel('Set Auto-Action')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('⚙️'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('mod_timeout')
                         .setLabel('Timeout Duration')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅')
+                        
                 );
             
             const row2 = new ActionRowBuilder()
@@ -11765,22 +11765,22 @@ const now = Date.now();
                         .setCustomId('mod_decay')
                         .setLabel('Warning Decay')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('mod_dm')
                         .setLabel('Toggle DMs')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('mod_logchannel')
                         .setLabel('Set Log Channel')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('mod_muterole')
                         .setLabel('Set Mute Role')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅')
+                        
                 );
             
             const row3 = new ActionRowBuilder()
@@ -11789,17 +11789,17 @@ const now = Date.now();
                         .setCustomId('mod_addrole')
                         .setLabel('Add Mod Role')
                         .setStyle(ButtonStyle.Success)
-                        .setEmoji('➕'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('mod_removerole')
                         .setLabel('Remove Mod Role')
                         .setStyle(ButtonStyle.Danger)
-                        .setEmoji('➖'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('mod_refresh')
                         .setLabel('Refresh')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('✅')
+                        
                 );
             
             await interaction.update({ embeds: [menuEmbed], components: [row1, row2, row3] });
@@ -11870,18 +11870,18 @@ const now = Date.now();
                 .substring(0, 200);
             
             const embed = new EmbedBuilder()
-                .setTitle('⚙️ Welcome System Control Panel')
+                .setTitle('?? Welcome System Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
-                    `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                    `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                     `Automatically welcome new members with custom messages.\n\n` +
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                    { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                     { name: ' Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
-                    { name: '💬 Custom Message', value: config.customMessage ? '✅ Set' : '📝 Using default', inline: true },
-                    { name: '✅ Message Preview', value: messagePreview, inline: false },
+                    { name: '?? Custom Message', value: config.customMessage ? '? Set' : '?? Using default', inline: true },
+                    { name: '? Message Preview', value: messagePreview, inline: false },
                     { name: ' Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
                 )
                 .setFooter({ text: 'Click buttons below to configure welcome messages' })
@@ -11893,22 +11893,22 @@ const now = Date.now();
                         .setCustomId('welcome_toggle')
                         .setLabel(config.enabled ? 'Disable' : 'Enable')
                         .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                        .setEmoji(config.enabled ? '✅' : '❌'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('welcome_set_channel')
                         .setLabel('Set Channel')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('welcome_set_message')
                         .setLabel('Set Message')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('welcome_refresh')
                         .setLabel('Refresh')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('✅')
+                        
                 );
             
             await interaction.update({ embeds: [embed], components: [row1] });
@@ -11966,7 +11966,7 @@ const now = Date.now();
             config.customMessage = null;
             saveSettings();
             await interaction.reply({ 
-                content: `✅ Leave message reset to default!`, 
+                content: `? Leave message reset to default!`, 
                 ephemeral: true 
             });
         } else if (interaction.customId === 'leave_refresh') {
@@ -11974,18 +11974,18 @@ const now = Date.now();
                 .substring(0, 200);
             
             const embed = new EmbedBuilder()
-                .setTitle('⚙️ Leave System Control Panel')
+                .setTitle('?? Leave System Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
-                    `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                    `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                     `Automatically announce when members leave the server.\n\n` +
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                    { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                     { name: ' Channel', value: `#${config.channelName || 'Not set'}`, inline: true },
-                    { name: '💬 Custom Message', value: config.customMessage ? '✅ Set' : '📝 Using default', inline: true },
-                    { name: '✅ Message Preview', value: messagePreview, inline: false },
+                    { name: '?? Custom Message', value: config.customMessage ? '? Set' : '?? Using default', inline: true },
+                    { name: '? Message Preview', value: messagePreview, inline: false },
                     { name: ' Placeholders', value: '`{user}` `{server}` `{memberCount}`', inline: false }
                 )
                 .setFooter({ text: 'Click buttons below to configure leave messages' })
@@ -11997,22 +11997,22 @@ const now = Date.now();
                         .setCustomId('leave_toggle')
                         .setLabel(config.enabled ? 'Disable' : 'Enable')
                         .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                        .setEmoji(config.enabled ? '✅' : '❌'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('leave_set_channel')
                         .setLabel('Set Channel')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('leave_set_message')
                         .setLabel('Set Message')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('leave_refresh')
                         .setLabel('Refresh')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('✅')
+                        
                 );
             
             await interaction.update({ embeds: [embed], components: [row1] });
@@ -12072,15 +12072,15 @@ const now = Date.now();
             const exampleResult = `${config.prefix || ''}Username${config.suffix || ''}`;
             
             const embed = new EmbedBuilder()
-                .setTitle('⚙️ Auto-Nickname Control Panel')
+                .setTitle('?? Auto-Nickname Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
-                    `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                    `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                     `Automatically set nicknames for new members.\n\n` +
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                    { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                     { name: ' Prefix', value: config.prefix || 'None', inline: true },
                     { name: ' Suffix', value: config.suffix || 'None', inline: true },
                     { name: ' Example', value: `\`Username\` ? \`${exampleResult}\``, inline: false },
@@ -12095,22 +12095,22 @@ const now = Date.now();
                         .setCustomId('autonick_toggle')
                         .setLabel(config.enabled ? 'Disable' : 'Enable')
                         .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                        .setEmoji(config.enabled ? '✅' : '❌'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('autonick_set_prefix')
                         .setLabel('Set Prefix')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('autonick_set_suffix')
                         .setLabel('Set Suffix')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('autonick_refresh')
                         .setLabel('Refresh')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('✅')
+                        
                 );
             
             await interaction.update({ embeds: [embed], components: [row1] });
@@ -12194,21 +12194,21 @@ const now = Date.now();
                         label: 'Kick Raiders',
                         description: 'Kick suspicious new members',
                         value: 'kick',
-                        emoji: '✅',
+                        emoji: '?',
                         default: config.action === 'kick'
                     },
                     {
                         label: 'Ban Raiders',
                         description: 'Ban suspicious new members',
                         value: 'ban',
-                        emoji: '✅',
+                        emoji: '?',
                         default: config.action === 'ban'
                     },
                     {
                         label: 'Monitor Only',
                         description: 'Just notify, take no action',
                         value: 'none',
-                        emoji: '?✅',
+                        emoji: '??',
                         default: config.action === 'none'
                     }
                 ]);
@@ -12293,7 +12293,7 @@ const now = Date.now();
             }
             
             await interaction.reply({ 
-                content: '✅ **Lockdown lifted!** Server is now accepting new members.', 
+                content: '? **Lockdown lifted!** Server is now accepting new members.', 
                 ephemeral: true 
             });
         } else if (interaction.customId === 'raid_refresh') {
@@ -12301,26 +12301,26 @@ const now = Date.now();
                 ? config.whitelist.map(id => `<@${id}>`).join(', ')
                 : 'None';
             const notifChannel = config.notificationChannel ? `<#${config.notificationChannel}>` : 'Not set';
-            const lockdownStatus = lockedServers.has(interaction.guild.id) ? '🔒 Active' : '🔓 None';
+            const lockdownStatus = lockedServers.has(interaction.guild.id) ? '?? Active' : '?? None';
             const actionText = config.action === 'none' ? 'Monitor Only' : config.action === 'kick' ? 'Kick' : 'Ban';
             
             const embed = new EmbedBuilder()
-                .setTitle('🔸 Raid Protection Control Panel')
+                .setTitle('?? Raid Protection Control Panel')
                 .setColor(config.enabled ? 0x00FF00 : 0xFF0000)
                 .setDescription(
-                    `System is currently **${config.enabled ? '✅ Enabled' : '❌ Disabled'}**\n\n` +
+                    `System is currently **${config.enabled ? '? Enabled' : '? Disabled'}**\n\n` +
                     `Monitors for suspicious join patterns and takes automatic action.\n\n` +
                     `Click the buttons below to configure settings.`
                 )
                 .addFields(
-                    { name: '⚙️ Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
+                    { name: '?? Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                     { name: ' Join Threshold', value: `${config.joinThreshold} members`, inline: true },
                     { name: ' Time Window', value: `${config.timeWindow} seconds`, inline: true },
                     { name: '? Action', value: actionText, inline: true },
-                    { name: '⏱️ Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
+                    { name: '?? Lockdown Duration', value: config.lockdownDuration === 0 ? 'Manual unlock' : `${config.lockdownDuration}s`, inline: true },
                     { name: ' Current Lockdown', value: lockdownStatus, inline: true },
                     { name: ' Notification Channel', value: notifChannel, inline: true },
-                    { name: '✅ Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
+                    { name: '? Whitelisted Users', value: whitelistUsers.length > 100 ? whitelistUsers.substring(0, 100) + '...' : whitelistUsers, inline: true }
                 )
                 .setFooter({ text: 'Click buttons below to configure raid protection' })
                 .setTimestamp();
@@ -12331,22 +12331,22 @@ const now = Date.now();
                         .setCustomId('raid_toggle')
                         .setLabel(config.enabled ? 'Disable' : 'Enable')
                         .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                        .setEmoji(config.enabled ? '✅' : '❌'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('raid_set_threshold')
                         .setLabel('Set Threshold')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('raid_set_timewindow')
                         .setLabel('Time Window')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('raid_set_action')
                         .setLabel('Set Action')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('⚙️')
+                        
                 );
             
             const row2 = new ActionRowBuilder()
@@ -12355,22 +12355,22 @@ const now = Date.now();
                         .setCustomId('raid_set_lockdown')
                         .setLabel('Lockdown Duration')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('raid_set_notification')
                         .setLabel('Notification Channel')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✅'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('raid_whitelist')
                         .setLabel('Manage Whitelist')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('📋'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId('raid_refresh')
                         .setLabel('Refresh')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('✅')
+                        
                 );
             
             const row3 = new ActionRowBuilder()
@@ -12379,7 +12379,7 @@ const now = Date.now();
                         .setCustomId('raid_unlock')
                         .setLabel('Unlock Server')
                         .setStyle(ButtonStyle.Danger)
-                        .setEmoji('✅')
+                        
                         .setDisabled(!lockedServers.has(interaction.guild.id))
                 );
             
@@ -12395,7 +12395,7 @@ const now = Date.now();
         saveSettings();
         
         const actionText = action === 'none' ? 'Monitor only (no action)' : action === 'kick' ? 'Kick raiders' : 'Ban raiders';
-        await interaction.update({ content: `✅ Raid action set to: **${actionText}**`, components: [] });
+        await interaction.update({ content: `? Raid action set to: **${actionText}**`, components: [] });
         return;
     }
     
@@ -12409,20 +12409,20 @@ const now = Date.now();
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '✅ Snake Game',
-                        overTitle: '✅ Game Over',
+                        title: '? Snake Game',
+                        overTitle: '? Game Over',
                         color: '#5865F2'
                     },
                     emojis: {
                         board: '',
-                        food: '✅',
-                        up: '✅', 
-                        down: '✅',
-                        left: '✅',
-                        right: '✅',
+                        food: '?',
+                        up: '?', 
+                        down: '?',
+                        left: '?',
+                        right: '?',
                     },
-                    snake: { head: '✅', body: '✅', tail: '✅', over: '✅' },
-                    foods: ['✅', '✅', '✅', '✅', '✅', '✅', '✅'],
+                    snake: { head: '?', body: '?', tail: '?', over: '?' },
+                    foods: ['?', '?', '?', '?', '?', '?', '?'],
                     stopButton: 'Stop',
                     timeoutTime: 60000,
                     playerOnlyMessage: 'Only {player} can use these buttons.'
@@ -12501,7 +12501,7 @@ const now = Date.now();
             
             else if (gameType === 'connect4') {
                 await interaction.reply({ 
-                    content: '✅ **Connect 4** requires an opponent! Please mention a user to play with:', 
+                    content: '? **Connect 4** requires an opponent! Please mention a user to play with:', 
                     ephemeral: true 
                 });
                 
@@ -12533,14 +12533,14 @@ const now = Date.now();
                     isSlashGame: false,
                     opponent: opponent,
                     embed: {
-                        title: '✅ Connect 4',
+                        title: '? Connect 4',
                         statusTitle: 'Status',
                         color: '#5865F2'
                     },
                     emojis: {
                         board: '',
-                        player1: '✅',
-                        player2: '✅'
+                        player1: '?',
+                        player2: '?'
                     },
                     mentionUser: true,
                     timeoutTime: 60000,
@@ -12565,13 +12565,13 @@ const now = Date.now();
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '✅ Wordle',
+                        title: '? Wordle',
                         color: '#5865F2'
                     },
                     customWord: null,
                     timeoutTime: 60000,
-                    winMessage: '✅ You won! The word was **{word}**.',
-                    loseMessage: '✅ You lost! The word was **{word}**.',
+                    winMessage: '? You won! The word was **{word}**.',
+                    loseMessage: '? You lost! The word was **{word}**.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
@@ -12588,15 +12588,15 @@ const now = Date.now();
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '✅ Minesweeper',
+                        title: '? Minesweeper',
                         color: '#5865F2',
                         description: 'Click on the buttons to reveal the blocks except mines.'
                     },
-                    emojis: { flag: '✅', mine: '✅' },
+                    emojis: { flag: '?', mine: '?' },
                     mines: 5,
                     timeoutTime: 60000,
-                    winMessage: '✅ You won the Game! You successfully avoided all the mines.',
-                    loseMessage: '✅ You lost the Game! Beware of the mines next time.',
+                    winMessage: '? You won the Game! You successfully avoided all the mines.',
+                    loseMessage: '? You lost the Game! Beware of the mines next time.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
@@ -12613,14 +12613,14 @@ const now = Date.now();
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '✅ 2048',
+                        title: '? 2048',
                         color: '#5865F2'
                     },
                     emojis: {
-                        up: '✅',
-                        down: '✅',
-                        left: '✅',
-                        right: '✅',
+                        up: '?',
+                        down: '?',
+                        left: '?',
+                        right: '?',
                     },
                     timeoutTime: 60000,
                     buttonStyle: 'PRIMARY',
@@ -12640,14 +12640,14 @@ const now = Date.now();
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '✅ Memory Game',
+                        title: '? Memory Game',
                         color: '#5865F2',
                         description: '**Click on the buttons to match the emojis.**'
                     },
                     timeoutTime: 60000,
-                    emojis: ['✅', '✅', '✅', '✅', '✅', '✅', '✅', '✅'],
-                    winMessage: '✅ You won! You matched all the pairs in **{tilesTurned}** turns.',
-                    loseMessage: '✅ You lost! You ran out of time.',
+                    emojis: ['?', '?', '?', '?', '?', '?', '?', '?'],
+                    winMessage: '? You won! You matched all the pairs in **{tilesTurned}** turns.',
+                    loseMessage: '? You lost! You ran out of time.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
@@ -12664,14 +12664,14 @@ const now = Date.now();
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '✅ Fast Type',
+                        title: '? Fast Type',
                         color: '#5865F2',
                         description: 'You have **{time}** seconds to type the sentence below.'
                     },
                     timeoutTime: 60000,
                     sentence: 'The quick brown fox jumps over the lazy dog.',
-                    winMessage: '✅ You won! You finished in **{time}** seconds with **{wpm}** WPM.',
-                    loseMessage: '✅ You lost! You ran out of time.'
+                    winMessage: '? You won! You finished in **{time}** seconds with **{wpm}** WPM.',
+                    loseMessage: '? You lost! You ran out of time.'
                 });
                 
                 try {
@@ -12687,17 +12687,17 @@ const now = Date.now();
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '✅ Find Emoji',
+                        title: '? Find Emoji',
                         color: '#5865F2',
                         description: 'Find the **{emoji}** emoji in the grid below.'
                     },
                     timeoutTime: 60000,
                     hideEmojiTime: 5000,
                     buttonStyle: 'PRIMARY',
-                    emojis: ['✅', '✅', '✅', '✅', '✅', '✅', '✅', '✅'],
-                    winMessage: '✅ You won! You found the emoji in **{time}** seconds.',
-                    loseMessage: '✅ You lost! You ran out of time.',
-                    timeoutMessage: '✅ You ran out of time! The emoji was **{emoji}**.',
+                    emojis: ['?', '?', '?', '?', '?', '?', '?', '?'],
+                    winMessage: '? You won! You found the emoji in **{time}** seconds.',
+                    loseMessage: '? You lost! You ran out of time.',
+                    timeoutMessage: '? You ran out of time! The emoji was **{emoji}**.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
@@ -12714,13 +12714,13 @@ const now = Date.now();
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '✅ Guess The Pokémon',
+                        title: '? Guess The Pok�mon',
                         color: '#5865F2'
                     },
                     timeoutTime: 60000,
-                    winMessage: '✅ You guessed it right! It was **{pokemon}**.',
-                    loseMessage: '✅ Better luck next time! It was **{pokemon}**.',
-                    errMessage: '❌ Unable to fetch Pokémon data! Please try again.',
+                    winMessage: '? You guessed it right! It was **{pokemon}**.',
+                    loseMessage: '? Better luck next time! It was **{pokemon}**.',
+                    errMessage: '? Unable to fetch Pok�mon data! Please try again.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
@@ -12738,7 +12738,7 @@ const now = Date.now();
                     isSlashGame: false,
                     opponent: interaction.user,
                     embed: {
-                        title: '✅ Rock Paper Scissors',
+                        title: '? Rock Paper Scissors',
                         color: '#5865F2',
                         description: 'Press a button below to make your choice.'
                     },
@@ -12748,9 +12748,9 @@ const now = Date.now();
                         scissors: 'Scissors'
                     },
                     emojis: {
-                        rock: '✅',
-                        paper: '✅',
-                        scissors: '✅'
+                        rock: '?',
+                        paper: '?',
+                        scissors: '?'
                     },
                     mentionUser: true,
                     timeoutTime: 60000,
@@ -12775,15 +12775,15 @@ const now = Date.now();
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '✅ Hangman',
+                        title: '? Hangman',
                         color: '#5865F2'
                     },
-                    hangman: { hat: '✅', head: '✅', shirt: '✅', pants: '✅', boots: '👢✅' },
+                    hangman: { hat: '?', head: '?', shirt: '?', pants: '?', boots: '???' },
                     customWord: null,
                     timeoutTime: 60000,
                     theme: 'nature',
-                    winMessage: '✅ You won! The word was **{word}**.',
-                    loseMessage: '✅ You lost! The word was **{word}**.',
+                    winMessage: '? You won! The word was **{word}**.',
+                    loseMessage: '? You lost! The word was **{word}**.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
@@ -12800,7 +12800,7 @@ const now = Date.now();
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '✅ Trivia',
+                        title: '? Trivia',
                         color: '#5865F2',
                         description: 'You have **60 seconds** to answer the question.'
                     },
@@ -12808,8 +12808,8 @@ const now = Date.now();
                     buttonStyle: 'PRIMARY',
                     mode: 'multiple',
                     difficulty: 'medium',
-                    winMessage: '✅ You got it right! The answer was **{answer}**.',
-                    loseMessage: '✅ You got it wrong! The answer was **{answer}**.',
+                    winMessage: '? You got it right! The answer was **{answer}**.',
+                    loseMessage: '? You got it wrong! The answer was **{answer}**.',
                     errMessage: '? Unable to fetch question data! Please try again.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
@@ -12827,10 +12827,10 @@ const now = Date.now();
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '✅ Slot Machine',
+                        title: '? Slot Machine',
                         color: '#5865F2'
                     },
-                    slots: ['✅', '✅', '✅', '✅']
+                    slots: ['?', '?', '?', '?']
                 });
                 
                 try {
@@ -12846,7 +12846,7 @@ const now = Date.now();
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '✅ Would You Rather',
+                        title: '? Would You Rather',
                         color: '#5865F2'
                     },
                     buttons: {
@@ -12916,7 +12916,7 @@ const now = Date.now();
         saveTicketData();
         
         const claimEmbed = new EmbedBuilder()
-            .setTitle('✋ Ticket Claimed')
+            .setTitle('? Ticket Claimed')
             .setDescription(`${interaction.user} has claimed this ticket and will assist you.`)
             .setColor(0xFFA500)
             .setTimestamp();
@@ -12956,12 +12956,12 @@ const now = Date.now();
                 const creator = await client.users.fetch(ticketInfo.creator);
                 
                 const logsEmbed = new EmbedBuilder()
-                    .setTitle(`⚙️ Ticket #${ticketInfo.number} Transcript`)
+                    .setTitle(`?? Ticket #${ticketInfo.number} Transcript`)
                     .setDescription(
-                        `**👤 Creator:** ${creator.tag}\n` +
-                        `**📅 Created:** <t:${Math.floor(ticketInfo.createdAt / 1000)}:F>\n` +
-                        `**❓ Reason:** ${ticketInfo.reason}\n` +
-                        `**ℹ️ Status:** ${ticketInfo.status === 'open' ? '🟢 Open' : '🔴 Closed'}\n` +
+                        `**?? Creator:** ${creator.tag}\n` +
+                        `**?? Created:** <t:${Math.floor(ticketInfo.createdAt / 1000)}:F>\n` +
+                        `**? Reason:** ${ticketInfo.reason}\n` +
+                        `**?? Status:** ${ticketInfo.status === 'open' ? '?? Open' : '?? Closed'}\n` +
                         `**? Claimed:** ${ticketInfo.claimed ? `Yes, by <@${ticketInfo.claimedBy}>` : 'No'}\n\n` +
                         `Transcript file attached below.`
                     )
@@ -13018,12 +13018,12 @@ const now = Date.now();
                     .setCustomId(`confirm_close_transcript_${channelId}`)
                     .setLabel('Close with Transcript')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId(`confirm_close_no_transcript_${channelId}`)
                     .setLabel('Close without Transcript')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('?✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('cancel_close')
                     .setLabel('Cancel')
@@ -13031,7 +13031,7 @@ const now = Date.now();
             );
             
             await interaction.reply({ 
-                content: '✅ Do you want to save a transcript before closing?',
+                content: '? Do you want to save a transcript before closing?',
                 components: [confirmRow],
                 ephemeral: true
             });
@@ -13042,7 +13042,7 @@ const now = Date.now();
                     .setCustomId(`confirm_close_no_transcript_${channelId}`)
                     .setLabel('Confirm Close')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('✅'),
+                    ,
                 new ButtonBuilder()
                     .setCustomId('cancel_close')
                     .setLabel('Cancel')
@@ -13050,7 +13050,7 @@ const now = Date.now();
             );
             
             await interaction.reply({ 
-                content: '✅ Are you sure you want to close this ticket?',
+                content: '? Are you sure you want to close this ticket?',
                 components: [confirmRow],
                 ephemeral: true
             });
@@ -13077,11 +13077,11 @@ const now = Date.now();
         });
         
         const closeEmbed = new EmbedBuilder()
-            .setTitle('⚙️ Ticket Closed')
+            .setTitle('?? Ticket Closed')
             .setDescription(
                 `**Closed by:** ${interaction.user}\n` +
-                `**Status:** ✅ Transcript saved\n\n` +
-                `✅ Channel will be deleted in 5 seconds...`
+                `**Status:** ? Transcript saved\n\n` +
+                `? Channel will be deleted in 5 seconds...`
             )
             .setColor(0xFF0000)
             .setFooter({ text: 'Thank you for using our support system!' })
@@ -13095,16 +13095,16 @@ const now = Date.now();
             const closedBy = await client.users.fetch(ticketInfo.closedBy);
             
             const closedMessage = ticketData[guildId].settings?.closedMessage || 
-                'Thank you for contacting support! 👋\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!';
+                'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!';
             
             const dmEmbed = new EmbedBuilder()
-                .setTitle('⚙️ Ticket Closed')
+                .setTitle('?? Ticket Closed')
                 .setDescription(
                     `Your ticket **#${ticketInfo.number}** in **${interaction.guild.name}** has been closed.\n\n` +
-                    `**❓ Original Reason:** ${ticketInfo.reason}\n` +
-                    `**👤 Closed by:** ${closedBy.tag}\n` +
-                    `**📅 Closed at:** <t:${Math.floor(ticketInfo.closedAt / 1000)}:F>\n\n` +
-                    `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `**? Original Reason:** ${ticketInfo.reason}\n` +
+                    `**?? Closed by:** ${closedBy.tag}\n` +
+                    `**?? Closed at:** <t:${Math.floor(ticketInfo.closedAt / 1000)}:F>\n\n` +
+                    `???????????????????????????\n\n` +
                     closedMessage
                 )
                 .setColor(0x3498DB)
@@ -13161,11 +13161,11 @@ const now = Date.now();
         });
         
         const closeEmbed = new EmbedBuilder()
-            .setTitle('⚙️ Ticket Closed')
+            .setTitle('?? Ticket Closed')
             .setDescription(
                 `**Closed by:** ${interaction.user}\n` +
-                `**Status:** ✅? No transcript saved\n\n` +
-                `✅ Channel will be deleted in 5 seconds...`
+                `**Status:** ?? No transcript saved\n\n` +
+                `? Channel will be deleted in 5 seconds...`
             )
             .setColor(0xFF0000)
             .setFooter({ text: 'Thank you for using our support system!' })
@@ -13179,16 +13179,16 @@ const now = Date.now();
             const closedBy = await client.users.fetch(ticketInfo.closedBy);
             
             const closedMessage = ticketData[guildId].settings?.closedMessage || 
-                'Thank you for contacting support! 👋\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!';
+                'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!';
             
             const dmEmbed = new EmbedBuilder()
-                .setTitle('⚙️ Ticket Closed')
+                .setTitle('?? Ticket Closed')
                 .setDescription(
                     `Your ticket **#${ticketInfo.number}** in **${interaction.guild.name}** has been closed.\n\n` +
-                    `**❓ Original Reason:** ${ticketInfo.reason}\n` +
-                    `**👤 Closed by:** ${closedBy.tag}\n` +
-                    `**📅 Closed at:** <t:${Math.floor(ticketInfo.closedAt / 1000)}:F>\n\n` +
-                    `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `**? Original Reason:** ${ticketInfo.reason}\n` +
+                    `**?? Closed by:** ${closedBy.tag}\n` +
+                    `**?? Closed at:** <t:${Math.floor(ticketInfo.closedAt / 1000)}:F>\n\n` +
+                    `???????????????????????????\n\n` +
                     closedMessage
                 )
                 .setColor(0x3498DB)
@@ -13240,7 +13240,7 @@ const now = Date.now();
         
         try {
             // Find or create ticket category
-            const categoryName = ticketData[guildId].settings.categoryName || '✅ Tickets';
+            const categoryName = ticketData[guildId].settings.categoryName || '? Tickets';
             let category = interaction.guild.channels.cache.get(ticketData[guildId].categoryId);
             if (!category || category.type !== ChannelType.GuildCategory) {
                 category = await interaction.guild.channels.create({
@@ -13297,19 +13297,19 @@ const now = Date.now();
             
             // Create interactive ticket embed with custom message
             const customMessage = ticketData[guildId].settings.ticketMessage || 
-                '**Welcome to your support ticket!**\n\n✋ Our support team will be with you shortly. 👋\n\n**Please describe your issue in detail.**';
+                '**Welcome to your support ticket!**\n\n? Our support team will be with you shortly. ??\n\n**Please describe your issue in detail.**';
             
             const ticketEmbed = new EmbedBuilder()
-                .setTitle(`⚙️ Support Ticket #${ticketNumber}`)
+                .setTitle(`?? Support Ticket #${ticketNumber}`)
                 .setDescription(
-                    `**👤 Created by:** ${interaction.user}\n` +
-                    `**📅 Created at:** <t:${Math.floor(Date.now() / 1000)}:F>\n` +
-                    `**ℹ️ Status:** 🟢 Open\n\n` +
-                    `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                    `**?? Created by:** ${interaction.user}\n` +
+                    `**?? Created at:** <t:${Math.floor(Date.now() / 1000)}:F>\n` +
+                    `**?? Status:** ?? Open\n\n` +
+                    `???????????????????????????\n\n` +
                     customMessage
                 )
                 .setColor(0x00FF00)
-                .setFooter({ text: `Ticket System • ${interaction.guild.name}` })
+                .setFooter({ text: `Ticket System � ${interaction.guild.name}` })
                 .setTimestamp();
             
             const row = new ActionRowBuilder()
@@ -13318,17 +13318,17 @@ const now = Date.now();
                         .setCustomId(`claim_ticket_${ticketChannel.id}`)
                         .setLabel('Claim Ticket')
                         .setStyle(ButtonStyle.Primary)
-                        .setEmoji('✋'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId(`transcript_ticket_${ticketChannel.id}`)
                         .setLabel('View Transcript')
                         .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('✅'),
+                        ,
                     new ButtonBuilder()
                         .setCustomId(`close_ticket_${ticketChannel.id}`)
                         .setLabel('Close Ticket')
                         .setStyle(ButtonStyle.Danger)
-                        .setEmoji('✅')
+                        
                 );
             
             await ticketChannel.send({ 
@@ -13361,7 +13361,7 @@ const now = Date.now();
             
             const guildId = interaction.guild.id;
             try {
-                console.log(`📨 Modal submitted: ${interaction.customId} | Guild: ${guildId} | User: ${interaction.user?.tag}`);
+                console.log(`?? Modal submitted: ${interaction.customId} | Guild: ${guildId} | User: ${interaction.user?.tag}`);
             } catch {}
             
             // YouTube notification modal handlers
@@ -13370,7 +13370,7 @@ const now = Date.now();
                 const channel = interaction.guild.channels.cache.get(channelId);
                 
                 if (!channel || channel.type !== ChannelType.GuildText) {
-                    await interaction.reply({ content: '❌ Invalid channel ID! Make sure it\'s a text channel.', ephemeral: true });
+                    await interaction.reply({ content: '? Invalid channel ID! Make sure it\'s a text channel.', ephemeral: true });
                     return;
                 }
                 
@@ -13379,7 +13379,7 @@ const now = Date.now();
                 ytData[guildId].notificationChannelId = channelId;
                 fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
                 
-                await interaction.reply({ content: `✅ Notification channel set to <#${channelId}>!`, ephemeral: true });
+                await interaction.reply({ content: `? Notification channel set to <#${channelId}>!`, ephemeral: true });
                 return;
             }
             
@@ -13392,7 +13392,7 @@ const now = Date.now();
                 
                 // Check if channel already exists
                 if (ytData[guildId].channels.some(ch => ch.channelId === ytChannelId)) {
-                    await interaction.reply({ content: '❌ This YouTube channel is already being monitored!', ephemeral: true });
+                    await interaction.reply({ content: '? This YouTube channel is already being monitored!', ephemeral: true });
                     return;
                 }
                 
@@ -13400,7 +13400,7 @@ const now = Date.now();
                 ytData[guildId].lastChecked[ytChannelId] = null;
                 fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
                 
-                await interaction.reply({ content: `✅ Added YouTube channel: **${ytChannelName}**!`, ephemeral: true });
+                await interaction.reply({ content: `? Added YouTube channel: **${ytChannelName}**!`, ephemeral: true });
                 return;
             }
             
@@ -13412,7 +13412,7 @@ const now = Date.now();
                 ytData[guildId].customMessage = customMessage;
                 fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
                 
-                await interaction.reply({ content: '✅ Custom message updated!', ephemeral: true });
+                await interaction.reply({ content: '? Custom message updated!', ephemeral: true });
                 return;
             }
             
@@ -13449,7 +13449,7 @@ const now = Date.now();
                 fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
                 
                 await interaction.reply({ 
-                    content: `✅ Added ${added} YouTube channel(s)!${skipped > 0 ? `\n⚠️ Skipped ${skipped} (invalid format or duplicates)` : ''}`,
+                    content: `? Added ${added} YouTube channel(s)!${skipped > 0 ? `\n?? Skipped ${skipped} (invalid format or duplicates)` : ''}`,
                     ephemeral: true 
                 });
                 return;
@@ -13466,7 +13466,7 @@ const now = Date.now();
                 // Parse duration
                 const durationMatch = durationInput.match(/^(\d+)([mhd])$/i);
                 if (!durationMatch) {
-                    await interaction.reply({ content: '❌ Invalid duration format! Use: 30m, 1h, or 1d', ephemeral: true });
+                    await interaction.reply({ content: '? Invalid duration format! Use: 30m, 1h, or 1d', ephemeral: true });
                     return;
                 }
                 
@@ -13484,7 +13484,7 @@ const now = Date.now();
                 if (roleRequirement) {
                     const role = interaction.guild.roles.cache.get(roleRequirement);
                     if (!role) {
-                        await interaction.reply({ content: '❌ Invalid role ID!', ephemeral: true });
+                        await interaction.reply({ content: '? Invalid role ID!', ephemeral: true });
                         return;
                     }
                 }
@@ -13493,28 +13493,28 @@ const now = Date.now();
                 const endsAt = Math.floor(endTime / 1000);
                 let requirementsText = '';
                 if (roleRequirement) {
-                    requirementsText += `• Role: <@&${roleRequirement}>\n`;
+                    requirementsText += `� Role: <@&${roleRequirement}>\n`;
                 }
                 if (levelRequirement) {
-                    requirementsText += `• Level ${levelRequirement} or higher\n`;
+                    requirementsText += `� Level ${levelRequirement} or higher\n`;
                 }
                 
                 const giveawayEmbed = new EmbedBuilder()
-                    .setTitle('🎉 GIVEAWAY 🎉')
+                    .setTitle('?? GIVEAWAY ??')
                     .setDescription(
                         `**Prize:** ${prize}\n\n` +
                         `**Winners:** ${winnersCount}\n` +
                         `**Ends:** <t:${endsAt}:R> (<t:${endsAt}:F>)\n` +
                         `**Hosted by:** ${interaction.user}\n\n` +
                         (requirementsText ? `**Requirements:**\n${requirementsText}\n` : '') +
-                        `React with 🎉 to enter!`
+                        `React with ?? to enter!`
                     )
                     .setColor(0xFFD700)
                     .setFooter({ text: `${winnersCount} winner${winnersCount > 1 ? 's' : ''}` })
                     .setTimestamp(endTime);
                 
                 const message = await interaction.channel.send({ embeds: [giveawayEmbed] });
-                await message.react('🎉');
+                await message.react('??');
                 
                 // Store giveaway data
                 giveawayData[message.id] = {
@@ -13534,8 +13534,8 @@ const now = Date.now();
                 };
                 saveGiveawayData();
                 
-                await interaction.reply({ content: '✅ Giveaway created successfully!', ephemeral: true });
-                console.log(`🎉 Giveaway created: ${prize} by ${interaction.user.tag}`);
+                await interaction.reply({ content: '? Giveaway created successfully!', ephemeral: true });
+                console.log(`?? Giveaway created: ${prize} by ${interaction.user.tag}`);
                 return;
             }
             
@@ -13544,23 +13544,23 @@ const now = Date.now();
                 const giveaway = giveawayData[messageId];
                 
                 if (!giveaway) {
-                    await interaction.reply({ content: '❌ Giveaway not found!', ephemeral: true });
+                    await interaction.reply({ content: '? Giveaway not found!', ephemeral: true });
                     return;
                 }
                 
                 if (giveaway.guildId !== interaction.guild.id) {
-                    await interaction.reply({ content: '❌ This giveaway is not in this server!', ephemeral: true });
+                    await interaction.reply({ content: '? This giveaway is not in this server!', ephemeral: true });
                     return;
                 }
                 
                 if (giveaway.ended) {
-                    await interaction.reply({ content: '❌ This giveaway has already ended!', ephemeral: true });
+                    await interaction.reply({ content: '? This giveaway has already ended!', ephemeral: true });
                     return;
                 }
                 
                 await interaction.deferReply({ ephemeral: true });
                 await endGiveaway(messageId, giveaway);
-                await interaction.editReply({ content: '✅ Giveaway ended successfully!' });
+                await interaction.editReply({ content: '? Giveaway ended successfully!' });
                 return;
             }
             
@@ -13569,17 +13569,17 @@ const now = Date.now();
                 const giveaway = giveawayData[messageId];
                 
                 if (!giveaway) {
-                    await interaction.reply({ content: '❌ Giveaway not found!', ephemeral: true });
+                    await interaction.reply({ content: '? Giveaway not found!', ephemeral: true });
                     return;
                 }
                 
                 if (giveaway.guildId !== interaction.guild.id) {
-                    await interaction.reply({ content: '❌ This giveaway is not in this server!', ephemeral: true });
+                    await interaction.reply({ content: '? This giveaway is not in this server!', ephemeral: true });
                     return;
                 }
                 
                 if (!giveaway.ended) {
-                    await interaction.reply({ content: '❌ This giveaway hasn\'t ended yet!', ephemeral: true });
+                    await interaction.reply({ content: '? This giveaway hasn\'t ended yet!', ephemeral: true });
                     return;
                 }
                 
@@ -13588,19 +13588,19 @@ const now = Date.now();
                 try {
                     const channel = interaction.guild.channels.cache.get(giveaway.channelId);
                     if (!channel) {
-                        await interaction.editReply({ content: '❌ Giveaway channel not found!' });
+                        await interaction.editReply({ content: '? Giveaway channel not found!' });
                         return;
                     }
                     
                     const message = await channel.messages.fetch(messageId).catch(() => null);
                     if (!message) {
-                        await interaction.editReply({ content: '❌ Giveaway message not found!' });
+                        await interaction.editReply({ content: '? Giveaway message not found!' });
                         return;
                     }
                     
-                    const reaction = message.reactions.cache.get('🎉');
+                    const reaction = message.reactions.cache.get('??');
                     if (!reaction) {
-                        await interaction.editReply({ content: '❌ No reactions found on this giveaway!' });
+                        await interaction.editReply({ content: '? No reactions found on this giveaway!' });
                         return;
                     }
                     
@@ -13608,7 +13608,7 @@ const now = Date.now();
                     const participants = users.filter(u => !u.bot && u.id !== client.user.id);
                     
                     if (participants.size === 0) {
-                        await interaction.editReply({ content: '❌ No participants found!' });
+                        await interaction.editReply({ content: '? No participants found!' });
                         return;
                     }
                     
@@ -13617,20 +13617,20 @@ const now = Date.now();
                     const newWinner = participantsArray[Math.floor(Math.random() * participantsArray.length)];
                     
                     const rerollEmbed = new EmbedBuilder()
-                        .setTitle('🔄 Giveaway Rerolled!')
-                        .setDescription(`**Prize:** ${giveaway.prize}\n\n**New Winner:** <@${newWinner.id}>\n\nCongratulations! 🎊`)
+                        .setTitle('?? Giveaway Rerolled!')
+                        .setDescription(`**Prize:** ${giveaway.prize}\n\n**New Winner:** <@${newWinner.id}>\n\nCongratulations! ??`)
                         .setColor(0x00FF00)
                         .setTimestamp();
                     
                     await channel.send({ embeds: [rerollEmbed] });
-                    await channel.send(`🎉 Congratulations <@${newWinner.id}>! You won **${giveaway.prize}**!`);
+                    await channel.send(`?? Congratulations <@${newWinner.id}>! You won **${giveaway.prize}**!`);
                     
-                    await interaction.editReply({ content: '✅ Giveaway rerolled successfully!' });
-                    console.log(`🔄 Giveaway rerolled: ${giveaway.prize} - New winner: ${newWinner.tag}`);
+                    await interaction.editReply({ content: '? Giveaway rerolled successfully!' });
+                    console.log(`?? Giveaway rerolled: ${giveaway.prize} - New winner: ${newWinner.tag}`);
                     
                 } catch (error) {
                     console.error('Error rerolling giveaway:', error);
-                    await interaction.editReply({ content: '❌ An error occurred while rerolling!' });
+                    await interaction.editReply({ content: '? An error occurred while rerolling!' });
                 }
                 return;
             }
@@ -13643,11 +13643,11 @@ const now = Date.now();
                     const settings = getGuildSettings(interaction.guild.id);
                     settings.keywords.customResponse = value;
                     saveSettings();
-                    await interaction.reply({ content: '✅ Custom keyword response saved!', ephemeral: true });
+                    await interaction.reply({ content: '? Custom keyword response saved!', ephemeral: true });
                     return;
                 } catch (error) {
-                    console.error('❌ Keyword modal error:', error);
-                    await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true }).catch(() => {});
+                    console.error('? Keyword modal error:', error);
+                    await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true }).catch(() => {});
                     return;
                 }
             }
@@ -13655,7 +13655,7 @@ const now = Date.now();
             // PCommands modal handlers
             if (interaction.customId === 'pcmd_add_modal' || interaction.customId === 'pcmd_edit_modal') {
                 if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-                    await interaction.reply({ content: '❌ Admin only!', ephemeral: true });
+                    await interaction.reply({ content: '? Admin only!', ephemeral: true });
                     return;
                 }
                 
@@ -13673,7 +13673,7 @@ const now = Date.now();
                 
                 if (!/^[a-z0-9_-]+$/.test(cmdName)) {
                     await interaction.reply({ 
-                        content: '❌ Command name must only contain letters, numbers, hyphens, and underscores!', 
+                        content: '? Command name must only contain letters, numbers, hyphens, and underscores!', 
                         ephemeral: true 
                     });
                     return;
@@ -13692,7 +13692,7 @@ const now = Date.now();
                 saveSettings();
                 
                 await interaction.reply({ 
-                    content: `✅ Custom command **/${cmdName}** ${interaction.customId === 'pcmd_add_modal' ? 'created' : 'updated'} successfully!`, 
+                    content: `? Custom command **/${cmdName}** ${interaction.customId === 'pcmd_add_modal' ? 'created' : 'updated'} successfully!`, 
                     ephemeral: true 
                 });
                 return;
@@ -13704,12 +13704,12 @@ const now = Date.now();
                 const amount = parseInt(interaction.fields.getTextInputValue('amount'));
                 
                 if (isNaN(amount) || amount < 10) {
-                    await interaction.reply({ content: '❌ Invalid amount! Minimum bet is $10.', ephemeral: true });
+                    await interaction.reply({ content: '? Invalid amount! Minimum bet is $10.', ephemeral: true });
                     return;
                 }
                 
                 if (!['coinflip', 'dice', 'slots'].includes(game)) {
-                    await interaction.reply({ content: '❌ Invalid game! Choose: coinflip, dice, or slots', ephemeral: true });
+                    await interaction.reply({ content: '? Invalid game! Choose: coinflip, dice, or slots', ephemeral: true });
                     return;
                 }
                 
@@ -13717,7 +13717,7 @@ const now = Date.now();
                 
                 if (profile.wallet < amount) {
                     await interaction.reply({ 
-                        content: `❌ You don't have enough money! You only have **$${profile.wallet.toLocaleString()}**`, 
+                        content: `? You don't have enough money! You only have **$${profile.wallet.toLocaleString()}**`, 
                         ephemeral: true 
                     });
                     return;
@@ -13734,28 +13734,28 @@ const now = Date.now();
                     const result = Math.random() < (0.5 + luckBoost) ? userChoice : (userChoice === 'Heads' ? 'Tails' : 'Heads');
                     won = result === userChoice;
                     multiplier = 2;
-                    gameResult = `🪙 Coin landed on: **${result}**\nYou chose: **${userChoice}**`;
+                    gameResult = `?? Coin landed on: **${result}**\nYou chose: **${userChoice}**`;
                 } else if (game === 'dice') {
                     const userRoll = Math.floor(Math.random() * 6) + 1;
                     const botRoll = Math.floor(Math.random() * 6) + 1;
                     won = userRoll > botRoll || (luckBoost > 0 && userRoll === botRoll);
                     multiplier = 2.5;
-                    gameResult = `🎲 Your roll: **${userRoll}**\nBot roll: **${botRoll}**`;
+                    gameResult = `?? Your roll: **${userRoll}**\nBot roll: **${botRoll}**`;
                 } else if (game === 'slots') {
-                    const emojis = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣'];
+                    const emojis = ['??', '??', '??', '??', '??', '7??'];
                     const slot1 = emojis[Math.floor(Math.random() * emojis.length)];
                     const slot2 = emojis[Math.floor(Math.random() * emojis.length)];
                     const slot3 = emojis[Math.floor(Math.random() * emojis.length)];
                     
                     if (slot1 === slot2 && slot2 === slot3) {
                         won = true;
-                        multiplier = slot1 === '💎' ? 10 : slot1 === '7️⃣' ? 7 : 5;
+                        multiplier = slot1 === '??' ? 10 : slot1 === '7??' ? 7 : 5;
                     } else if (slot1 === slot2 || slot2 === slot3 || slot1 === slot3) {
                         won = true;
                         multiplier = 2;
                     }
                     
-                    gameResult = `🎰 **[ ${slot1} | ${slot2} | ${slot3} ]**`;
+                    gameResult = `?? **[ ${slot1} | ${slot2} | ${slot3} ]**`;
                 }
                 
                 if (won) {
@@ -13763,17 +13763,17 @@ const now = Date.now();
                     addMoney(interaction.user.id, interaction.guild.id, winnings, 'wallet');
                     
                     const embed = new EmbedBuilder()
-                        .setTitle('🎉 You Won!')
+                        .setTitle('?? You Won!')
                         .setColor(0x00FF00)
                         .setDescription(gameResult)
                         .addFields(
-                            { name: '💵 Bet', value: `$${amount.toLocaleString()}`, inline: true },
-                            { name: '💰 Winnings', value: `$${winnings.toLocaleString()}`, inline: true },
-                            { name: '📊 Multiplier', value: `${multiplier}x`, inline: true }
+                            { name: '?? Bet', value: `$${amount.toLocaleString()}`, inline: true },
+                            { name: '?? Winnings', value: `$${winnings.toLocaleString()}`, inline: true },
+                            { name: '?? Multiplier', value: `${multiplier}x`, inline: true }
                         );
                     
                     if (luckBoost > 0) {
-                        embed.setFooter({ text: '🍀 Lucky Charm active!' });
+                        embed.setFooter({ text: '?? Lucky Charm active!' });
                     }
                     
                     await interaction.reply({ embeds: [embed], ephemeral: true });
@@ -13781,11 +13781,11 @@ const now = Date.now();
                     removeMoney(interaction.user.id, interaction.guild.id, amount, 'wallet');
                     
                     const embed = new EmbedBuilder()
-                        .setTitle('💔 You Lost!')
+                        .setTitle('?? You Lost!')
                         .setColor(0xFF0000)
                         .setDescription(gameResult)
                         .addFields(
-                            { name: '💸 Lost', value: `$${amount.toLocaleString()}`, inline: true }
+                            { name: '?? Lost', value: `$${amount.toLocaleString()}`, inline: true }
                         )
                         .setFooter({ text: 'Better luck next time!' });
                     
@@ -13800,17 +13800,17 @@ const now = Date.now();
                 const target = await client.users.fetch(targetId).catch(() => null);
                 
                 if (!target) {
-                    await interaction.reply({ content: '❌ User not found!', ephemeral: true });
+                    await interaction.reply({ content: '? User not found!', ephemeral: true });
                     return;
                 }
                 
                 if (target.id === interaction.user.id) {
-                    await interaction.reply({ content: '❌ You cannot rob yourself!', ephemeral: true });
+                    await interaction.reply({ content: '? You cannot rob yourself!', ephemeral: true });
                     return;
                 }
                 
                 if (target.bot) {
-                    await interaction.reply({ content: '❌ You cannot rob bots!', ephemeral: true });
+                    await interaction.reply({ content: '? You cannot rob bots!', ephemeral: true });
                     return;
                 }
                 
@@ -13825,7 +13825,7 @@ const now = Date.now();
                     const minutes = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
                     
                     await interaction.reply({ 
-                        content: `⏰ You're too tired to rob! Wait **${hours}h ${minutes}m**`, 
+                        content: `? You're too tired to rob! Wait **${hours}h ${minutes}m**`, 
                         ephemeral: true 
                     });
                     return;
@@ -13833,7 +13833,7 @@ const now = Date.now();
                 
                 if (hasActiveEffect(target.id, interaction.guild.id, 'rob_protection')) {
                     await interaction.reply({ 
-                        content: `🛡️ ${target.username} has rob protection active!`, 
+                        content: `??? ${target.username} has rob protection active!`, 
                         ephemeral: true 
                     });
                     return;
@@ -13841,7 +13841,7 @@ const now = Date.now();
                 
                 if (victimProfile.wallet < 100) {
                     await interaction.reply({ 
-                        content: `❌ ${target.username} doesn't have enough money to rob! (minimum $100)`, 
+                        content: `? ${target.username} doesn't have enough money to rob! (minimum $100)`, 
                         ephemeral: true 
                     });
                     return;
@@ -13862,7 +13862,7 @@ const now = Date.now();
                     addMoney(interaction.user.id, interaction.guild.id, stolenAmount, 'wallet');
                     
                     const embed = new EmbedBuilder()
-                        .setTitle('💰 Robbery Successful!')
+                        .setTitle('?? Robbery Successful!')
                         .setColor(0x00FF00)
                         .setDescription(`You successfully robbed **${target.username}** and stole **$${stolenAmount.toLocaleString()}**!`)
                         .setFooter({ text: 'Spend it wisely!' });
@@ -13873,7 +13873,7 @@ const now = Date.now();
                     removeMoney(interaction.user.id, interaction.guild.id, fine, 'wallet');
                     
                     const embed = new EmbedBuilder()
-                        .setTitle('🚨 Robbery Failed!')
+                        .setTitle('?? Robbery Failed!')
                         .setColor(0xFF0000)
                         .setDescription(`You got caught trying to rob **${target.username}**!\n\nYou paid a fine of **$${fine.toLocaleString()}**!`)
                         .setFooter({ text: 'Better luck next time!' });
@@ -13892,12 +13892,12 @@ const now = Date.now();
                 const item = SHOP_ITEMS[itemId];
                 
                 if (!item) {
-                    await interaction.reply({ content: '❌ Invalid item ID! Use the shop button to see available items.', ephemeral: true });
+                    await interaction.reply({ content: '? Invalid item ID! Use the shop button to see available items.', ephemeral: true });
                     return;
                 }
                 
                 if (isNaN(quantity) || quantity < 1) {
-                    await interaction.reply({ content: '❌ Invalid quantity!', ephemeral: true });
+                    await interaction.reply({ content: '? Invalid quantity!', ephemeral: true });
                     return;
                 }
                 
@@ -13906,7 +13906,7 @@ const now = Date.now();
                 
                 if (profile.wallet < totalCost) {
                     await interaction.reply({ 
-                        content: `❌ You don't have enough money! You need **$${totalCost.toLocaleString()}** but only have **$${profile.wallet.toLocaleString()}**`, 
+                        content: `? You don't have enough money! You need **$${totalCost.toLocaleString()}** but only have **$${profile.wallet.toLocaleString()}**`, 
                         ephemeral: true 
                     });
                     return;
@@ -13916,7 +13916,7 @@ const now = Date.now();
                 addToInventory(interaction.user.id, interaction.guild.id, itemId, quantity);
                 
                 const embed = new EmbedBuilder()
-                    .setTitle('✅ Purchase Successful!')
+                    .setTitle('? Purchase Successful!')
                     .setColor(0x00FF00)
                     .setDescription(`You bought **${quantity}x ${item.name}** for **$${totalCost.toLocaleString()}**!`)
                     .setFooter({ text: 'Check your inventory!' });
@@ -13934,18 +13934,18 @@ const now = Date.now();
 
                 // Validate target user
                 if (!targetUserId || targetUserId === interaction.user.id) {
-                    await interaction.reply({ content: '❌ Invalid user! You cannot trade with yourself.', ephemeral: true });
+                    await interaction.reply({ content: '? Invalid user! You cannot trade with yourself.', ephemeral: true });
                     return;
                 }
 
                 const targetMember = await interaction.guild.members.fetch(targetUserId).catch(() => null);
                 if (!targetMember) {
-                    await interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+                    await interaction.reply({ content: '? User not found in this server!', ephemeral: true });
                     return;
                 }
 
                 if (targetMember.user.bot) {
-                    await interaction.reply({ content: '❌ You cannot trade with bots!', ephemeral: true });
+                    await interaction.reply({ content: '? You cannot trade with bots!', ephemeral: true });
                     return;
                 }
 
@@ -13957,7 +13957,7 @@ const now = Date.now();
                 if (offerStr.startsWith('$')) {
                     offerMoney = parseInt(offerStr.replace(/[$,]/g, ''));
                     if (isNaN(offerMoney) || offerMoney < 1) {
-                        await interaction.reply({ content: '❌ Invalid offer amount!', ephemeral: true });
+                        await interaction.reply({ content: '? Invalid offer amount!', ephemeral: true });
                         return;
                     }
                 } else {
@@ -13966,7 +13966,7 @@ const now = Date.now();
                     offerQuantity = offerParts[1] ? parseInt(offerParts[1]) : 1;
 
                     if (!SHOP_ITEMS[offerItem]) {
-                        await interaction.reply({ content: '❌ Invalid item ID in offer!', ephemeral: true });
+                        await interaction.reply({ content: '? Invalid item ID in offer!', ephemeral: true });
                         return;
                     }
                 }
@@ -13979,7 +13979,7 @@ const now = Date.now();
                 if (requestStr.startsWith('$')) {
                     requestMoney = parseInt(requestStr.replace(/[$,]/g, ''));
                     if (isNaN(requestMoney) || requestMoney < 1) {
-                        await interaction.reply({ content: '❌ Invalid request amount!', ephemeral: true });
+                        await interaction.reply({ content: '? Invalid request amount!', ephemeral: true });
                         return;
                     }
                 } else {
@@ -13988,7 +13988,7 @@ const now = Date.now();
                     requestQuantity = requestParts[1] ? parseInt(requestParts[1]) : 1;
 
                     if (!SHOP_ITEMS[requestItem]) {
-                        await interaction.reply({ content: '❌ Invalid item ID in request!', ephemeral: true });
+                        await interaction.reply({ content: '? Invalid item ID in request!', ephemeral: true });
                         return;
                     }
                 }
@@ -13997,7 +13997,7 @@ const now = Date.now();
                 const senderProfile = getEconomyProfile(interaction.user.id, interaction.guild.id);
                 if (offerMoney > 0 && senderProfile.wallet < offerMoney) {
                     await interaction.reply({ 
-                        content: `❌ You don't have **$${offerMoney.toLocaleString()}** to offer!`, 
+                        content: `? You don't have **$${offerMoney.toLocaleString()}** to offer!`, 
                         ephemeral: true 
                     });
                     return;
@@ -14007,7 +14007,7 @@ const now = Date.now();
                     const inventory = senderProfile.inventory || {};
                     if (!inventory[offerItem] || inventory[offerItem] < offerQuantity) {
                         await interaction.reply({ 
-                            content: `❌ You don't have **${offerQuantity}x ${SHOP_ITEMS[offerItem].name}** to offer!`, 
+                            content: `? You don't have **${offerQuantity}x ${SHOP_ITEMS[offerItem].name}** to offer!`, 
                             ephemeral: true 
                         });
                         return;
@@ -14018,7 +14018,7 @@ const now = Date.now();
                 const targetProfile = getEconomyProfile(targetUserId, interaction.guild.id);
                 if (requestMoney > 0 && targetProfile.wallet < requestMoney) {
                     await interaction.reply({ 
-                        content: `❌ ${targetMember.user.username} doesn't have **$${requestMoney.toLocaleString()}**!`, 
+                        content: `? ${targetMember.user.username} doesn't have **$${requestMoney.toLocaleString()}**!`, 
                         ephemeral: true 
                     });
                     return;
@@ -14028,7 +14028,7 @@ const now = Date.now();
                     const targetInventory = targetProfile.inventory || {};
                     if (!targetInventory[requestItem] || targetInventory[requestItem] < requestQuantity) {
                         await interaction.reply({ 
-                            content: `❌ ${targetMember.user.username} doesn't have **${requestQuantity}x ${SHOP_ITEMS[requestItem].name}**!`, 
+                            content: `? ${targetMember.user.username} doesn't have **${requestQuantity}x ${SHOP_ITEMS[requestItem].name}**!`, 
                             ephemeral: true 
                         });
                         return;
@@ -14042,13 +14042,13 @@ const now = Date.now();
                     .setCustomId(`trade_accept_${interaction.user.id}_${targetUserId}_${nonce}`)
                     .setLabel('Accept Trade')
                     .setStyle(ButtonStyle.Success)
-                    .setEmoji('✅');
+                    ;
 
                 const declineBtn = new ButtonBuilder()
                     .setCustomId(`trade_decline_${interaction.user.id}_${targetUserId}_${nonce}`)
                     .setLabel('Decline Trade')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji('❌');
+                    ;
 
                 const row = new ActionRowBuilder().addComponents(acceptBtn, declineBtn);
 
@@ -14057,12 +14057,12 @@ const now = Date.now();
                 let requestDesc = requestMoney > 0 ? `**$${requestMoney.toLocaleString()}**` : `**${requestQuantity}x ${SHOP_ITEMS[requestItem].name}**`;
 
                 const tradeEmbed = new EmbedBuilder()
-                    .setTitle('🔄 Trade Offer')
+                    .setTitle('?? Trade Offer')
                     .setColor(0xFFAA00)
                     .setDescription(`${interaction.user} wants to trade with ${targetMember.user}!`)
                     .addFields(
-                        { name: '📤 Offering', value: offerDesc, inline: true },
-                        { name: '📥 Requesting', value: requestDesc, inline: true }
+                        { name: '?? Offering', value: offerDesc, inline: true },
+                        { name: '?? Requesting', value: requestDesc, inline: true }
                     )
                     .setFooter({ text: 'Trade expires in 2 minutes' })
                     .setTimestamp();
@@ -14093,7 +14093,7 @@ const now = Date.now();
                 const options = optionsText.split('\n').filter(o => o.trim()).slice(0, 10);
 
                 if (options.length < 2) {
-                    await interaction.reply({ content: '❌ You need at least 2 options for a poll!', ephemeral: true });
+                    await interaction.reply({ content: '? You need at least 2 options for a poll!', ephemeral: true });
                     return;
                 }
 
@@ -14115,17 +14115,17 @@ const now = Date.now();
 
                 // Create poll embed
                 const pollEmbed = new EmbedBuilder()
-                    .setTitle('📊 ' + question)
+                    .setTitle('?? ' + question)
                     .setColor(0x5865F2)
-                    .setDescription(options.map((opt, i) => `${i + 1}️⃣ ${opt} - **0 votes**`).join('\n\n'))
-                    .setFooter({ text: `Poll by ${interaction.user.username} • Ends` })
+                    .setDescription(options.map((opt, i) => `${i + 1}?? ${opt} - **0 votes**`).join('\n\n'))
+                    .setFooter({ text: `Poll by ${interaction.user.username} � Ends` })
                     .setTimestamp(endTime);
 
                 // Create buttons (max 5 per row, 2 rows = 10 options)
                 const row1Components = [];
                 const row2Components = [];
 
-                const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+                const emojis = ['1??', '2??', '3??', '4??', '5??', '6??', '7??', '8??', '9??', '??'];
 
                 for (let i = 0; i < Math.min(options.length, 5); i++) {
                     row1Components.push(
@@ -14133,7 +14133,7 @@ const now = Date.now();
                             .setCustomId(`poll_vote_${interaction.id}_${i}`)
                             .setLabel(options[i])
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji(emojis[i])
+                            
                     );
                 }
 
@@ -14143,7 +14143,7 @@ const now = Date.now();
                             .setCustomId(`poll_vote_${interaction.id}_${i}`)
                             .setLabel(options[i])
                             .setStyle(ButtonStyle.Primary)
-                            .setEmoji(emojis[i])
+                            
                     );
                 }
 
@@ -14282,13 +14282,13 @@ const now = Date.now();
                     saveSettings();
                     
                     const typeNames = {
-                        critical: '✅ Critical Errors',
-                        moderation: '✅ Moderation Actions',
-                        messages: '✅ Message Events',
-                        members: '✅ Member Events',
-                        voice: '✅ Voice Activity',
-                        server: '🔸 Server Changes',
-                        keywords: '✅ Keyword Flags'
+                        critical: '? Critical Errors',
+                        moderation: '? Moderation Actions',
+                        messages: '? Message Events',
+                        members: '? Member Events',
+                        voice: '? Voice Activity',
+                        server: '?? Server Changes',
+                        keywords: '? Keyword Flags'
                     };
                     
                     await interaction.reply({ 
@@ -14306,7 +14306,7 @@ const now = Date.now();
                     await channel.send({ embeds: [testEmbed] }).catch(() => {});
                     
                 } catch (error) {
-                    console.error('❌ Log modal error:', error);
+                    console.error('? Log modal error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
                             await interaction.reply({ content: '? An error occurred. Please try again.', ephemeral: true });
@@ -14324,7 +14324,7 @@ const now = Date.now();
                 
                 if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
                     return interaction.reply({ 
-                        content: '❌ You need Administrator permissions to use this command!', 
+                        content: '? You need Administrator permissions to use this command!', 
                         ephemeral: true 
                     });
                 }
@@ -14343,7 +14343,7 @@ const now = Date.now();
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ AI channel set to **#${cleanChannelName}**! ${settings.ai.enabled ? 'AI will respond there automatically.' : 'Enable AI to start using it.'}`, 
+                            content: `? AI channel set to **#${cleanChannelName}**! ${settings.ai.enabled ? 'AI will respond there automatically.' : 'Enable AI to start using it.'}`, 
                             ephemeral: true 
                         });
                     }
@@ -14353,7 +14353,7 @@ const now = Date.now();
                         
                         if (isNaN(history) || history < 1 || history > 50) {
                             return interaction.reply({ 
-                                content: '❌ Invalid number! Must be between 1-50.', 
+                                content: '? Invalid number! Must be between 1-50.', 
                                 ephemeral: true 
                             });
                         }
@@ -14362,7 +14362,7 @@ const now = Date.now();
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ Max history set to **${history} exchanges**!`, 
+                            content: `? Max history set to **${history} exchanges**!`, 
                             ephemeral: true 
                         });
                     }
@@ -14372,7 +14372,7 @@ const now = Date.now();
                         
                         if (isNaN(temperature) || temperature < 0 || temperature > 2) {
                             return interaction.reply({ 
-                                content: '❌ Invalid temperature! Must be between 0.0-2.0.', 
+                                content: '? Invalid temperature! Must be between 0.0-2.0.', 
                                 ephemeral: true 
                             });
                         }
@@ -14381,14 +14381,14 @@ const now = Date.now();
                         saveSettings();
                         
                         await interaction.reply({ 
-                            content: `✅ Temperature set to **${temperature}**! ${temperature < 0.3 ? '(Very focused)' : temperature < 0.7 ? '(Balanced)' : temperature < 1.0 ? '(Creative)' : '(Very creative)'}`, 
+                            content: `? Temperature set to **${temperature}**! ${temperature < 0.3 ? '(Very focused)' : temperature < 0.7 ? '(Balanced)' : temperature < 1.0 ? '(Creative)' : '(Very creative)'}`, 
                             ephemeral: true 
                         });
                     }
                     
                 } catch (error) {
-                    console.error('❌ [AI MODAL] Error:', error);
-                    await interaction.reply({ content: '❌ An error occurred. Please try again.', ephemeral: true }).catch(() => {});
+                    console.error('? [AI MODAL] Error:', error);
+                    await interaction.reply({ content: '? An error occurred. Please try again.', ephemeral: true }).catch(() => {});
                 }
                 return;
             }
@@ -14486,7 +14486,7 @@ const now = Date.now();
                     } else if (interaction.customId === 'leveling_channel_modal') {
                         try {
                             await interaction.deferReply({ ephemeral: true });
-                            console.log('📝 Leveling channel modal submitted');
+                            console.log('?? Leveling channel modal submitted');
                             console.log('Guild ID:', guildId);
                             console.log('User:', interaction.user.tag);
                             const channelInput = interaction.fields.getTextInputValue('channel_id').trim();
@@ -14495,45 +14495,45 @@ const now = Date.now();
                             if (!channelInput) {
                                 settings.leveling.levelUpChannelId = null;
                                 saveSettings();
-                                console.log('✅ Cleared level up channel (will use current channel)');
-                                await interaction.editReply('✅ Level up messages will be sent in the current channel!');
+                                console.log('? Cleared level up channel (will use current channel)');
+                                await interaction.editReply('? Level up messages will be sent in the current channel!');
                                 return;
                             }
                             const channelMatch = channelInput.match(/(\d{17,19})/);
                             console.log('Channel match:', channelMatch);
                             if (!channelMatch) {
-                                console.log('❌ Invalid channel format');
-                                await interaction.editReply('❌ Invalid channel ID or mention!');
+                                console.log('? Invalid channel format');
+                                await interaction.editReply('? Invalid channel ID or mention!');
                                 return;
                             }
                             const channelId = channelMatch[1];
                             console.log('Fetching channel:', channelId);
                             const channel = await interaction.guild.channels.fetch(channelId).catch(err => {
-                                console.error('❌ Failed to fetch channel:', err);
+                                console.error('? Failed to fetch channel:', err);
                                 return null;
                             });
                             if (!channel) {
-                                console.log('❌ Channel not found in guild');
-                                await interaction.editReply('❌ Channel not found!');
+                                console.log('? Channel not found in guild');
+                                await interaction.editReply('? Channel not found!');
                                 return;
                             }
-                            console.log('✅ Channel found:', channel.name);
+                            console.log('? Channel found:', channel.name);
                             settings.leveling.levelUpChannelId = channelId;
                             saveSettings();
-                            console.log('✅ Saved settings');
-                            await interaction.editReply(`✅ Level up channel set to ${channel}!`);
-                            console.log('✅ Reply sent successfully');
+                            console.log('? Saved settings');
+                            await interaction.editReply(`? Level up channel set to ${channel}!`);
+                            console.log('? Reply sent successfully');
                         } catch (error) {
-                            console.error('❌ Leveling channel modal error:', error);
+                            console.error('? Leveling channel modal error:', error);
                             console.error('Stack trace:', error.stack);
                             try {
                                 if (interaction.deferred || interaction.replied) {
-                                    await interaction.editReply(`❌ Error: ${error.message}`);
+                                    await interaction.editReply(`? Error: ${error.message}`);
                                 } else {
-                                    await interaction.reply({ content: `❌ Error: ${error.message}`, ephemeral: true });
+                                    await interaction.reply({ content: `? Error: ${error.message}`, ephemeral: true });
                                 }
                             } catch (err) {
-                                console.error('❌ Failed to send error reply:', err);
+                                console.error('? Failed to send error reply:', err);
                             }
                         }
                     } else if (interaction.customId === 'leveling_addrole_modal') {
@@ -14572,20 +14572,20 @@ const now = Date.now();
                             const userInput = interaction.fields.getTextInputValue('user_id')?.trim();
                             
                             if (!userInput) {
-                                return interaction.reply({ content: '❌ Please provide a user ID or mention!', ephemeral: true });
+                                return interaction.reply({ content: '? Please provide a user ID or mention!', ephemeral: true });
                             }
                             
                             const match = userInput.match(/(\d{17,19})/);
                             const userId = match ? match[1] : null;
                             
                             if (!userId) {
-                                return interaction.reply({ content: '❌ Invalid user ID or mention! Please use @user or paste the user ID.', ephemeral: true });
+                                return interaction.reply({ content: '? Invalid user ID or mention! Please use @user or paste the user ID.', ephemeral: true });
                             }
                             
                             const member = await interaction.guild.members.fetch(userId).catch(() => null);
                             
                             if (!member) {
-                                return interaction.reply({ content: '❌ User not found in this server! Make sure they are a member.', ephemeral: true });
+                                return interaction.reply({ content: '? User not found in this server! Make sure they are a member.', ephemeral: true });
                             }
                             
                             initializeUser(guildId, member.id);
@@ -14594,9 +14594,9 @@ const now = Date.now();
                             const percent = Math.floor((p.currentLevelXP / p.xpRequiredForCurrentLevel) * 100);
                             const barLen = 20;
                             const filled = Math.min(barLen, Math.max(0, Math.round((percent / 100) * barLen)));
-                            const bar = '█'.repeat(filled) + '░'.repeat(barLen - filled);
+                            const bar = '�'.repeat(filled) + '�'.repeat(barLen - filled);
                             const embed = new EmbedBuilder()
-                                .setTitle(`📈 Level for ${member.user.tag}`)
+                                .setTitle(`?? Level for ${member.user.tag}`)
                                 .setColor(0x5865F2)
                                 .setThumbnail(member.user.displayAvatarURL())
                                 .addFields(
@@ -14607,15 +14607,15 @@ const now = Date.now();
                                 .setTimestamp();
                             await interaction.reply({ embeds: [embed], ephemeral: true });
                         } catch (modalError) {
-                            console.error('❌ View user level modal error:', modalError);
+                            console.error('? View user level modal error:', modalError);
                             await interaction.reply({ 
-                                content: '❌ An error occurred while viewing user level. Please try again or contact an administrator.\n\n**Debug info:** ' + modalError.message, 
+                                content: '? An error occurred while viewing user level. Please try again or contact an administrator.\n\n**Debug info:** ' + modalError.message, 
                                 ephemeral: true 
                             }).catch(() => {});
                         }
                     }
                 } catch (error) {
-                    console.error('❌ Leveling modal error:', error);
+                    console.error('? Leveling modal error:', error);
                     await interaction.reply({ content: '? An error occurred!', ephemeral: true }).catch(() => {});
                 }
                 return;
@@ -14677,7 +14677,7 @@ const now = Date.now();
                         saveTicketData();
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('✅ Welcome Message Updated')
+                            .setTitle('? Welcome Message Updated')
                             .setDescription('**Preview:**\n\n' + message)
                             .setColor(0x00FF00)
                             .setFooter({ text: 'This message will appear in new tickets' })
@@ -14692,7 +14692,7 @@ const now = Date.now();
                         saveTicketData();
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('✅ Close Message Updated')
+                            .setTitle('? Close Message Updated')
                             .setDescription('**Preview:**\n\n' + message)
                             .setColor(0x00FF00)
                             .setFooter({ text: 'This message will be sent in DMs when tickets close' })
@@ -14717,19 +14717,19 @@ const now = Date.now();
                         }
                         
                         const panelEmbed = new EmbedBuilder()
-                            .setTitle('⚙️ Support Ticket System')
+                            .setTitle('?? Support Ticket System')
                             .setDescription(
                                 '**Need help?** Create a support ticket!\n\n' +
                                 '**How it works:**\n' +
-                                '• Click the button below to open a ticket\n' +
-                                '• A private channel will be created for you\n' +
-                                '• Our staff team will assist you shortly\n\n' +
+                                '� Click the button below to open a ticket\n' +
+                                '� A private channel will be created for you\n' +
+                                '� Our staff team will assist you shortly\n\n' +
                                 '**What to include:**\n' +
-                                '• Describe your issue clearly\n' +
-                                '• Include any relevant details\n' +
-                                '• Be patient while we help you\n\n' +
-                                '🔸━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
-                                '**Click the button below to get started! 👇**'
+                                '� Describe your issue clearly\n' +
+                                '� Include any relevant details\n' +
+                                '� Be patient while we help you\n\n' +
+                                '?????????????????????????\n\n' +
+                                '**Click the button below to get started! ??**'
                             )
                             .setColor(0x5865F2)
                             .setFooter({ text: `${interaction.guild.name} Support` })
@@ -14741,7 +14741,7 @@ const now = Date.now();
                                     .setCustomId('create_ticket_panel')
                                     .setLabel('Create Ticket')
                                     .setStyle(ButtonStyle.Success)
-                                    .setEmoji('✅')
+                                    
                             );
                         
                         try {
@@ -14760,7 +14760,7 @@ const now = Date.now();
                     }
                     
                 } catch (error) {
-                    console.error('❌ Ticket modal error:', error);
+                    console.error('? Ticket modal error:', error);
                     await interaction.reply({ content: '? An error occurred!', ephemeral: true }).catch(() => {});
                 }
                 return;
@@ -14798,7 +14798,7 @@ const now = Date.now();
                         });
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('✅ Webhook Created')
+                            .setTitle('? Webhook Created')
                             .setDescription(`Webhook **${webhookName}** created successfully!`)
                             .addFields(
                                 { name: 'Channel', value: `<#${channel.id}>`, inline: true },
@@ -14882,7 +14882,7 @@ const now = Date.now();
                             await client.user.setAvatar(avatarUrl);
                             
                             const successEmbed = new EmbedBuilder()
-                                .setTitle('✅ Avatar Changed Successfully')
+                                .setTitle('? Avatar Changed Successfully')
                                 .setDescription('The bot avatar has been updated globally across all servers.')
                                 .setImage(avatarUrl)
                                 .setColor(0x00FF00)
@@ -14958,21 +14958,21 @@ const now = Date.now();
                                     .setCustomId(`webhook_send_${Date.now()}`)
                                     .setLabel('Send to Webhook')
                                     .setStyle(ButtonStyle.Success)
-                                    .setEmoji('✅'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('webhook_edit')
                                     .setLabel('Edit Again')
                                     .setStyle(ButtonStyle.Primary)
-                                    .setEmoji('✅'),
+                                    ,
                                 new ButtonBuilder()
                                     .setCustomId('webhook_cancel')
                                     .setLabel('Cancel')
                                     .setStyle(ButtonStyle.Danger)
-                                    .setEmoji('❌')
+                                    
                             );
                         
                         await interaction.reply({ 
-                            content: '**👀 Embed Preview:**\nCustom emojis will render properly when sent via webhook.',
+                            content: '**?? Embed Preview:**\nCustom emojis will render properly when sent via webhook.',
                             embeds: [previewEmbed], 
                             components: [buttons],
                             ephemeral: true 
@@ -15154,7 +15154,7 @@ const now = Date.now();
                         saveSettings();
                         
                         const testEmbed = new EmbedBuilder()
-                            .setTitle('✅ Moderation Log Channel Configured')
+                            .setTitle('? Moderation Log Channel Configured')
                             .setDescription('This channel will receive moderation logs.')
                             .setColor(0x00FF00)
                             .setTimestamp();
@@ -15317,7 +15317,7 @@ const now = Date.now();
                             try {
                                 await user.send({
                                     embeds: [new EmbedBuilder()
-                                        .setTitle('⚙️ You Have Been Warned')
+                                        .setTitle('?? You Have Been Warned')
                                         .setDescription(`You have been warned in **${interaction.guild.name}**`)
                                         .addFields({ name: 'Reason', value: reason })
                                         .setColor(0xFFAA00)
@@ -15326,12 +15326,12 @@ const now = Date.now();
                             } catch (error) {}
                         }
                         
-                        await logModerationAction(interaction.guild, '✅ Warning Issued', interaction.user, user, reason);
+                        await logModerationAction(interaction.guild, '? Warning Issued', interaction.user, user, reason);
                         
                         const warningCount = moderationData[guildId].warnings[userId].length;
                         await interaction.reply({ 
                             embeds: [new EmbedBuilder()
-                                .setTitle('⚠️ User Warned')
+                                .setTitle('?? User Warned')
                                 .setDescription(`${user} has been warned (${warningCount}/${settings.moderation.warningThreshold})`)
                                 .addFields({ name: 'Reason', value: reason })
                                 .setColor(0xFFAA00)],
@@ -15359,7 +15359,7 @@ const now = Date.now();
                         const member = await interaction.guild.members.fetch(userId).catch(() => null);
                         
                         if (!member) {
-                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+                            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
                         }
                         
                         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
@@ -15374,7 +15374,7 @@ const now = Date.now();
                                 try {
                                     await user.send({
                                         embeds: [new EmbedBuilder()
-                                            .setTitle('⚙️ You Have Been Timed Out')
+                                            .setTitle('?? You Have Been Timed Out')
                                             .setDescription(`You have been timed out in **${interaction.guild.name}** for ${duration} minutes`)
                                             .addFields({ name: 'Reason', value: reason })
                                             .setColor(0xFF6600)
@@ -15383,10 +15383,10 @@ const now = Date.now();
                                 } catch (error) {}
                             }
                             
-                            await logModerationAction(interaction.guild, `✅ Timeout (${duration}m)`, interaction.user, user, reason);
+                            await logModerationAction(interaction.guild, `? Timeout (${duration}m)`, interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
-                                    .setTitle('⏱️ User Timed Out')
+                                    .setTitle('?? User Timed Out')
                                     .setDescription(`${user} has been timed out for ${duration} minutes`)
                                     .addFields({ name: 'Reason', value: reason })
                                     .setColor(0xFF6600)],
@@ -15411,7 +15411,7 @@ const now = Date.now();
                         const member = await interaction.guild.members.fetch(userId).catch(() => null);
                         
                         if (!member) {
-                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+                            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
                         }
                         
                         if (member.permissions.has(PermissionFlagsBits.Administrator)) {
@@ -15429,7 +15429,7 @@ const now = Date.now();
                                 try {
                                     await user.send({
                                         embeds: [new EmbedBuilder()
-                                            .setTitle('⚙️ You Have Been Kicked')
+                                            .setTitle('?? You Have Been Kicked')
                                             .setDescription(`You have been kicked from **${interaction.guild.name}**`)
                                             .addFields({ name: 'Reason', value: reason })
                                             .setColor(0xFF6600)
@@ -15439,10 +15439,10 @@ const now = Date.now();
                             }
                             
                             await member.kick(reason);
-                            await logModerationAction(interaction.guild, '✅ Kick', interaction.user, user, reason);
+                            await logModerationAction(interaction.guild, '? Kick', interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
-                                    .setTitle('👢 User Kicked')
+                                    .setTitle('?? User Kicked')
                                     .setDescription(`${user.tag} has been kicked`)
                                     .addFields({ name: 'Reason', value: reason })
                                     .setColor(0xFF6600)],
@@ -15477,7 +15477,7 @@ const now = Date.now();
                                 try {
                                     await user.send({
                                         embeds: [new EmbedBuilder()
-                                            .setTitle('⚙️ You Have Been Banned')
+                                            .setTitle('?? You Have Been Banned')
                                             .setDescription(`You have been banned from **${interaction.guild.name}**`)
                                             .addFields({ name: 'Reason', value: reason })
                                             .setColor(0xFF0000)
@@ -15487,10 +15487,10 @@ const now = Date.now();
                             }
                             
                             await interaction.guild.members.ban(userId, { reason, deleteMessageSeconds: 604800 });
-                            await logModerationAction(interaction.guild, '✅ Ban', interaction.user, user, reason);
+                            await logModerationAction(interaction.guild, '? Ban', interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
-                                    .setTitle('🔨 User Banned')
+                                    .setTitle('?? User Banned')
                                     .setDescription(`${user ? user.tag : userId} has been banned`)
                                     .addFields({ name: 'Reason', value: reason })
                                     .setColor(0xFF0000)],
@@ -15515,7 +15515,7 @@ const now = Date.now();
                         const member = await interaction.guild.members.fetch(userId).catch(() => null);
                         
                         if (!member) {
-                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+                            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
                         }
                         
                         if (!settings.moderation.muteRole) {
@@ -15530,7 +15530,7 @@ const now = Date.now();
                                 try {
                                     await user.send({
                                         embeds: [new EmbedBuilder()
-                                            .setTitle('⚙️ You Have Been Muted')
+                                            .setTitle('?? You Have Been Muted')
                                             .setDescription(`You have been muted in **${interaction.guild.name}**`)
                                             .addFields({ name: 'Reason', value: reason })
                                             .setColor(0x808080)
@@ -15539,10 +15539,10 @@ const now = Date.now();
                                 } catch (error) {}
                             }
                             
-                            await logModerationAction(interaction.guild, '✅ Mute', interaction.user, user, reason);
+                            await logModerationAction(interaction.guild, '? Mute', interaction.user, user, reason);
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
-                                    .setTitle('🔇 User Muted')
+                                    .setTitle('?? User Muted')
                                     .setDescription(`${user} has been muted`)
                                     .addFields({ name: 'Reason', value: reason })
                                     .setColor(0x808080)],
@@ -15566,7 +15566,7 @@ const now = Date.now();
                         const member = await interaction.guild.members.fetch(userId).catch(() => null);
                         
                         if (!member) {
-                            return interaction.reply({ content: '❌ User not found in this server!', ephemeral: true });
+                            return interaction.reply({ content: '? User not found in this server!', ephemeral: true });
                         }
                         
                         if (!settings.moderation.muteRole) {
@@ -15575,10 +15575,10 @@ const now = Date.now();
                         
                         try {
                             await member.roles.remove(settings.moderation.muteRole);
-                            await logModerationAction(interaction.guild, '✅ Unmute', interaction.user, user, 'Unmuted');
+                            await logModerationAction(interaction.guild, '? Unmute', interaction.user, user, 'Unmuted');
                             await interaction.reply({ 
                                 embeds: [new EmbedBuilder()
-                                    .setTitle('🔊 User Unmuted')
+                                    .setTitle('?? User Unmuted')
                                     .setDescription(`${user} has been unmuted`)
                                     .setColor(0x00FF00)],
                                 ephemeral: true 
@@ -15607,7 +15607,7 @@ const now = Date.now();
                         }
                         
                         const embed = new EmbedBuilder()
-                            .setTitle(`📋 Infractions for ${user ? user.tag : userId}`)
+                            .setTitle(`?? Infractions for ${user ? user.tag : userId}`)
                             .setColor(0xFF0000)
                             .setThumbnail(user?.displayAvatarURL())
                             .setDescription(`Total infractions: **${infractions.length}**`);
@@ -15615,12 +15615,12 @@ const now = Date.now();
                         infractions.slice(-10).reverse().forEach((infraction, index) => {
                             const date = new Date(infraction.timestamp);
                             const typeEmoji = {
-                                warn: '✅',
-                                timeout: '✅',
-                                kick: '✅',
-                                ban: '✅',
-                                mute: '✅'
-                            }[infraction.type] || '✅';
+                                warn: '?',
+                                timeout: '?',
+                                kick: '?',
+                                ban: '?',
+                                mute: '?'
+                            }[infraction.type] || '?';
                             
                             embed.addFields({
                                 name: `${typeEmoji} ${infraction.type.charAt(0).toUpperCase() + infraction.type.slice(1)} #${infractions.length - index}`,
@@ -15652,10 +15652,10 @@ const now = Date.now();
                         moderationData[guildId].warnings[userId] = [];
                         saveModerationData();
                         
-                        await logModerationAction(interaction.guild, '✅ Warnings Cleared', interaction.user, user, `Cleared ${warningCount} warnings`);
+                        await logModerationAction(interaction.guild, '? Warnings Cleared', interaction.user, user, `Cleared ${warningCount} warnings`);
                         await interaction.reply({ 
                             embeds: [new EmbedBuilder()
-                                .setTitle('✅ Warnings Cleared')
+                                .setTitle('? Warnings Cleared')
                                 .setDescription(`Cleared **${warningCount}** warnings for ${user ? user.tag : userId}`)
                                 .setColor(0x00FF00)],
                             ephemeral: true 
@@ -15900,72 +15900,72 @@ const now = Date.now();
             // Welcome system modal handlers (inline command)
             if (interaction.customId === 'welcome_channel_modal') {
                 const guildId = interaction.guild.id;
-                console.log(`🔧 [WELCOME MODAL] Started | Guild: ${guildId} | User: ${interaction.user.tag}`);
+                console.log(`?? [WELCOME MODAL] Started | Guild: ${guildId} | User: ${interaction.user.tag}`);
                 
                 try {
-                    console.log(`🔧 [WELCOME MODAL] Deferring reply...`);
+                    console.log(`?? [WELCOME MODAL] Deferring reply...`);
                     await interaction.deferReply({ ephemeral: true });
-                    console.log(`🔧 [WELCOME MODAL] Reply deferred successfully`);
+                    console.log(`?? [WELCOME MODAL] Reply deferred successfully`);
                     
                     // Check admin permissions after defer
                     if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-                        console.log(`🔧 [WELCOME MODAL] Permission denied for ${interaction.user.tag}`);
-                        await interaction.editReply('❌ You need Administrator permissions to use this command!');
+                        console.log(`?? [WELCOME MODAL] Permission denied for ${interaction.user.tag}`);
+                        await interaction.editReply('? You need Administrator permissions to use this command!');
                         return;
                     }
-                    console.log(`🔧 [WELCOME MODAL] Admin check passed`);
+                    console.log(`?? [WELCOME MODAL] Admin check passed`);
                     const settings = getGuildSettings(guildId);
                     const rawInput = interaction.fields.getTextInputValue('channel_name').trim();
-                    console.log(`🔧 [WELCOME MODAL] Input received: "${rawInput}"`);
+                    console.log(`?? [WELCOME MODAL] Input received: "${rawInput}"`);
                     
                     // Normalize input: accept <#id>, id, #name, or name
                     const idMatch = rawInput.match(/(\d{17,19})/);
                     let channel = null;
-                    console.log(`🔧 [WELCOME MODAL] ID match: ${idMatch ? idMatch[1] : 'none'}`);
+                    console.log(`?? [WELCOME MODAL] ID match: ${idMatch ? idMatch[1] : 'none'}`);
                     if (idMatch) {
                         const id = idMatch[1];
-                        console.log(`🔧 [WELCOME MODAL] Fetching channel by ID: ${id}`);
+                        console.log(`?? [WELCOME MODAL] Fetching channel by ID: ${id}`);
                         channel = interaction.guild.channels.cache.get(id) 
                             || await interaction.guild.channels.fetch(id).catch((err) => {
-                                console.log(`🔧 [WELCOME MODAL] Fetch failed: ${err.message}`);
+                                console.log(`?? [WELCOME MODAL] Fetch failed: ${err.message}`);
                                 return null;
                             });
                     } else {
                         const name = rawInput.replace(/^#/, '').toLowerCase();
-                        console.log(`🔧 [WELCOME MODAL] Searching for channel by name: "${name}"`);
+                        console.log(`?? [WELCOME MODAL] Searching for channel by name: "${name}"`);
                         channel = interaction.guild.channels.cache.find(c => c.name.toLowerCase() === name) || null;
                     }
-                    console.log(`🔧 [WELCOME MODAL] Channel resolved: ${channel ? `${channel.name} (${channel.id})` : 'NOT FOUND'}`);
+                    console.log(`?? [WELCOME MODAL] Channel resolved: ${channel ? `${channel.name} (${channel.id})` : 'NOT FOUND'}`);
                     if (!channel) {
-                        console.log(`🔧 [WELCOME MODAL] Replying with not found error`);
-                        await interaction.editReply('❌ Channel not found! Please provide a valid channel mention, ID, or name.');
+                        console.log(`?? [WELCOME MODAL] Replying with not found error`);
+                        await interaction.editReply('? Channel not found! Please provide a valid channel mention, ID, or name.');
                         return;
                     }
                     
                     // Persist by name (current welcome system uses names)
                     settings.welcome.channelName = channel.name;
                     saveSettings();
-                    console.log(`🔧 [WELCOME MODAL] Settings saved. Replying with success.`);
+                    console.log(`?? [WELCOME MODAL] Settings saved. Replying with success.`);
                     
-                    await interaction.editReply(`✅ Welcome channel set to **#${channel.name}**!`);
-                    console.log(`🔧 [WELCOME MODAL] Success reply sent`);
+                    await interaction.editReply(`? Welcome channel set to **#${channel.name}**!`);
+                    console.log(`?? [WELCOME MODAL] Success reply sent`);
                 } catch (error) {
-                    console.error('❌ [WELCOME MODAL] FATAL ERROR:', error);
-                    console.error('❌ [WELCOME MODAL] Error stack:', error.stack);
-                    console.error('❌ [WELCOME MODAL] Interaction state - replied:', interaction.replied, 'deferred:', interaction.deferred);
+                    console.error('? [WELCOME MODAL] FATAL ERROR:', error);
+                    console.error('? [WELCOME MODAL] Error stack:', error.stack);
+                    console.error('? [WELCOME MODAL] Interaction state - replied:', interaction.replied, 'deferred:', interaction.deferred);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
-                            console.log('❌ [WELCOME MODAL] Sending fresh reply');
-                            await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true });
+                            console.log('? [WELCOME MODAL] Sending fresh reply');
+                            await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true });
                         } else {
-                            console.log('❌ [WELCOME MODAL] Editing deferred reply');
-                            await interaction.editReply('❌ An error occurred. Please try again!');
+                            console.log('? [WELCOME MODAL] Editing deferred reply');
+                            await interaction.editReply('? An error occurred. Please try again!');
                         }
                     } catch (replyError) {
-                        console.error('❌ [WELCOME MODAL] Failed to send error reply:', replyError);
+                        console.error('? [WELCOME MODAL] Failed to send error reply:', replyError);
                     }
                 }
-                console.log(`🔧 [WELCOME MODAL] Handler completed`);
+                console.log(`?? [WELCOME MODAL] Handler completed`);
                 return;
             }
             
@@ -15977,7 +15977,7 @@ const now = Date.now();
                     
                     // Check admin permissions after defer
                     if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-                        await interaction.editReply('❌ You need Administrator permissions to use this command!');
+                        await interaction.editReply('? You need Administrator permissions to use this command!');
                         return;
                     }
                     const settings = getGuildSettings(guildId);
@@ -15986,14 +15986,14 @@ const now = Date.now();
                     settings.welcome.customMessage = messageText;
                     saveSettings();
                     
-                    await interaction.editReply(`✅ Welcome message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`);
+                    await interaction.editReply(`? Welcome message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`);
                 } catch (error) {
-                    console.error('❌ [WELCOME MESSAGE MODAL] Error:', error);
+                    console.error('? [WELCOME MESSAGE MODAL] Error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
-                            await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true });
+                            await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true });
                         } else {
-                            await interaction.editReply('❌ An error occurred. Please try again!');
+                            await interaction.editReply('? An error occurred. Please try again!');
                         }
                     } catch (replyError) {
                         console.error('Failed to send error message:', replyError);
@@ -16005,85 +16005,85 @@ const now = Date.now();
             // Leave system modal handlers
             if (interaction.customId === 'leave_channel_modal') {
                 const guildId = interaction.guild.id;
-                console.log(`🔧 [LEAVE MODAL] Started | Guild: ${guildId} | User: ${interaction.user.tag}`);
+                console.log(`?? [LEAVE MODAL] Started | Guild: ${guildId} | User: ${interaction.user.tag}`);
                 
                 try {
-                    console.log(`🔧 [LEAVE MODAL] Deferring reply...`);
+                    console.log(`?? [LEAVE MODAL] Deferring reply...`);
                     await interaction.deferReply({ ephemeral: true });
-                    console.log(`🔧 [LEAVE MODAL] Reply deferred successfully`);
+                    console.log(`?? [LEAVE MODAL] Reply deferred successfully`);
                     
                     // Check admin permissions after defer
                     if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-                        console.log(`🔧 [LEAVE MODAL] Permission denied for ${interaction.user.tag}`);
-                        await interaction.editReply('❌ You need Administrator permissions to use this command!');
+                        console.log(`?? [LEAVE MODAL] Permission denied for ${interaction.user.tag}`);
+                        await interaction.editReply('? You need Administrator permissions to use this command!');
                         return;
                     }
-                    console.log(`🔧 [LEAVE MODAL] Admin check passed`);
+                    console.log(`?? [LEAVE MODAL] Admin check passed`);
                     const settings = getGuildSettings(guildId);
                     const rawInput = interaction.fields.getTextInputValue('channel_name').trim();
-                    console.log(`🔧 [LEAVE MODAL] Input received: "${rawInput}"`);
+                    console.log(`?? [LEAVE MODAL] Input received: "${rawInput}"`);
                     
                     // Normalize input: accept <#id>, id, #name, or name
                     const idMatch = rawInput.match(/(\d{17,19})/);
                     let channel = null;
-                    console.log(`🔧 [LEAVE MODAL] ID match: ${idMatch ? idMatch[1] : 'none'}`);
+                    console.log(`?? [LEAVE MODAL] ID match: ${idMatch ? idMatch[1] : 'none'}`);
                     if (idMatch) {
                         const id = idMatch[1];
-                        console.log(`🔧 [LEAVE MODAL] Fetching channel by ID: ${id}`);
+                        console.log(`?? [LEAVE MODAL] Fetching channel by ID: ${id}`);
                         channel = interaction.guild.channels.cache.get(id) 
                             || await interaction.guild.channels.fetch(id).catch((err) => {
-                                console.log(`🔧 [LEAVE MODAL] Fetch failed: ${err.message}`);
+                                console.log(`?? [LEAVE MODAL] Fetch failed: ${err.message}`);
                                 return null;
                             });
                     } else {
                         const name = rawInput.replace(/^#/, '').toLowerCase();
-                        console.log(`🔧 [LEAVE MODAL] Searching for channel by name: "${name}"`);
+                        console.log(`?? [LEAVE MODAL] Searching for channel by name: "${name}"`);
                         channel = interaction.guild.channels.cache.find(c => c.name.toLowerCase() === name) || null;
                     }
-                    console.log(`🔧 [LEAVE MODAL] Channel resolved: ${channel ? `${channel.name} (${channel.id})` : 'NOT FOUND'}`);
+                    console.log(`?? [LEAVE MODAL] Channel resolved: ${channel ? `${channel.name} (${channel.id})` : 'NOT FOUND'}`);
                     if (!channel) {
-                        console.log(`🔧 [LEAVE MODAL] Replying with not found error`);
-                        await interaction.editReply('❌ Channel not found! Please provide a valid channel mention, ID, or name.');
+                        console.log(`?? [LEAVE MODAL] Replying with not found error`);
+                        await interaction.editReply('? Channel not found! Please provide a valid channel mention, ID, or name.');
                         return;
                     }
                     
                     // Persist by name (current leave system uses names)
                     settings.leave.channelName = channel.name;
                     saveSettings();
-                    console.log(`🔧 [LEAVE MODAL] Settings saved. Replying with success.`);
+                    console.log(`?? [LEAVE MODAL] Settings saved. Replying with success.`);
                     
-                    await interaction.editReply(`✅ Leave channel set to **#${channel.name}**!`);
-                    console.log(`🔧 [LEAVE MODAL] Success reply sent`);
+                    await interaction.editReply(`? Leave channel set to **#${channel.name}**!`);
+                    console.log(`?? [LEAVE MODAL] Success reply sent`);
                 } catch (error) {
-                    console.error('❌ [LEAVE MODAL] FATAL ERROR:', error);
-                    console.error('❌ [LEAVE MODAL] Error stack:', error.stack);
-                    console.error('❌ [LEAVE MODAL] Interaction state - replied:', interaction.replied, 'deferred:', interaction.deferred);
+                    console.error('? [LEAVE MODAL] FATAL ERROR:', error);
+                    console.error('? [LEAVE MODAL] Error stack:', error.stack);
+                    console.error('? [LEAVE MODAL] Interaction state - replied:', interaction.replied, 'deferred:', interaction.deferred);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
-                            console.log('❌ [LEAVE MODAL] Sending fresh reply');
-                            await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true });
+                            console.log('? [LEAVE MODAL] Sending fresh reply');
+                            await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true });
                         } else {
-                            console.log('❌ [LEAVE MODAL] Editing deferred reply');
-                            await interaction.editReply('❌ An error occurred. Please try again!');
+                            console.log('? [LEAVE MODAL] Editing deferred reply');
+                            await interaction.editReply('? An error occurred. Please try again!');
                         }
                     } catch (replyError) {
-                        console.error('❌ [LEAVE MODAL] Failed to send error reply:', replyError);
+                        console.error('? [LEAVE MODAL] Failed to send error reply:', replyError);
                     }
                 }
-                console.log(`🔧 [LEAVE MODAL] Handler completed`);
+                console.log(`?? [LEAVE MODAL] Handler completed`);
                 return;
             }
             
             if (interaction.customId === 'leave_message_modal') {
                 const guildId = interaction.guild.id;
-                console.log(`🔧 [LEAVE MESSAGE MODAL] Started | Guild: ${guildId} | User: ${interaction.user.tag}`);
+                console.log(`?? [LEAVE MESSAGE MODAL] Started | Guild: ${guildId} | User: ${interaction.user.tag}`);
                 
                 try {
                     await interaction.deferReply({ ephemeral: true });
                     
                     // Check admin permissions after defer
                     if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-                        await interaction.editReply('❌ You need Administrator permissions to use this command!');
+                        await interaction.editReply('? You need Administrator permissions to use this command!');
                         return;
                     }
                     const settings = getGuildSettings(guildId);
@@ -16092,15 +16092,15 @@ const now = Date.now();
                     settings.leave.customMessage = messageText;
                     saveSettings();
                     
-                    await interaction.editReply(`✅ Leave message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`);
-                    console.log(`🔧 [LEAVE MESSAGE MODAL] Success`);
+                    await interaction.editReply(`? Leave message updated!\n\n**Preview:**\n${messageText.substring(0, 200)}`);
+                    console.log(`?? [LEAVE MESSAGE MODAL] Success`);
                 } catch (error) {
-                    console.error('❌ [LEAVE MESSAGE MODAL] Error:', error);
+                    console.error('? [LEAVE MESSAGE MODAL] Error:', error);
                     try {
                         if (!interaction.replied && !interaction.deferred) {
-                            await interaction.reply({ content: '❌ An error occurred. Please try again!', ephemeral: true });
+                            await interaction.reply({ content: '? An error occurred. Please try again!', ephemeral: true });
                         } else {
-                            await interaction.editReply('❌ An error occurred. Please try again!');
+                            await interaction.editReply('? An error occurred. Please try again!');
                         }
                     } catch (replyError) {
                         console.error('Failed to send error message:', replyError);
@@ -16129,14 +16129,14 @@ const now = Date.now();
                 
                 if (!channel) {
                     return await interaction.reply({
-                        content: '❌ Channel not found! Please provide a valid channel mention, ID, or name.',
+                        content: '? Channel not found! Please provide a valid channel mention, ID, or name.',
                         ephemeral: true
                     });
                 }
                 
                 if (!channel.isTextBased()) {
                     return await interaction.reply({
-                        content: '❌ Please select a text channel for notifications.',
+                        content: '? Please select a text channel for notifications.',
                         ephemeral: true
                     });
                 }
@@ -16151,11 +16151,11 @@ const now = Date.now();
                 saveSettings();
                 
                 await interaction.reply({
-                    content: `✅ **Firmware notifications enabled!**\n\nFirmware updates will be posted in ${channel} automatically when detected.`,
+                    content: `? **Firmware notifications enabled!**\n\nFirmware updates will be posted in ${channel} automatically when detected.`,
                     ephemeral: true
                 });
                 
-                console.log(`📡 Firmware notifications enabled for guild ${interaction.guild.id} in channel ${channel.name}`);
+                console.log(`?? Firmware notifications enabled for guild ${interaction.guild.id} in channel ${channel.name}`);
                 return;
             }
             
@@ -16176,7 +16176,7 @@ const now = Date.now();
                 
                 if (!channel || !channel.isTextBased()) {
                     return await interaction.reply({
-                        content: '❌ Invalid channel! Please provide a valid text channel mention, ID, or name.',
+                        content: '? Invalid channel! Please provide a valid text channel mention, ID, or name.',
                         ephemeral: true
                     });
                 }
@@ -16187,19 +16187,19 @@ const now = Date.now();
                 
                 if (selectedConsoles.length === 0) {
                     return await interaction.reply({
-                        content: '❌ Invalid console selection! Valid options: ps3, ps4, ps5, vita, psp',
+                        content: '? Invalid console selection! Valid options: ps3, ps4, ps5, vita, psp',
                         ephemeral: true
                     });
                 }
                 
                 // Save notification settings (you would implement this in your data structure)
                 const embed = new EmbedBuilder()
-                    .setTitle('✅ Firmware Notifications Configured!')
+                    .setTitle('? Firmware Notifications Configured!')
                     .setColor(0x00FF00)
                     .addFields(
-                        { name: '📢 Channel', value: `${channel}`, inline: true },
-                        { name: '🎮 Consoles', value: selectedConsoles.map(c => c.toUpperCase()).join(', '), inline: true },
-                        { name: '🔔 Status', value: 'Active', inline: true }
+                        { name: '?? Channel', value: `${channel}`, inline: true },
+                        { name: '?? Consoles', value: selectedConsoles.map(c => c.toUpperCase()).join(', '), inline: true },
+                        { name: '?? Status', value: 'Active', inline: true }
                     )
                     .setDescription(`Firmware update notifications will be posted to ${channel} for the selected consoles.`)
                     .setFooter({ text: 'You can change these settings anytime using /firmware' });
@@ -16227,18 +16227,18 @@ const now = Date.now();
                 
                 if (mockResults.length === 0) {
                     return await interaction.reply({
-                        content: `❌ No PKG files found for "${searchQuery}". Try a different search term or check spelling.`,
+                        content: `? No PKG files found for "${searchQuery}". Try a different search term or check spelling.`,
                         ephemeral: true
                     });
                 }
                 
                 const embed = new EmbedBuilder()
-                    .setTitle(`🔍 PKG Search Results: "${searchQuery}"`)
+                    .setTitle(`?? PKG Search Results: "${searchQuery}"`)
                     .setDescription(`Found ${mockResults.length} PKG file(s)`)
                     .setColor(0x0066CC);
                 
                 mockResults.forEach((pkg, index) => {
-                    const statusIcon = pkg.trusted ? '✅' : '⚠️';
+                    const statusIcon = pkg.trusted ? '?' : '??';
                     embed.addFields({
                         name: `${index + 1}. ${pkg.title}`,
                         value: `**ID:** \`${pkg.titleId}\` ${statusIcon}\n**Console:** ${pkg.console} | **Region:** ${pkg.region}\n**Size:** ${pkg.size}`,
@@ -16247,8 +16247,8 @@ const now = Date.now();
                 });
                 
                 embed.addFields({
-                    name: '📖 Usage Instructions',
-                    value: '• Use `/pkg` → **PKG Info by ID** for detailed information\n• ✅ = Verified safe source\n• ⚠️ = Unverified source',
+                    name: '?? Usage Instructions',
+                    value: '� Use `/pkg` ? **PKG Info by ID** for detailed information\n� ? = Verified safe source\n� ?? = Unverified source',
                     inline: false
                 });
                 
@@ -16281,48 +16281,48 @@ const now = Date.now();
                 
                 if (!mockPkg) {
                     return await interaction.reply({
-                        content: `❌ PKG with Title ID "${titleId}" not found in database. Try searching by game name instead.`,
+                        content: `? PKG with Title ID "${titleId}" not found in database. Try searching by game name instead.`,
                         ephemeral: true
                     });
                 }
                 
                 const embed = new EmbedBuilder()
-                    .setTitle(`📦 ${mockPkg.title}`)
+                    .setTitle(`?? ${mockPkg.title}`)
                     .setColor(mockPkg.trusted ? 0x00FF00 : 0xFFAA00)
                     .addFields(
-                        { name: '🎮 Console', value: mockPkg.console, inline: true },
-                        { name: '🌍 Region', value: mockPkg.region, inline: true },
-                        { name: '🆔 Title ID', value: `\`${mockPkg.titleId}\``, inline: true },
-                        { name: '📊 Size', value: mockPkg.size, inline: true },
-                        { name: '🔢 Version', value: mockPkg.version, inline: true },
-                        { name: '🔒 RAP Required', value: mockPkg.rapRequired ? '🔑 Yes' : '🆓 No', inline: true },
-                        { name: '👨‍💻 Developer', value: mockPkg.developer, inline: true },
-                        { name: '📅 Release Date', value: mockPkg.releaseDate, inline: true },
-                        { name: '⚙️ Firmware', value: `${mockPkg.minFirmware} - ${mockPkg.maxFirmware}`, inline: true }
+                        { name: '?? Console', value: mockPkg.console, inline: true },
+                        { name: '?? Region', value: mockPkg.region, inline: true },
+                        { name: '?? Title ID', value: `\`${mockPkg.titleId}\``, inline: true },
+                        { name: '?? Size', value: mockPkg.size, inline: true },
+                        { name: '?? Version', value: mockPkg.version, inline: true },
+                        { name: '?? RAP Required', value: mockPkg.rapRequired ? '?? Yes' : '?? No', inline: true },
+                        { name: '????? Developer', value: mockPkg.developer, inline: true },
+                        { name: '?? Release Date', value: mockPkg.releaseDate, inline: true },
+                        { name: '?? Firmware', value: `${mockPkg.minFirmware} - ${mockPkg.maxFirmware}`, inline: true }
                     );
                 
                 if (mockPkg.trusted) {
                     embed.addFields({ 
-                        name: '✅ Verified Source', 
+                        name: '? Verified Source', 
                         value: 'This PKG is from a trusted source and has been verified.', 
                         inline: false 
                     });
                 } else {
                     embed.addFields({ 
-                        name: '⚠️ Unverified Source', 
+                        name: '?? Unverified Source', 
                         value: 'This PKG source has not been verified. Download at your own risk.', 
                         inline: false 
                     });
                 }
                 
                 const additionalInfo = [];
-                if (mockPkg.dlcAvailable) additionalInfo.push('📦 DLC Available');
-                if (mockPkg.updateAvailable) additionalInfo.push('🔄 Updates Available');
+                if (mockPkg.dlcAvailable) additionalInfo.push('?? DLC Available');
+                if (mockPkg.updateAvailable) additionalInfo.push('?? Updates Available');
                 
                 if (additionalInfo.length > 0) {
                     embed.addFields({ 
-                        name: '📋 Additional Info', 
-                        value: additionalInfo.join(' • '), 
+                        name: '?? Additional Info', 
+                        value: additionalInfo.join(' � '), 
                         inline: false 
                     });
                 }
@@ -16340,14 +16340,14 @@ const now = Date.now();
                 const serialNumber = interaction.fields.getTextInputValue('serial_number').toUpperCase();
                 
                 const embed = new EmbedBuilder()
-                    .setTitle(`🔍 ${console.toUpperCase()} Version Checker Results`)
+                    .setTitle(`?? ${console.toUpperCase()} Version Checker Results`)
                     .setColor(0x00FF00)
                     .setDescription(`Analysis for: **${serialNumber}**`)
                     .addFields(
-                        { name: '📊 Console Type', value: console.toUpperCase(), inline: true },
-                        { name: '🔢 Model/Serial', value: serialNumber, inline: true },
-                        { name: '⚠️ Note', value: 'This is a placeholder feature. Full database coming soon!', inline: false },
-                        { name: '💡 What We\'ll Check', value: '• Manufacturing date range\n• Hardware revision\n• CFW compatibility\n• Downgrade possibilities\n• Known issues for this model', inline: false }
+                        { name: '?? Console Type', value: console.toUpperCase(), inline: true },
+                        { name: '?? Model/Serial', value: serialNumber, inline: true },
+                        { name: '?? Note', value: 'This is a placeholder feature. Full database coming soon!', inline: false },
+                        { name: '?? What We\'ll Check', value: '� Manufacturing date range\n� Hardware revision\n� CFW compatibility\n� Downgrade possibilities\n� Known issues for this model', inline: false }
                     )
                     .setFooter({ text: 'Version Checker - Database in development' });
 
@@ -16357,27 +16357,27 @@ const now = Date.now();
 
             // Compatibility Checker modal
             if (interaction.customId === 'compat_search_modal') {
-                console.log('📋 Game Compatibility Checker modal submitted');
+                console.log('?? Game Compatibility Checker modal submitted');
                 try {
                     const gameName = interaction.fields.getTextInputValue('game_name');
                     const firmware = interaction.fields.getTextInputValue('firmware_version') || 'Not specified';
                     
-                    console.log(`🎮 Checking compatibility for: ${gameName} on firmware: ${firmware}`);
+                    console.log(`?? Checking compatibility for: ${gameName} on firmware: ${firmware}`);
                     
                     // Check if game database exists
                     if (!fsSync.existsSync('./data/gameDatabase.json')) {
                         const embed = new EmbedBuilder()
-                            .setTitle('⚠️ Database Not Available')
+                            .setTitle('?? Database Not Available')
                             .setColor(0xFFA500)
                             .setDescription('The game database is currently unavailable on this server.')
                             .addFields(
-                                { name: '📝 Your Search', value: `**${gameName}**\nFirmware: ${firmware}`, inline: false },
-                                { name: '💡 Status', value: 'The database file is missing. Please contact the server administrator.', inline: false }
+                                { name: '?? Your Search', value: `**${gameName}**\nFirmware: ${firmware}`, inline: false },
+                                { name: '?? Status', value: 'The database file is missing. Please contact the server administrator.', inline: false }
                             )
                             .setFooter({ text: 'Game Compatibility Checker' });
                         
                         await interaction.reply({ embeds: [embed], ephemeral: true });
-                        console.log('⚠️ Game database file not found');
+                        console.log('?? Game database file not found');
                         return;
                     }
                     
@@ -16435,31 +16435,31 @@ const now = Date.now();
                         if (series) {
                             seriesGames = Object.entries(gameDatabase.games)
                                 .filter(([_, g]) => g.title.includes(series) && g.titleId !== foundTitleId)
-                                .map(([id, g]) => `• ${g.title} (${g.console})`)
+                                .map(([id, g]) => `� ${g.title} (${g.console})`)
                                 .slice(0, 5);
                         }
                         // Game found - show full details
                         const embed = new EmbedBuilder()
-                            .setTitle(`🎮 ${foundGame.title}`)
+                            .setTitle(`?? ${foundGame.title}`)
                             .setColor(foundGame.console === 'PS5' ? 0x0070CC : foundGame.console === 'PS4' ? 0x003087 : 0x0066CC)
-                            .setDescription(`**${foundGame.console}** • ${foundGame.region} • ${foundGame.releaseDate}`)
+                            .setDescription(`**${foundGame.console}** � ${foundGame.region} � ${foundGame.releaseDate}`)
                             .setThumbnail(foundGame.thumbnail)
                             .addFields(
-                                { name: '� Title ID', value: foundGame.titleId, inline: true },
-                                { name: '💾 File Size', value: foundGame.fileSize, inline: true },
-                                { name: '📱 Your Firmware', value: firmware, inline: true },
-                                { name: '⚙️ Min Firmware', value: foundGame.minFirmware, inline: true },
-                                { name: '✅ Max Exploitable FW', value: foundGame.maxExploitableFW, inline: true },
-                                { name: '🔄 Update Version', value: foundGame.updateRequired || 'None', inline: true },
-                                { name: '📦 DLC Available', value: foundGame.dlcAvailable ? 'Yes ✅' : 'No ❌', inline: true },
-                                { name: '🎯 Compatibility', value: foundGame.compatibility, inline: false },
-                                { name: '� Notes', value: foundGame.notes, inline: false }
+                                { name: '? Title ID', value: foundGame.titleId, inline: true },
+                                { name: '?? File Size', value: foundGame.fileSize, inline: true },
+                                { name: '?? Your Firmware', value: firmware, inline: true },
+                                { name: '?? Min Firmware', value: foundGame.minFirmware, inline: true },
+                                { name: '? Max Exploitable FW', value: foundGame.maxExploitableFW, inline: true },
+                                { name: '?? Update Version', value: foundGame.updateRequired || 'None', inline: true },
+                                { name: '?? DLC Available', value: foundGame.dlcAvailable ? 'Yes ?' : 'No ?', inline: true },
+                                { name: '?? Compatibility', value: foundGame.compatibility, inline: false },
+                                { name: '? Notes', value: foundGame.notes, inline: false }
                             )
-                            .setFooter({ text: `Game Database v${gameDatabase._metadata.version} • ${gameDatabase._metadata.totalGames} games` })
+                            .setFooter({ text: `Game Database v${gameDatabase._metadata.version} � ${gameDatabase._metadata.totalGames} games` })
                             .setTimestamp();
 
                         await interaction.reply({ embeds: [embed], ephemeral: true });
-                        console.log(`✅ Found game: ${foundGame.title}`);
+                        console.log(`? Found game: ${foundGame.title}`);
                         
                     } else if (matches.length > 1) {
                         // Multiple matches - show selection list
@@ -16468,7 +16468,7 @@ const now = Date.now();
                         let description = `Found **${matches.length}** possible matches for: **${gameName}**\n\n`;
                         description += topMatches.map((m, i) => 
                             `**${i + 1}.** ${m.game.title} (${m.game.console})\n` +
-                            `└ ${m.titleId} • ${m.game.fileSize} • Match: ${m.score}%`
+                            `+ ${m.titleId} � ${m.game.fileSize} � Match: ${m.score}%`
                         ).join('\n\n');
                         
                         if (matches.length > 10) {
@@ -16476,44 +16476,44 @@ const now = Date.now();
                         }
                         
                         const embed = new EmbedBuilder()
-                            .setTitle('🔍 Multiple Games Found')
+                            .setTitle('?? Multiple Games Found')
                             .setColor(0x00AAFF)
                             .setDescription(description)
                             .addFields(
-                                { name: '💡 Refine Your Search', value: '• Use the **Title ID** (e.g., CUSA07408)\n• Add **console name** (e.g., "God of War PS4")\n• Be more specific with the title', inline: false }
+                                { name: '?? Refine Your Search', value: '� Use the **Title ID** (e.g., CUSA07408)\n� Add **console name** (e.g., "God of War PS4")\n� Be more specific with the title', inline: false }
                             )
-                            .setFooter({ text: `Top ${topMatches.length} of ${matches.length} results • Fuzzy search enabled` });
+                            .setFooter({ text: `Top ${topMatches.length} of ${matches.length} results � Fuzzy search enabled` });
                         
                         await interaction.reply({ embeds: [embed], ephemeral: true });
-                        console.log(`🔍 Found ${matches.length} matches for: ${gameName}`);
+                        console.log(`?? Found ${matches.length} matches for: ${gameName}`);
                         
                     } else {
                         // Game not found
                         const embed = new EmbedBuilder()
-                            .setTitle('❌ Game Not Found')
+                            .setTitle('? Game Not Found')
                             .setColor(0xFF0000)
                             .setDescription(`No results found for: **${gameName}**`)
                             .addFields(
-                                { name: '💡 Search Tips', value: '• Try the **Title ID** (e.g., CUSA07408)\n• Use the **full game name**\n• Check spelling\n• Try without special characters', inline: false },
-                                { name: '📊 Database Info', value: `Currently tracking **${gameDatabase._metadata.totalGames} games**\n\nPopular games available:\n• God of War (CUSA07408)\n• Spider-Man (CUSA05333)\n• The Last of Us (CUSA00341)\n• Bloodborne (CUSA02299)`, inline: false },
-                                { name: '➕ Request Addition', value: 'Game not in database? Let the server admins know!', inline: false }
+                                { name: '?? Search Tips', value: '� Try the **Title ID** (e.g., CUSA07408)\n� Use the **full game name**\n� Check spelling\n� Try without special characters', inline: false },
+                                { name: '?? Database Info', value: `Currently tracking **${gameDatabase._metadata.totalGames} games**\n\nPopular games available:\n� God of War (CUSA07408)\n� Spider-Man (CUSA05333)\n� The Last of Us (CUSA00341)\n� Bloodborne (CUSA02299)`, inline: false },
+                                { name: '? Request Addition', value: 'Game not in database? Let the server admins know!', inline: false }
                             )
                             .setFooter({ text: 'Game Compatibility Checker' });
 
                         await interaction.reply({ embeds: [embed], ephemeral: true });
-                        console.log(`❌ Game not found: ${gameName}`);
+                        console.log(`? Game not found: ${gameName}`);
                     }
                     
                     return;
                 } catch (error) {
-                    console.error('❌ Error in compat_search_modal:', error);
+                    console.error('? Error in compat_search_modal:', error);
                     throw error;
                 }
             }
 
             // Ban Risk Analyzer modal
             if (interaction.customId === 'banrisk_analyze_modal') {
-                console.log('🔍 Ban Risk Analyzer modal received!');
+                console.log('?? Ban Risk Analyzer modal received!');
                 const activity = interaction.fields.getTextInputValue('planned_activity');
                 
                 // Analyze risk based on keywords
@@ -16523,16 +16523,16 @@ const now = Date.now();
                 const activityLower = activity.toLowerCase();
                 let riskLevel = 'LOW';
                 let riskColor = 0x00FF00;
-                let riskEmoji = '🟢';
+                let riskEmoji = '??';
                 
                 if (highRiskKeywords.some(keyword => activityLower.includes(keyword))) {
                     riskLevel = 'HIGH';
                     riskColor = 0xFF0000;
-                    riskEmoji = '🔴';
+                    riskEmoji = '??';
                 } else if (mediumRiskKeywords.some(keyword => activityLower.includes(keyword))) {
                     riskLevel = 'MEDIUM';
                     riskColor = 0xFFA500;
-                    riskEmoji = '🟡';
+                    riskEmoji = '??';
                 }
                 
                 const embed = new EmbedBuilder()
@@ -16540,37 +16540,37 @@ const now = Date.now();
                     .setColor(riskColor)
                     .setDescription(`**Your planned activity:**\n${activity}`)
                     .addFields(
-                        { name: '📊 Risk Level', value: `**${riskLevel} RISK**`, inline: true },
-                        { name: '⚠️ Ban Probability', value: riskLevel === 'HIGH' ? 'Very High' : riskLevel === 'MEDIUM' ? 'Moderate' : 'Low', inline: true }
+                        { name: '?? Risk Level', value: `**${riskLevel} RISK**`, inline: true },
+                        { name: '?? Ban Probability', value: riskLevel === 'HIGH' ? 'Very High' : riskLevel === 'MEDIUM' ? 'Moderate' : 'Low', inline: true }
                     );
 
                 if (riskLevel === 'HIGH') {
                     embed.addFields({
-                        name: '🚨 WARNING',
+                        name: '?? WARNING',
                         value: '**This activity has HIGH ban risk!**\n\n' +
-                               '• **DO NOT** connect to PSN on modded consoles\n' +
-                               '• **DO NOT** play online with CFW/HEN\n' +
-                               '• **DO NOT** sync trophies from homebrew\n\n' +
+                               '� **DO NOT** connect to PSN on modded consoles\n' +
+                               '� **DO NOT** play online with CFW/HEN\n' +
+                               '� **DO NOT** sync trophies from homebrew\n\n' +
                                '**Recommendation:** Use a separate account or console for online activities.',
                         inline: false
                     });
                 } else if (riskLevel === 'MEDIUM') {
                     embed.addFields({
-                        name: '⚠️ CAUTION',
+                        name: '?? CAUTION',
                         value: '**This activity has MODERATE ban risk:**\n\n' +
-                               '• Some PKG installations can be detected\n' +
-                               '• Save modifications may trigger flags\n' +
-                               '• Keep your console offline to be safe\n\n' +
+                               '� Some PKG installations can be detected\n' +
+                               '� Save modifications may trigger flags\n' +
+                               '� Keep your console offline to be safe\n\n' +
                                '**Recommendation:** Stay disconnected from PSN.',
                         inline: false
                     });
                 } else {
                     embed.addFields({
-                        name: '✅ SAFE',
+                        name: '? SAFE',
                         value: '**This activity is relatively safe:**\n\n' +
-                               '• As long as you stay offline, risk is minimal\n' +
-                               '• Homebrew apps don\'t connect to Sony servers\n' +
-                               '• Just ensure network is disabled\n\n' +
+                               '� As long as you stay offline, risk is minimal\n' +
+                               '� Homebrew apps don\'t connect to Sony servers\n' +
+                               '� Just ensure network is disabled\n\n' +
                                '**Recommendation:** Continue staying offline!',
                         inline: false
                     });
@@ -16587,13 +16587,13 @@ const now = Date.now();
                 const gameSearch = interaction.fields.getTextInputValue('game_search');
                 
                 const embed = new EmbedBuilder()
-                    .setTitle('🎮 PlayStation Game Lookup')
+                    .setTitle('?? PlayStation Game Lookup')
                     .setColor(0x0099FF)
                     .setDescription(`Search results for: **${gameSearch}**`)
                     .addFields(
-                        { name: '🔍 Search Query', value: gameSearch, inline: false },
-                        { name: '⚠️ Note', value: 'This is a placeholder feature. Full game database coming soon!', inline: false },
-                        { name: '💡 What We\'ll Show', value: '• Game title & region\n• Title ID (CUSA/NPUB etc.)\n• Release date\n• Firmware requirements\n• PKG availability\n• DLC information\n• Size & version info', inline: false }
+                        { name: '?? Search Query', value: gameSearch, inline: false },
+                        { name: '?? Note', value: 'This is a placeholder feature. Full game database coming soon!', inline: false },
+                        { name: '?? What We\'ll Show', value: '� Game title & region\n� Title ID (CUSA/NPUB etc.)\n� Release date\n� Firmware requirements\n� PKG availability\n� DLC information\n� Size & version info', inline: false }
                     )
                     .setFooter({ text: 'Game Lookup - Database in development' });
 
@@ -16650,7 +16650,7 @@ const now = Date.now();
             fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
             
             await interaction.update({ 
-                content: `✅ Removed YouTube channel: **${removedChannel.name}**!`,
+                content: `? Removed YouTube channel: **${removedChannel.name}**!`,
                 components: []
             });
             return;
@@ -16664,7 +16664,7 @@ const now = Date.now();
             const cmd = settings.customCommands[cmdName];
             
             if (!cmd) {
-                await interaction.reply({ content: '❌ Command not found!', ephemeral: true });
+                await interaction.reply({ content: '? Command not found!', ephemeral: true });
                 return;
             }
             
@@ -16721,7 +16721,7 @@ const now = Date.now();
             const settings = getGuildSettings(guildId);
             
             if (!settings.customCommands[cmdName]) {
-                await interaction.reply({ content: '❌ Command not found!', ephemeral: true });
+                await interaction.reply({ content: '? Command not found!', ephemeral: true });
                 return;
             }
             
@@ -16729,7 +16729,7 @@ const now = Date.now();
             saveSettings();
             
             await interaction.update({ 
-                content: `✅ Command **/${cmdName}** deleted successfully!`, 
+                content: `? Command **/${cmdName}** deleted successfully!`, 
                 components: [] 
             });
             return;
@@ -16741,14 +16741,14 @@ const now = Date.now();
             const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
 
             if (!channel || !channel.isTextBased()) {
-                await interaction.reply({ content: '❌ Could not find that channel!', ephemeral: true });
+                await interaction.reply({ content: '? Could not find that channel!', ephemeral: true });
                 return;
             }
 
             // Get cached embed data
             const embedData = client.embedBuilderCache?.get(interaction.user.id);
             if (!embedData) {
-                await interaction.reply({ content: '❌ Embed data expired. Please create a new embed.', ephemeral: true });
+                await interaction.reply({ content: '? Embed data expired. Please create a new embed.', ephemeral: true });
                 return;
             }
 
@@ -16757,7 +16757,7 @@ const now = Date.now();
                 await channel.send({ embeds: [embed] });
                 
                 await interaction.update({
-                    content: `✅ Embed sent to ${channel}!`,
+                    content: `? Embed sent to ${channel}!`,
                     embeds: [],
                     components: []
                 });
@@ -16767,7 +16767,7 @@ const now = Date.now();
             } catch (error) {
                 console.error('Error sending embed:', error);
                 await interaction.reply({ 
-                    content: '❌ Failed to send embed. Make sure I have permission to send messages in that channel!', 
+                    content: '? Failed to send embed. Make sure I have permission to send messages in that channel!', 
                     ephemeral: true 
                 });
             }
@@ -16779,7 +16779,7 @@ const now = Date.now();
 // Monthly AI Knowledge Updater - Fetches latest PlayStation info in REAL-TIME
 async function updateAIKnowledge() {
     try {
-        console.log('✅ Updating AI knowledge with REAL-TIME PlayStation information from web...');
+        console.log('? Updating AI knowledge with REAL-TIME PlayStation information from web...');
         
         const fetch = require('node-fetch');
         const cheerio = require('cheerio');
@@ -16845,9 +16845,9 @@ async function updateAIKnowledge() {
             const pspMatch = firmwareSection.match(/PSP\s*[>:]\s*(\d\.\d{2})/i);
             if (pspMatch) psData.psp = `${pspMatch[1]} PRO-C`;
             
-            console.log('📡 Scraped PSX-Place for real-time firmware data');
+            console.log('?? Scraped PSX-Place for real-time firmware data');
         } catch (scrapeError) {
-            console.log('✅ PSX-Place scrape failed, using cached values:', scrapeError.message);
+            console.log('? PSX-Place scrape failed, using cached values:', scrapeError.message);
         }
         
         // REAL-TIME: Scrape Wololo for latest homebrew tool versions
@@ -16867,9 +16867,9 @@ async function updateAIKnowledge() {
             const etahenMatch = wololoHTML.match(/etaHEN\s*v?([\d.]+[a-z]*)/i);
             if (etahenMatch) psData.etahen = etahenMatch[1];
             
-            console.log('📡 Scraped Wololo for real-time homebrew tool versions');
+            console.log('?? Scraped Wololo for real-time homebrew tool versions');
         } catch (scrapeError) {
-            console.log('✅ Wololo scrape failed, using cached values:', scrapeError.message);
+            console.log('? Wololo scrape failed, using cached values:', scrapeError.message);
         }
         
         // REAL-TIME: Scrape SiSTRo's Ko-fi shop for OFFICIAL GoldHEN version
@@ -16887,21 +16887,21 @@ async function updateAIKnowledge() {
             const goldhenKofiMatch = kofiHTML.match(/GoldHEN\s*v?(2\.4b[\d.]+)/i);
             if (goldhenKofiMatch) {
                 psData.goldhen = goldhenKofiMatch[1];
-                console.log(`📡 Scraped SiSTRo Ko-fi shop - GoldHEN ${psData.goldhen}`);
+                console.log(`?? Scraped SiSTRo Ko-fi shop - GoldHEN ${psData.goldhen}`);
             }
             
             // Also look for supported firmware (e.g., "12.02", "Firmware 12.02")
             const fwMatch = kofiHTML.match(/(?:Firmware|FW|supports?)\s*(1[2-3]\.\d{2})/i);
             if (fwMatch) {
                 psData.ps4BDJB = fwMatch[1];
-                console.log(`📡 Scraped Ko-fi - Latest supported FW: ${psData.ps4BDJB}`);
+                console.log(`?? Scraped Ko-fi - Latest supported FW: ${psData.ps4BDJB}`);
             }
         } catch (scrapeError) {
-            console.log('✅ Ko-fi scrape failed, using cached GoldHEN version:', scrapeError.message);
+            console.log('? Ko-fi scrape failed, using cached GoldHEN version:', scrapeError.message);
         }
         
         // GoldHEN version - now using Ko-fi scrape for accuracy
-        console.log(`✅ Using GoldHEN version: ${psData.goldhen}`);
+        console.log(`? Using GoldHEN version: ${psData.goldhen}`);
         
         // Update all server settings with REAL-TIME knowledge
         const allSettings = JSON.parse(fsSync.readFileSync('./serverSettings.json', 'utf8'));
@@ -16910,7 +16910,7 @@ async function updateAIKnowledge() {
         for (const guildId in allSettings) {
             if (allSettings[guildId].ai && allSettings[guildId].ai.enabled) {
                 // Comprehensive gaming database with REAL-TIME data
-                allSettings[guildId].ai.systemPrompt = `2025 FIRMWARE (Nov 2025 Update): PS3 OFW ${psData.ps3OFW}/CFW ${psData.ps3CFW} | PS4 OFW ${psData.ps4OFW}/JB ${psData.ps4PPPwn} PPPwn ${psData.ps4BDJB} BD-JB+GoldHEN ${psData.goldhen} (MAX 12.02, NOT 12.50) + 13.00 EXPLOIT ANNOUNCED | PS5 OFW ${psData.ps5OFW}/JB ${psData.ps5Lapse} Lapse+etaHEN ${psData.etahen} + 12.00 EXPLOIT ANNOUNCED | Vita ${psData.vita} h-encore | PSP ${psData.psp} | PS2 ${psData.ps2} | PS1 ${psData.ps1}\n\n⚠️ CRITICAL: GoldHEN ${psData.goldhen} by SiSTRo supports PS4 FW 12.00, 12.02 MAX. NOT 12.50 or higher! Official source: https://ko-fi.com/sistro/shop\n\n🎮 HARDWARE INFO: PS5 Pro RELEASED November 7, 2024 - $699.99 USD (£699.99 UK). Specs: 67% more CUs (60 vs 36), 28% faster memory, PSSR AI upscaling, 2TB SSD, Wi-Fi 7. NO JAILBREAK - runs FW 8.00+ (not exploitable, latest JB is 10.01). PS5 Pro is a mid-gen refresh, NOT a new console generation.\n\nHOMEBREW GUIDES (LIVE VERIFIED LINKS): PS4 Guide(https://www.psx-place.com/threads/hacking-the-ps4.10717/) | PSX-Place(https://www.psx-place.com/) | Wololo(https://wololo.net/) | SiSTRo Ko-fi(https://ko-fi.com/sistro/shop) | Reddit(https://reddit.com/r/ps4homebrew) | Google Search(https://google.com) | PS5(${psData.etahen}?${psData.itemzflow} for PKG) | PS4(${psData.goldhen}?${psData.multiman} for backup) | PS3 CFW(${psData.webman}+${psData.multiman}) HEN(PS3HEN ${psData.ps3hen}+HFW ${psData.hfw}) | Vita(${psData.vitashell}+${psData.adrenaline} for PSP emu) | PSP(PPSSPP for homebrew) | PS2(${psData.opl} for ISO/USB games) | PS1(Tonyhax for exploit)\n\nYou're a hilarious AI for PlayStation Homebrew Discord. Be funny, use memes & gaming jokes. Keep it SHORT (2-3 sentences, under 50 words). British spelling. Swearing's fine. No politics/racism. ALWAYS include verified live links when relevant. Use Google for latest info. NEVER give outdated GoldHEN versions - always use the scraped real-time data.`;
+                allSettings[guildId].ai.systemPrompt = `2025 FIRMWARE (Nov 2025 Update): PS3 OFW ${psData.ps3OFW}/CFW ${psData.ps3CFW} | PS4 OFW ${psData.ps4OFW}/JB ${psData.ps4PPPwn} PPPwn ${psData.ps4BDJB} BD-JB+GoldHEN ${psData.goldhen} (MAX 12.02, NOT 12.50) + 13.00 EXPLOIT ANNOUNCED | PS5 OFW ${psData.ps5OFW}/JB ${psData.ps5Lapse} Lapse+etaHEN ${psData.etahen} + 12.00 EXPLOIT ANNOUNCED | Vita ${psData.vita} h-encore | PSP ${psData.psp} | PS2 ${psData.ps2} | PS1 ${psData.ps1}\n\n?? CRITICAL: GoldHEN ${psData.goldhen} by SiSTRo supports PS4 FW 12.00, 12.02 MAX. NOT 12.50 or higher! Official source: https://ko-fi.com/sistro/shop\n\n?? HARDWARE INFO: PS5 Pro RELEASED November 7, 2024 - $699.99 USD (�699.99 UK). Specs: 67% more CUs (60 vs 36), 28% faster memory, PSSR AI upscaling, 2TB SSD, Wi-Fi 7. NO JAILBREAK - runs FW 8.00+ (not exploitable, latest JB is 10.01). PS5 Pro is a mid-gen refresh, NOT a new console generation.\n\nHOMEBREW GUIDES (LIVE VERIFIED LINKS): PS4 Guide(https://www.psx-place.com/threads/hacking-the-ps4.10717/) | PSX-Place(https://www.psx-place.com/) | Wololo(https://wololo.net/) | SiSTRo Ko-fi(https://ko-fi.com/sistro/shop) | Reddit(https://reddit.com/r/ps4homebrew) | Google Search(https://google.com) | PS5(${psData.etahen}?${psData.itemzflow} for PKG) | PS4(${psData.goldhen}?${psData.multiman} for backup) | PS3 CFW(${psData.webman}+${psData.multiman}) HEN(PS3HEN ${psData.ps3hen}+HFW ${psData.hfw}) | Vita(${psData.vitashell}+${psData.adrenaline} for PSP emu) | PSP(PPSSPP for homebrew) | PS2(${psData.opl} for ISO/USB games) | PS1(Tonyhax for exploit)\n\nYou're a hilarious AI for PlayStation Homebrew Discord. Be funny, use memes & gaming jokes. Keep it SHORT (2-3 sentences, under 50 words). British spelling. Swearing's fine. No politics/racism. ALWAYS include verified live links when relevant. Use Google for latest info. NEVER give outdated GoldHEN versions - always use the scraped real-time data.`;
                 
                 updated = true;
             }
@@ -16921,11 +16921,11 @@ async function updateAIKnowledge() {
             // Reload settings into memory to ensure AI uses the new data immediately
             serverSettings = JSON.parse(fsSync.readFileSync('./serverSettings.json', 'utf8'));
             const now = new Date();
-            console.log(`📡 AI knowledge LIVE-UPDATED from web (${now.toLocaleString()})`);
-            console.log(`✅ REAL-TIME DB: PS3 ${psData.ps3OFW}/${psData.ps3CFW} | PS4 ${psData.ps4OFW}/${psData.ps4PPPwn}/${psData.ps4BDJB} BD-JB/13.00 | PS5 ${psData.ps5OFW}/${psData.ps5Lapse}/12.00`);
-            console.log(`✅ Homebrew: GoldHEN ${psData.goldhen} (MAX 12.02) | etaHEN ${psData.etahen} | PS3HEN ${psData.ps3hen} | Vita ${psData.vita} | PSP ${psData.psp}`);
-            console.log(`✅ Live Sources: Google | PSX-Place | Wololo | Reddit r/ps4homebrew`);
-            console.log(`✅ IMPORTANT: GoldHEN 2.4b18.6 = 12.00, 12.02 MAX (NOT 12.50+)`);
+            console.log(`?? AI knowledge LIVE-UPDATED from web (${now.toLocaleString()})`);
+            console.log(`? REAL-TIME DB: PS3 ${psData.ps3OFW}/${psData.ps3CFW} | PS4 ${psData.ps4OFW}/${psData.ps4PPPwn}/${psData.ps4BDJB} BD-JB/13.00 | PS5 ${psData.ps5OFW}/${psData.ps5Lapse}/12.00`);
+            console.log(`? Homebrew: GoldHEN ${psData.goldhen} (MAX 12.02) | etaHEN ${psData.etahen} | PS3HEN ${psData.ps3hen} | Vita ${psData.vita} | PSP ${psData.psp}`);
+            console.log(`? Live Sources: Google | PSX-Place | Wololo | Reddit r/ps4homebrew`);
+            console.log(`? IMPORTANT: GoldHEN 2.4b18.6 = 12.00, 12.02 MAX (NOT 12.50+)`);
         }
     } catch (error) {
         console.error('? Failed to update AI knowledge:', error.message);
@@ -16995,13 +16995,13 @@ async function checkPlayStationUpdates() {
                         console: 'PS4',
                         oldVersion: lastKnownVersions.ps4,
                         newVersion: ps4Match[1],
-                        emoji: '✅'
+                        emoji: '?'
                     });
                     lastKnownVersions.ps4 = ps4Match[1];
                 }
             }
         } catch (error) {
-            console.log('✅ Could not check PS4 updates:', error.message);
+            console.log('? Could not check PS4 updates:', error.message);
         }
         
         // Check PS5 firmware
@@ -17034,13 +17034,13 @@ async function checkPlayStationUpdates() {
                         console: 'PS5',
                         oldVersion: lastKnownVersions.ps5,
                         newVersion: ps5Match[1],
-                        emoji: '?✅'
+                        emoji: '??'
                     });
                     lastKnownVersions.ps5 = ps5Match[1];
                 }
             }
         } catch (error) {
-            console.log('✅ Could not check PS5 updates:', error.message);
+            console.log('? Could not check PS5 updates:', error.message);
         }
         
         // Check PS3 firmware
@@ -17073,13 +17073,13 @@ async function checkPlayStationUpdates() {
                         console: 'PS3',
                         oldVersion: lastKnownVersions.ps3,
                         newVersion: ps3Match[1],
-                        emoji: '✅'
+                        emoji: '?'
                     });
                     lastKnownVersions.ps3 = ps3Match[1];
                 }
             }
         } catch (error) {
-            console.log('✅ Could not check PS3 updates:', error.message);
+            console.log('? Could not check PS3 updates:', error.message);
         }
         
         // Check PS Vita firmware
@@ -17112,19 +17112,19 @@ async function checkPlayStationUpdates() {
                         console: 'PS Vita',
                         oldVersion: lastKnownVersions.vita,
                         newVersion: vitaMatch[1],
-                        emoji: '✅'
+                        emoji: '?'
                     });
                     lastKnownVersions.vita = vitaMatch[1];
                 }
             }
         } catch (error) {
-            console.log('✅ Could not check PS Vita updates:', error.message);
+            console.log('? Could not check PS Vita updates:', error.message);
         }
         
         // Send notifications to all servers with logging enabled
         if (updatesFound.length > 0) {
             for (const update of updatesFound) {
-                console.log(`✅ NEW FIRMWARE: ${update.console} ${update.oldVersion} ? ${update.newVersion}`);
+                console.log(`? NEW FIRMWARE: ${update.console} ${update.oldVersion} ? ${update.newVersion}`);
                 
                 // Update the AI knowledge database with new firmware
                 if (update.console === 'PS4') {
@@ -17162,17 +17162,17 @@ async function checkPlayStationUpdates() {
                         await notificationChannel.send({ embeds: [embed] });
                         console.log(`? Firmware update notification sent for ${update.console}`);
                     } else {
-                        console.log('✅ Could not access notification channel 920750934085222470');
+                        console.log('? Could not access notification channel 920750934085222470');
                     }
                 } catch (error) {
-                    console.log(`✅ Could not send update notification:`, error.message);
+                    console.log(`? Could not send update notification:`, error.message);
                 }
             }
             
             // Save updated settings if PS4 firmware changed
             fsSync.writeFileSync('./serverSettings.json', JSON.stringify(allSettings, null, 2));
         } else {
-            console.log('✅ No new PlayStation firmware updates detected');
+            console.log('? No new PlayStation firmware updates detected');
         }
     } catch (error) {
         console.error('? Failed to check PlayStation updates:', error.message);
@@ -17240,9 +17240,9 @@ setInterval(() => {
     // Force garbage collection if available (Node.js with --expose-gc flag)
     if (global.gc) {
         global.gc();
-        console.log('✅ Cache cleaned (AI conversations, cooldowns, user profiles) + GC forced');
+        console.log('? Cache cleaned (AI conversations, cooldowns, user profiles) + GC forced');
     } else {
-        console.log('✅ Cache cleaned (AI conversations, cooldowns, user profiles)');
+        console.log('? Cache cleaned (AI conversations, cooldowns, user profiles)');
     }
 }, 600000); // Every 10 minutes instead of 30 (more frequent cleanup)
 
@@ -17252,12 +17252,12 @@ let isShuttingDown = false;
 
 async function gracefulShutdown(signal) {
     if (isShuttingDown) {
-        console.log('✅ Shutdown already in progress...');
+        console.log('? Shutdown already in progress...');
         return;
     }
     isShuttingDown = true;
     
-    console.log(`✅ Received ${signal} - Shutting down gracefully...`);
+    console.log(`? Received ${signal} - Shutting down gracefully...`);
     
     // Update status channels to show "Offline" (non-blocking)
     try {
@@ -17268,7 +17268,7 @@ async function gracefulShutdown(signal) {
                 if (statusChannel && statusChannel.isVoiceBased()) {
                     const newName = settings.serverStats.channelNames.statusChannel
                         .replace('{status}', 'Offline')
-                        .replace('✅', '✅');
+                        .replace('?', '?');
                     
                     // Fire and forget - don't wait for Discord API
                     if (statusChannel.name !== newName) {
@@ -17292,8 +17292,8 @@ async function gracefulShutdown(signal) {
     fsSync.writeFileSync(settingsFile, JSON.stringify(serverSettings, null, 2));
     fsSync.writeFileSync(ticketDataFile, JSON.stringify(ticketData, null, 2));
     fsSync.writeFileSync(moderationDataFile, JSON.stringify(moderationData, null, 2));
-    console.log('✅ All data saved');
-    console.log('✅ Goodbye!');
+    console.log('? All data saved');
+    console.log('? Goodbye!');
     process.exit(0);
 }
 
@@ -17333,13 +17333,13 @@ process.on('uncaughtException', async (error) => {
         await fs.writeFile(settingsFile, JSON.stringify(serverSettings, null, 2));
         await fs.writeFile(ticketDataFile, JSON.stringify(ticketData, null, 2));
         await fs.writeFile(moderationDataFile, JSON.stringify(moderationData, null, 2));
-        console.log('✅ Emergency data save completed');
+        console.log('? Emergency data save completed');
     } catch (saveError) {
         console.error('? Failed to save data during crash:', saveError);
     }
     
     // Don't exit - try to recover
-    console.log('✅ Attempting to recover from uncaught exception...');
+    console.log('? Attempting to recover from uncaught exception...');
 });
 
 // Discord client error handlers
@@ -17356,7 +17356,7 @@ client.on('error', async (error) => {
 });
 
 client.on('warn', (warning) => {
-    console.warn('✅ Discord client warning:', warning);
+    console.warn('? Discord client warning:', warning);
 });
 
 client.on('shardError', (error) => {
@@ -17366,7 +17366,7 @@ client.on('shardError', (error) => {
 
 // Rate limit handler
 client.rest.on('rateLimited', (info) => {
-    console.warn('✅ Rate limited:', info);
+    console.warn('? Rate limited:', info);
     const errorMsg = `Route: ${info.route || 'Unknown'}, Timeout: ${info.timeout}ms, Global: ${info.global}`;
     logCriticalError(new Error(errorMsg), 'Discord API Rate Limited', null);
 });
@@ -17402,17 +17402,17 @@ function startCFWKnowledgeScraper() {
             
             // Update if version changed
             if (knowledge.evilnatCFW.latestVersion !== latestVersion) {
-                console.log(`🔄 New Evilnat CFW version found: ${latestVersion} (was ${knowledge.evilnatCFW.latestVersion})`);
+                console.log(`?? New Evilnat CFW version found: ${latestVersion} (was ${knowledge.evilnatCFW.latestVersion})`);
                 knowledge.evilnatCFW.latestVersion = latestVersion;
                 knowledge.lastUpdated = new Date().toISOString();
                 knowledge.evilnatCFW.source = 'PSX-Place scrape';
                 fsSync.writeFileSync(cfwKnowledgePath, JSON.stringify(knowledge, null, 2));
-                console.log('✅ CFW knowledge updated!');
+                console.log('? CFW knowledge updated!');
             } else {
-                console.log(`✅ CFW knowledge up to date (Evilnat ${latestVersion})`);
+                console.log(`? CFW knowledge up to date (Evilnat ${latestVersion})`);
             }
         } catch (error) {
-            console.error('❌ Failed to update CFW knowledge:', error.message);
+            console.error('? Failed to update CFW knowledge:', error.message);
             await logCriticalError(error, 'CFW Knowledge Scraper', null);
         }
     }
@@ -17422,7 +17422,7 @@ function startCFWKnowledgeScraper() {
     
     // Check every 24 hours
     setInterval(updateCFWKnowledge, 24 * 60 * 60 * 1000);
-    console.log('📡 CFW knowledge scraper started (checks every 24 hours)');
+    console.log('?? CFW knowledge scraper started (checks every 24 hours)');
     
     // Start database auto-updater with error handling
     try {
@@ -17430,7 +17430,7 @@ function startCFWKnowledgeScraper() {
         const dbUpdater = new DatabaseAutoUpdater(client);
         dbUpdater.start();
     } catch (error) {
-        console.error('❌ Failed to start database auto-updater:', error.message);
+        console.error('? Failed to start database auto-updater:', error.message);
         logCriticalError(error, 'Database Auto-Updater', null);
     }
 }
@@ -17450,13 +17450,13 @@ function checkGiveaways() {
                     try {
                         await endGiveaway(messageId, giveaway);
                     } catch (error) {
-                        console.error(`❌ Error ending giveaway ${messageId}:`, error);
+                        console.error(`? Error ending giveaway ${messageId}:`, error);
                         await logCriticalError(error, 'Giveaway End Handler', giveaway.guildId);
                     }
                 }
             }
         } catch (error) {
-            console.error('❌ Giveaway checker encountered critical error:', error);
+            console.error('? Giveaway checker encountered critical error:', error);
             await logCriticalError(error, 'Giveaway System', null);
         }
     }, 10000); // Check every 10 seconds
@@ -17473,16 +17473,16 @@ async function endGiveaway(messageId, giveaway) {
         const message = await channel.messages.fetch(messageId).catch(() => null);
         if (!message) return;
         
-        // Get all users who reacted with 🎉
-        const reaction = message.reactions.cache.get('🎉');
+        // Get all users who reacted with ??
+        const reaction = message.reactions.cache.get('??');
         if (!reaction) {
             giveaway.ended = true;
             giveaway.winners = [];
             saveGiveawayData();
             
             const endEmbed = new EmbedBuilder()
-                .setTitle('🎉 Giveaway Ended')
-                .setDescription(`**Prize:** ${giveaway.prize}\n\n❌ No valid entries!`)
+                .setTitle('?? Giveaway Ended')
+                .setDescription(`**Prize:** ${giveaway.prize}\n\n? No valid entries!`)
                 .setColor(0xFF0000)
                 .setTimestamp();
             
@@ -17500,8 +17500,8 @@ async function endGiveaway(messageId, giveaway) {
             saveGiveawayData();
             
             const endEmbed = new EmbedBuilder()
-                .setTitle('🎉 Giveaway Ended')
-                .setDescription(`**Prize:** ${giveaway.prize}\n\n❌ No valid entries!`)
+                .setTitle('?? Giveaway Ended')
+                .setDescription(`**Prize:** ${giveaway.prize}\n\n? No valid entries!`)
                 .setColor(0xFF0000)
                 .setTimestamp();
             
@@ -17547,8 +17547,8 @@ async function endGiveaway(messageId, giveaway) {
             saveGiveawayData();
             
             const endEmbed = new EmbedBuilder()
-                .setTitle('🎉 Giveaway Ended')
-                .setDescription(`**Prize:** ${giveaway.prize}\n\n❌ No eligible entries! (Requirements not met)`)
+                .setTitle('?? Giveaway Ended')
+                .setDescription(`**Prize:** ${giveaway.prize}\n\n? No eligible entries! (Requirements not met)`)
                 .setColor(0xFF0000)
                 .setTimestamp();
             
@@ -17576,11 +17576,11 @@ async function endGiveaway(messageId, giveaway) {
         const winnerMentions = selectedWinners.map(w => `<@${w.id}>`).join(', ');
         
         const endEmbed = new EmbedBuilder()
-            .setTitle('🎉 Giveaway Ended!')
+            .setTitle('?? Giveaway Ended!')
             .setDescription(
                 `**Prize:** ${giveaway.prize}\n\n` +
                 `**Winner${selectedWinners.length > 1 ? 's' : ''}:** ${winnerMentions}\n\n` +
-                `Congratulations! 🎊`
+                `Congratulations! ??`
             )
             .setColor(0x00FF00)
             .setFooter({ text: `${eligibleUsers.length} participant(s)` })
@@ -17589,13 +17589,13 @@ async function endGiveaway(messageId, giveaway) {
         await message.edit({ embeds: [endEmbed], components: [] });
         
         // Send separate message to ping winners
-        await channel.send(`🎉 Congratulations ${winnerMentions}! You won **${giveaway.prize}**!`);
+        await channel.send(`?? Congratulations ${winnerMentions}! You won **${giveaway.prize}**!`);
         
         // Try to DM winners
         for (const winner of selectedWinners) {
             try {
                 const dmEmbed = new EmbedBuilder()
-                    .setTitle('🎉 You Won a Giveaway!')
+                    .setTitle('?? You Won a Giveaway!')
                     .setDescription(
                         `Congratulations! You won **${giveaway.prize}**!\n\n` +
                         `**Server:** ${guild.name}\n` +
@@ -17610,7 +17610,7 @@ async function endGiveaway(messageId, giveaway) {
             }
         }
         
-        console.log(`🎉 Giveaway ended: ${giveaway.prize} - Winners: ${selectedWinners.map(w => w.tag).join(', ')}`);
+        console.log(`?? Giveaway ended: ${giveaway.prize} - Winners: ${selectedWinners.map(w => w.tag).join(', ')}`);
         
     } catch (error) {
         console.error('Error in endGiveaway:', error);
@@ -17620,97 +17620,97 @@ async function endGiveaway(messageId, giveaway) {
 // ===== ECONOMY SYSTEM =====
 const SHOP_ITEMS = {
     'role_color': { 
-        name: '🎨 Custom Role Color', 
+        name: '?? Custom Role Color', 
         price: 5000, 
         description: 'Change your role color',
         type: 'utility'
     },
     'xp_boost': { 
-        name: '⚡ XP Boost (1h)', 
+        name: '? XP Boost (1h)', 
         price: 1000, 
         description: '2x XP for 1 hour',
         type: 'consumable'
     },
     'nickname': { 
-        name: '✏️ Custom Nickname', 
+        name: '?? Custom Nickname', 
         price: 2500, 
         description: 'Change your nickname',
         type: 'utility'
     },
     'rob_protection': { 
-        name: '🛡️ Rob Protection (24h)', 
+        name: '??? Rob Protection (24h)', 
         price: 3000, 
         description: 'Cannot be robbed for 24 hours',
         type: 'consumable'
     },
     'lucky_charm': { 
-        name: '🍀 Lucky Charm', 
+        name: '?? Lucky Charm', 
         price: 7500, 
         description: 'Increases gambling win rate by 10% for 6 hours',
         type: 'consumable'
     },
     'vip_badge': { 
-        name: '⭐ VIP Badge', 
+        name: '? VIP Badge', 
         price: 15000, 
         description: 'Permanent VIP badge on profile',
         type: 'permanent'
     },
     'legend_badge': {
-        name: '🏆 Legend Badge',
+        name: '?? Legend Badge',
         price: 50000,
         description: 'Permanent Legend status badge',
         type: 'permanent'
     },
     'daily_multiplier': {
-        name: '💰 Daily Multiplier (7 days)',
+        name: '?? Daily Multiplier (7 days)',
         price: 10000,
         description: '2x daily reward for 7 days',
         type: 'consumable'
     },
     'work_multiplier': {
-        name: '💼 Work Multiplier (7 days)',
+        name: '?? Work Multiplier (7 days)',
         price: 8000,
         description: '1.5x work earnings for 7 days',
         type: 'consumable'
     },
     'mega_xp_boost': {
-        name: '🚀 Mega XP Boost (24h)',
+        name: '?? Mega XP Boost (24h)',
         price: 5000,
         description: '3x XP for 24 hours',
         type: 'consumable'
     },
     'rob_immunity': {
-        name: '🔒 Rob Immunity (7 days)',
+        name: '?? Rob Immunity (7 days)',
         price: 12000,
         description: 'Cannot be robbed for 7 days',
         type: 'consumable'
     },
     'lottery_pack': {
-        name: '🎟️ Lottery Pack (10 tickets)',
+        name: '??? Lottery Pack (10 tickets)',
         price: 900,
         description: '10 lottery tickets (save $100!)',
         type: 'consumable'
     },
     'supporter_badge': {
-        name: '💎 Supporter Badge',
+        name: '?? Supporter Badge',
         price: 25000,
         description: 'Permanent Supporter badge',
         type: 'permanent'
     },
     'custom_embed_color': {
-        name: '🌈 Custom Embed Color',
+        name: '?? Custom Embed Color',
         price: 4000,
         description: 'Set custom color for your profile embeds',
         type: 'utility'
     },
     'profile_banner': {
-        name: '🖼️ Profile Banner',
+        name: '??? Profile Banner',
         price: 6000,
         description: 'Add custom banner to your economy profile',
         type: 'utility'
     },
     'coin_magnet': {
-        name: '🧲 Coin Magnet (6h)',
+        name: '?? Coin Magnet (6h)',
         price: 3500,
         description: 'Earn 10% more from all sources',
         type: 'consumable'
@@ -17793,14 +17793,14 @@ function removeFromInventory(userId, guildId, itemId, quantity = 1) {
 
 // Work job list
 const WORK_JOBS = [
-    { name: 'Streamer', min: 100, max: 300, emoji: '🎮' },
-    { name: 'Hacker', min: 150, max: 400, emoji: '💻' },
-    { name: 'Gamer', min: 80, max: 250, emoji: '🕹️' },
-    { name: 'YouTuber', min: 120, max: 350, emoji: '📹' },
-    { name: 'Developer', min: 200, max: 500, emoji: '👨‍💻' },
-    { name: 'Moderator', min: 90, max: 200, emoji: '🛡️' },
-    { name: 'Designer', min: 110, max: 280, emoji: '🎨' },
-    { name: 'Bug Tester', min: 70, max: 180, emoji: '🐛' }
+    { name: 'Streamer', min: 100, max: 300, emoji: '??' },
+    { name: 'Hacker', min: 150, max: 400, emoji: '??' },
+    { name: 'Gamer', min: 80, max: 250, emoji: '???' },
+    { name: 'YouTuber', min: 120, max: 350, emoji: '??' },
+    { name: 'Developer', min: 200, max: 500, emoji: '?????' },
+    { name: 'Moderator', min: 90, max: 200, emoji: '???' },
+    { name: 'Designer', min: 110, max: 280, emoji: '??' },
+    { name: 'Bug Tester', min: 70, max: 180, emoji: '??' }
 ];
 
 async function endPoll(pollId, client) {
@@ -17823,25 +17823,25 @@ async function endPoll(pollId, client) {
         const winners = poll.options.filter((_, i) => voteCounts[i] === maxVotes);
 
         // Create results embed
-        const emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'];
+        const emojis = ['1??', '2??', '3??', '4??', '5??', '6??', '7??', '8??', '9??', '??'];
         const resultsEmbed = new EmbedBuilder()
-            .setTitle('📊 Poll Ended: ' + poll.question)
+            .setTitle('?? Poll Ended: ' + poll.question)
             .setColor(0x00FF00)
             .setDescription(poll.options.map((opt, i) => {
                 const votes = voteCounts[i];
                 const percentage = Object.keys(poll.votes).length > 0 
                     ? Math.round((votes / Object.keys(poll.votes).length) * 100)
                     : 0;
-                const bar = '█'.repeat(Math.floor(percentage / 5));
+                const bar = '�'.repeat(Math.floor(percentage / 5));
                 const isWinner = voteCounts[i] === maxVotes;
-                return `${emojis[i]} ${opt} - **${votes} votes** (${percentage}%)\n${isWinner ? '🏆 ' : ''}${bar}`;
+                return `${emojis[i]} ${opt} - **${votes} votes** (${percentage}%)\n${isWinner ? '?? ' : ''}${bar}`;
             }).join('\n\n'))
             .addFields({ 
-                name: '👥 Total Votes', 
+                name: '?? Total Votes', 
                 value: Object.keys(poll.votes).length.toString(), 
                 inline: true 
             }, {
-                name: '🏆 Winner', 
+                name: '?? Winner', 
                 value: winners.length === poll.options.length ? 'Tie!' : winners.join(', '),
                 inline: true
             })
@@ -17878,22 +17878,22 @@ function startAutomatedMessages() {
                 if (channel) {
                     // Format: ## for bigger text, ** for bold
                     const reminders = [
-                        "## **Don't forget to check out `/pcommands` to see all server commands!** ✅",
-                        "## **Reminder: Use `/pcommands` to explore all the cool features I have!** 🎮",
-                        "## **Hey! Did you know you can type `/pcommands` to see everything I can do?** 🤖",
-                        "## **Pro tip: Check `/pcommands` for a full list of server features!** 💡",
-                        "## **Don't miss out! Use `/pcommands` to discover all available commands!** 🚀"
+                        "## **Don't forget to check out `/pcommands` to see all server commands!** ?",
+                        "## **Reminder: Use `/pcommands` to explore all the cool features I have!** ??",
+                        "## **Hey! Did you know you can type `/pcommands` to see everything I can do?** ??",
+                        "## **Pro tip: Check `/pcommands` for a full list of server features!** ??",
+                        "## **Don't miss out! Use `/pcommands` to discover all available commands!** ??"
                     ];
                     
                     const randomReminder = reminders[Math.floor(Math.random() * reminders.length)];
                     await channel.send(randomReminder);
-                    console.log('📢 Sent daily 7 PM reminder');
+                    console.log('?? Sent daily 7 PM reminder');
                 } else {
-                    console.error('❌ Automated message channel not found:', CHANNEL_ID);
+                    console.error('? Automated message channel not found:', CHANNEL_ID);
                     await logCriticalError(new Error('Automated message channel not found'), 'Automated Messages', null);
                 }
             } catch (error) {
-                console.error('❌ Failed to send daily reminder:', error);
+                console.error('? Failed to send daily reminder:', error);
                 await logCriticalError(error, 'Automated Messages', null);
             }
             
@@ -17901,15 +17901,15 @@ function startAutomatedMessages() {
             scheduleDailyReminder();
         }, msUntil7PM);
         
-        console.log(`📅 Daily reminder scheduled for ${next7PM.toLocaleString()}`);
+        console.log(`?? Daily reminder scheduled for ${next7PM.toLocaleString()}`);
     }
     
     // Start daily reminder only
     try {
         scheduleDailyReminder();
-        console.log('⏰ Daily 7 PM reminder started for channel ' + CHANNEL_ID);
+        console.log('? Daily 7 PM reminder started for channel ' + CHANNEL_ID);
     } catch (error) {
-        console.error('❌ Failed to start automated messages:', error);
+        console.error('? Failed to start automated messages:', error);
         logCriticalError(error, 'Automated Messages Startup', null);
     }
 }
