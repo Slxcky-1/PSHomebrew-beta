@@ -3886,18 +3886,18 @@ client.on('interactionCreate', async (interaction) => {
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
-                    name: '📊',
+                    name: '',
                     value: `**Leveling System**\n${settings.leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nEarn **${settings.leveling.minXP}-${settings.leveling.maxXP} XP** per message\n**${settings.leveling.cooldown / 1000}s** cooldown\n**${settings.leveling.maxLevel} levels** total`,
                     inline: true
                 },
                 {
-                    name: '⚠️',
+                    name: '✅',
                     value: `**Error Codes**\n${settings.keywords.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDetects **351 PS3 + PS4** codes\nAuto-explains instantly\nExample: \`80710016\``,
                     inline: true
                 },
                 {
-                    name: '🤖',
-                    value: `**AI Chat**\n${settings.ai?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDeepSeek + ChatGPT + Grok\n5k tokens/user/day\nResponse caching`,
+                    name: '✅',
+                    value: `**AI Chat**\n${settings.ai?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nDeepSeek + ChatGPT\n5k tokens/user/day\nResponse caching`,
                     inline: true
                 },
                 {
@@ -3906,17 +3906,17 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '👋',
+                    name: '✅',
                     value: `**Welcome Messages**\n${settings.welcome.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nChannel: **#${settings.welcome.channelName}**\n${settings.welcome.customMessage ? '✅ Custom message' : '📝 Default message'}`,
                     inline: true
                 },
                 {
-                    name: '👋',
+                    name: '',
                     value: `**Leave Messages**\n${settings.leave.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nChannel: **#${settings.leave.channelName}**\n${settings.leave.customMessage ? '✅ Custom message' : '📝 Default message'}`,
                     inline: true
                 },
                 {
-                    name: '🎫',
+                    name: '✅',
                     value: `**Ticket System**\n${settings.tickets?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nSupport ticket management\nUse **/setuptickets**\nStaff and user panels`,
                     inline: true
                 },
@@ -3926,18 +3926,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '🛡️',
+                    name: '?✅',
                     value: `**Raid Protection**\n${settings.raidProtection?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nAuto-kick spam accounts\nNew account detection\nMass join protection`,
                     inline: true
                 },
                 {
-                    name: '✏️',
+                    name: '✅',
                     value: `**Auto Nickname**\n${settings.autoNickname?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nPrefix: **${settings.autoNickname?.prefix || 'PS'}**\nAuto-rename on join\nKeeps names organized`,
                     inline: true
                 },
                 {
-                    name: '📺',
-                    value: `**YouTube Notifs**\n✅ Enabled\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
+                    name: '✅',
+                    value: `**YouTube Notifs**\n? Enabled\n\nNew video alerts\nUse **/youtubenotifications**\nAuto-post to channel`,
                     inline: true
                 },
                 {
@@ -3946,17 +3946,17 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '📊',
+                    name: '✅',
                     value: `**Server Stats**\n${settings.serverStats?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nLive member counter\nAuto-updating channels\nMember/bot statistics`,
                     inline: true
                 },
                 {
-                    name: '⚙️',
+                    name: '✅',
                     value: `**Custom Commands**\nAlways Available\n\nClickable server commands\nUse **/pcommands**\nAdd/edit/remove easily`,
                     inline: true
                 },
                 {
-                    name: '📝',
+                    name: '✅',
                     value: `**Moderation Logging**\n${settings.logging?.enabled ? '✅ Enabled' : '❌ Disabled'}\n\nTracks all mod actions\nBans, kicks, timeouts\nAudit trail for staff`,
                     inline: true
                 },
@@ -3966,18 +3966,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '🌍',
-                    value: `**Multi-Language**\n✅ Available\n\n6 languages supported\nUse **/language**\nEN, ES, FR, DE, PT, JA`,
+                    name: '✅',
+                    value: `**Multi-Language**\n? Available\n\n6 languages supported\nUse **/language**\nEN, ES, FR, DE, PT, JA`,
                     inline: true
                 },
                 {
-                    name: '⚡',
-                    value: `**AI Caching**\n✅ Active\n\n30-50% API savings\n40-60% storage savings\nFaster responses`,
+                    name: '✅',
+                    value: `**AI Caching**\n? Active\n\n30-50% API savings\n40-60% storage savings\nFaster responses`,
                     inline: true
                 },
                 {
-                    name: '🎨',
-                    value: `**Bot Customization**\n✅ Available\n\nCustom server nicknames\nUse **/custombot**\nPer-server branding`,
+                    name: '✅',
+                    value: `**Bot Customization**\n? Available\n\nCustom server nicknames\nUse **/custombot**\nPer-server branding`,
                     inline: true
                 }
             )
@@ -3989,16 +3989,15 @@ client.on('interactionCreate', async (interaction) => {
     
     // Server Features command - Anyone with role can view
     if (interaction.commandName === 'serverfeatures') {
-        try {
-            const allowedRoleId = '920779112270946384';
-            const hasRole = interaction.member.roles.cache.has(allowedRoleId);
-            const isOwner = interaction.user.id === config.botOwnerId;
-            
-            if (!hasRole && !isOwner) {
-                return interaction.reply({ content: '❌ You need the staff role to view features.', ephemeral: true });
-            }
-            
-            const settings = getGuildSettings(interaction.guild.id);
+        const allowedRoleId = '920779112270946384';
+        const hasRole = interaction.member.roles.cache.has(allowedRoleId);
+        const isOwner = interaction.user.id === config.botOwnerId;
+        
+        if (!hasRole && !isOwner) {
+            return interaction.reply({ content: '❌ You need the staff role to view features.', ephemeral: true });
+        }
+        
+        const settings = getGuildSettings(interaction.guild.id);
         const youtubeEnabled = true;
         
         const featuresEmbed = new EmbedBuilder()
@@ -4019,7 +4018,7 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: '🤖 AI Chat',
-                    value: `• **Powered by DeepSeek + ChatGPT + Grok**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily`,
+                    value: `• **Powered by DeepSeek AI + ChatGPT**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily`,
                     inline: true
                 },
                 {
@@ -4136,18 +4135,12 @@ client.on('interactionCreate', async (interaction) => {
                     name: '🎯 Game Database',
                     value: `• **PlayStation game lookup**\n\n14 games in database\nSearch by title or ID\nCFW compatibility info`,
                     inline: true
-                }
+                },
             )
             .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for AI token tracking' })
             .setTimestamp();
         
-            await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
-        } catch (error) {
-            console.error('ServerFeatures error:', error);
-            console.error('Error stack:', error.stack);
-            console.error('Error code:', error.code);
-            await interaction.reply({ content: `❌ Error: ${error.message}\nCode: ${error.code}`, ephemeral: true }).catch(() => {});
-        }
+        await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
     }
     
     // Toggle command
@@ -5047,17 +5040,17 @@ const now = Date.now();
                     .setCustomId('autonick_set_prefix')
                     .setLabel('Set Prefix')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📝'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('autonick_set_suffix')
                     .setLabel('Set Suffix')
                     .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📝'),
+                    .setEmoji('✅'),
                 new ButtonBuilder()
                     .setCustomId('autonick_refresh')
                     .setLabel('Refresh')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔄')
+                    .setEmoji('✅')
             );
         
         await interaction.reply({ embeds: [embed], components: [row1], ephemeral: true });
@@ -5065,92 +5058,12 @@ const now = Date.now();
     
     // YouTube Notifications Command
     if (interaction.commandName === 'youtubenotifications') {
-        try {
-            if (!requireAdmin(interaction)) return;
+        if (!requireAdmin(interaction)) return;
         
-        const ytDataPath = './features/youtubeNotifications.json';
-        let ytData = {};
-        
-        // Load existing data or create new
-        try {
-            if (fsSync.existsSync(ytDataPath)) {
-                ytData = JSON.parse(fsSync.readFileSync(ytDataPath, 'utf8'));
-            }
-        } catch (error) {
-            console.error('Error loading YouTube data:', error);
-        }
-        
-        const guildId = interaction.guild.id;
-        if (!ytData[guildId]) {
-            ytData[guildId] = {
-                enabled: false,
-                notificationChannelId: null,
-                channels: [],
-                lastChecked: {},
-                checkInterval: 300000, // 5 minutes
-                customMessage: '📺 New video from **{channelName}**!\n\n{url}'
-            };
-        }
-        
-        const config = ytData[guildId];
-        
-        const embed = new EmbedBuilder()
-            .setTitle('📺 YouTube Notifications Setup')
-            .setDescription('Monitor YouTube channels and get notified of new uploads!')
-            .setColor(0xFF0000)
-            .addFields(
-                { name: 'Status', value: config.enabled ? '✅ Enabled' : '❌ Disabled', inline: true },
-                { name: 'Notification Channel', value: config.notificationChannelId ? `<#${config.notificationChannelId}>` : 'Not set', inline: true },
-                { name: 'Monitored Channels', value: config.channels.length > 0 ? config.channels.map(ch => `• ${ch.name}`).join('\n') : 'None', inline: false },
-                { name: 'Check Interval', value: `Every ${config.checkInterval / 60000} minutes`, inline: true },
-                { name: 'Custom Message', value: `\`${config.customMessage}\``, inline: false },
-                { name: 'Available Variables', value: '`{channelName}` `{title}` `{url}` `{description}`', inline: false }
-            );
-        
-        const buttons = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('yt_toggle')
-                    .setLabel(config.enabled ? 'Disable' : 'Enable')
-                    .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
-                    .setEmoji(config.enabled ? '❌' : '✅'),
-                new ButtonBuilder()
-                    .setCustomId('yt_setchannel')
-                    .setLabel('Set Channel')
-                    .setStyle(ButtonStyle.Primary)
-                    .setEmoji('📢'),
-                new ButtonBuilder()
-                    .setCustomId('yt_addyt')
-                    .setLabel('Add Channel')
-                    .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('➕'),
-                new ButtonBuilder()
-                    .setCustomId('yt_addmultiple')
-                    .setLabel('Add Multiple')
-                    .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('➕➕'),
-                new ButtonBuilder()
-                    .setCustomId('yt_removeyt')
-                    .setLabel('Remove')
-                    .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🗑️')
-                    .setDisabled(config.channels.length === 0)
-            );
-        
-        const buttons2 = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('yt_custommsg')
-                    .setLabel('Custom Message')
-                    .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('✏️')
-            );
-        
-        await interaction.reply({ embeds: [embed], components: [buttons, buttons2], ephemeral: true });
-        } catch (error) {
-            console.error('YouTube notifications error:', error);
-            await interaction.reply({ content: `❌ Error: ${error.message}`, ephemeral: true }).catch(() => {});
-        }
+        await interaction.reply({ 
+            content: '📺 YouTube RSS Notifications - Feature coming soon!\n\nThis will allow automatic notifications when subscribed YouTube channels upload new videos.',
+            ephemeral: true 
+        });
         return;
     }
     
@@ -7363,43 +7276,19 @@ const now = Date.now();
     // Safe Firmware Command
     if (interaction.commandName === 'safefirmware') {
         const console = interaction.options.getString('console');
-        
-        const firmwareInfo = {
-            ps3: { latest: '4.91', safe: '4.91 HFW/CFW', jailbreak: 'All firmwares' },
-            ps4: { latest: '12.50', safe: '≤11.00 or ≤12.02', jailbreak: '≤11.00 (PPPwn), ≤12.02 (GoldHEN 2.4b18.6)' },
-            ps5: { latest: '10.50', safe: '≤10.01', jailbreak: '≤10.01 (etaHEN 2.0b)' },
-            vita: { latest: '3.74', safe: 'Any', jailbreak: 'All firmwares (h-encore²)' },
-            psp: { latest: '6.61', safe: 'Any', jailbreak: 'All firmwares (Pro/ME/LME CFW)' }
-        };
-        
-        const info = firmwareInfo[console];
-        
-        const embed = new EmbedBuilder()
-            .setTitle(`📱 Safe Firmware - ${console.toUpperCase()}`)
-            .setColor(0x00FF00)
-            .addFields(
-                { name: '🔄 Latest OFW', value: info.latest, inline: true },
-                { name: '✅ Safe Firmware', value: info.safe, inline: true },
-                { name: '🔓 Jailbreak Support', value: info.jailbreak, inline: false }
-            )
-            .setFooter({ text: 'Stay on safe firmware to preserve jailbreak capability!' });
-        
-        await interaction.reply({ embeds: [embed], ephemeral: true });
+        await interaction.reply({ 
+            content: `✅ Safe firmware info for ${console.toUpperCase()} - Feature coming soon!`,
+            ephemeral: true 
+        });
         return;
     }
 
     // Firmware Notifications Toggle
     if (interaction.commandName === 'fwnotify') {
-        const embed = new EmbedBuilder()
-            .setTitle('🔔 Firmware Notifications')
-            .setDescription('Get notified when new firmware updates are released for PlayStation consoles.')
-            .setColor(0x5865F2)
-            .addFields(
-                { name: 'Status', value: '⚠️ This feature requires admin setup', inline: false },
-                { name: 'How it works', value: 'Bot automatically checks for firmware updates and posts alerts to a designated channel.', inline: false }
-            );
-        
-        await interaction.reply({ embeds: [embed], ephemeral: true });
+        await interaction.reply({ 
+            content: '🔔 Firmware notification settings - Feature coming soon!',
+            ephemeral: true 
+        });
         return;
     }
 
@@ -7519,28 +7408,15 @@ const now = Date.now();
         const console = interaction.options.getString('console') || 'all';
         const category = interaction.options.getString('category') || 'all';
         
-        // Sample homebrew apps by console
-        const homebrewApps = {
-            ps3: ['multiMAN', 'webMAN MOD', 'IRISMAN', 'Apollo Save Tool', 'Retroarch', 'PKGi'],
-            ps4: ['GoldHEN', 'ItemzFlow', 'PS4 Offline Account Activator', 'Save Wizard', 'Retroarch', 'PKGi PS4'],
-            ps5: ['etaHEN', 'ItemzFlow', 'PS5 Debug Settings', 'Retroarch', 'Save Manager', 'FTP Server'],
-            vita: ['VitaShell', 'Adrenaline', 'Retroarch', 'PKGj', 'AutoPlugin', 'VitaGrafix'],
-            psp: ['PPSSPP', 'Custom Firmware', 'PSP Filer', 'CXMB', 'Game Categories', 'ISO Tool']
-        };
-        
-        const apps = homebrewApps[console] || Object.values(homebrewApps).flat().slice(0, 10);
-        
         const embed = new EmbedBuilder()
             .setTitle('🛠️ PlayStation Homebrew Browser')
-            .setDescription(`Popular homebrew apps for **${console.toUpperCase()}**`)
+            .setDescription(`Browse homebrew for ${console.toUpperCase()}`)
             .setColor(0x9B59B6)
             .addFields(
                 { name: 'Console', value: console.toUpperCase(), inline: true },
-                { name: 'Category', value: category || 'All', inline: true },
-                { name: 'Popular Apps', value: apps.map(app => `• ${app}`).join('\n'), inline: false },
-                { name: '📥 Where to Download', value: 'PSX-Place, Reddit (r/ps3homebrew, r/ps4homebrew, etc.), GBAtemp, Wololo.net', inline: false }
+                { name: 'Category', value: category || 'All', inline: true }
             )
-            .setFooter({ text: 'Use at your own risk - Always backup your console!' })
+            .setFooter({ text: 'Homebrew database feature - Coming soon!' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [embed], ephemeral: true });
@@ -7666,141 +7542,6 @@ const now = Date.now();
             }
             
             const guildId = interaction.guild.id;
-
-            // YouTube notification button handlers
-            if (interaction.customId.startsWith('yt_')) {
-                if (!requireAdmin(interaction)) return;
-                
-                const ytDataPath = './features/youtubeNotifications.json';
-                let ytData = {};
-                try {
-                    if (fsSync.existsSync(ytDataPath)) {
-                        ytData = JSON.parse(fsSync.readFileSync(ytDataPath, 'utf8'));
-                    }
-                } catch (error) {
-                    console.error('Error loading YouTube data:', error);
-                }
-                
-                if (!ytData[guildId]) {
-                    ytData[guildId] = {
-                        enabled: false,
-                        notificationChannelId: null,
-                        channels: [],
-                        lastChecked: {},
-                        checkInterval: 300000,
-                        customMessage: '📺 New video from **{channelName}**!\n\n{url}'
-                    };
-                }
-                
-                if (interaction.customId === 'yt_toggle') {
-                    ytData[guildId].enabled = !ytData[guildId].enabled;
-                    fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
-                    await interaction.reply({ 
-                        content: `✅ YouTube notifications ${ytData[guildId].enabled ? 'enabled' : 'disabled'}!`,
-                        ephemeral: true 
-                    });
-                    return;
-                }
-                
-                if (interaction.customId === 'yt_setchannel') {
-                    const modal = new ModalBuilder()
-                        .setCustomId('yt_setchannel_modal')
-                        .setTitle('Set Notification Channel');
-                    
-                    const channelInput = new TextInputBuilder()
-                        .setCustomId('channel_id')
-                        .setLabel('Channel ID')
-                        .setStyle(TextInputStyle.Short)
-                        .setPlaceholder('Enter channel ID')
-                        .setRequired(true);
-                    
-                    modal.addComponents(new ActionRowBuilder().addComponents(channelInput));
-                    await interaction.showModal(modal);
-                    return;
-                }
-                
-                if (interaction.customId === 'yt_addyt') {
-                    const modal = new ModalBuilder()
-                        .setCustomId('yt_addyt_modal')
-                        .setTitle('Add YouTube Channel');
-                    
-                    const channelIdInput = new TextInputBuilder()
-                        .setCustomId('yt_channel_id')
-                        .setLabel('YouTube Channel ID')
-                        .setStyle(TextInputStyle.Short)
-                        .setPlaceholder('UC...')
-                        .setRequired(true);
-                    
-                    const channelNameInput = new TextInputBuilder()
-                        .setCustomId('yt_channel_name')
-                        .setLabel('Channel Name (for display)')
-                        .setStyle(TextInputStyle.Short)
-                        .setPlaceholder('e.g., MrBeast')
-                        .setRequired(true);
-                    
-                    modal.addComponents(
-                        new ActionRowBuilder().addComponents(channelIdInput),
-                        new ActionRowBuilder().addComponents(channelNameInput)
-                    );
-                    await interaction.showModal(modal);
-                    return;
-                }
-                
-                if (interaction.customId === 'yt_addmultiple') {
-                    const modal = new ModalBuilder()
-                        .setCustomId('yt_addmultiple_modal')
-                        .setTitle('Add Multiple YouTube Channels');
-                    
-                    const channelsInput = new TextInputBuilder()
-                        .setCustomId('yt_channels_bulk')
-                        .setLabel('YouTube Channels (one per line)')
-                        .setStyle(TextInputStyle.Paragraph)
-                        .setPlaceholder('Format: ChannelID|Channel Name\nExample:\nUC...|MrBeast\nUC...|PewDiePie\nUC...|Markiplier')
-                        .setRequired(true);
-                    
-                    modal.addComponents(new ActionRowBuilder().addComponents(channelsInput));
-                    await interaction.showModal(modal);
-                    return;
-                }
-                
-                if (interaction.customId === 'yt_removeyt') {
-                    const selectMenu = new StringSelectMenuBuilder()
-                        .setCustomId('yt_remove_select')
-                        .setPlaceholder('Select channel to remove')
-                        .addOptions(
-                            ytData[guildId].channels.map((ch, idx) => ({
-                                label: ch.name,
-                                value: idx.toString(),
-                                description: ch.channelId
-                            }))
-                        );
-                    
-                    await interaction.reply({
-                        content: 'Select a YouTube channel to remove:',
-                        components: [new ActionRowBuilder().addComponents(selectMenu)],
-                        ephemeral: true
-                    });
-                    return;
-                }
-                
-                if (interaction.customId === 'yt_custommsg') {
-                    const modal = new ModalBuilder()
-                        .setCustomId('yt_custommsg_modal')
-                        .setTitle('Custom Message');
-                    
-                    const messageInput = new TextInputBuilder()
-                        .setCustomId('custom_message')
-                        .setLabel('Custom Message')
-                        .setStyle(TextInputStyle.Paragraph)
-                        .setPlaceholder('{channelName} {title} {url} {description}')
-                        .setValue(ytData[guildId].customMessage)
-                        .setRequired(true);
-                    
-                    modal.addComponents(new ActionRowBuilder().addComponents(messageInput));
-                    await interaction.showModal(modal);
-                    return;
-                }
-            }
 
             // Giveaway button handlers
             if (interaction.customId.startsWith('giveaway_')) {
@@ -13376,97 +13117,6 @@ const now = Date.now();
                 console.log(`📨 Modal submitted: ${interaction.customId} | Guild: ${guildId} | User: ${interaction.user?.tag}`);
             } catch {}
             
-            // YouTube notification modal handlers
-            if (interaction.customId === 'yt_setchannel_modal') {
-                const channelId = interaction.fields.getTextInputValue('channel_id');
-                const channel = interaction.guild.channels.cache.get(channelId);
-                
-                if (!channel || channel.type !== ChannelType.GuildText) {
-                    await interaction.reply({ content: '❌ Invalid channel ID! Make sure it\'s a text channel.', ephemeral: true });
-                    return;
-                }
-                
-                const ytDataPath = './features/youtubeNotifications.json';
-                let ytData = JSON.parse(fsSync.readFileSync(ytDataPath, 'utf8'));
-                ytData[guildId].notificationChannelId = channelId;
-                fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
-                
-                await interaction.reply({ content: `✅ Notification channel set to <#${channelId}>!`, ephemeral: true });
-                return;
-            }
-            
-            if (interaction.customId === 'yt_addyt_modal') {
-                const ytChannelId = interaction.fields.getTextInputValue('yt_channel_id');
-                const ytChannelName = interaction.fields.getTextInputValue('yt_channel_name');
-                
-                const ytDataPath = './features/youtubeNotifications.json';
-                let ytData = JSON.parse(fsSync.readFileSync(ytDataPath, 'utf8'));
-                
-                // Check if channel already exists
-                if (ytData[guildId].channels.some(ch => ch.channelId === ytChannelId)) {
-                    await interaction.reply({ content: '❌ This YouTube channel is already being monitored!', ephemeral: true });
-                    return;
-                }
-                
-                ytData[guildId].channels.push({ channelId: ytChannelId, name: ytChannelName });
-                ytData[guildId].lastChecked[ytChannelId] = null;
-                fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
-                
-                await interaction.reply({ content: `✅ Added YouTube channel: **${ytChannelName}**!`, ephemeral: true });
-                return;
-            }
-            
-            if (interaction.customId === 'yt_custommsg_modal') {
-                const customMessage = interaction.fields.getTextInputValue('custom_message');
-                
-                const ytDataPath = './features/youtubeNotifications.json';
-                let ytData = JSON.parse(fsSync.readFileSync(ytDataPath, 'utf8'));
-                ytData[guildId].customMessage = customMessage;
-                fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
-                
-                await interaction.reply({ content: '✅ Custom message updated!', ephemeral: true });
-                return;
-            }
-            
-            if (interaction.customId === 'yt_addmultiple_modal') {
-                const channelsBulk = interaction.fields.getTextInputValue('yt_channels_bulk');
-                const lines = channelsBulk.split('\n').filter(l => l.trim());
-                
-                const ytDataPath = './features/youtubeNotifications.json';
-                let ytData = JSON.parse(fsSync.readFileSync(ytDataPath, 'utf8'));
-                
-                let added = 0;
-                let skipped = 0;
-                
-                for (const line of lines) {
-                    const parts = line.split('|').map(p => p.trim());
-                    if (parts.length !== 2) {
-                        skipped++;
-                        continue;
-                    }
-                    
-                    const [channelId, channelName] = parts;
-                    
-                    // Check if already exists
-                    if (ytData[guildId].channels.some(ch => ch.channelId === channelId)) {
-                        skipped++;
-                        continue;
-                    }
-                    
-                    ytData[guildId].channels.push({ channelId, name: channelName });
-                    ytData[guildId].lastChecked[channelId] = null;
-                    added++;
-                }
-                
-                fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
-                
-                await interaction.reply({ 
-                    content: `✅ Added ${added} YouTube channel(s)!${skipped > 0 ? `\n⚠️ Skipped ${skipped} (invalid format or duplicates)` : ''}`,
-                    ephemeral: true 
-                });
-                return;
-            }
-            
             // Giveaway modal handlers
             if (interaction.customId === 'giveaway_create_modal') {
                 const prize = interaction.fields.getTextInputValue('prize');
@@ -16644,27 +16294,6 @@ const now = Date.now();
         // Safety check for customId
         if (!interaction.customId) {
             console.warn('Select menu interaction without customId');
-            return;
-        }
-        
-        // YouTube channel removal select menu
-        if (interaction.customId === 'yt_remove_select') {
-            const guildId = interaction.guild.id;
-            const channelIndex = parseInt(interaction.values[0]);
-            
-            const ytDataPath = './features/youtubeNotifications.json';
-            let ytData = JSON.parse(fsSync.readFileSync(ytDataPath, 'utf8'));
-            
-            const removedChannel = ytData[guildId].channels[channelIndex];
-            ytData[guildId].channels.splice(channelIndex, 1);
-            delete ytData[guildId].lastChecked[removedChannel.channelId];
-            
-            fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
-            
-            await interaction.update({ 
-                content: `✅ Removed YouTube channel: **${removedChannel.name}**!`,
-                components: []
-            });
             return;
         }
         
