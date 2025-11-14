@@ -2586,30 +2586,23 @@ function buildYouTubeManagerView(guild, guildConfig, statusMessage = null) {
             .setEmoji('📝')
     );
 
-    const rows = [controlsRow];
-
-    // Add second row with View Channel button and Refresh if channel is configured
-    const secondRowButtons = [];
-    
-    if (guildConfig.notificationChannelId) {
-        secondRowButtons.push(
-            new ButtonBuilder()
-                .setLabel('View Channel')
-                .setStyle(ButtonStyle.Link)
-                .setURL(`https://discord.com/channels/${guild.id}/${guildConfig.notificationChannelId}`)
-                .setEmoji('👁️')
-        );
-    }
-    
-    secondRowButtons.push(
+    const secondRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setLabel('View Channel')
+            .setStyle(ButtonStyle.Link)
+            .setURL(guildConfig.notificationChannelId 
+                ? `https://discord.com/channels/${guild.id}/${guildConfig.notificationChannelId}`
+                : `https://discord.com/channels/${guild.id}`)
+            .setEmoji('👁️')
+            .setDisabled(!guildConfig.notificationChannelId),
         new ButtonBuilder()
             .setCustomId('ytnotif_refresh')
             .setLabel('Refresh')
             .setStyle(ButtonStyle.Secondary)
             .setEmoji('🔄')
     );
-    
-    rows.push(new ActionRowBuilder().addComponents(secondRowButtons));
+
+    const rows = [controlsRow, secondRow];
 
     if (feeds.length > 0) {
         const removalOptions = feeds.slice(0, 25).map(feed => ({
