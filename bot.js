@@ -5113,15 +5113,24 @@ const now = Date.now();
                     .setEmoji('📢'),
                 new ButtonBuilder()
                     .setCustomId('yt_addyt')
-                    .setLabel('Add YouTube Channel')
+                    .setLabel('Add Channel')
                     .setStyle(ButtonStyle.Secondary)
                     .setEmoji('➕'),
                 new ButtonBuilder()
+                    .setCustomId('yt_addmultiple')
+                    .setLabel('Add Multiple')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('➕➕'),
+                new ButtonBuilder()
                     .setCustomId('yt_removeyt')
-                    .setLabel('Remove Channel')
+                    .setLabel('Remove')
                     .setStyle(ButtonStyle.Danger)
                     .setEmoji('🗑️')
-                    .setDisabled(config.channels.length === 0),
+                    .setDisabled(config.channels.length === 0)
+            );
+        
+        const buttons2 = new ActionRowBuilder()
+            .addComponents(
                 new ButtonBuilder()
                     .setCustomId('yt_custommsg')
                     .setLabel('Custom Message')
@@ -5129,7 +5138,7 @@ const now = Date.now();
                     .setEmoji('✏️')
             );
         
-        await interaction.reply({ embeds: [embed], components: [buttons], ephemeral: true });
+        await interaction.reply({ embeds: [embed], components: [buttons, buttons2], ephemeral: true });
         return;
     }
     
@@ -7342,19 +7351,43 @@ const now = Date.now();
     // Safe Firmware Command
     if (interaction.commandName === 'safefirmware') {
         const console = interaction.options.getString('console');
-        await interaction.reply({ 
-            content: `✅ Safe firmware info for ${console.toUpperCase()} - Feature coming soon!`,
-            ephemeral: true 
-        });
+        
+        const firmwareInfo = {
+            ps3: { latest: '4.91', safe: '4.91 HFW/CFW', jailbreak: 'All firmwares' },
+            ps4: { latest: '12.50', safe: '≤11.00 or ≤12.02', jailbreak: '≤11.00 (PPPwn), ≤12.02 (GoldHEN 2.4b18.6)' },
+            ps5: { latest: '10.50', safe: '≤10.01', jailbreak: '≤10.01 (etaHEN 2.0b)' },
+            vita: { latest: '3.74', safe: 'Any', jailbreak: 'All firmwares (h-encore²)' },
+            psp: { latest: '6.61', safe: 'Any', jailbreak: 'All firmwares (Pro/ME/LME CFW)' }
+        };
+        
+        const info = firmwareInfo[console];
+        
+        const embed = new EmbedBuilder()
+            .setTitle(`📱 Safe Firmware - ${console.toUpperCase()}`)
+            .setColor(0x00FF00)
+            .addFields(
+                { name: '🔄 Latest OFW', value: info.latest, inline: true },
+                { name: '✅ Safe Firmware', value: info.safe, inline: true },
+                { name: '🔓 Jailbreak Support', value: info.jailbreak, inline: false }
+            )
+            .setFooter({ text: 'Stay on safe firmware to preserve jailbreak capability!' });
+        
+        await interaction.reply({ embeds: [embed], ephemeral: true });
         return;
     }
 
     // Firmware Notifications Toggle
     if (interaction.commandName === 'fwnotify') {
-        await interaction.reply({ 
-            content: '🔔 Firmware notification settings - Feature coming soon!',
-            ephemeral: true 
-        });
+        const embed = new EmbedBuilder()
+            .setTitle('🔔 Firmware Notifications')
+            .setDescription('Get notified when new firmware updates are released for PlayStation consoles.')
+            .setColor(0x5865F2)
+            .addFields(
+                { name: 'Status', value: '⚠️ This feature requires admin setup', inline: false },
+                { name: 'How it works', value: 'Bot automatically checks for firmware updates and posts alerts to a designated channel.', inline: false }
+            );
+        
+        await interaction.reply({ embeds: [embed], ephemeral: true });
         return;
     }
 
@@ -7474,15 +7507,28 @@ const now = Date.now();
         const console = interaction.options.getString('console') || 'all';
         const category = interaction.options.getString('category') || 'all';
         
+        // Sample homebrew apps by console
+        const homebrewApps = {
+            ps3: ['multiMAN', 'webMAN MOD', 'IRISMAN', 'Apollo Save Tool', 'Retroarch', 'PKGi'],
+            ps4: ['GoldHEN', 'ItemzFlow', 'PS4 Offline Account Activator', 'Save Wizard', 'Retroarch', 'PKGi PS4'],
+            ps5: ['etaHEN', 'ItemzFlow', 'PS5 Debug Settings', 'Retroarch', 'Save Manager', 'FTP Server'],
+            vita: ['VitaShell', 'Adrenaline', 'Retroarch', 'PKGj', 'AutoPlugin', 'VitaGrafix'],
+            psp: ['PPSSPP', 'Custom Firmware', 'PSP Filer', 'CXMB', 'Game Categories', 'ISO Tool']
+        };
+        
+        const apps = homebrewApps[console] || Object.values(homebrewApps).flat().slice(0, 10);
+        
         const embed = new EmbedBuilder()
             .setTitle('🛠️ PlayStation Homebrew Browser')
-            .setDescription(`Browse homebrew for ${console.toUpperCase()}`)
+            .setDescription(`Popular homebrew apps for **${console.toUpperCase()}**`)
             .setColor(0x9B59B6)
             .addFields(
                 { name: 'Console', value: console.toUpperCase(), inline: true },
-                { name: 'Category', value: category || 'All', inline: true }
+                { name: 'Category', value: category || 'All', inline: true },
+                { name: 'Popular Apps', value: apps.map(app => `• ${app}`).join('\n'), inline: false },
+                { name: '📥 Where to Download', value: 'PSX-Place, Reddit (r/ps3homebrew, r/ps4homebrew, etc.), GBAtemp, Wololo.net', inline: false }
             )
-            .setFooter({ text: 'Homebrew database feature - Coming soon!' })
+            .setFooter({ text: 'Use at your own risk - Always backup your console!' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [embed], ephemeral: true });
@@ -7684,6 +7730,23 @@ const now = Date.now();
                         new ActionRowBuilder().addComponents(channelIdInput),
                         new ActionRowBuilder().addComponents(channelNameInput)
                     );
+                    await interaction.showModal(modal);
+                    return;
+                }
+                
+                if (interaction.customId === 'yt_addmultiple') {
+                    const modal = new ModalBuilder()
+                        .setCustomId('yt_addmultiple_modal')
+                        .setTitle('Add Multiple YouTube Channels');
+                    
+                    const channelsInput = new TextInputBuilder()
+                        .setCustomId('yt_channels_bulk')
+                        .setLabel('YouTube Channels (one per line)')
+                        .setStyle(TextInputStyle.Paragraph)
+                        .setPlaceholder('Format: ChannelID|Channel Name\nExample:\nUC...|MrBeast\nUC...|PewDiePie\nUC...|Markiplier')
+                        .setRequired(true);
+                    
+                    modal.addComponents(new ActionRowBuilder().addComponents(channelsInput));
                     await interaction.showModal(modal);
                     return;
                 }
@@ -13350,6 +13413,45 @@ const now = Date.now();
                 fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
                 
                 await interaction.reply({ content: '✅ Custom message updated!', ephemeral: true });
+                return;
+            }
+            
+            if (interaction.customId === 'yt_addmultiple_modal') {
+                const channelsBulk = interaction.fields.getTextInputValue('yt_channels_bulk');
+                const lines = channelsBulk.split('\n').filter(l => l.trim());
+                
+                const ytDataPath = './features/youtubeNotifications.json';
+                let ytData = JSON.parse(fsSync.readFileSync(ytDataPath, 'utf8'));
+                
+                let added = 0;
+                let skipped = 0;
+                
+                for (const line of lines) {
+                    const parts = line.split('|').map(p => p.trim());
+                    if (parts.length !== 2) {
+                        skipped++;
+                        continue;
+                    }
+                    
+                    const [channelId, channelName] = parts;
+                    
+                    // Check if already exists
+                    if (ytData[guildId].channels.some(ch => ch.channelId === channelId)) {
+                        skipped++;
+                        continue;
+                    }
+                    
+                    ytData[guildId].channels.push({ channelId, name: channelName });
+                    ytData[guildId].lastChecked[channelId] = null;
+                    added++;
+                }
+                
+                fsSync.writeFileSync(ytDataPath, JSON.stringify(ytData, null, 2));
+                
+                await interaction.reply({ 
+                    content: `✅ Added ${added} YouTube channel(s)!${skipped > 0 ? `\n⚠️ Skipped ${skipped} (invalid format or duplicates)` : ''}`,
+                    ephemeral: true 
+                });
                 return;
             }
             
