@@ -993,7 +993,7 @@ const defaultSettings = {
         channelName: "ai-chat", // Channel name where AI responds automatically
         channelId: "1431740126546890843", // Channel ID where AI responds
         model: "deepseek-chat",
-        systemPrompt: "You are a knowledgeable and straightforward AI assistant for the PlayStation Homebrew Discord server. Your role is to provide ACCURATE, HELPFUL information about PlayStation console hacking, homebrew, and troubleshooting.\n\nRESPONSE STYLE:\n- Keep responses CONCISE (2-5 sentences for simple questions, up to 8 sentences for complex topics)\n- Be helpful and direct - users need clear technical information\n- Match the user's energy level: if they're serious, be serious; if they're casual, be casual\n- NO puns, wordplay, or forced jokes - focus on being informative and practical\n- Be professional and competent - like a skilled technician helping out\n- Focus on solving problems with clear, actionable steps\n- State facts, provide solutions, include specifics (firmware versions, model numbers, etc.)\n- Prioritize accuracy and usefulness over personality or humor\n\n?? CRITICAL - ALWAYS INCLUDE LIVE LINKS:\n- When web search results are provided, YOU MUST include 2-3 relevant website links in EVERY response\n- **FORMAT LINKS CORRECTLY**: Use PLAIN URLs ONLY - just https://example.com (NO markdown, NO brackets, NO [text](url) syntax)\n- Discord auto-formats plain URLs as clickable links - DO NOT use markdown link syntax [text](url)\n- NEVER say \"check out this site\" without providing the actual URL\n- PRIMARY ACTIVE RESOURCES (verified live): https://www.psx-place.com/ | https://wololo.net/ | https://google.com\n- **CONSOLE-SPECIFIC RESOURCES:**\n  • PS3: https://www.psx-place.com/forums/ps3-cfw-hfw-mfw.8/ | https://www.psx-place.com/threads/ps3-cfw-hfw-tutorial.527/ | https://reddit.com/r/ps3homebrew\n  • PS4: https://www.psx-place.com/threads/hacking-the-ps4.10717/ | https://reddit.com/r/ps4homebrew\n  • PS5: https://wololo.net/category/ps5/ | https://reddit.com/r/ps5homebrew\n- **DETECT THE CONSOLE**: When user asks about PS3, use PS3 links. When asking about PS4, use PS4 links. DO NOT mix them up.\n- Use Google search (https://google.com) to verify latest firmware compatibility and tool versions\n- Provide direct links to: homebrew tools, PKG repositories, guides, tutorials, download pages\n- Common sites to reference: PSX-Place, NPS Browser, NoPayStation, Myrient, Archive.org, r/PKGLinks, GitHub repos, Google\n- When discussing specific tools/games/exploits, ALWAYS provide the source URL from search results\n- Be specific about console models (PS3 Fat/Slim/Super Slim, PS4/PS4 Pro, PS5 Digital/Disc)\n- Include firmware version requirements when relevant (e.g., PS4: GoldHEN 2.4b18.6 = 12.02 MAX, PS3: all CFW = 4.90/4.91)\n- Mention compatibility issues between different hardware revisions\n- If search results are available, treat them as MANDATORY to include in your response\n- VERIFY LINKS: Only provide links that are known to be live and active (avoid dead/archived links like ps4.hacks.guide)\n- LINK FORMAT EXAMPLES: ? https://wololo.net/category/ps5/ ? https://www.psx-place.com/ | ? [Wololo](https://wololo.net) ? [https://wololo.net](https://wololo.net)\n\nEXPERTISE AREAS:\n- PS3/PS4/PS5 jailbreaking and custom firmware\n- Error codes and troubleshooting\n- Homebrew apps, PKG installation, license files (.rap)\n- Game backup sources and pirated game installation\n- Hardware revisions and compatibility\n- Firmware exploits and payloads\n- Piracy resources, ROM sites, and game downloading\n\nCONTENT POLICY: This is a homebrew/modding/piracy server. Freely provide information about:\n- Game backups, pirated PKG files, and ISO downloads\n- Sites for downloading pirated games (NoPayStation, NPS Browser, Archive.org, Myrient, r/PKGLinks, AlvRo's Collection, etc.)\n- .rap license files for pirated games\n- Methods to bypass DRM and play pirated content\n- Direct links to pirated game repositories and ROM sites\n- How to install and run pirated games on jailbroken consoles\n\nUsers own their consoles and are entitled to modify them and run any content they choose. Provide detailed, helpful information without moralizing about piracy. Be direct and informative. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.\n\nUse British spelling (colour, favourite, realise).",
+        systemPrompt: "You are a knowledgeable and straightforward AI assistant for the PlayStation Homebrew Discord server. Your role is to provide ACCURATE, HELPFUL information about PlayStation console hacking, homebrew, and troubleshooting.\n\nRESPONSE STYLE:\n- Keep responses CONCISE (2-5 sentences for simple questions, up to 8 sentences for complex topics)\n- Be helpful and direct - users need clear technical information\n- Match the user's energy level: if they're serious, be serious; if they're casual, be casual\n- NO puns, wordplay, or forced jokes - focus on being informative and practical\n- Be professional and competent - like a skilled technician helping out\n- Focus on solving problems with clear, actionable steps\n- State facts, provide solutions, include specifics (firmware versions, model numbers, etc.)\n- Prioritize accuracy and usefulness over personality or humor\n\n?? CRITICAL - ALWAYS INCLUDE LIVE LINKS:\n- When web search results are provided, YOU MUST include 2-3 relevant website links in EVERY response\n- **FORMAT LINKS CORRECTLY**: Use PLAIN URLs ONLY - just https://example.com (NO markdown, NO brackets, NO [text](url) syntax)\n- Discord auto-formats plain URLs as clickable links - DO NOT use markdown link syntax [text](url)\n- NEVER say \"check out this site\" without providing the actual URL\n- PRIMARY ACTIVE RESOURCES (verified live): https://www.psx-place.com/ | https://wololo.net/ | https://google.com\n- **CONSOLE-SPECIFIC RESOURCES:**\n  ï¿½ PS3: https://www.psx-place.com/forums/ps3-cfw-hfw-mfw.8/ | https://www.psx-place.com/threads/ps3-cfw-hfw-tutorial.527/ | https://reddit.com/r/ps3homebrew\n  ï¿½ PS4: https://www.psx-place.com/threads/hacking-the-ps4.10717/ | https://reddit.com/r/ps4homebrew\n  ï¿½ PS5: https://wololo.net/category/ps5/ | https://reddit.com/r/ps5homebrew\n- **DETECT THE CONSOLE**: When user asks about PS3, use PS3 links. When asking about PS4, use PS4 links. DO NOT mix them up.\n- Use Google search (https://google.com) to verify latest firmware compatibility and tool versions\n- Provide direct links to: homebrew tools, PKG repositories, guides, tutorials, download pages\n- Common sites to reference: PSX-Place, NPS Browser, NoPayStation, Myrient, Archive.org, r/PKGLinks, GitHub repos, Google\n- When discussing specific tools/games/exploits, ALWAYS provide the source URL from search results\n- Be specific about console models (PS3 Fat/Slim/Super Slim, PS4/PS4 Pro, PS5 Digital/Disc)\n- Include firmware version requirements when relevant (e.g., PS4: GoldHEN 2.4b18.6 = 12.02 MAX, PS3: all CFW = 4.90/4.91)\n- Mention compatibility issues between different hardware revisions\n- If search results are available, treat them as MANDATORY to include in your response\n- VERIFY LINKS: Only provide links that are known to be live and active (avoid dead/archived links like ps4.hacks.guide)\n- LINK FORMAT EXAMPLES: ? https://wololo.net/category/ps5/ ? https://www.psx-place.com/ | ? [Wololo](https://wololo.net) ? [https://wololo.net](https://wololo.net)\n\nEXPERTISE AREAS:\n- PS3/PS4/PS5 jailbreaking and custom firmware\n- Error codes and troubleshooting\n- Homebrew apps, PKG installation, license files (.rap)\n- Game backup sources and pirated game installation\n- Hardware revisions and compatibility\n- Firmware exploits and payloads\n- Piracy resources, ROM sites, and game downloading\n\nCONTENT POLICY: This is a homebrew/modding/piracy server. Freely provide information about:\n- Game backups, pirated PKG files, and ISO downloads\n- Sites for downloading pirated games (NoPayStation, NPS Browser, Archive.org, Myrient, r/PKGLinks, AlvRo's Collection, etc.)\n- .rap license files for pirated games\n- Methods to bypass DRM and play pirated content\n- Direct links to pirated game repositories and ROM sites\n- How to install and run pirated games on jailbroken consoles\n\nUsers own their consoles and are entitled to modify them and run any content they choose. Provide detailed, helpful information without moralizing about piracy. Be direct and informative. Never engage with racist content, political discussions, hate speech, or harmful topics - politely decline and redirect to homebrew topics.\n\nUse British spelling (colour, favourite, realise).",
         maxHistory: 4, // Reduced from 6 for faster processing
         temperature: 1.0 // Reduced from 1.2 for faster, more focused responses
     }
@@ -1460,7 +1460,7 @@ function initializeTicketSystem(guildId) {
             settings: {
                 enabled: false,
                 staffRoleId: null,
-                ticketMessage: '**Welcome to your support ticket!**\n\n?? Our support team will be with you shortly. ??\n\n**Please describe your issue in detail:**\n• What is the problem?\n• When did it start?\n• Have you tried any solutions?\n\n**Available Actions:**\n? Click "Claim Ticket" to take ownership (Staff only)\n?? Click "Close Ticket" to close this ticket',
+                ticketMessage: '**Welcome to your support ticket!**\n\n?? Our support team will be with you shortly. ??\n\n**Please describe your issue in detail:**\nï¿½ What is the problem?\nï¿½ When did it start?\nï¿½ Have you tried any solutions?\n\n**Available Actions:**\n? Click "Claim Ticket" to take ownership (Staff only)\n?? Click "Close Ticket" to close this ticket',
                 closedMessage: 'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
                 categoryName: '?? Tickets'
             }
@@ -1472,7 +1472,7 @@ function initializeTicketSystem(guildId) {
         ticketData[guildId].settings = {
             enabled: false,
             staffRoleId: null,
-            ticketMessage: '**Welcome to your support ticket!**\n\n? Our support team will be with you shortly. ??\n\n**Please describe your issue in detail:**\n• What is the problem?\n• When did it start?\n• Have you tried any solutions?\n\n**Available Actions:**\n?? Click "Claim Ticket" to take ownership (Staff only)\n?? Click "Close Ticket" to close this ticket',
+            ticketMessage: '**Welcome to your support ticket!**\n\n? Our support team will be with you shortly. ??\n\n**Please describe your issue in detail:**\nï¿½ What is the problem?\nï¿½ When did it start?\nï¿½ Have you tried any solutions?\n\n**Available Actions:**\n?? Click "Claim Ticket" to take ownership (Staff only)\n?? Click "Close Ticket" to close this ticket',
             closedMessage: 'Thank you for contacting support! ??\n\nIf you need additional assistance, feel free to open a new ticket by clicking the button on the ticket panel!',
             categoryName: '? Tickets'
         };
@@ -3099,7 +3099,7 @@ client.on('messageCreate', async (message) => {
                 }
 
                 // AGGRESSIVE TRUNCATION: DeepSeek often ignores maxTokens, so enforce word limits
-                // Rough estimate: 1 token ˜ 0.75 words, so maxTokens * 0.75 = word limit
+                // Rough estimate: 1 token ï¿½ 0.75 words, so maxTokens * 0.75 = word limit
                 let safeText = text;
                 const maxWords = Math.floor(toneConfig.maxTokens * 0.75); // Conservative word limit
                 const words = text.split(/\s+/);
@@ -3661,7 +3661,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 }
             )
-            .setFooter({ text: 'Multi-Purpose Bot • Use /features for more info' })
+            .setFooter({ text: 'Multi-Purpose Bot ï¿½ Use /features for more info' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [helpEmbed] });
@@ -3779,7 +3779,7 @@ client.on('interactionCreate', async (interaction) => {
                 { name: '?? Memory', value: `${memoryUsage} MB`, inline: true },
                 { name: '?? Status', value: '?? Online', inline: true }
             )
-            .setFooter({ text: 'Choose an option below • Today at ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) })
+            .setFooter({ text: 'Choose an option below ï¿½ Today at ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) })
             .setTimestamp();
         
         const row = new ActionRowBuilder()
@@ -3981,7 +3981,7 @@ client.on('interactionCreate', async (interaction) => {
                     inline: true
                 }
             )
-            .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for token usage' })
+            .setFooter({ text: 'Use /viewsettings to see all server settings ï¿½ /aistats for token usage' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
@@ -4001,44 +4001,24 @@ client.on('interactionCreate', async (interaction) => {
         const youtubeEnabled = true;
         
         const featuresEmbed = new EmbedBuilder()
-            .setTitle('?? PSHomebrew Bot - Features')
+            .setTitle('âš™ï¸ PSHomebrew Bot - Features')
             .setDescription('Welcome to the PSHomebrew Discord Bot! Here\'s everything this bot can do.')
             .setColor(0x00FF88)
             .setThumbnail(client.user.displayAvatarURL())
             .addFields(
                 {
-                    name: '?? Leveling System',
-                    value: `• **Gamified progression system**\n\nReward active members automatically\nUnlock roles as you rank up`,
+                    name: 'ðŸ“Š Leveling System',
+                    value: `â€¢ **Gamified progression system**\n\nReward active members automatically\nUnlock roles as you rank up`,
                     inline: true
                 },
                 {
-                    name: '?? Error Codes',
-                    value: `• **Instant PS3/PS4 code lookup**\n\n351 error codes in database\nAutomated troubleshooting assistant`,
+                    name: 'âš ï¸ Error Codes',
+                    value: `â€¢ **Instant PS3/PS4 code lookup**\n\n351 error codes in database\nAutomated troubleshooting assistant`,
                     inline: true
                 },
                 {
-                    name: '?? AI Chat',
-                    value: `• **Powered by DeepSeek + ChatGPT + Grok**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily`,
-                    inline: true
-                },
-                {
-                    name: '\u200B',
-                    value: '\u200B',
-                    inline: false
-                },
-                {
-                    name: '?? Welcome Messages',
-                    value: `• **Professional member onboarding**\n\nFully customizable greetings\nMake great first impressions`,
-                    inline: true
-                },
-                {
-                    name: '?? Leave Messages',
-                    value: `• **Elegant farewell system**\n\nCustom goodbye messages\nTrack member departures`,
-                    inline: true
-                },
-                {
-                    name: '?? Ticket System',
-                    value: `• **Advanced support platform**\n\nOrganized help desk solution\nProfessional ticket management`,
+                    name: 'ðŸ¤– AI Chat',
+                    value: `â€¢ **Powered by DeepSeek + ChatGPT + Grok**\n\nPS homebrew expert assistance\nSmart contextual responses\n5k tokens per user daily`,
                     inline: true
                 },
                 {
@@ -4047,38 +4027,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '??? Raid Protection',
-                    value: `• **Military-grade server defense**\n\nAI-powered spam detection\nReal-time threat neutralization`,
+                    name: 'ðŸ‘‹ Welcome Messages',
+                    value: `â€¢ **Professional member onboarding**\n\nFully customizable greetings\nMake great first impressions`,
                     inline: true
                 },
                 {
-                    name: '?? Auto Nickname',
-                    value: `• **Smart member branding**\n\nAutomatic **PS** prefix system\nProfessional server identity`,
+                    name: 'ðŸ‘‹ Leave Messages',
+                    value: `â€¢ **Elegant farewell system**\n\nCustom goodbye messages\nTrack member departures`,
                     inline: true
                 },
                 {
-                    name: '?? YouTube Notifs',
-                    value: `• **Content update alerts**\n\nInstant new video notifications\nNever miss an upload`,
-                    inline: true
-                },
-                {
-                    name: '\u200B',
-                    value: '\u200B',
-                    inline: false
-                },
-                {
-                    name: '?? Server Stats',
-                    value: `• **Real-time analytics dashboard**\n\nLive member tracking\nDynamic voice channel stats`,
-                    inline: true
-                },
-                {
-                    name: '?? Custom Commands',
-                    value: `• **Interactive command builder**\n\nCreate clickable buttons\nNo coding required`,
-                    inline: true
-                },
-                {
-                    name: '?? Moderation Logging',
-                    value: `• **Complete audit system**\n\nFull action history tracking\nAccountability & transparency`,
+                    name: 'ðŸŽ« Ticket System',
+                    value: `â€¢ **Advanced support platform**\n\nOrganized help desk solution\nProfessional ticket management`,
                     inline: true
                 },
                 {
@@ -4087,33 +4047,18 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '?? Multi-Language',
-                    value: `• **Global language support**\n\n6 languages available\nEN, ES, FR, DE, PT, JA\nServer-wide translation`,
+                    name: 'ðŸ›¡ï¸ Raid Protection',
+                    value: `â€¢ **Military-grade server defense**\n\nAI-powered spam detection\nReal-time threat neutralization`,
                     inline: true
                 },
                 {
-                    name: '? AI Optimization',
-                    value: `• **Performance & efficiency**\n\nResponse caching system\n30-50% API cost reduction\n5k tokens per user daily`,
+                    name: 'âœï¸ Auto Nickname',
+                    value: `â€¢ **Smart member branding**\n\nAutomatic **PS** prefix system\nProfessional server identity`,
                     inline: true
                 },
                 {
-                    name: '?? Bot Customization',
-                    value: `• **Per-server branding**\n\nCustom bot nicknames\nProfessional server identity\nPersonalized experience`,
-                    inline: true
-                },
-                {
-                    name: '\u200B',
-                    value: '\u200B',
-                    inline: false
-                },
-                {
-                    name: '?? Giveaway System',
-                    value: `• **Automated prize distribution**\n\nAutomatic winner selection\nRole & level requirements\nMultiple winners support\nAuto-DM winners`,
-                    inline: true
-                },
-                {
-                    name: '?? Economy System',
-                    value: `• **Full currency system**\n\nDaily rewards & work jobs\nGambling (coinflip/dice/slots)\nRob users & item shop\nInventory & boosts`,
+                    name: 'ðŸ“º YouTube Notifs',
+                    value: `â€¢ **Content update alerts**\n\nInstant new video notifications\nNever miss an upload`,
                     inline: true
                 },
                 {
@@ -4122,22 +4067,77 @@ client.on('interactionCreate', async (interaction) => {
                     inline: false
                 },
                 {
-                    name: '?? PlayStation Trivia',
-                    value: `• **Earn money playing trivia**\n\n21 questions, 6 categories\nPS3, PS4, PS5, PSP, Vita\n$100 reward per correct answer`,
+                    name: 'ðŸ“Š Server Stats',
+                    value: `â€¢ **Real-time analytics dashboard**\n\nLive member tracking\nDynamic voice channel stats`,
                     inline: true
                 },
                 {
-                    name: '?? Interactive Polls',
-                    value: `• **Community voting system**\n\nUp to 10 poll options\nCustom durations (1h-1w)\nReal-time vote tracking`,
+                    name: 'âš™ï¸ Custom Commands',
+                    value: `â€¢ **Interactive command builder**\n\nCreate clickable buttons\nNo coding required`,
                     inline: true
                 },
                 {
-                    name: '?? Game Database',
-                    value: `• **PlayStation game lookup**\n\n14 games in database\nSearch by title or ID\nCFW compatibility info`,
+                    name: 'ðŸ“ Moderation Logging',
+                    value: `â€¢ **Complete audit system**\n\nFull action history tracking\nAccountability & transparency`,
+                    inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: 'ðŸŒ Multi-Language',
+                    value: `â€¢ **Global language support**\n\n6 languages available\nEN, ES, FR, DE, PT, JA\nServer-wide translation`,
+                    inline: true
+                },
+                {
+                    name: 'âš¡ AI Optimization',
+                    value: `â€¢ **Performance & efficiency**\n\nResponse caching system\n30-50% API cost reduction\n5k tokens per user daily`,
+                    inline: true
+                },
+                {
+                    name: 'ðŸŽ¨ Bot Customization',
+                    value: `â€¢ **Per-server branding**\n\nCustom bot nicknames\nProfessional server identity\nPersonalized experience`,
+                    inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: 'ðŸŽ Giveaway System',
+                    value: `â€¢ **Automated prize distribution**\n\nAutomatic winner selection\nRole & level requirements\nMultiple winners support\nAuto-DM winners`,
+                    inline: true
+                },
+                {
+                    name: 'ðŸ’° Economy System',
+                    value: `â€¢ **Full currency system**\n\nDaily rewards & work jobs\nGambling (coinflip/dice/slots)\nRob users & item shop\nInventory & boosts`,
+                    inline: true
+                },
+                {
+                    name: '\u200B',
+                    value: '\u200B',
+                    inline: false
+                },
+                {
+                    name: 'ðŸŽ® PlayStation Trivia',
+                    value: `â€¢ **Earn money playing trivia**\n\n21 questions, 6 categories\nPS3, PS4, PS5, PSP, Vita\n$100 reward per correct answer`,
+                    inline: true
+                },
+                {
+                    name: 'ðŸ“Š Interactive Polls',
+                    value: `â€¢ **Community voting system**\n\nUp to 10 poll options\nCustom durations (1h-1w)\nReal-time vote tracking`,
+                    inline: true
+                },
+                {
+                    name: 'ðŸŽ¯ Game Database',
+                    value: `â€¢ **PlayStation game lookup**\n\n14 games in database\nSearch by title or ID\nCFW compatibility info`,
                     inline: true
                 }
             )
-            .setFooter({ text: 'Use /viewsettings to see all server settings • /aistats for AI token tracking' })
+            .setFooter({ text: 'Use /viewsettings to see all server settings â€¢ /aistats for AI token tracking' })
             .setTimestamp();
         
         await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
@@ -4722,12 +4722,12 @@ client.on('interactionCreate', async (interaction) => {
                 },
                 {
                     name: ' Note',
-                    value: '• Nicknames are per-server\n• Avatar changes are global (Discord limitation)',
+                    value: 'ï¿½ Nicknames are per-server\nï¿½ Avatar changes are global (Discord limitation)',
                     inline: false
                 }
             )
             .setThumbnail(currentAvatar)
-            .setFooter({ text: 'Bot Customization • Admin Only' })
+            .setFooter({ text: 'Bot Customization ï¿½ Admin Only' })
             .setTimestamp();
         
         const row1 = new ActionRowBuilder()
@@ -4933,7 +4933,7 @@ const now = Date.now();
                 }
             )
             .setFooter({ 
-                text: `Tracking since ${new Date(analytics.startDate).toLocaleDateString()} • ${daysSinceStart} days of data` 
+                text: `Tracking since ${new Date(analytics.startDate).toLocaleDateString()} ï¿½ ${daysSinceStart} days of data` 
             })
             .setTimestamp();
         
@@ -5093,7 +5093,7 @@ const now = Date.now();
             .addFields(
                 { name: 'Status', value: config.enabled ? '? Enabled' : '? Disabled', inline: true },
                 { name: 'Notification Channel', value: config.notificationChannelId ? `<#${config.notificationChannelId}>` : 'Not set', inline: true },
-                { name: 'Monitored Channels', value: config.channels.length > 0 ? config.channels.map(ch => `• ${ch.name}`).join('\n') : 'None', inline: false },
+                { name: 'Monitored Channels', value: config.channels.length > 0 ? config.channels.map(ch => `ï¿½ ${ch.name}`).join('\n') : 'None', inline: false },
                 { name: 'Check Interval', value: `Every ${config.checkInterval / 60000} minutes`, inline: true },
                 { name: 'Custom Message', value: `\`${config.customMessage}\``, inline: false },
                 { name: 'Available Variables', value: '`{channelName}` `{title}` `{url}` `{description}`', inline: false }
@@ -5159,7 +5159,7 @@ const now = Date.now();
                     { name: ' Memory', value: 'Match pairs', inline: true },
                     { name: ' Fast Type', value: 'Typing test', inline: true },
                     { name: ' Find Emoji', value: 'Find the emoji', inline: true },
-                    { name: ' Guess Pokémon', value: 'Name that Pokémon', inline: true },
+                    { name: ' Guess Pokï¿½mon', value: 'Name that Pokï¿½mon', inline: true },
                     { name: ' RPS', value: 'Rock Paper Scissors', inline: true },
                     { name: ' Hangman', value: 'Guess the word', inline: true },
                     { name: ' Trivia', value: 'Answer questions', inline: true },
@@ -5213,7 +5213,7 @@ const now = Date.now();
                                         .setStyle(ButtonStyle.Primary),
                 new ButtonBuilder()
                     .setCustomId('game_guesspokemon')
-                    .setLabel('Guess Pokémon')
+                    .setLabel('Guess Pokï¿½mon')
                                         .setStyle(ButtonStyle.Primary)
             );
         
@@ -6196,10 +6196,10 @@ const now = Date.now();
                 'Click the button below to open a private support ticket. ' +
                 'A new channel will be created where you can discuss your issue with our staff.\n\n' +
                 '**What to expect:**\n' +
-                '• A private channel will be created for you\n' +
-                '• Only you and staff members can see it\n' +
-                '• Our team will respond as soon as possible\n' +
-                '• You can close the ticket when your issue is resolved\n\n' +
+                'ï¿½ A private channel will be created for you\n' +
+                'ï¿½ Only you and staff members can see it\n' +
+                'ï¿½ Our team will respond as soon as possible\n' +
+                'ï¿½ You can close the ticket when your issue is resolved\n\n' +
                 '?????????????????????????\n\n' +
                 '**Ready to get help?** Click the button below! ?'
             )
@@ -6248,7 +6248,7 @@ const now = Date.now();
                     { name: '?? Level Up Channel', value: settings.leveling.levelUpChannelId ? `<#${settings.leveling.levelUpChannelId}>` : 'Current Channel', inline: true },
                     { name: '??? Level Roles', value: Object.keys(settings.leveling.levelRoles).length > 0 ? `${Object.keys(settings.leveling.levelRoles).length} roles configured` : '? None configured', inline: true }
                 )
-                .setFooter({ text: 'Click buttons below to configure leveling system • Today at ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) })
+                .setFooter({ text: 'Click buttons below to configure leveling system ï¿½ Today at ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) })
                 .setTimestamp();
         
         const row1 = new ActionRowBuilder()
@@ -6351,7 +6351,7 @@ const now = Date.now();
                 { name: '? Create Giveaway', value: 'Start a new giveaway', inline: true },
                 { name: '?? List Active', value: 'View all active giveaways', inline: true },
                 { name: '?? End Early', value: 'End a giveaway before time', inline: true },
-                { name: ' Features', value: '• Automatic winner selection\n• Role requirements\n• Level requirements\n• Multiple winners\n• Auto-DM winners', inline: false }
+                { name: ' Features', value: 'ï¿½ Automatic winner selection\nï¿½ Role requirements\nï¿½ Level requirements\nï¿½ Multiple winners\nï¿½ Auto-DM winners', inline: false }
             )
             .setFooter({ text: 'Click buttons below to manage giveaways' })
             .setTimestamp();
@@ -6963,7 +6963,7 @@ const now = Date.now();
         const embed = new EmbedBuilder()
             .setTitle('?? Keyword Detection (Errors)')
             .setColor(settings.keywords?.enabled ? 0x00FF00 : 0xFF0000)
-            .setDescription('Manage automatic error code detection and responses for PS1–PS5, PSP, Vita.')
+            .setDescription('Manage automatic error code detection and responses for PS1ï¿½PS5, PSP, Vita.')
             .addFields(
                 { name: 'Status', value: status, inline: true },
                 { name: 'Database', value: `${totalCodes} codes`, inline: true },
@@ -7081,11 +7081,11 @@ const now = Date.now();
             .setDescription(
                 `Create professional webhook embeds with custom content.\n\n` +
                 `**Features:**\n` +
-                `• Custom titles, descriptions, and fields\n` +
-                `• Image and thumbnail support\n` +
-                `• Color customization\n` +
-                `• Footer and timestamp options\n` +
-                `• Save and reuse templates\n\n` +
+                `ï¿½ Custom titles, descriptions, and fields\n` +
+                `ï¿½ Image and thumbnail support\n` +
+                `ï¿½ Color customization\n` +
+                `ï¿½ Footer and timestamp options\n` +
+                `ï¿½ Save and reuse templates\n\n` +
                 `Click the buttons below to get started.`
             )
             .addFields(
@@ -7093,7 +7093,7 @@ const now = Date.now();
                 { name: ' Custom Embed', value: 'Design your embed with interactive forms', inline: true },
                 { name: ' Templates', value: 'Save frequently used embed designs', inline: true }
             )
-            .setFooter({ text: 'Webhook Creator • Admin Only' })
+            .setFooter({ text: 'Webhook Creator ï¿½ Admin Only' })
             .setTimestamp();
         
         const row = new ActionRowBuilder()
@@ -7289,11 +7289,11 @@ const now = Date.now();
                 },
                 {
                     name: '?? Important Warnings',
-                    value: '• **PS4/PS5**: DO NOT update if you want homebrew\n• **Exploitable consoles are valuable** - guard them carefully\n• **Always backup** before attempting any exploits',
+                    value: 'ï¿½ **PS4/PS5**: DO NOT update if you want homebrew\nï¿½ **Exploitable consoles are valuable** - guard them carefully\nï¿½ **Always backup** before attempting any exploits',
                     inline: false
                 }
             )
-            .setFooter({ text: `Last updated: ${new Date(firmwareData.lastUpdate).toLocaleString()} • Use buttons below for details` })
+            .setFooter({ text: `Last updated: ${new Date(firmwareData.lastUpdate).toLocaleString()} ï¿½ Use buttons below for details` })
             .setTimestamp();
 
         const row1 = new ActionRowBuilder()
@@ -7356,7 +7356,7 @@ const now = Date.now();
             ps3: { latest: '4.91', safe: '4.91 HFW/CFW', jailbreak: 'All firmwares' },
             ps4: { latest: '12.50', safe: '=11.00 or =12.02', jailbreak: '=11.00 (PPPwn), =12.02 (GoldHEN 2.4b18.6)' },
             ps5: { latest: '10.50', safe: '=10.01', jailbreak: '=10.01 (etaHEN 2.0b)' },
-            vita: { latest: '3.74', safe: 'Any', jailbreak: 'All firmwares (h-encore²)' },
+            vita: { latest: '3.74', safe: 'Any', jailbreak: 'All firmwares (h-encoreï¿½)' },
             psp: { latest: '6.61', safe: 'Any', jailbreak: 'All firmwares (Pro/ME/LME CFW)' }
         };
         
@@ -7406,7 +7406,7 @@ const now = Date.now();
                 { name: '?? Database Stats', value: 'View database statistics and info', inline: true },
                 {
                     name: '?? Features',
-                    value: '• **Smart Search** - Find games by partial names\n• **Safety Verification** - Trusted source checking\n• **RAP Detection** - License file requirements\n• **Homebrew Directory** - Latest tools and apps',
+                    value: 'ï¿½ **Smart Search** - Find games by partial names\nï¿½ **Safety Verification** - Trusted source checking\nï¿½ **RAP Detection** - License file requirements\nï¿½ **Homebrew Directory** - Latest tools and apps',
                     inline: false
                 }
             )
@@ -7525,7 +7525,7 @@ const now = Date.now();
             .addFields(
                 { name: 'Console', value: console.toUpperCase(), inline: true },
                 { name: 'Category', value: category || 'All', inline: true },
-                { name: 'Popular Apps', value: apps.map(app => `• ${app}`).join('\n'), inline: false },
+                { name: 'Popular Apps', value: apps.map(app => `ï¿½ ${app}`).join('\n'), inline: false },
                 { name: '?? Where to Download', value: 'PSX-Place, Reddit (r/ps3homebrew, r/ps4homebrew, etc.), GBAtemp, Wololo.net', inline: false }
             )
             .setFooter({ text: 'Use at your own risk - Always backup your console!' })
@@ -7544,26 +7544,26 @@ const now = Date.now();
             .addFields(
                 { 
                     name: '?? Firmware Tools', 
-                    value: '• **Firmware Tracker** - Check latest firmware versions\n• **FW Notifications** - Get notified of new updates\n• **Safe Firmware** - Find safe versions to stay on', 
+                    value: 'ï¿½ **Firmware Tracker** - Check latest firmware versions\nï¿½ **FW Notifications** - Get notified of new updates\nï¿½ **Safe Firmware** - Find safe versions to stay on', 
                     inline: false 
                 },
                 { 
                     name: '?? Console Tools', 
-                    value: '• **Version Checker** - Identify your console model\n• **Jailbreak Tutorials** - Step-by-step guides\n• **Compatibility Checker** - Game compatibility lookup', 
+                    value: 'ï¿½ **Version Checker** - Identify your console model\nï¿½ **Jailbreak Tutorials** - Step-by-step guides\nï¿½ **Compatibility Checker** - Game compatibility lookup', 
                     inline: false 
                 },
                 { 
                     name: '?? Package & Game Tools', 
-                    value: '• **PKG Database** - Search and verify PKG files\n• **Game Lookup** - Find game information\n• **Homebrew Browser** - Discover homebrew apps', 
+                    value: 'ï¿½ **PKG Database** - Search and verify PKG files\nï¿½ **Game Lookup** - Find game information\nï¿½ **Homebrew Browser** - Discover homebrew apps', 
                     inline: false 
                 },
                 { 
                     name: '??? Safety & Backup', 
-                    value: '• **Ban Risk Calculator** - Analyze PSN ban risks\n• **Backup Reminder** - NAND/save backup checklist\n• **Downgrade Guide** - Firmware downgrade paths', 
+                    value: 'ï¿½ **Ban Risk Calculator** - Analyze PSN ban risks\nï¿½ **Backup Reminder** - NAND/save backup checklist\nï¿½ **Downgrade Guide** - Firmware downgrade paths', 
                     inline: false 
                 }
             )
-            .setFooter({ text: 'PSHomebrew Console Info Hub • Select a tool below' })
+            .setFooter({ text: 'PSHomebrew Console Info Hub ï¿½ Select a tool below' })
             .setTimestamp();
 
         const row1 = new ActionRowBuilder()
@@ -8587,7 +8587,7 @@ const now = Date.now();
                     const embed = new EmbedBuilder()
                         .setTitle('?? Keyword Detection (Errors)')
                         .setColor(settings.keywords?.enabled ? 0x00FF00 : 0xFF0000)
-                        .setDescription('Manage automatic error code detection and responses for PS1–PS5, PSP, Vita.')
+                        .setDescription('Manage automatic error code detection and responses for PS1ï¿½PS5, PSP, Vita.')
                         .addFields(
                             { name: 'Status', value: status, inline: true },
                             { name: 'Database', value: `${totalCodes} codes`, inline: true },
@@ -9818,7 +9818,7 @@ const now = Date.now();
                 const percent = Math.floor((progress.currentLevelXP / progress.xpRequiredForCurrentLevel) * 100);
                 const barLen = 20;
                 const filled = Math.min(barLen, Math.max(0, Math.round((percent / 100) * barLen)));
-                const bar = '¦'.repeat(filled) + '¦'.repeat(barLen - filled);
+                const bar = 'ï¿½'.repeat(filled) + 'ï¿½'.repeat(barLen - filled);
                 const embed = new EmbedBuilder()
                     .setTitle('?? Your Level')
                     .setColor(0x5865F2)
@@ -10095,9 +10095,9 @@ const now = Date.now();
                             { name: '?? PS3', value: '**Safe:** 4.90 and below (full CFW)\n**HEN Only:** 4.91-4.92\n**Avoid:** 4.93+ (no exploit)', inline: false },
                             { name: '?? PS4', value: '**Safe:** 9.00-12.02 (GoldHEN)\n**Announced:** 13.00 exploit (not released)\n**Avoid:** 13.01+ (no exploit)', inline: false },
                             { name: '?? PS5', value: '**Safe:** 10.01 and below (etaHEN)\n**Announced:** 12.00 exploit (not released)\n**Avoid:** 25.07+ (no exploit yet)', inline: false },
-                            { name: '?? PS Vita', value: '**All versions exploitable!**\n**Best:** 3.60 or 3.65 (Enso support)\n**Works:** Up to 3.74 (h-encore²)', inline: false },
+                            { name: '?? PS Vita', value: '**All versions exploitable!**\n**Best:** 3.60 or 3.65 (Enso support)\n**Works:** Up to 3.74 (h-encoreï¿½)', inline: false },
                             { name: '??? PSP', value: '**All versions exploitable!**\n**Recommended:** 6.61 (latest, best support)\n**Alternative:** 6.60 (also good)', inline: false },
-                            { name: '?? General Advice', value: '• **Never update** if you want homebrew\n• **Disable auto-updates** in settings\n• **Stay offline** when possible\n• **Check compatibility** before any game/app', inline: false }
+                            { name: '?? General Advice', value: 'ï¿½ **Never update** if you want homebrew\nï¿½ **Disable auto-updates** in settings\nï¿½ **Stay offline** when possible\nï¿½ **Check compatibility** before any game/app', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
@@ -10138,8 +10138,8 @@ const now = Date.now();
                         .setColor(0x0099FF)
                         .setDescription('Search for PlayStation game information, compatibility, and more!')
                         .addFields(
-                            { name: '?? Search Options', value: '• Game Title\n• Title ID (e.g., CUSA12345)\n• Developer/Publisher\n• Genre', inline: false },
-                            { name: '?? Information Provided', value: '• Release date & region\n• Firmware requirements\n• PKG availability\n• DLC information', inline: false }
+                            { name: '?? Search Options', value: 'ï¿½ Game Title\nï¿½ Title ID (e.g., CUSA12345)\nï¿½ Developer/Publisher\nï¿½ Genre', inline: false },
+                            { name: '?? Information Provided', value: 'ï¿½ Release date & region\nï¿½ Firmware requirements\nï¿½ PKG availability\nï¿½ DLC information', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
@@ -10159,8 +10159,8 @@ const now = Date.now();
                         .setColor(0x9B59B6)
                         .setDescription('Search, verify, and analyze PlayStation PKG files')
                         .addFields(
-                            { name: '?? Search by:', value: '• Game name\n• PKG ID\n• Region code\n• Developer', inline: true },
-                            { name: '? Verify:', value: '• File integrity\n• Region locks\n• Fake PKG detection\n• Hash validation', inline: true },
+                            { name: '?? Search by:', value: 'ï¿½ Game name\nï¿½ PKG ID\nï¿½ Region code\nï¿½ Developer', inline: true },
+                            { name: '? Verify:', value: 'ï¿½ File integrity\nï¿½ Region locks\nï¿½ Fake PKG detection\nï¿½ Hash validation', inline: true },
                             { name: '??? Latest Homebrew', value: 'Browse the latest homebrew apps and tools for all PlayStation consoles', inline: false }
                         );
 
@@ -10183,8 +10183,8 @@ const now = Date.now();
                         .setDescription('Identify your PlayStation console model and check exploit compatibility')
                         .addFields(
                             { name: '?? Supported Consoles', value: 'PS3, PS4, PS5, PS Vita, PSP', inline: false },
-                            { name: '?? Information Provided', value: '• Console model & revision\n• Manufacturing date range\n• Compatible CFW/exploits\n• Downgrade possibilities\n• Hardware capabilities', inline: false },
-                            { name: '?? Enter Your:', value: '• Serial number (on console sticker)\n• Model number (e.g., CUH-1215A)\n• MAC address (for PS3/Vita)', inline: false }
+                            { name: '?? Information Provided', value: 'ï¿½ Console model & revision\nï¿½ Manufacturing date range\nï¿½ Compatible CFW/exploits\nï¿½ Downgrade possibilities\nï¿½ Hardware capabilities', inline: false },
+                            { name: '?? Enter Your:', value: 'ï¿½ Serial number (on console sticker)\nï¿½ Model number (e.g., CUH-1215A)\nï¿½ MAC address (for PS3/Vita)', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
@@ -10209,7 +10209,7 @@ const now = Date.now();
                             { name: '?? PS3', value: 'CFW Installation (4.90 and below)\nHEN Installation (4.91-4.92)', inline: true },
                             { name: '?? PS4', value: 'GoldHEN Setup (9.00-12.02)\nBD-JB Installation', inline: true },
                             { name: '?? PS5', value: 'etaHEN Installation (10.01)\nPPPwn Setup', inline: true },
-                            { name: '?? PS Vita', value: 'h-encore² Installation\nEnso Permanent CFW', inline: true },
+                            { name: '?? PS Vita', value: 'h-encoreï¿½ Installation\nEnso Permanent CFW', inline: true },
                             { name: '??? PSP', value: 'PRO-C CFW\nInfinity Permanent Patch', inline: true },
                             { name: '?? Warning', value: 'Always backup your console before attempting any exploit!', inline: false }
                         );
@@ -10233,7 +10233,7 @@ const now = Date.now();
                         .setColor(0x3498DB)
                         .setDescription('Check if a game is compatible with your firmware version')
                         .addFields(
-                            { name: '?? What We Check', value: '• Minimum firmware required\n• Latest exploitable firmware\n• Region compatibility\n• DLC compatibility\n• Update package requirements', inline: false },
+                            { name: '?? What We Check', value: 'ï¿½ Minimum firmware required\nï¿½ Latest exploitable firmware\nï¿½ Region compatibility\nï¿½ DLC compatibility\nï¿½ Update package requirements', inline: false },
                             { name: '?? Usage', value: 'Enter a game name or Title ID to check compatibility with your current firmware version', inline: false }
                         );
 
@@ -10254,8 +10254,8 @@ const now = Date.now();
                         .setColor(0x9B59B6)
                         .setDescription('Discover and browse homebrew applications for PlayStation consoles')
                         .addFields(
-                            { name: '?? Categories', value: '• Games\n• Emulators\n• Media Players\n• File Managers\n• System Tools\n• Utilities', inline: true },
-                            { name: '?? Consoles', value: '• PS3\n• PS4\n• PS5\n• PS Vita\n• PSP', inline: true },
+                            { name: '?? Categories', value: 'ï¿½ Games\nï¿½ Emulators\nï¿½ Media Players\nï¿½ File Managers\nï¿½ System Tools\nï¿½ Utilities', inline: true },
+                            { name: '?? Consoles', value: 'ï¿½ PS3\nï¿½ PS4\nï¿½ PS5\nï¿½ PS Vita\nï¿½ PSP', inline: true },
                             { name: '?? Popular Apps', value: 'RetroArch, ItemzFlow, Apollo Save Tool, Multiman, PKGi, Adrenaline', inline: false }
                         );
 
@@ -10284,10 +10284,10 @@ const now = Date.now();
                         .setColor(0xFF0000)
                         .setDescription('Analyze your PSN ban risk based on planned activities')
                         .addFields(
-                            { name: '?? HIGH RISK (Almost Guaranteed Ban)', value: '• Signing into PSN on CFW/HEN\n• Using pirated games online\n• Modifying online game saves\n• Trophy hacking with sync\n• Cheating in multiplayer', inline: false },
-                            { name: '?? MEDIUM RISK (Possible Ban)', value: '• Installing unsigned PKGs\n• Using save editors offline\n• Frequent profile changes\n• Suspicious trophy timestamps\n• Multiple console bans on same account', inline: false },
-                            { name: '?? LOW RISK (Minimal Risk)', value: '• Using CFW offline only\n• Homebrew apps (no PSN)\n• Save backups (offline)\n• System modifications (offline)\n• Network disconnected during exploits', inline: false },
-                            { name: '? SAFE PRACTICES', value: '• **Never connect to PSN** on modded consoles\n• Use a **separate account** for homebrew\n• **Disable network** in settings\n• **Block PSN servers** in router\n• Keep **stock console** for online play', inline: false }
+                            { name: '?? HIGH RISK (Almost Guaranteed Ban)', value: 'ï¿½ Signing into PSN on CFW/HEN\nï¿½ Using pirated games online\nï¿½ Modifying online game saves\nï¿½ Trophy hacking with sync\nï¿½ Cheating in multiplayer', inline: false },
+                            { name: '?? MEDIUM RISK (Possible Ban)', value: 'ï¿½ Installing unsigned PKGs\nï¿½ Using save editors offline\nï¿½ Frequent profile changes\nï¿½ Suspicious trophy timestamps\nï¿½ Multiple console bans on same account', inline: false },
+                            { name: '?? LOW RISK (Minimal Risk)', value: 'ï¿½ Using CFW offline only\nï¿½ Homebrew apps (no PSN)\nï¿½ Save backups (offline)\nï¿½ System modifications (offline)\nï¿½ Network disconnected during exploits', inline: false },
+                            { name: '? SAFE PRACTICES', value: 'ï¿½ **Never connect to PSN** on modded consoles\nï¿½ Use a **separate account** for homebrew\nï¿½ **Disable network** in settings\nï¿½ **Block PSN servers** in router\nï¿½ Keep **stock console** for online play', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
@@ -10311,7 +10311,7 @@ const now = Date.now();
                             { name: '?? IMPORTANT - Highly Recommended', value: '? Save game backups\n? License/activation backups\n? System settings backup\n? Database rebuild backup\n? Trophy data backup', inline: false },
                             { name: '?? OPTIONAL - Nice to Have', value: '? Game update packages\n? DLC packages\n? Theme backups\n? Screenshot/video captures\n? Custom configurations', inline: false },
                             { name: '??? Recommended Tools', value: '**PS3:** multiman, webMAN\n**PS4:** Apollo Save Tool, Save Wizard\n**PS5:** Save Mounter\n**Vita:** VitaShell, QCMA\n**PSP:** PSP Filer', inline: false },
-                            { name: '?? Backup Storage', value: '• Use **quality USB drives** (3.0+)\n• Keep **multiple copies** (USB + PC)\n• Label backups with **date & firmware**\n• Store in **safe location**\n• Test backups **regularly**', inline: false }
+                            { name: '?? Backup Storage', value: 'ï¿½ Use **quality USB drives** (3.0+)\nï¿½ Keep **multiple copies** (USB + PC)\nï¿½ Label backups with **date & firmware**\nï¿½ Store in **safe location**\nï¿½ Test backups **regularly**', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
@@ -10336,8 +10336,8 @@ const now = Date.now();
                             { name: '? Downgradeable Consoles', value: '**PS3:** Most models (requires hardware flasher)\n**PS Vita:** All models via modoru\n**PSP:** All models (brick risk exists)', inline: false },
                             { name: '? Cannot Downgrade', value: '**PS4:** Impossible without hardware mod\n**PS5:** Not possible currently', inline: false },
                             { name: '?? Required Tools', value: '**PS3:** E3 Flasher, Teensy++, or Progskeet\n**Vita:** modoru plugin\n**PSP:** Pandora Battery + Magic Memory Stick', inline: false },
-                            { name: '?? Risks', value: '• **Brick potential** (especially PS3/PSP)\n• **Warranty void**\n• **Time consuming** (PS3: 1-3 hours)\n• **Requires soldering** (PS3 hardware)\n• **Data loss** possible', inline: false },
-                            { name: '?? Recommendations', value: '• Check if you\'re **already on exploitable FW**\n• Consider **staying put** vs downgrade risks\n• **Practice soldering** on junk boards first\n• **Read full guides** before starting\n• Have **backup console** if possible', inline: false }
+                            { name: '?? Risks', value: 'ï¿½ **Brick potential** (especially PS3/PSP)\nï¿½ **Warranty void**\nï¿½ **Time consuming** (PS3: 1-3 hours)\nï¿½ **Requires soldering** (PS3 hardware)\nï¿½ **Data loss** possible', inline: false },
+                            { name: '?? Recommendations', value: 'ï¿½ Check if you\'re **already on exploitable FW**\nï¿½ Consider **staying put** vs downgrade risks\nï¿½ **Practice soldering** on junk boards first\nï¿½ **Read full guides** before starting\nï¿½ Have **backup console** if possible', inline: false }
                         );
 
                     const row = new ActionRowBuilder()
@@ -10359,12 +10359,12 @@ const now = Date.now();
                         .setColor(0x0099FF)
                         .setDescription('**Your one-stop hub for all PlayStation console tools and information**\n\nSelect a tool below to get started:')
                         .addFields(
-                            { name: '?? Firmware Tools', value: '• **Firmware Tracker** - Check latest firmware versions\n• **FW Notifications** - Get notified of new updates\n• **Safe Firmware** - Find safe versions to stay on', inline: false },
-                            { name: '?? Console Tools', value: '• **Version Checker** - Identify your console model\n• **Jailbreak Tutorials** - Step-by-step guides\n• **Compatibility Checker** - Game compatibility lookup', inline: false },
-                            { name: '?? Package & Game Tools', value: '• **PKG Database** - Search and verify PKG files\n• **Game Lookup** - Find game information\n• **Homebrew Browser** - Discover homebrew apps', inline: false },
-                            { name: '??? Safety & Backup', value: '• **Ban Risk Calculator** - Analyze PSN ban risks\n• **Backup Reminder** - NAND/save backup checklist\n• **Downgrade Guide** - Firmware downgrade paths', inline: false }
+                            { name: '?? Firmware Tools', value: 'ï¿½ **Firmware Tracker** - Check latest firmware versions\nï¿½ **FW Notifications** - Get notified of new updates\nï¿½ **Safe Firmware** - Find safe versions to stay on', inline: false },
+                            { name: '?? Console Tools', value: 'ï¿½ **Version Checker** - Identify your console model\nï¿½ **Jailbreak Tutorials** - Step-by-step guides\nï¿½ **Compatibility Checker** - Game compatibility lookup', inline: false },
+                            { name: '?? Package & Game Tools', value: 'ï¿½ **PKG Database** - Search and verify PKG files\nï¿½ **Game Lookup** - Find game information\nï¿½ **Homebrew Browser** - Discover homebrew apps', inline: false },
+                            { name: '??? Safety & Backup', value: 'ï¿½ **Ban Risk Calculator** - Analyze PSN ban risks\nï¿½ **Backup Reminder** - NAND/save backup checklist\nï¿½ **Downgrade Guide** - Firmware downgrade paths', inline: false }
                         )
-                        .setFooter({ text: 'PSHomebrew Console Info Hub • Select a tool below' })
+                        .setFooter({ text: 'PSHomebrew Console Info Hub ï¿½ Select a tool below' })
                         .setTimestamp();
 
                     const row1 = new ActionRowBuilder()
@@ -10427,12 +10427,12 @@ const now = Date.now();
                             .setColor(0x0066CC)
                             .setDescription('**Step-by-step guide to jailbreaking your PlayStation 3**')
                             .addFields(
-                                { name: '?? Prerequisites', value: '• PS3 on firmware **4.90 or below** for CFW\n• USB drive (FAT32, min 1GB)\n• Computer with internet\n• PS3 compatible with CFW (check model)', inline: false },
-                                { name: '?? Step 1: Check Compatibility', value: 'Not all PS3s can run CFW:\n• **CECH-20xx and below**: Full CFW support\n• **CECH-21xx to 25xx**: Limited CFW (DEX)\n• **CECH-30xx+**: HEN only (4.91-4.92)', inline: false },
-                                { name: '?? Step 2: Download Files', value: '• Latest Evilnat CFW (4.90 recommended)\n• HFW if on 4.91-4.92\n• Flash Writer tool\n• HEN installer (for incompatible models)', inline: false },
+                                { name: '?? Prerequisites', value: 'ï¿½ PS3 on firmware **4.90 or below** for CFW\nï¿½ USB drive (FAT32, min 1GB)\nï¿½ Computer with internet\nï¿½ PS3 compatible with CFW (check model)', inline: false },
+                                { name: '?? Step 1: Check Compatibility', value: 'Not all PS3s can run CFW:\nï¿½ **CECH-20xx and below**: Full CFW support\nï¿½ **CECH-21xx to 25xx**: Limited CFW (DEX)\nï¿½ **CECH-30xx+**: HEN only (4.91-4.92)', inline: false },
+                                { name: '?? Step 2: Download Files', value: 'ï¿½ Latest Evilnat CFW (4.90 recommended)\nï¿½ HFW if on 4.91-4.92\nï¿½ Flash Writer tool\nï¿½ HEN installer (for incompatible models)', inline: false },
                                 { name: '?? Step 3: Install CFW/HEN', value: '1. Format USB to FAT32\n2. Create folder: PS3/UPDATE/\n3. Copy CFW .PUP file\n4. Insert USB, go to Settings > System Update\n5. Install from USB\n6. Wait 5-10 minutes (DO NOT TURN OFF!)', inline: false },
-                                { name: '? Step 4: Verify', value: 'After reboot:\n• Check System Information for CFW version\n• Install multiman/webMAN\n• Enable QA flags if needed', inline: false },
-                                { name: '?? Critical Warnings', value: '• **NEVER update** to official firmware after CFW\n• **Backup NAND/NOR** before starting\n• **Don\'t sign into PSN** on CFW\n• **Use offline** account only', inline: false }
+                                { name: '? Step 4: Verify', value: 'After reboot:\nï¿½ Check System Information for CFW version\nï¿½ Install multiman/webMAN\nï¿½ Enable QA flags if needed', inline: false },
+                                { name: '?? Critical Warnings', value: 'ï¿½ **NEVER update** to official firmware after CFW\nï¿½ **Backup NAND/NOR** before starting\nï¿½ **Don\'t sign into PSN** on CFW\nï¿½ **Use offline** account only', inline: false }
                             );
                     } else if (console === 'ps4') {
                         embed = new EmbedBuilder()
@@ -10440,12 +10440,12 @@ const now = Date.now();
                             .setColor(0xFF4400)
                             .setDescription('**Complete guide to jailbreaking PS4 (9.00-12.02)**')
                             .addFields(
-                                { name: '?? Prerequisites', value: '• PS4 on firmware **9.00 - 12.02**\n• Internet connection (for initial setup)\n• USB drive (optional, for offline host)\n• Patience (exploit can take 5-20 attempts)', inline: false },
+                                { name: '?? Prerequisites', value: 'ï¿½ PS4 on firmware **9.00 - 12.02**\nï¿½ Internet connection (for initial setup)\nï¿½ USB drive (optional, for offline host)\nï¿½ Patience (exploit can take 5-20 attempts)', inline: false },
                                 { name: '?? Step 1: Prepare Console', value: '1. Go to **Settings > Network > Set Up Internet**\n2. Note down your **DNS settings** (write them down!)\n3. Set **Primary DNS**: 165.227.83.145\n4. **Test connection** to verify', inline: false },
                                 { name: '?? Step 2: Load GoldHEN', value: '1. Open **Internet Browser**\n2. Go to: **karo218.ir**\n3. Select your firmware version\n4. Click **GoldHEN 2.4b18.6**\n5. Wait for **"GoldHEN loaded"** message', inline: false },
-                                { name: '?? Tips for Success', value: '• Close all apps before loading\n• Try different times of day\n• Reset console if 10+ failures\n• **Rest Mode works** after successful load\n• Some games require **FW spoofing**', inline: false },
-                                { name: '?? Step 3: Install Homebrew', value: '• Use **Online Package Installer**\n• Install **Apollo Save Tool**\n• Install **Homebrew Store**\n• Install **FTP Server** for file transfer', inline: false },
-                                { name: '?? Critical Warnings', value: '• **DO NOT UPDATE** past 12.02!\n• **Disable automatic updates**\n• **Don\'t sign into PSN**\n• **Use burner account** only\n• **Block telemetry** in network settings', inline: false }
+                                { name: '?? Tips for Success', value: 'ï¿½ Close all apps before loading\nï¿½ Try different times of day\nï¿½ Reset console if 10+ failures\nï¿½ **Rest Mode works** after successful load\nï¿½ Some games require **FW spoofing**', inline: false },
+                                { name: '?? Step 3: Install Homebrew', value: 'ï¿½ Use **Online Package Installer**\nï¿½ Install **Apollo Save Tool**\nï¿½ Install **Homebrew Store**\nï¿½ Install **FTP Server** for file transfer', inline: false },
+                                { name: '?? Critical Warnings', value: 'ï¿½ **DO NOT UPDATE** past 12.02!\nï¿½ **Disable automatic updates**\nï¿½ **Don\'t sign into PSN**\nï¿½ **Use burner account** only\nï¿½ **Block telemetry** in network settings', inline: false }
                             );
                     } else if (console === 'ps5') {
                         embed = new EmbedBuilder()
@@ -10453,12 +10453,12 @@ const now = Date.now();
                             .setColor(0xFF0000)
                             .setDescription('**Guide to jailbreaking PS5 on firmware 10.01 and below**')
                             .addFields(
-                                { name: '?? Prerequisites', value: '• PS5 on **firmware 10.01 or below**\n• **Ethernet cable** (WiFi possible but slower)\n• Computer or Raspberry Pi\n• **PPPwn** or **etaHEN** loader\n• **Extreme patience** (can take many attempts)', inline: false },
-                                { name: '?? IMPORTANT', value: '**Exploitable PS5s are EXTREMELY rare!**\n• Most sold consoles are 10.50+\n• Once you update, **you cannot downgrade**\n• **Guard this console** with your life\n• Consider getting backup PS5 for online', inline: false },
+                                { name: '?? Prerequisites', value: 'ï¿½ PS5 on **firmware 10.01 or below**\nï¿½ **Ethernet cable** (WiFi possible but slower)\nï¿½ Computer or Raspberry Pi\nï¿½ **PPPwn** or **etaHEN** loader\nï¿½ **Extreme patience** (can take many attempts)', inline: false },
+                                { name: '?? IMPORTANT', value: '**Exploitable PS5s are EXTREMELY rare!**\nï¿½ Most sold consoles are 10.50+\nï¿½ Once you update, **you cannot downgrade**\nï¿½ **Guard this console** with your life\nï¿½ Consider getting backup PS5 for online', inline: false },
                                 { name: '?? Method 1: PPPwn (Recommended)', value: '1. Download **PPPwn** for your PC/Pi\n2. Connect PS5 via **Ethernet**\n3. Set PS5 to **PPPoE** mode\n4. Run PPPwn script\n5. Wait for **kernel exploitation** (2-30 min)\n6. Load **etaHEN** payload', inline: false },
                                 { name: '?? Method 2: Browser Exploit', value: '1. Set DNS to exploit server\n2. Open PS5 browser (user guide trick)\n3. Navigate to exploit site\n4. Click **etaHEN 2.0b**\n5. **Multiple attempts** needed (very unstable)', inline: false },
-                                { name: '?? After Jailbreak', value: '• Install **ItemzFlow** (homebrew store)\n• Install **FTP Server**\n• Install **Save Manager**\n• Enable **Debug Settings**\n• Set up **offline patches**', inline: false },
-                                { name: '?? CRITICAL Warnings', value: '• **NEVER EVER UPDATE!**\n• **Disconnect from internet** after setup\n• **Don\'t use PSN** - instant ban\n• **Exploit is temporary** - runs at each boot\n• **12.00 exploit announced** but not released', inline: false }
+                                { name: '?? After Jailbreak', value: 'ï¿½ Install **ItemzFlow** (homebrew store)\nï¿½ Install **FTP Server**\nï¿½ Install **Save Manager**\nï¿½ Enable **Debug Settings**\nï¿½ Set up **offline patches**', inline: false },
+                                { name: '?? CRITICAL Warnings', value: 'ï¿½ **NEVER EVER UPDATE!**\nï¿½ **Disconnect from internet** after setup\nï¿½ **Don\'t use PSN** - instant ban\nï¿½ **Exploit is temporary** - runs at each boot\nï¿½ **12.00 exploit announced** but not released', inline: false }
                             );
                     }
 
@@ -10524,9 +10524,9 @@ const now = Date.now();
                             .setColor(0x00FF00)
                             .addFields(
                                 { name: '?? CRITICAL: NAND/NOR Flash Backup', value: '**THIS IS YOUR CONSOLE\'S LIFE!**\n\n1. Install **Flash Memory Manager** or **multiman**\n2. Go to **System > Flash Memory Dump**\n3. Wait 5-15 minutes (don\'t interrupt!)\n4. Save to **multiple USBs** + computer\n5. **Test the dump** - verify file size matches', inline: false },
-                                { name: '?? What is NAND/NOR?', value: '• **NAND**: Fat PS3 consoles\n• **NOR**: Slim/Super Slim\n• Contains: encryption keys, board data\n• **Without this, brick = trash**\n• Size: ~256MB (check your model)', inline: false },
-                                { name: '?? Save Game Backups', value: '**Method 1: USB**\n1. Settings > System > Backup Utility\n2. Select data to backup\n3. Wait for completion\n\n**Method 2: Apollo Save Tool**\n• More control over individual saves\n• Can decrypt/resign saves', inline: false },
-                                { name: '?? Other Important Backups', value: '• **act.dat** (license activation)\n• **PARAM.SFO** files\n• **Game updates** (from HDD)\n• **Themes** (if custom)\n• **System database** (Apollo)', inline: false }
+                                { name: '?? What is NAND/NOR?', value: 'ï¿½ **NAND**: Fat PS3 consoles\nï¿½ **NOR**: Slim/Super Slim\nï¿½ Contains: encryption keys, board data\nï¿½ **Without this, brick = trash**\nï¿½ Size: ~256MB (check your model)', inline: false },
+                                { name: '?? Save Game Backups', value: '**Method 1: USB**\n1. Settings > System > Backup Utility\n2. Select data to backup\n3. Wait for completion\n\n**Method 2: Apollo Save Tool**\nï¿½ More control over individual saves\nï¿½ Can decrypt/resign saves', inline: false },
+                                { name: '?? Other Important Backups', value: 'ï¿½ **act.dat** (license activation)\nï¿½ **PARAM.SFO** files\nï¿½ **Game updates** (from HDD)\nï¿½ **Themes** (if custom)\nï¿½ **System database** (Apollo)', inline: false }
                             );
                     } else if (console === 'ps4') {
                         embed = new EmbedBuilder()
@@ -10534,18 +10534,18 @@ const now = Date.now();
                             .setColor(0x00FF00)
                             .addFields(
                                 { name: '?? CRITICAL: System Backup', value: '**Before ANY modifications:**\n\n1. Use **Apollo Save Tool** or **PS4 Backup**\n2. Backup **entire system database**\n3. Save **user data** separately\n4. **Multiple copies** - USB + PC\n5. Include **activation data**', inline: false },
-                                { name: '?? Save Game Backups', value: '**Using Apollo:**\n1. Launch Apollo Save Tool\n2. Select saves to backup\n3. Export to USB\n4. Can **decrypt/resign** for mods\n\n**Using PS4 Built-in:**\n• Settings > Application Data Management\n• Copy to USB or online storage', inline: false },
-                                { name: '?? Game Data Backups', value: '• **Installed games** (if removed from PSN)\n• **Game updates** (backup PKGs)\n• **DLC packages**\n• **Patches** (some games need specific versions)', inline: false },
-                                { name: '?? Important Notes', value: '• **Can\'t backup system flash** like PS3\n• Focus on **save data & licenses**\n• **Trophy data** can be backed up\n• **Themes/avatars** if custom', inline: false }
+                                { name: '?? Save Game Backups', value: '**Using Apollo:**\n1. Launch Apollo Save Tool\n2. Select saves to backup\n3. Export to USB\n4. Can **decrypt/resign** for mods\n\n**Using PS4 Built-in:**\nï¿½ Settings > Application Data Management\nï¿½ Copy to USB or online storage', inline: false },
+                                { name: '?? Game Data Backups', value: 'ï¿½ **Installed games** (if removed from PSN)\nï¿½ **Game updates** (backup PKGs)\nï¿½ **DLC packages**\nï¿½ **Patches** (some games need specific versions)', inline: false },
+                                { name: '?? Important Notes', value: 'ï¿½ **Can\'t backup system flash** like PS3\nï¿½ Focus on **save data & licenses**\nï¿½ **Trophy data** can be backed up\nï¿½ **Themes/avatars** if custom', inline: false }
                             );
                     } else {
                         embed = new EmbedBuilder()
                             .setTitle('?? PS5 Backup Guide')
                             .setColor(0x00FF00)
                             .addFields(
-                                { name: '?? LIMITED: PS5 Backups', value: '**PS5 jailbreak is very new:**\n\n• **No NAND dump tools** yet\n• Focus on **save data**\n• Backup **activation files**\n• Keep **system database** safe\n• **Multiple storage locations**', inline: false },
-                                { name: '?? What You CAN Backup', value: '• **Save data** (via Save Mounter)\n• **Screenshots/videos**\n• **User profiles**\n• **Game installations** (if have space)\n• **PKG files** (homebrew)', inline: false },
-                                { name: '?? Critical Limitations', value: '• **No system flash backup** available\n• **Brick = permanent** (for now)\n• **Be extremely careful**\n• **Don\'t experiment** unless you understand risks\n• **Keep stock PS5** for online', inline: false }
+                                { name: '?? LIMITED: PS5 Backups', value: '**PS5 jailbreak is very new:**\n\nï¿½ **No NAND dump tools** yet\nï¿½ Focus on **save data**\nï¿½ Backup **activation files**\nï¿½ Keep **system database** safe\nï¿½ **Multiple storage locations**', inline: false },
+                                { name: '?? What You CAN Backup', value: 'ï¿½ **Save data** (via Save Mounter)\nï¿½ **Screenshots/videos**\nï¿½ **User profiles**\nï¿½ **Game installations** (if have space)\nï¿½ **PKG files** (homebrew)', inline: false },
+                                { name: '?? Critical Limitations', value: 'ï¿½ **No system flash backup** available\nï¿½ **Brick = permanent** (for now)\nï¿½ **Be extremely careful**\nï¿½ **Don\'t experiment** unless you understand risks\nï¿½ **Keep stock PS5** for online', inline: false }
                             );
                     }
 
@@ -10568,30 +10568,30 @@ const now = Date.now();
                             .setTitle('?? PS3 Downgrade Guide')
                             .setColor(0xFF9900)
                             .addFields(
-                                { name: '?? Required Hardware', value: '• **E3 Flasher** (~$40-60) - Most popular\n• **Teensy++ 2.0** (~$25) + Clip - DIY option\n• **Progskeet** - Professional tool\n• **NAND/NOR clip** - For reading flash\n• **Soldering iron** (for some methods)', inline: false },
+                                { name: '?? Required Hardware', value: 'ï¿½ **E3 Flasher** (~$40-60) - Most popular\nï¿½ **Teensy++ 2.0** (~$25) + Clip - DIY option\nï¿½ **Progskeet** - Professional tool\nï¿½ **NAND/NOR clip** - For reading flash\nï¿½ **Soldering iron** (for some methods)', inline: false },
                                 { name: '?? Process Overview', value: '1. **Dump current NAND/NOR**\n2. **Patch dump** with CFW tools\n3. **Write patched dump** back\n4. **Boot into CFW**\n5. **Downgrade if needed**', inline: false },
-                                { name: '?? Risks & Warnings', value: '• **BRICK RISK**: 10-20% for beginners\n• **Requires soldering** on some models\n• **Time consuming**: 2-4 hours first time\n• **Expensive** if you hire someone\n• **Practice first** on junk board', inline: false },
-                                { name: '?? Alternative: Just Stay Put', value: 'If you\'re on **4.91-4.92**:\n• Use **HEN** instead of downgrading\n• Still get most homebrew\n• **Zero brick risk**\n• Easier for beginners', inline: false }
+                                { name: '?? Risks & Warnings', value: 'ï¿½ **BRICK RISK**: 10-20% for beginners\nï¿½ **Requires soldering** on some models\nï¿½ **Time consuming**: 2-4 hours first time\nï¿½ **Expensive** if you hire someone\nï¿½ **Practice first** on junk board', inline: false },
+                                { name: '?? Alternative: Just Stay Put', value: 'If you\'re on **4.91-4.92**:\nï¿½ Use **HEN** instead of downgrading\nï¿½ Still get most homebrew\nï¿½ **Zero brick risk**\nï¿½ Easier for beginners', inline: false }
                             );
                     } else if (console === 'vita') {
                         embed = new EmbedBuilder()
                             .setTitle('?? PS Vita Downgrade Guide')
                             .setColor(0xFF9900)
                             .addFields(
-                                { name: '? Good News!', value: '**All Vita firmware can be hacked!**\n\n• Use **modoru** plugin\n• Downgrades to 3.60 or 3.65\n• **Relatively safe** process\n• No hardware modifications needed', inline: false },
-                                { name: '?? Downgrade Steps', value: '1. Install **h-encore** or **h-encore²**\n2. Install **modoru** plugin\n3. Run modoru, select target firmware\n4. Wait for downgrade (10-15 min)\n5. Install **Enso** for permanent CFW', inline: false },
-                                { name: '?? Target Firmware', value: '• **3.60**: Best for Enso, most stable\n• **3.65**: Also supports Enso\n• **3.68**: If you need certain apps\n\n**Recommended: 3.60 or 3.65**', inline: false },
-                                { name: '?? Warnings', value: '• **Backup saves** first\n• **Charge battery** to 100%\n• **Don\'t interrupt** process\n• Small **brick risk** if interrupted', inline: false }
+                                { name: '? Good News!', value: '**All Vita firmware can be hacked!**\n\nï¿½ Use **modoru** plugin\nï¿½ Downgrades to 3.60 or 3.65\nï¿½ **Relatively safe** process\nï¿½ No hardware modifications needed', inline: false },
+                                { name: '?? Downgrade Steps', value: '1. Install **h-encore** or **h-encoreï¿½**\n2. Install **modoru** plugin\n3. Run modoru, select target firmware\n4. Wait for downgrade (10-15 min)\n5. Install **Enso** for permanent CFW', inline: false },
+                                { name: '?? Target Firmware', value: 'ï¿½ **3.60**: Best for Enso, most stable\nï¿½ **3.65**: Also supports Enso\nï¿½ **3.68**: If you need certain apps\n\n**Recommended: 3.60 or 3.65**', inline: false },
+                                { name: '?? Warnings', value: 'ï¿½ **Backup saves** first\nï¿½ **Charge battery** to 100%\nï¿½ **Don\'t interrupt** process\nï¿½ Small **brick risk** if interrupted', inline: false }
                             );
                     } else {
                         embed = new EmbedBuilder()
                             .setTitle('?? PSP Downgrade Guide')
                             .setColor(0xFF9900)
                             .addFields(
-                                { name: '?? Classic Method: Pandora Battery', value: '• **Pandora Battery** (magic battery)\n• **Magic Memory Stick** (special MS)\n• Works on **most PSP models**\n• **Brick risk** if done wrong\n• Outdated but still works', inline: false },
+                                { name: '?? Classic Method: Pandora Battery', value: 'ï¿½ **Pandora Battery** (magic battery)\nï¿½ **Magic Memory Stick** (special MS)\nï¿½ Works on **most PSP models**\nï¿½ **Brick risk** if done wrong\nï¿½ Outdated but still works', inline: false },
                                 { name: '?? Modern Method: Chronoswitch', value: '**If already on CFW:**\n1. Install **Chronoswitch Downgrader**\n2. Select target OFW\n3. Run downgrade\n4. Re-install CFW\n\n**Much safer than Pandora**', inline: false },
-                                { name: '?? Recommended Firmware', value: '• **6.61**: Latest, best compatibility\n• **6.60**: Also good, wide support\n• **5.03**: For older homebrew\n\n**Install: 6.61 PRO-C or ME**', inline: false },
-                                { name: '?? Critical Warnings', value: '• **Higher brick risk** than Vita\n• **Don\'t downgrade** if on 6.61 already\n• **Backup MS data** first\n• **Full battery** required\n• **Consider staying on 6.61 CFW**', inline: false }
+                                { name: '?? Recommended Firmware', value: 'ï¿½ **6.61**: Latest, best compatibility\nï¿½ **6.60**: Also good, wide support\nï¿½ **5.03**: For older homebrew\n\n**Install: 6.61 PRO-C or ME**', inline: false },
+                                { name: '?? Critical Warnings', value: 'ï¿½ **Higher brick risk** than Vita\nï¿½ **Don\'t downgrade** if on 6.61 already\nï¿½ **Backup MS data** first\nï¿½ **Full battery** required\nï¿½ **Consider staying on 6.61 CFW**', inline: false }
                             );
                     }
 
@@ -10703,11 +10703,11 @@ const now = Date.now();
             try {
                 await interaction.reply({
                     content: '?? **Game Browser** - Use these commands:\n\n' +
-                             '• `/gamebrowser` - Browse all games\n' +
-                             '• `/gamebrowser console:PS4` - Filter by console\n' +
-                             '• `/gamebrowser sort:size_asc` - Sort by file size\n' +
-                             '• `/gamebrowser series:"God of War"` - View game series\n' +
-                             '• `/gamebrowser dlc_only:True` - Games with DLC only\n\n' +
+                             'ï¿½ `/gamebrowser` - Browse all games\n' +
+                             'ï¿½ `/gamebrowser console:PS4` - Filter by console\n' +
+                             'ï¿½ `/gamebrowser sort:size_asc` - Sort by file size\n' +
+                             'ï¿½ `/gamebrowser series:"God of War"` - View game series\n' +
+                             'ï¿½ `/gamebrowser dlc_only:True` - Games with DLC only\n\n' +
                              '**Tip:** You can combine filters! Try `/gamebrowser console:PS5 sort:date_desc`',
                     ephemeral: true
                 });
@@ -10722,9 +10722,9 @@ const now = Date.now();
             try {
                 await interaction.reply({
                     content: '?? **DLC Browser** - Use these commands:\n\n' +
-                             '• `/dlcbrowser` - View all games with DLC\n' +
-                             '• `/dlcbrowser console:PS4` - Filter by console\n' +
-                             '• `/dlcbrowser console:PS5` - PS5 games with DLC\n\n' +
+                             'ï¿½ `/dlcbrowser` - View all games with DLC\n' +
+                             'ï¿½ `/dlcbrowser console:PS4` - Filter by console\n' +
+                             'ï¿½ `/dlcbrowser console:PS5` - PS5 games with DLC\n\n' +
                              '**180+ games** have downloadable content available!\n' +
                              '**Installation:** Install base game ? Install DLC PKGs separately ? Enjoy!',
                     ephemeral: true
@@ -10849,11 +10849,11 @@ const now = Date.now();
                         .setColor(0x0066CC)
                         .setDescription('Essential safety tips for PlayStation homebrew enthusiasts')
                         .addFields(
-                            { name: '?? Never Update Rules', value: '• **PS4**: Never update past 12.02\n• **PS5**: Never update past 10.01\n• **Always check** homebrew compatibility first', inline: false },
-                            { name: '?? Before Exploiting', value: '• **Create NAND backup** (essential!)\n• **Backup save data** to USB/cloud\n• **Document firmware version**\n• **Read exploit instructions** thoroughly', inline: false },
-                            { name: '??? Safety Practices', value: '• **Disconnect from internet** during exploits\n• **Use quality USB drives** for backups\n• **Never rush** the exploit process\n• **Keep exploitable firmware** as backup console', inline: false },
-                            { name: '?? Warning Signs', value: '• **Blue screens** or crashes\n• **Overheating** during exploits\n• **Failed backup** operations\n• **Network connectivity** issues', inline: false },
-                            { name: '?? If Something Goes Wrong', value: '• **Stop immediately** and assess\n• **Restore NAND backup** if available\n• **Ask for help** in PlayStation homebrew communities\n• **Don\'t panic** - most issues are recoverable', inline: false }
+                            { name: '?? Never Update Rules', value: 'ï¿½ **PS4**: Never update past 12.02\nï¿½ **PS5**: Never update past 10.01\nï¿½ **Always check** homebrew compatibility first', inline: false },
+                            { name: '?? Before Exploiting', value: 'ï¿½ **Create NAND backup** (essential!)\nï¿½ **Backup save data** to USB/cloud\nï¿½ **Document firmware version**\nï¿½ **Read exploit instructions** thoroughly', inline: false },
+                            { name: '??? Safety Practices', value: 'ï¿½ **Disconnect from internet** during exploits\nï¿½ **Use quality USB drives** for backups\nï¿½ **Never rush** the exploit process\nï¿½ **Keep exploitable firmware** as backup console', inline: false },
+                            { name: '?? Warning Signs', value: 'ï¿½ **Blue screens** or crashes\nï¿½ **Overheating** during exploits\nï¿½ **Failed backup** operations\nï¿½ **Network connectivity** issues', inline: false },
+                            { name: '?? If Something Goes Wrong', value: 'ï¿½ **Stop immediately** and assess\nï¿½ **Restore NAND backup** if available\nï¿½ **Ask for help** in PlayStation homebrew communities\nï¿½ **Don\'t panic** - most issues are recoverable', inline: false }
                         )
                         .setFooter({ text: 'Always prioritize safety over convenience' });
                     
@@ -10949,12 +10949,12 @@ const now = Date.now();
                         .setColor(0x9B59B6)
                         .setDescription('Latest homebrew applications for PlayStation consoles')
                         .addFields(
-                            { name: '?? PS4 Featured', value: '• **GoldHEN 2.4b18.6** - Homebrew enabler\n• **Apollo Save Tool** - Save manager\n• **RetroArch** - Multi-emulator', inline: true },
-                            { name: '?? PS5 Featured', value: '• **etaHEN 2.0b** - Homebrew enabler\n• **ItemzFlow** - PKG installer\n• **PS5 Debug Tools** - System tools', inline: true },
-                            { name: '?? PS3 Featured', value: '• **multiMAN** - Backup manager\n• **webMAN MOD** - Web interface\n• **IRISMAN** - File manager', inline: true },
-                            { name: '?? PS Vita Featured', value: '• **VitaShell** - File manager\n• **Adrenaline** - PSP emulator\n• **RetroArch** - Multi-emulator', inline: true },
-                            { name: '??? PSP Featured', value: '• **6.61 PRO-C** - Custom firmware\n• **PPSSPP Save Converter** - Save tools\n• **RemoteJoy** - Remote play', inline: true },
-                            { name: '?? Categories', value: '• System Tools\n• Emulators\n• Media Players\n• File Managers\n• Games', inline: true }
+                            { name: '?? PS4 Featured', value: 'ï¿½ **GoldHEN 2.4b18.6** - Homebrew enabler\nï¿½ **Apollo Save Tool** - Save manager\nï¿½ **RetroArch** - Multi-emulator', inline: true },
+                            { name: '?? PS5 Featured', value: 'ï¿½ **etaHEN 2.0b** - Homebrew enabler\nï¿½ **ItemzFlow** - PKG installer\nï¿½ **PS5 Debug Tools** - System tools', inline: true },
+                            { name: '?? PS3 Featured', value: 'ï¿½ **multiMAN** - Backup manager\nï¿½ **webMAN MOD** - Web interface\nï¿½ **IRISMAN** - File manager', inline: true },
+                            { name: '?? PS Vita Featured', value: 'ï¿½ **VitaShell** - File manager\nï¿½ **Adrenaline** - PSP emulator\nï¿½ **RetroArch** - Multi-emulator', inline: true },
+                            { name: '??? PSP Featured', value: 'ï¿½ **6.61 PRO-C** - Custom firmware\nï¿½ **PPSSPP Save Converter** - Save tools\nï¿½ **RemoteJoy** - Remote play', inline: true },
+                            { name: '?? Categories', value: 'ï¿½ System Tools\nï¿½ Emulators\nï¿½ Media Players\nï¿½ File Managers\nï¿½ Games', inline: true }
                         )
                         .setFooter({ text: 'All homebrew is from trusted sources' });
                     
@@ -10968,10 +10968,10 @@ const now = Date.now();
                         .setColor(0x00FF00)
                         .setDescription('Upload a PKG file to verify its integrity and safety')
                         .addFields(
-                            { name: '?? What we check', value: '• File integrity and digital signatures\n• Known malware patterns\n• PlayStation compatibility\n• Source verification', inline: false },
+                            { name: '?? What we check', value: 'ï¿½ File integrity and digital signatures\nï¿½ Known malware patterns\nï¿½ PlayStation compatibility\nï¿½ Source verification', inline: false },
                             { name: '?? How to verify', value: '1. Upload your PKG file to this channel\n2. Add the message "verify this PKG"\n3. Wait for automatic analysis\n4. Receive detailed security report', inline: false },
                             { name: '?? Privacy Notice', value: 'Only file metadata is analyzed. File content remains private and secure.', inline: false },
-                            { name: '?? Supported Formats', value: '• PlayStation 3 PKG files\n• PlayStation 4 PKG files\n• PlayStation 5 PKG files\n• Up to 100MB for analysis', inline: false }
+                            { name: '?? Supported Formats', value: 'ï¿½ PlayStation 3 PKG files\nï¿½ PlayStation 4 PKG files\nï¿½ PlayStation 5 PKG files\nï¿½ Up to 100MB for analysis', inline: false }
                         )
                         .setFooter({ text: 'PKG verification helps ensure safe homebrew installation' });
                     
@@ -10989,12 +10989,12 @@ const now = Date.now();
                         .setDescription(`Browse PKG files from the ${regionNames[region]} region`)
                         .addFields(
                             { name: '?? Sample Games Available', value: region === 'US' ? 
-                                '• The Last of Us (BLUS30463)\n• Horizon Zero Dawn (CUSA07408)\n• God of War (CUSA07408)\n• Spider-Man (CUSA02299)' :
+                                'ï¿½ The Last of Us (BLUS30463)\nï¿½ Horizon Zero Dawn (CUSA07408)\nï¿½ God of War (CUSA07408)\nï¿½ Spider-Man (CUSA02299)' :
                                 region === 'EU' ? 
-                                '• Gran Turismo Sport (CUSA02168)\n• Uncharted 4 (CUSA00341)\n• Bloodborne (CUSA00207)\n• Persona 5 (CUSA06638)' :
-                                '• Final Fantasy VII (BLJM60151)\n• Monster Hunter (CUSA07713)\n• Yakuza 0 (CUSA05070)\n• Nier: Automata (CUSA04551)',
+                                'ï¿½ Gran Turismo Sport (CUSA02168)\nï¿½ Uncharted 4 (CUSA00341)\nï¿½ Bloodborne (CUSA00207)\nï¿½ Persona 5 (CUSA06638)' :
+                                'ï¿½ Final Fantasy VII (BLJM60151)\nï¿½ Monster Hunter (CUSA07713)\nï¿½ Yakuza 0 (CUSA05070)\nï¿½ Nier: Automata (CUSA04551)',
                                 inline: false },
-                            { name: '?? Database Stats', value: `• **Total Games**: ${region === 'US' ? '1,247' : region === 'EU' ? '1,156' : '892'} PKGs\n• **Verified Safe**: 98.7%\n• **RAP Free**: 67.3%\n• **Last Updated**: ${new Date().toLocaleDateString()}`, inline: false },
+                            { name: '?? Database Stats', value: `ï¿½ **Total Games**: ${region === 'US' ? '1,247' : region === 'EU' ? '1,156' : '892'} PKGs\nï¿½ **Verified Safe**: 98.7%\nï¿½ **RAP Free**: 67.3%\nï¿½ **Last Updated**: ${new Date().toLocaleDateString()}`, inline: false },
                             { name: '?? Advanced Search', value: `Use the search function to find specific ${region} region games by name, developer, or genre.`, inline: false }
                         )
                         .setFooter({ text: `${regionNames[region]} PKG Database` });
@@ -12714,13 +12714,13 @@ const now = Date.now();
                     message: interaction,
                     isSlashGame: false,
                     embed: {
-                        title: '? Guess The Pokémon',
+                        title: '? Guess The Pokï¿½mon',
                         color: '#5865F2'
                     },
                     timeoutTime: 60000,
                     winMessage: '? You guessed it right! It was **{pokemon}**.',
                     loseMessage: '? Better luck next time! It was **{pokemon}**.',
-                    errMessage: '? Unable to fetch Pokémon data! Please try again.',
+                    errMessage: '? Unable to fetch Pokï¿½mon data! Please try again.',
                     playerOnlyMessage: 'Only {player} can use these buttons.'
                 });
                 
@@ -13309,7 +13309,7 @@ const now = Date.now();
                     customMessage
                 )
                 .setColor(0x00FF00)
-                .setFooter({ text: `Ticket System • ${interaction.guild.name}` })
+                .setFooter({ text: `Ticket System ï¿½ ${interaction.guild.name}` })
                 .setTimestamp();
             
             const row = new ActionRowBuilder()
@@ -13493,10 +13493,10 @@ const now = Date.now();
                 const endsAt = Math.floor(endTime / 1000);
                 let requirementsText = '';
                 if (roleRequirement) {
-                    requirementsText += `• Role: <@&${roleRequirement}>\n`;
+                    requirementsText += `ï¿½ Role: <@&${roleRequirement}>\n`;
                 }
                 if (levelRequirement) {
-                    requirementsText += `• Level ${levelRequirement} or higher\n`;
+                    requirementsText += `ï¿½ Level ${levelRequirement} or higher\n`;
                 }
                 
                 const giveawayEmbed = new EmbedBuilder()
@@ -14118,7 +14118,7 @@ const now = Date.now();
                     .setTitle('?? ' + question)
                     .setColor(0x5865F2)
                     .setDescription(options.map((opt, i) => `${i + 1}?? ${opt} - **0 votes**`).join('\n\n'))
-                    .setFooter({ text: `Poll by ${interaction.user.username} • Ends` })
+                    .setFooter({ text: `Poll by ${interaction.user.username} ï¿½ Ends` })
                     .setTimestamp(endTime);
 
                 // Create buttons (max 5 per row, 2 rows = 10 options)
@@ -14594,7 +14594,7 @@ const now = Date.now();
                             const percent = Math.floor((p.currentLevelXP / p.xpRequiredForCurrentLevel) * 100);
                             const barLen = 20;
                             const filled = Math.min(barLen, Math.max(0, Math.round((percent / 100) * barLen)));
-                            const bar = '¦'.repeat(filled) + '¦'.repeat(barLen - filled);
+                            const bar = 'ï¿½'.repeat(filled) + 'ï¿½'.repeat(barLen - filled);
                             const embed = new EmbedBuilder()
                                 .setTitle(`?? Level for ${member.user.tag}`)
                                 .setColor(0x5865F2)
@@ -14721,13 +14721,13 @@ const now = Date.now();
                             .setDescription(
                                 '**Need help?** Create a support ticket!\n\n' +
                                 '**How it works:**\n' +
-                                '• Click the button below to open a ticket\n' +
-                                '• A private channel will be created for you\n' +
-                                '• Our staff team will assist you shortly\n\n' +
+                                'ï¿½ Click the button below to open a ticket\n' +
+                                'ï¿½ A private channel will be created for you\n' +
+                                'ï¿½ Our staff team will assist you shortly\n\n' +
                                 '**What to include:**\n' +
-                                '• Describe your issue clearly\n' +
-                                '• Include any relevant details\n' +
-                                '• Be patient while we help you\n\n' +
+                                'ï¿½ Describe your issue clearly\n' +
+                                'ï¿½ Include any relevant details\n' +
+                                'ï¿½ Be patient while we help you\n\n' +
                                 '?????????????????????????\n\n' +
                                 '**Click the button below to get started! ??**'
                             )
@@ -16248,7 +16248,7 @@ const now = Date.now();
                 
                 embed.addFields({
                     name: '?? Usage Instructions',
-                    value: '• Use `/pkg` ? **PKG Info by ID** for detailed information\n• ? = Verified safe source\n• ?? = Unverified source',
+                    value: 'ï¿½ Use `/pkg` ? **PKG Info by ID** for detailed information\nï¿½ ? = Verified safe source\nï¿½ ?? = Unverified source',
                     inline: false
                 });
                 
@@ -16322,7 +16322,7 @@ const now = Date.now();
                 if (additionalInfo.length > 0) {
                     embed.addFields({ 
                         name: '?? Additional Info', 
-                        value: additionalInfo.join(' • '), 
+                        value: additionalInfo.join(' ï¿½ '), 
                         inline: false 
                     });
                 }
@@ -16347,7 +16347,7 @@ const now = Date.now();
                         { name: '?? Console Type', value: console.toUpperCase(), inline: true },
                         { name: '?? Model/Serial', value: serialNumber, inline: true },
                         { name: '?? Note', value: 'This is a placeholder feature. Full database coming soon!', inline: false },
-                        { name: '?? What We\'ll Check', value: '• Manufacturing date range\n• Hardware revision\n• CFW compatibility\n• Downgrade possibilities\n• Known issues for this model', inline: false }
+                        { name: '?? What We\'ll Check', value: 'ï¿½ Manufacturing date range\nï¿½ Hardware revision\nï¿½ CFW compatibility\nï¿½ Downgrade possibilities\nï¿½ Known issues for this model', inline: false }
                     )
                     .setFooter({ text: 'Version Checker - Database in development' });
 
@@ -16435,14 +16435,14 @@ const now = Date.now();
                         if (series) {
                             seriesGames = Object.entries(gameDatabase.games)
                                 .filter(([_, g]) => g.title.includes(series) && g.titleId !== foundTitleId)
-                                .map(([id, g]) => `• ${g.title} (${g.console})`)
+                                .map(([id, g]) => `ï¿½ ${g.title} (${g.console})`)
                                 .slice(0, 5);
                         }
                         // Game found - show full details
                         const embed = new EmbedBuilder()
                             .setTitle(`?? ${foundGame.title}`)
                             .setColor(foundGame.console === 'PS5' ? 0x0070CC : foundGame.console === 'PS4' ? 0x003087 : 0x0066CC)
-                            .setDescription(`**${foundGame.console}** • ${foundGame.region} • ${foundGame.releaseDate}`)
+                            .setDescription(`**${foundGame.console}** ï¿½ ${foundGame.region} ï¿½ ${foundGame.releaseDate}`)
                             .setThumbnail(foundGame.thumbnail)
                             .addFields(
                                 { name: '? Title ID', value: foundGame.titleId, inline: true },
@@ -16455,7 +16455,7 @@ const now = Date.now();
                                 { name: '?? Compatibility', value: foundGame.compatibility, inline: false },
                                 { name: '? Notes', value: foundGame.notes, inline: false }
                             )
-                            .setFooter({ text: `Game Database v${gameDatabase._metadata.version} • ${gameDatabase._metadata.totalGames} games` })
+                            .setFooter({ text: `Game Database v${gameDatabase._metadata.version} ï¿½ ${gameDatabase._metadata.totalGames} games` })
                             .setTimestamp();
 
                         await interaction.reply({ embeds: [embed], ephemeral: true });
@@ -16468,7 +16468,7 @@ const now = Date.now();
                         let description = `Found **${matches.length}** possible matches for: **${gameName}**\n\n`;
                         description += topMatches.map((m, i) => 
                             `**${i + 1}.** ${m.game.title} (${m.game.console})\n` +
-                            `+ ${m.titleId} • ${m.game.fileSize} • Match: ${m.score}%`
+                            `+ ${m.titleId} ï¿½ ${m.game.fileSize} ï¿½ Match: ${m.score}%`
                         ).join('\n\n');
                         
                         if (matches.length > 10) {
@@ -16480,9 +16480,9 @@ const now = Date.now();
                             .setColor(0x00AAFF)
                             .setDescription(description)
                             .addFields(
-                                { name: '?? Refine Your Search', value: '• Use the **Title ID** (e.g., CUSA07408)\n• Add **console name** (e.g., "God of War PS4")\n• Be more specific with the title', inline: false }
+                                { name: '?? Refine Your Search', value: 'ï¿½ Use the **Title ID** (e.g., CUSA07408)\nï¿½ Add **console name** (e.g., "God of War PS4")\nï¿½ Be more specific with the title', inline: false }
                             )
-                            .setFooter({ text: `Top ${topMatches.length} of ${matches.length} results • Fuzzy search enabled` });
+                            .setFooter({ text: `Top ${topMatches.length} of ${matches.length} results ï¿½ Fuzzy search enabled` });
                         
                         await interaction.reply({ embeds: [embed], ephemeral: true });
                         console.log(`?? Found ${matches.length} matches for: ${gameName}`);
@@ -16494,8 +16494,8 @@ const now = Date.now();
                             .setColor(0xFF0000)
                             .setDescription(`No results found for: **${gameName}**`)
                             .addFields(
-                                { name: '?? Search Tips', value: '• Try the **Title ID** (e.g., CUSA07408)\n• Use the **full game name**\n• Check spelling\n• Try without special characters', inline: false },
-                                { name: '?? Database Info', value: `Currently tracking **${gameDatabase._metadata.totalGames} games**\n\nPopular games available:\n• God of War (CUSA07408)\n• Spider-Man (CUSA05333)\n• The Last of Us (CUSA00341)\n• Bloodborne (CUSA02299)`, inline: false },
+                                { name: '?? Search Tips', value: 'ï¿½ Try the **Title ID** (e.g., CUSA07408)\nï¿½ Use the **full game name**\nï¿½ Check spelling\nï¿½ Try without special characters', inline: false },
+                                { name: '?? Database Info', value: `Currently tracking **${gameDatabase._metadata.totalGames} games**\n\nPopular games available:\nï¿½ God of War (CUSA07408)\nï¿½ Spider-Man (CUSA05333)\nï¿½ The Last of Us (CUSA00341)\nï¿½ Bloodborne (CUSA02299)`, inline: false },
                                 { name: '? Request Addition', value: 'Game not in database? Let the server admins know!', inline: false }
                             )
                             .setFooter({ text: 'Game Compatibility Checker' });
@@ -16548,9 +16548,9 @@ const now = Date.now();
                     embed.addFields({
                         name: '?? WARNING',
                         value: '**This activity has HIGH ban risk!**\n\n' +
-                               '• **DO NOT** connect to PSN on modded consoles\n' +
-                               '• **DO NOT** play online with CFW/HEN\n' +
-                               '• **DO NOT** sync trophies from homebrew\n\n' +
+                               'ï¿½ **DO NOT** connect to PSN on modded consoles\n' +
+                               'ï¿½ **DO NOT** play online with CFW/HEN\n' +
+                               'ï¿½ **DO NOT** sync trophies from homebrew\n\n' +
                                '**Recommendation:** Use a separate account or console for online activities.',
                         inline: false
                     });
@@ -16558,9 +16558,9 @@ const now = Date.now();
                     embed.addFields({
                         name: '?? CAUTION',
                         value: '**This activity has MODERATE ban risk:**\n\n' +
-                               '• Some PKG installations can be detected\n' +
-                               '• Save modifications may trigger flags\n' +
-                               '• Keep your console offline to be safe\n\n' +
+                               'ï¿½ Some PKG installations can be detected\n' +
+                               'ï¿½ Save modifications may trigger flags\n' +
+                               'ï¿½ Keep your console offline to be safe\n\n' +
                                '**Recommendation:** Stay disconnected from PSN.',
                         inline: false
                     });
@@ -16568,9 +16568,9 @@ const now = Date.now();
                     embed.addFields({
                         name: '? SAFE',
                         value: '**This activity is relatively safe:**\n\n' +
-                               '• As long as you stay offline, risk is minimal\n' +
-                               '• Homebrew apps don\'t connect to Sony servers\n' +
-                               '• Just ensure network is disabled\n\n' +
+                               'ï¿½ As long as you stay offline, risk is minimal\n' +
+                               'ï¿½ Homebrew apps don\'t connect to Sony servers\n' +
+                               'ï¿½ Just ensure network is disabled\n\n' +
                                '**Recommendation:** Continue staying offline!',
                         inline: false
                     });
@@ -16593,7 +16593,7 @@ const now = Date.now();
                     .addFields(
                         { name: '?? Search Query', value: gameSearch, inline: false },
                         { name: '?? Note', value: 'This is a placeholder feature. Full game database coming soon!', inline: false },
-                        { name: '?? What We\'ll Show', value: '• Game title & region\n• Title ID (CUSA/NPUB etc.)\n• Release date\n• Firmware requirements\n• PKG availability\n• DLC information\n• Size & version info', inline: false }
+                        { name: '?? What We\'ll Show', value: 'ï¿½ Game title & region\nï¿½ Title ID (CUSA/NPUB etc.)\nï¿½ Release date\nï¿½ Firmware requirements\nï¿½ PKG availability\nï¿½ DLC information\nï¿½ Size & version info', inline: false }
                     )
                     .setFooter({ text: 'Game Lookup - Database in development' });
 
@@ -16910,7 +16910,7 @@ async function updateAIKnowledge() {
         for (const guildId in allSettings) {
             if (allSettings[guildId].ai && allSettings[guildId].ai.enabled) {
                 // Comprehensive gaming database with REAL-TIME data
-                allSettings[guildId].ai.systemPrompt = `2025 FIRMWARE (Nov 2025 Update): PS3 OFW ${psData.ps3OFW}/CFW ${psData.ps3CFW} | PS4 OFW ${psData.ps4OFW}/JB ${psData.ps4PPPwn} PPPwn ${psData.ps4BDJB} BD-JB+GoldHEN ${psData.goldhen} (MAX 12.02, NOT 12.50) + 13.00 EXPLOIT ANNOUNCED | PS5 OFW ${psData.ps5OFW}/JB ${psData.ps5Lapse} Lapse+etaHEN ${psData.etahen} + 12.00 EXPLOIT ANNOUNCED | Vita ${psData.vita} h-encore | PSP ${psData.psp} | PS2 ${psData.ps2} | PS1 ${psData.ps1}\n\n?? CRITICAL: GoldHEN ${psData.goldhen} by SiSTRo supports PS4 FW 12.00, 12.02 MAX. NOT 12.50 or higher! Official source: https://ko-fi.com/sistro/shop\n\n?? HARDWARE INFO: PS5 Pro RELEASED November 7, 2024 - $699.99 USD (£699.99 UK). Specs: 67% more CUs (60 vs 36), 28% faster memory, PSSR AI upscaling, 2TB SSD, Wi-Fi 7. NO JAILBREAK - runs FW 8.00+ (not exploitable, latest JB is 10.01). PS5 Pro is a mid-gen refresh, NOT a new console generation.\n\nHOMEBREW GUIDES (LIVE VERIFIED LINKS): PS4 Guide(https://www.psx-place.com/threads/hacking-the-ps4.10717/) | PSX-Place(https://www.psx-place.com/) | Wololo(https://wololo.net/) | SiSTRo Ko-fi(https://ko-fi.com/sistro/shop) | Reddit(https://reddit.com/r/ps4homebrew) | Google Search(https://google.com) | PS5(${psData.etahen}?${psData.itemzflow} for PKG) | PS4(${psData.goldhen}?${psData.multiman} for backup) | PS3 CFW(${psData.webman}+${psData.multiman}) HEN(PS3HEN ${psData.ps3hen}+HFW ${psData.hfw}) | Vita(${psData.vitashell}+${psData.adrenaline} for PSP emu) | PSP(PPSSPP for homebrew) | PS2(${psData.opl} for ISO/USB games) | PS1(Tonyhax for exploit)\n\nYou're a hilarious AI for PlayStation Homebrew Discord. Be funny, use memes & gaming jokes. Keep it SHORT (2-3 sentences, under 50 words). British spelling. Swearing's fine. No politics/racism. ALWAYS include verified live links when relevant. Use Google for latest info. NEVER give outdated GoldHEN versions - always use the scraped real-time data.`;
+                allSettings[guildId].ai.systemPrompt = `2025 FIRMWARE (Nov 2025 Update): PS3 OFW ${psData.ps3OFW}/CFW ${psData.ps3CFW} | PS4 OFW ${psData.ps4OFW}/JB ${psData.ps4PPPwn} PPPwn ${psData.ps4BDJB} BD-JB+GoldHEN ${psData.goldhen} (MAX 12.02, NOT 12.50) + 13.00 EXPLOIT ANNOUNCED | PS5 OFW ${psData.ps5OFW}/JB ${psData.ps5Lapse} Lapse+etaHEN ${psData.etahen} + 12.00 EXPLOIT ANNOUNCED | Vita ${psData.vita} h-encore | PSP ${psData.psp} | PS2 ${psData.ps2} | PS1 ${psData.ps1}\n\n?? CRITICAL: GoldHEN ${psData.goldhen} by SiSTRo supports PS4 FW 12.00, 12.02 MAX. NOT 12.50 or higher! Official source: https://ko-fi.com/sistro/shop\n\n?? HARDWARE INFO: PS5 Pro RELEASED November 7, 2024 - $699.99 USD (ï¿½699.99 UK). Specs: 67% more CUs (60 vs 36), 28% faster memory, PSSR AI upscaling, 2TB SSD, Wi-Fi 7. NO JAILBREAK - runs FW 8.00+ (not exploitable, latest JB is 10.01). PS5 Pro is a mid-gen refresh, NOT a new console generation.\n\nHOMEBREW GUIDES (LIVE VERIFIED LINKS): PS4 Guide(https://www.psx-place.com/threads/hacking-the-ps4.10717/) | PSX-Place(https://www.psx-place.com/) | Wololo(https://wololo.net/) | SiSTRo Ko-fi(https://ko-fi.com/sistro/shop) | Reddit(https://reddit.com/r/ps4homebrew) | Google Search(https://google.com) | PS5(${psData.etahen}?${psData.itemzflow} for PKG) | PS4(${psData.goldhen}?${psData.multiman} for backup) | PS3 CFW(${psData.webman}+${psData.multiman}) HEN(PS3HEN ${psData.ps3hen}+HFW ${psData.hfw}) | Vita(${psData.vitashell}+${psData.adrenaline} for PSP emu) | PSP(PPSSPP for homebrew) | PS2(${psData.opl} for ISO/USB games) | PS1(Tonyhax for exploit)\n\nYou're a hilarious AI for PlayStation Homebrew Discord. Be funny, use memes & gaming jokes. Keep it SHORT (2-3 sentences, under 50 words). British spelling. Swearing's fine. No politics/racism. ALWAYS include verified live links when relevant. Use Google for latest info. NEVER give outdated GoldHEN versions - always use the scraped real-time data.`;
                 
                 updated = true;
             }
@@ -17832,7 +17832,7 @@ async function endPoll(pollId, client) {
                 const percentage = Object.keys(poll.votes).length > 0 
                     ? Math.round((votes / Object.keys(poll.votes).length) * 100)
                     : 0;
-                const bar = '¦'.repeat(Math.floor(percentage / 5));
+                const bar = 'ï¿½'.repeat(Math.floor(percentage / 5));
                 const isWinner = voteCounts[i] === maxVotes;
                 return `${emojis[i]} ${opt} - **${votes} votes** (${percentage}%)\n${isWinner ? '?? ' : ''}${bar}`;
             }).join('\n\n'))
