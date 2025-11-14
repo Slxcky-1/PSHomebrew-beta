@@ -884,10 +884,11 @@ function saveJSON(filePath, data) {
         if (filePath.includes('analytics') || filePath.includes('moderation')) {
             // Compress message content in moderation/analytics data
             if (data && typeof data === 'object') {
-                data = JSON.parse(JSON.stringify(data)); // Deep clone
+                // Deep clone using structuredClone (faster than JSON parse/stringify)
+                data = structuredClone(data);
                 
                 // Compress messages in nested structures
-                Object.keys(data).forEach(key => {
+                for (const key in data) {
                     if (data[key] && typeof data[key] === 'object') {
                         if (data[key].message) {
                             data[key].message = compressMessage(data[key].message);
@@ -896,7 +897,7 @@ function saveJSON(filePath, data) {
                             data[key].content = compressMessage(data[key].content);
                         }
                     }
-                });
+                }
             }
         }
         
@@ -1112,7 +1113,7 @@ function migrateLegacyLevelUpChannels() {
 // Get settings for a guild (with defaults)
 function getGuildSettings(guildId) {
     if (!serverSettings[guildId]) {
-        serverSettings[guildId] = JSON.parse(JSON.stringify(defaultSettings));
+        serverSettings[guildId] = structuredClone(defaultSettings);
         saveSettings();
     }
     return serverSettings[guildId];
@@ -2612,16 +2613,10 @@ client.on('messageCreate', async (message) => {
         );
         
         if (hasImage) {
-            try {
-                // React in order: ❤️ 💯 🔥 with 2 second delays
-                await message.react('❤️');
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                await message.react('💯');
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                await message.react('🔥');
-            } catch (error) {
-                console.error('Error adding vouches reactions:', error);
-            }
+            // React without awaiting to prevent blocking - Discord will handle order
+            message.react('❤️').catch(console.error);
+            setTimeout(() => message.react('💯').catch(console.error), 500);
+            setTimeout(() => message.react('🔥').catch(console.error), 1000);
         }
     }
 
