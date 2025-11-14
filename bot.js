@@ -282,7 +282,11 @@ const giveawayDataFile = './data/giveawayData.json';
 let economyData = {};
 const economyDataFile = './data/economyData.json';
 
-// YouTube notification configuration cache
+// ==================================================================================
+// YouTube Notification System - DO NOT REMOVE DURING OPTIMIZATIONS
+// Caching system with 30s TTL to prevent excessive file I/O operations
+// Persists configuration to features/youtubeNotifications.json
+// ==================================================================================
 const youtubeConfigPath = path.join(__dirname, 'features', 'youtubeNotifications.json');
 const YOUTUBE_STATUS_CACHE_TTL = 30 * 1000; // 30 seconds
 const youtubeStatusCache = { timestamp: 0, data: null };
@@ -323,6 +327,11 @@ function getYouTubeNotificationStatus(guildId) {
     return { configured, active, channelId, channelCount };
 }
 
+// ==================================================================================
+// END YouTube Notification Cache System - DO NOT REMOVE
+// ==================================================================================
+
+// YouTube notification constants and defaults - PROTECTED SECTION
 const DEFAULT_YOUTUBE_CHECK_INTERVAL = 10 * 60 * 1000;
 const DEFAULT_YOUTUBE_MESSAGE = '📺 **{channelName}** uploaded **{title}**\n{url}';
 const DEFAULT_YOUTUBE_COMMAND_DEFINITION = [
@@ -332,6 +341,7 @@ const DEFAULT_YOUTUBE_COMMAND_DEFINITION = [
     }
 ];
 
+// YouTube config file helpers - PROTECTED SECTION
 function loadYouTubeConfigFile() {
     try {
         if (!fsSync.existsSync(youtubeConfigPath)) {
@@ -2510,7 +2520,11 @@ function startFeatureHealthMonitor() {
     console.log('🏥 Feature health monitor started');
 }
 
-// YouTube manager view builder
+// ==================================================================================
+// YouTube Manager View Builder - CRITICAL COMPONENT - DO NOT REMOVE
+// Builds interactive Discord embed panel with buttons, modals, and select menus
+// Used by /youtubenotifications command and all ytnotif_* button handlers
+// ==================================================================================
 function buildYouTubeManagerView(guild, guildConfig, statusMessage = null) {
     const youtubeStatus = getYouTubeNotificationStatus(guild?.id);
     const statusLabel = youtubeStatus.active
@@ -2626,7 +2640,11 @@ function buildYouTubeManagerView(guild, guildConfig, statusMessage = null) {
     return { content: null, embeds: [embed], components: rows };
 }
 
-// YouTube monitoring system
+// ==================================================================================
+// YouTube RSS Monitoring System - CRITICAL BACKGROUND PROCESS - DO NOT REMOVE
+// Checks RSS feeds every 10 minutes for new uploads and posts to Discord channels
+// Stores last checked video IDs to prevent duplicate notifications
+// ==================================================================================
 function startYouTubeMonitoring() {
     const ytDataPath = './features/youtubeNotifications.json';
     
@@ -5340,7 +5358,10 @@ const now = Date.now();
         await interaction.reply({ embeds: [embed], components: [row1], ephemeral: true });
     }
     
-    // YouTube Notifications Command
+    // ==================================================================================
+    // YouTube Notifications Command Handler - DO NOT REMOVE
+    // Displays interactive management panel for YouTube RSS notifications
+    // ==================================================================================
     if (interaction.commandName === 'youtubenotifications') {
         console.log('📺 YouTube notifications command triggered');
         if (!requireAdmin(interaction)) return;
@@ -11877,6 +11898,10 @@ const now = Date.now();
         return;
     }
 
+    // ==================================================================================
+    // YouTube Notification Select Menu Handler - DO NOT REMOVE
+    // Handles removal of YouTube channel subscriptions (multi-select up to 5 at once)
+    // ==================================================================================
     if (interaction.isStringSelectMenu() && interaction.customId === 'ytnotif_remove_select') {
         if (!requireAdmin(interaction)) return;
 
@@ -12000,7 +12025,10 @@ const now = Date.now();
         }
     }
     
-    // YouTube notification button handlers
+    // ==================================================================================
+    // YouTube Notification Button Handlers - DO NOT REMOVE
+    // Handles all ytnotif_* button interactions (toggle, set_channel, add_feed, etc.)
+    // ==================================================================================
     if (interaction.customId.startsWith('ytnotif_')) {
         if (!requireAdmin(interaction)) return;
 
@@ -15743,7 +15771,10 @@ const now = Date.now();
                         });
                     }
                     
-                    // YouTube notification modals
+                    // ==================================================================================
+                    // YouTube Notification Modal Handlers - DO NOT REMOVE
+                    // Processes modal submissions for channel setup, adding feeds, editing messages
+                    // ==================================================================================
                     else if (interaction.customId === 'ytnotif_channel_modal') {
                         if (!requireAdmin(interaction)) return;
 
