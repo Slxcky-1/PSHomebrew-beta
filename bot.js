@@ -2510,16 +2510,7 @@ function startFeatureHealthMonitor() {
     console.log('🏥 Feature health monitor started');
 }
 
-// YouTube monitoring system
-function startYouTubeMonitoring() {
-    const ytDataPath = './features/youtubeNotifications.json';
-    
-    async function checkYouTubeChannels() {
-        if (!fsSync.existsSync(ytDataPath)) {
-            return;
-        }
-
-
+// YouTube manager view builder
 function buildYouTubeManagerView(guild, guildConfig, statusMessage = null) {
     const youtubeStatus = getYouTubeNotificationStatus(guild?.id);
     const statusLabel = youtubeStatus.active
@@ -2628,6 +2619,15 @@ function buildYouTubeManagerView(guild, guildConfig, statusMessage = null) {
 
     return { content: null, embeds: [embed], components: rows };
 }
+
+// YouTube monitoring system
+function startYouTubeMonitoring() {
+    const ytDataPath = './features/youtubeNotifications.json';
+    
+    async function checkYouTubeChannels() {
+        if (!fsSync.existsSync(ytDataPath)) {
+            return;
+        }
 
         let ytData;
         try {
@@ -5337,14 +5337,23 @@ const now = Date.now();
     // YouTube Notifications Command
     if (interaction.commandName === 'youtubenotifications') {
         if (!requireAdmin(interaction)) return;
-        const ytConfig = loadYouTubeConfigFile();
-        const { guildConfig, changed } = ensureYouTubeGuildConfig(ytConfig, interaction.guild.id);
-        if (changed) {
-            saveYouTubeConfigFile(ytConfig);
-        }
+        
+        try {
+            const ytConfig = loadYouTubeConfigFile();
+            const { guildConfig, changed } = ensureYouTubeGuildConfig(ytConfig, interaction.guild.id);
+            if (changed) {
+                saveYouTubeConfigFile(ytConfig);
+            }
 
-        const managerView = buildYouTubeManagerView(interaction.guild, guildConfig);
-        await interaction.reply({ ...managerView, ephemeral: true });
+            const managerView = buildYouTubeManagerView(interaction.guild, guildConfig);
+            await interaction.reply({ ...managerView, ephemeral: true });
+        } catch (error) {
+            console.error('YouTube notifications command error:', error);
+            await interaction.reply({ 
+                content: '❌ An error occurred loading YouTube notifications. Please check the logs.', 
+                ephemeral: true 
+            }).catch(() => {});
+        }
         return;
     }
     
